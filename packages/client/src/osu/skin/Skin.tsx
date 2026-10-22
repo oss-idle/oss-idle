@@ -84,7 +84,7 @@ const SkinDefinitionSchema = z.object({
 	menu: z.object({
 		// supporters only: an image url shown behind the main menu instead of the map's
 		background: z.url({ protocol: /^https?$/ }).optional(),
-		// a sound played when the game exits (osu!'s seeya); none by default, so exiting stays silent
+		// a sound played when the game exits (osu!'s seeya); every skin inherits the default's
 		seeya: z.string().optional(),
 	}),
 });
@@ -155,7 +155,8 @@ export const defaultSkin: () => SkinDefinition = () => ({
 		[GRADE.F]: '/skins/default/grade-F.png',
 	},
 	hitSounds: { [HITSOUND.NORMAL]: '/skins/default/hitsounds/normal-hitnormal.wav' },
-	menu: {},
+	// osu!'s seeya, from ppy/osu-resources (Samples/Intro/seeya.mp3): (c) ppy Pty Ltd, CC BY-NC 4.0
+	menu: { seeya: '/skins/default/seeya.mp3' },
 });
 
 export default class Skin {
