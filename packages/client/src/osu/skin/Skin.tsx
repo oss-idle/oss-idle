@@ -81,8 +81,12 @@ const SkinDefinitionSchema = z.object({
 	hpBar: HpBarSchema,
 	grade: z.record(z.enum(Grades), z.string()),
 	hitSounds: z.record(z.enum(Hitsounds), z.string()),
-	// supporters only: an image url shown behind the main menu instead of the map's
-	menu: z.object({ background: z.url({ protocol: /^https?$/ }).optional() }),
+	menu: z.object({
+		// supporters only: an image url shown behind the main menu instead of the map's
+		background: z.url({ protocol: /^https?$/ }).optional(),
+		// a sound played when the game exits (osu!'s seeya); none by default, so exiting stays silent
+		seeya: z.string().optional(),
+	}),
 });
 
 export type SkinDefinition = z.infer<typeof SkinDefinitionSchema>;
