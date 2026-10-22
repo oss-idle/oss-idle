@@ -43,6 +43,13 @@ import { desktop } from '@oss-idle/shared/desktop';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord';
 import { DISCORD_URL } from '@oss-idle/shared/links';
+import { effects } from '../audio/EffectPlayer';
+import sleep from '@oss-idle/shared/helpers/sleep';
+
+/** stable's goodbye takes about two seconds from the click to black */
+const EXIT_FADE_MS = 2000;
+/** how long the window stays up after the seeya ends, so its tail isn't cut */
+const SEEYA_TAIL_MS = 600;
 
 interface Props {
 	/** play the white-flash "drop" entrance (true when arriving from the intro) */
@@ -116,14 +123,41 @@ export default function MainMenu({ flash = false }: Props) {
 
 	// Exit only works in the desktop app; the browser forbids closing its own tab.
 	const isDesktop = !!desktop();
-	const exit = () => desktop()?.quit();
+	// goodbye like stable's: the buttons go, the skin's seeya plays, the logo winds down while
+	// the music and the screen fade out over EXIT_FADE_MS, and the app quits once the screen is
+	// black and the seeya is done
+	const [exiting, setExiting] = useState(false);
+	const exit = async () => {
+		if (exiting) return;
+		setExiting(true);
+		setExitConfirm(false);
+		setMenu(MENU.CLOSED);
+		music.fadeOut(EXIT_FADE_MS);
+		const seeya = skin.data.menu.seeya;
+		const voice = seeya ? await effects.load(seeya, seeya) : undefined;
+		if (seeya && voice) effects.play(seeya);
+		// everything on the page fades, chat and overlays included (index.css html.exiting)
+		document.documentElement.classList.add('exiting');
+		await Promise.all([
+			sleep(EXIT_FADE_MS),
+			// let the seeya ring out: stable keeps the window up a little after the voice ends
+			voice ? sleep(voice.duration * 1000 + SEEYA_TAIL_MS) : undefined,
+		]);
+		desktop()?.quit();
+	};
+	// back also reaches the panels drawn over the menu: read them as they were when it was pressed
+	const [webOpen] = useSynced(isWebOpen);
+	const [optionsOpen] = useSynced(isOptionsOpen);
 
 	const back = useCallback(() => {
 		clearTimeout(cancelTimeout);
 		cancelTimeout = setTimeout(() => setMenu(MENU.CLOSED), closeTimeout);
 		switch(menu) {
 			case MENU.CLOSED:
-				// TODO: exit
+				// back from the closed menu asks to exit, like the Exit option; back again confirms it
+				if (!isDesktop || webOpen || optionsOpen) break;
+				if (exitConfirm) void exit();
+				else setExitConfirm(true);
 				break;
 			case MENU.OPEN:
 				setMenu(MENU.CLOSED);
@@ -132,7 +166,7 @@ export default function MainMenu({ flash = false }: Props) {
 				setMenu(MENU.OPEN);
 				break;
 		}
-	}, [menu]);
+	}, [menu, webOpen, optionsOpen, exitConfirm]);
 
 	Controls.back.usePress(back);
 
@@ -217,7 +251,12 @@ export default function MainMenu({ flash = false }: Props) {
 	const mobileShift = 1 - normalize(window.innerWidth, [400, 850]);
 
 	return (
-		<div className={`menu ${flash ? 'menu--flash' : ''} ${menu === MENU.CLOSED ? '' : 'menu--open'}`}>
+		<div className={[
+			'menu',
+			flash ? 'menu--flash' : '',
+			menu === MENU.CLOSED ? '' : 'menu--open',
+			exiting ? 'menu--exiting' : '',
+		].join(' ')}>
 			<Background image={user?.supporter ? skin.data.menu.background : undefined} />
 			<div className="menu__vignette" />
 
@@ -312,7 +351,7 @@ export default function MainMenu({ flash = false }: Props) {
 					onClose={() => setExitConfirm(false)}
 					options={[
 						{
-							label: t`Exit`, color: '#e93100', onClick: exit, 
+							label: t`Exit`, color: '#e93100', onClick: () => void exit(), 
 						},
 						{
 							label: t`Cancel`, color: '#6b6b6b', onClick: () => setExitConfirm(false), 
