@@ -101,3 +101,7 @@ npm run i18n:download
 ## License
 
 [AGPL-3.0](LICENSE)
+
+The default exit sound (`packages/client/public/skins/default/seeya.mp3`) is osu!'s seeya from
+[ppy/osu-resources](https://github.com/ppy/osu-resources), (c) ppy Pty Ltd, licensed
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).

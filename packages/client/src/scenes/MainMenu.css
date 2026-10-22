@@ -156,6 +156,17 @@
 		transform: scale(1);
 	}
 }
+/* exit goodbye, like stable's: the logo turns a little, shrinks and dims while the
+ * screen fades (EXIT_FADE_MS in MainMenu.tsx) */
+.menu--exiting .menu__logo-enter {
+	animation: logo-exit 2s ease-in forwards;
+}
+@keyframes logo-exit {
+	to {
+		opacity: 0.5;
+		transform: scale(0.7) rotate(8deg);
+	}
+}
 
 .menu__logo-options {
 	position: absolute;
