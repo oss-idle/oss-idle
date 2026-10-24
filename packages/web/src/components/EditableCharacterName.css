@@ -3,6 +3,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
+	line-height: 1;
 }
 
 .editable-name__edit {
@@ -11,8 +12,12 @@
 	background: none;
 	color: inherit;
 	font-size: 0.6em;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
 	cursor: pointer;
-	opacity: 0;
+	/* in-flow and dim, not hover-revealed: a hidden state reads as a dead gap, and stealing badge space on hover breaks the row */
+	opacity: 0.18;
 	transition: opacity 0.12s ease;
 }
 .editable-name:hover .editable-name__edit {
@@ -20,6 +25,10 @@
 }
 .editable-name__edit:hover {
 	opacity: 1;
+}
+/* FA svgs default to 1.25em wide; the pencil is a 1em square, pull it back to keep the slot tight. */
+.editable-name__edit svg {
+	width: 1em;
 }
 
 .editable-name__input {

@@ -3,6 +3,9 @@
 	font-size: 0.55em;
 	opacity: 0.55;
 	cursor: help;
+	display: inline-flex;
+	align-items: center;
+	vertical-align: middle;
 }
 .former-names:hover {
 	opacity: 0.9;
