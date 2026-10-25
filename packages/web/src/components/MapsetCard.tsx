@@ -89,7 +89,7 @@ const dateOf = (mapset: Mapset) => mapset.status === 'unranked' ? mapset.created
  * Memo'd: the search page re-renders its parents per keystroke, and re-rendering
  * every mounted card per key made typing stutter itself.
  */
-const MapsetCard = ({ mapset }: { mapset: Mapset }) => {
+function MapsetCard({ mapset }: { mapset: Mapset }) {
 	const { t } = useLingui();
 	const panel = useRef<HTMLDivElement>(null);
 	const timer = useRef(0);
@@ -229,6 +229,6 @@ const MapsetCard = ({ mapset }: { mapset: Mapset }) => {
 			</div>
 		</div>
 	);
-};
+}
 
 export default memo(MapsetCard);

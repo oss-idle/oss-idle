@@ -24,6 +24,7 @@ import {
 	MAP_TAGS,
 	parseMapTags,
 } from '@oss-idle/shared/beatmap';
+import { PAGE_SIZE } from '@oss-idle/shared/rankings';
 import {
 	checkPreviewName,
 	oszResponse,
@@ -43,7 +44,6 @@ import {
 import { requireAdmin } from '../auth/admin';
 import { ingestOsz } from '../beatmaps/ingest';
 import { purgeBeatmapScores } from '../scores';
-import { PAGE_SIZE } from '../rankings';
 import {
 	LIST_STATUSES,
 	deferCatalogInvalidate,
