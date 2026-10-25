@@ -1,6 +1,7 @@
 import { ph } from '@lingui/core/macro';
 import './MapsetCard.css';
 import {
+	memo,
 	useEffect,
 	useRef,
 	useState,
@@ -84,8 +85,11 @@ const dateOf = (mapset: Mapset) => mapset.status === 'unranked' ? mapset.created
  * osu!web's beatmapset panel. On hover, its info darkens, the preview's play button
  * shows over the cover, the stats appear and the download menu slides out; resting
  * on the status and difficulty dots opens the list of difficulties under it.
+ *
+ * Memo'd: the search page re-renders its parents per keystroke, and re-rendering
+ * every mounted card per key made typing stutter itself.
  */
-export default function MapsetCard({ mapset }: { mapset: Mapset }) {
+const MapsetCard = ({ mapset }: { mapset: Mapset }) => {
 	const { t } = useLingui();
 	const panel = useRef<HTMLDivElement>(null);
 	const timer = useRef(0);
@@ -225,4 +229,6 @@ export default function MapsetCard({ mapset }: { mapset: Mapset }) {
 			</div>
 		</div>
 	);
-}
+};
+
+export default memo(MapsetCard);

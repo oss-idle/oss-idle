@@ -43,6 +43,7 @@ import {
 import { requireAdmin } from '../auth/admin';
 import { ingestOsz } from '../beatmaps/ingest';
 import { purgeBeatmapScores } from '../scores';
+import { PAGE_SIZE } from '../rankings';
 import {
 	LIST_STATUSES,
 	deferCatalogInvalidate,
@@ -76,10 +77,12 @@ import {
 } from '../validate';
 
 
-/** The listing's filters: which maps, and a name to look for. */
+/** The listing's filters: which maps, a name to look for - and an optional page;
+ *  with no page the whole list is returned (the search page filters it client-side). */
 const listQuery = z.object({
 	status: z.enum(LIST_STATUSES).default('ranked'),
 	q: z.string().optional(),
+	page: z.coerce.number().int().positive().catch(1).optional(),
 });
 
 
@@ -140,8 +143,8 @@ export const beatmapsRoutes = new Hono()
 
 	.get('/all/:dir', valid('query', listQuery), async c => {
 		const sort = c.req.param('dir') === 'asc' ? asc : desc;
-		const { status, q } = c.req.valid('query');
-		return c.json(await db
+		const { status, q, page } = c.req.valid('query');
+		const rows = db
 			.select({
 				...getTableColumns(beatmapset),
 				...panelColumns(),
@@ -150,8 +153,10 @@ export const beatmapsRoutes = new Hono()
 			.innerJoin(beatmaps, eq(beatmapset.id, beatmaps.setId))
 			.where(and(listCondition(status), nameMatches(q)))
 			.groupBy(beatmapset.id)
-			.orderBy(sort(listedAt)),
-		);
+			.orderBy(sort(listedAt));
+		return c.json(await (page
+			? rows.limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE)
+			: rows));
 	})
 	.get('/recent', async c => {
 		return c.json(await db
@@ -169,9 +174,9 @@ export const beatmapsRoutes = new Hono()
 	})
 	.get('/popular/:dir', valid('query', listQuery), async c => {
 		const sort = c.req.param('dir') === 'asc' ? asc : desc;
-		const { status, q } = c.req.valid('query');
+		const { status, q, page } = c.req.valid('query');
 		const plays = sum(beatmaps.plays).as('plays');
-		return c.json(await db
+		const rows = db
 			.select({
 				...getTableColumns(beatmapset),
 				...panelColumns(),
@@ -181,8 +186,10 @@ export const beatmapsRoutes = new Hono()
 			.innerJoin(beatmaps, eq(beatmapset.id, beatmaps.setId))
 			.where(and(listCondition(status), nameMatches(q)))
 			.groupBy(beatmapset.id)
-			.orderBy(sort(plays)),
-		);
+			.orderBy(sort(plays));
+		return c.json(await (page
+			? rows.limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE)
+			: rows));
 	})
 
 	// Players' unranked uploads, catalog-shaped for oss!direct.

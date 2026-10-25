@@ -16,20 +16,25 @@ const mapsSearch = z.object({
 	dir: fallback(z.enum(['asc', 'desc']), 'desc').default('desc'),
 	status: fallback(z.enum(['ranked', 'unranked', 'any']), 'ranked').default('ranked'),
 	q: fallback(z.string(), '').default(''),
+	// one PAGE_SIZE slice of the listing, like the leaderboards
+	page: fallback(z.coerce.number().int().positive(), 1).default(1),
 });
 
 export const Route = createFileRoute('/maps/')({
 	validateSearch: zodValidator(mapsSearch),
 	loaderDeps: ({ search }) => search,
-	loader: ({ deps: { sort, dir, status, q } }) =>
+	loader: ({ deps: { sort, dir, status, q, page } }) =>
 		(sort === 'plays' ? getPopularMaps : getAllMaps)(dir, {
 			status, q: q || undefined, 
-		}),
+		}, page),
 	component: MapsRoute,
 	staticData: { title: msg`beatmap listing` },
 });
 
 function MapsRoute() {
-	const { sort, dir, status, q } = Route.useSearch();
-	return <RankedMaps sort={sort} dir={dir} status={status} q={q} mapsets={Route.useLoaderData()} />;
+	const { sort, dir, status, q, page } = Route.useSearch();
+	return <RankedMaps
+		sort={sort} dir={dir} status={status} q={q}
+		page={page} mapsets={Route.useLoaderData()}
+	/>;
 }

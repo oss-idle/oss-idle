@@ -1,13 +1,19 @@
 import './RankedMaps.css';
 import '../search/Search.css';
-import { useState } from 'react';
+import {
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
+import { PAGE_SIZE } from '@oss-idle/shared/rankings';
 import Link from '../../components/Link';
 import MapsetCard from '../../components/MapsetCard';
+import Pager from '../../components/leaderboard/Pager';
 import MapsNav from './MapsNav';
 import {
 	type MapFilter,
@@ -34,14 +40,20 @@ type Props = {
 	dir: MapDir,
 	status: MapStatus,
 	q: string,
+	page: number,
 	mapsets: Mapsets,
 };
 
 /** The beatmap listing: a name to look for, which maps, and their order. */
-export default function RankedMaps({ sort, dir, status, q, mapsets }: Props) {
+export default function RankedMaps({ sort, dir, status, q, page, mapsets }: Props) {
 	const { t } = useLingui();
 	const navigate = useNavigate();
 	const [text, setText] = useState(q);
+
+	// the route write re-runs the loader - a whole-catalog refetch per keystroke
+	// otherwise; a typing pause keeps it to one
+	const routeTimer = useRef<number | undefined>();
+	useEffect(() => () => clearTimeout(routeTimer.current), []);
 
 	const sortLabel: Record<MapSort, string> = {
 		date: status === 'ranked' ? t`Ranked` : t`Date`, plays: t`Plays`,
@@ -61,11 +73,14 @@ export default function RankedMaps({ sort, dir, status, q, mapsets }: Props) {
 						placeholder={t`Search by title, artist or mapper`}
 						onChange={e => {
 							setText(e.target.value);
-							void navigate({
-								to: '/maps', search: {
-									sort, dir, status, q: e.target.value, 
-								}, replace: true,
-							});
+							clearTimeout(routeTimer.current);
+							routeTimer.current = window.setTimeout(() => {
+								void navigate({
+									to: '/maps', search: {
+										sort, dir, status, q: e.target.value, page: 1, 
+									}, replace: true,
+								});
+							}, 250);
 						}}
 					/>
 				</label>
@@ -107,6 +122,7 @@ export default function RankedMaps({ sort, dir, status, q, mapsets }: Props) {
 				<div className='list__beatmap-container'>
 					{mapsets.map(mapset => <MapsetCard key={mapset.id} mapset={mapset} />)}
 				</div>
+				<Pager page={page} hasNext={mapsets.length === PAGE_SIZE} />
 			</div>
 		</main>
 	);

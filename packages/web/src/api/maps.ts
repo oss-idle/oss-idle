@@ -46,14 +46,18 @@ export const getRecentMaps = () =>
 /** Which maps the listing shows, and a name to look for in their title, artist or mapper. */
 export type MapFilter = { status?: 'ranked' | 'unranked' | 'any', q?: string };
 
-export const getAllMaps = (dir?: 'asc' | 'desc', filter: MapFilter = {}) =>
+export const getAllMaps = (dir?: 'asc' | 'desc', filter: MapFilter = {}, page?: number) =>
 	unwrap(rpc.v1.beatmap.all[':dir'].$get({
-		param: { dir: dir ?? 'desc' }, query: filter, 
+		param: { dir: dir ?? 'desc' }, query: {
+			...filter, page: page?.toString(), 
+		}, 
 	}));
 
-export const getPopularMaps = (dir?: 'asc' | 'desc', filter: MapFilter = {}) =>
+export const getPopularMaps = (dir?: 'asc' | 'desc', filter: MapFilter = {}, page?: number) =>
 	unwrap(rpc.v1.beatmap.popular[':dir'].$get({
-		param: { dir: dir ?? 'desc' }, query: filter, 
+		param: { dir: dir ?? 'desc' }, query: {
+			...filter, page: page?.toString(), 
+		}, 
 	}));
 
 // --- Beatmap nomination (admin) ---

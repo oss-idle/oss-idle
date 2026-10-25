@@ -1,6 +1,10 @@
 import './Search.css';
 import '../friends/Friends.css';
-import { useState } from 'react';
+import {
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
 	Trans,
@@ -25,6 +29,9 @@ const matches = (mapset: Mapset, words: string[]) => {
 const relevance = (mapset: Mapset, query: string) =>
 	(mapset.title.toLowerCase().includes(query) ? 0 : 2) + (mapset.status === 'ranked' ? 0 : 1);
 
+/** A broad query matches the whole catalog; rendering ~500 of them froze the tab. */
+const MAX_CARDS = 50;
+
 /** Players by name and maps, ranked or not, by artist, title or mapper. */
 export default function Search({ q }: { q: string }) {
 	const { t } = useLingui();
@@ -39,6 +46,11 @@ export default function Search({ q }: { q: string }) {
 			.sort((a, b) => relevance(a, query.toLowerCase()) - relevance(b, query.toLowerCase()))
 		: [];
 
+	// the route write drives the players RPC and the whole result list; waiting for a
+	// typing pause keeps each keystroke down to just re-rendering the input
+	const routeTimer = useRef<number | undefined>();
+	useEffect(() => () => clearTimeout(routeTimer.current), []);
+
 	return (
 		<div className='page-contents search'>
 			<label className='search__box'>
@@ -49,9 +61,12 @@ export default function Search({ q }: { q: string }) {
 					placeholder={t`Search players and beatmaps`}
 					onChange={e => {
 						setText(e.target.value);
-						void navigate({
-							to: '/search', search: { q: e.target.value }, replace: true,
-						});
+						clearTimeout(routeTimer.current);
+						routeTimer.current = window.setTimeout(() => {
+							void navigate({
+								to: '/search', search: { q: e.target.value }, replace: true,
+							});
+						}, 250);
 					}}
 				/>
 			</label>
@@ -62,7 +77,7 @@ export default function Search({ q }: { q: string }) {
 				</div>
 				<h2><Trans>Beatmaps</Trans> <b>{found?.length ?? '…'}</b></h2>
 				<div className='list__beatmap-container'>
-					{found?.map(m => <MapsetCard key={m.id} mapset={m} />)}
+					{found?.slice(0, MAX_CARDS).map(m => <MapsetCard key={m.id} mapset={m} />)}
 				</div>
 			</>)}
 		</div>
