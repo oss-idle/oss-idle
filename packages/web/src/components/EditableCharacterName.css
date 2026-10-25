@@ -16,7 +16,6 @@
 	display: inline-flex;
 	align-items: center;
 	cursor: pointer;
-	/* in-flow and dim, not hover-revealed: a hidden state reads as a dead gap, and stealing badge space on hover breaks the row */
 	opacity: 0.18;
 	transition: opacity 0.12s ease;
 }
@@ -26,7 +25,7 @@
 .editable-name__edit:hover {
 	opacity: 1;
 }
-/* FA svgs default to 1.25em wide; the pencil is a 1em square, pull it back to keep the slot tight. */
+/* FA svgs are 1.25em wide */
 .editable-name__edit svg {
 	width: 1em;
 }

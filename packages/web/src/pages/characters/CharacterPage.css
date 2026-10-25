@@ -68,8 +68,8 @@
 	line-height: 1;
 }
 
-.character__meta-down a {
-	display: contents;
+.character__country-link {
+	align-self: flex-start;
 	color: inherit;
 	text-decoration: none;
 }
