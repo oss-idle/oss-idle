@@ -57,8 +57,8 @@ export default function RankGraph({ ranks }: { ranks: number[] }) {
 			)}
 			{hover !== undefined && (
 				<>
-					<div className='rank-graph__guide' style={{ left: guideX }} />
-					<div className='rank-graph__tooltip' style={{ left: guideX }}>
+					<div className='graph-guide rank-graph__guide' style={{ left: guideX }} />
+					<div className='graph-tooltip rank-graph__tooltip' style={{ left: guideX }}>
 						<div className='rank-graph__tooltip-rank'>
 							<Trans>Global Ranking</Trans> #{num(ranks[hover])}
 						</div>

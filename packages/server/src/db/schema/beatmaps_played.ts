@@ -3,6 +3,7 @@ import {
 	count,
 	desc,
 	eq,
+	isNotNull,
 	sql,
 } from 'drizzle-orm';
 import {
@@ -70,6 +71,24 @@ export const getTotalPlayed = async (
 		.from(beatmaps_played)
 		.where(eq(beatmaps_played.characterId, characterId))
 		.groupBy(beatmaps_played.characterId))[0]?.maps ?? 0;
+};
+
+/** A character's plays per UTC month, oldest first, sparse. DATE_FORMAT keeps the
+ *  month a string; a bare DATE() comes back as a JS Date and loses the calendar day. */
+export const getPlayCounts = ({ score }: ServerRuleset, characterId: number) => {
+	const month = sql<string>`DATE_FORMAT(${score.playedAt}, '%Y-%m')`;
+	return db
+		.select({
+			d: month,
+			plays: count(),
+		})
+		.from(score)
+		.where(and(
+			eq(score.characterId, characterId),
+			isNotNull(score.playedAt),
+		))
+		.groupBy(month)
+		.orderBy(month);
 };
 
 /** How many times this character has already played this map (0 if never).

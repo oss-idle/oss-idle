@@ -295,6 +295,13 @@
 	line-height: 1;
 }
 
+/* Loading, empty and failed states of a block section, where a chart would go. */
+.character__block-section-note {
+	color: hsl(var(--hsl-f1));
+	margin: 0;
+	padding: 0 0 10px;
+}
+
 .mostplayed__container {
 	border-radius: 6px;
 	color: #fff;
