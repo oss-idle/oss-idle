@@ -35,10 +35,10 @@ const LABEL_Y = PLOT_BOTTOM + 26;
 
 type Point = { x: number; y: number };
 
-const monthLabel = (month: string, withYear: boolean) =>
+const monthLabel = (month: string) =>
 	new Date(`${month}-01T00:00:00Z`).toLocaleDateString(i18n.locale, {
 		month: 'short',
-		year: withYear ? 'numeric' : undefined,
+		year: 'numeric',
 		timeZone: 'UTC',
 	});
 
@@ -91,18 +91,11 @@ export default function PlayHistoryGraph({ rows }: { rows: PlayCount[] }) {
 			index === 0 || (Number(date.slice(5, 7)) - 1) % every === 0 ? [index] : []
 		));
 		const stride = Math.ceil(aligned.length / room);
-		let shownYear = '';
 		return aligned
 			.filter((_, i) => i % stride === 0)
-			.map(index => {
-				const date = dates[index];
-				const year = date.slice(0, 4);
-				const label = monthLabel(date, every === 1 || year !== shownYear);
-				shownYear = year;
-				return {
-					index, label,
-				};
-			});
+			.map(index => ({
+				index, label: monthLabel(dates[index]),
+			}));
 	}, [dates, plotWidth]);
 
 	const total = counts.reduce((sum, plays) => sum + plays, 0);
@@ -189,7 +182,7 @@ export default function PlayHistoryGraph({ rows }: { rows: PlayCount[] }) {
 			<div ref={tooltip} className='graph-tooltip' style={{
 				left: tipX, top: 0,
 			}}>
-				<div className='play-history__tooltip-when'>{monthLabel(dates[hover], true)}</div>
+				<div className='play-history__tooltip-when'>{monthLabel(dates[hover])}</div>
 				<div className='play-history__tooltip-plays'>
 					<Plural
 						value={ph({ plays: counts[hover] })}
