@@ -4,12 +4,12 @@ export type PlayCount = {
 	plays: number;
 };
 
-/** The smallest 1/2/2.5/5 step covering `value`, so axis labels stay whole plays. */
+/** The smallest 1/2/5/10 step covering `value`, so axis labels stay whole plays. */
 const niceStep = (value: number) => {
 	const pow = 10 ** Math.floor(Math.log10(Math.max(value, 1)));
 	const n = value / pow;
-	const size = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 && pow >= 10 ? 2.5 : n <= 5 ? 5 : 10;
-	return Math.max(1, size * pow);
+	const size = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+	return size * pow;
 };
 
 /** Zero-fill sparse rows into one point per UTC month, from the first play to `to`,

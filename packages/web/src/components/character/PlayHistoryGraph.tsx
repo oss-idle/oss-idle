@@ -33,8 +33,6 @@ const LABEL_WIDTH = 56;
 /** Gap between the plot floor and the top of the rotated labels. */
 const LABEL_Y = PLOT_BOTTOM + 26;
 
-type Point = { x: number; y: number };
-
 const monthLabel = (month: string) =>
 	new Date(`${month}-01T00:00:00Z`).toLocaleDateString(i18n.locale, {
 		month: 'short',
@@ -76,10 +74,11 @@ export default function PlayHistoryGraph({ rows }: { rows: PlayCount[] }) {
 		PLOT_BOTTOM - (value / top) * (PLOT_BOTTOM - PLOT_TOP);
 	const gridValues = Array.from({ length: Math.round(top / step) + 1 }, (_, k) => k * step);
 
-	const points: Point[] = counts.map((value, index) => ({
-		x: xAt(index), y: yAt(value),
-	}));
-	const path = line<Point>().x(p => p.x).y(p => p.y)(points);
+	const path = line<{ x: number; y: number }>()
+		.x(p => p.x)
+		.y(p => p.y)(counts.map((value, index) => ({
+			x: xAt(index), y: yAt(value), 
+		})));
 
 	// One label per month until they stop fitting, then every 2nd, 3rd, 6th or
 	// 12th - divisors of a year, so a decade collapses to bare Januaries.
