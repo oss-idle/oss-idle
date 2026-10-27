@@ -31,6 +31,7 @@ import { db } from '../db/client';
 import { likeEscape } from '../db/columns';
 import {
 	getMostPlayed,
+	getPlayCounts,
 	getTotalPlayed,
 } from '../db/schema/beatmaps_played';
 import { getBestPP } from '../db/schema/best_pp';
@@ -261,6 +262,10 @@ export const charactersRoutes = new Hono()
 	.get('/:id/countplayed', rulesetParam, async c => {
 		const character = c.get('character');
 		return c.json(await getTotalPlayed(rulesetQuery(c, character), character.id));
+	})
+	.get('/:id/playcounts', rulesetParam, async c => {
+		const character = c.get('character');
+		return c.json(await getPlayCounts(rulesetQuery(c, character), character.id));
 	})
 	.get('/:id/bestpp/:page', rulesetParam, async c => {
 		const character = c.get('character');

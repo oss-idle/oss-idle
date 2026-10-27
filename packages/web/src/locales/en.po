@@ -81,6 +81,14 @@ msgstr "{now} / {goal} (best {best})"
 msgid "{online, plural, one {# user online} other {# users online}}"
 msgstr "{online, plural, one {# user online} other {# users online}}"
 
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays, plural, =0 {no plays} one {# play} other {# plays}}"
+msgstr "{plays, plural, =0 {no plays} one {# play} other {# plays}}"
+
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays} plays in {months} months"
+msgstr "{plays} plays in {months} months"
+
 #: src/components/character/CharacterRanks.tsx
 msgid "{skill} Ranking"
 msgstr "{skill} Ranking"
@@ -568,6 +576,10 @@ msgstr "copyright"
 msgid "Copyright"
 msgstr "Copyright"
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "Could not load play history."
+msgstr "Could not load play history."
+
 #: src/components/leaderboard/CountryFilter.tsx
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
@@ -992,6 +1004,7 @@ msgstr "List"
 msgid "listing"
 msgstr "listing"
 
+#: src/components/character/CharacterHistorical.tsx
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
 #: src/pages/characters/CharacterPage.tsx
@@ -1268,6 +1281,10 @@ msgstr "No orders."
 msgid "No player goes by that name."
 msgstr "No player goes by that name."
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "No plays yet."
+msgstr "No plays yet."
+
 #: src/components/character/CharacterTitle.tsx
 #: src/pages/settings/TitleSettings.tsx
 msgid "no title"
@@ -1460,6 +1477,10 @@ msgstr "Play count"
 #: src/pages/rankings/Country.tsx
 msgid "Play Count"
 msgstr "Play Count"
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "Play History"
+msgstr "Play History"
 
 #: src/pages/AuthCallback.tsx
 #: src/pages/PlayOssIdle.tsx

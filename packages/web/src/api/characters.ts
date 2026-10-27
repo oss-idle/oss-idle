@@ -41,6 +41,11 @@ export const getCharacterCountPlayed = (id: number | string, ruleset?: RulesetId
 	unwrap(rpc.v1.characters[':id'].countplayed.$get({
 		param: { id: String(id) }, query: { ruleset }, 
 	}));
+/** Public: monthly plays for the profile's Play History. */
+export const getCharacterPlayCounts = (id: number | string, ruleset?: RulesetId) =>
+	unwrap(rpc.v1.characters[':id'].playcounts.$get({
+		param: { id: String(id) }, query: { ruleset },
+	}));
 	
 export const getCharacterBestPP = (id: Id, page: Id, ruleset?: RulesetId) =>
 	unwrap(rpc.v1.characters[':id'].bestpp[':page'].$get({
