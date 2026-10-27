@@ -939,6 +939,11 @@ msgstr "Ses scores, ses pp et la progression de classement associée sont retir�
 msgid "Join the community"
 msgstr "Rejoindre la communauté"
 
+#. placeholder {0}: new Date(user.createdAt).toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric', })
+#: src/pages/characters/CharacterPage.tsx
+msgid "Joined <0>{0}</0>"
+msgstr ""
+
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
 msgstr "Clés"

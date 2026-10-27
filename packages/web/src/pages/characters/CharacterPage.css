@@ -41,8 +41,10 @@
 }
 
 .character__submeta {
-	background-color: hsl(var(--hsl-b3));
-	height: 60px;
+	background-color: hsl(var(--hsl-b5));
+	padding: 6px 50px;
+	font-size: 13px;
+	color: hsl(var(--hsl-c2));
 }
 
 .character__socialmeta {
@@ -358,6 +360,10 @@
 	.character__info,
 	.character__socialmeta {
 		padding: 0 15px;
+	}
+
+	.character__submeta {
+		padding: 6px 15px;
 	}
 
 	.character__avatar {

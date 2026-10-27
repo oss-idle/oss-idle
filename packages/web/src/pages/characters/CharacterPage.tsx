@@ -197,8 +197,6 @@ export default function CharacterPage({ id, character, stats }: {
 						))}
 				</CharacterFigures>
 			</div>
-			<div className='character__submeta'>
-			</div>
 			<ProfileSocialBar
 				userId={character.userId}
 				characterId={character.id}
@@ -206,6 +204,11 @@ export default function CharacterPage({ id, character, stats }: {
 				restricted={character.restricted}
 				groups={character.groups}
 			/>
+			<div className='character__submeta'>
+				<Trans>Joined <b>{new Date(user.createdAt).toLocaleDateString(i18n.locale, {
+					month: 'long', year: 'numeric',
+				})}</b></Trans>
+			</div>
 			<ProfileTabs blocks={blocks} />
 			<div className='character__blocks' ref={blocks}>
 				{order.map(section => <ProfileSection
