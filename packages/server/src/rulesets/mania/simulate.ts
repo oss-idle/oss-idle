@@ -1,6 +1,10 @@
 import type { Beatmap } from 'osu-classes';
 
 import { countsForMedals } from '@oss-idle/shared/mods';
+import {
+	STRAIN_EVERY_MS,
+	type StrainSamples,
+} from '@oss-idle/shared/play';
 import type { Bot } from '@oss-idle/shared/rulesets/mania/bot';
 import {
 	ManiaGame,
@@ -17,6 +21,23 @@ import type {
 /** Song-time gap between the checkpoints kept for the live poll and the
  *  multiplayer scoreboard. */
 const SAMPLE_STEP_MS = 250;
+
+/** The strain gauges over a played chart, from its start to `endMs`: what the
+ *  client shows instead of running the sim itself. */
+export const strainSamples = (
+	bot: { strainsAt(t: number): Readonly<Record<string, number>> },
+	skills: readonly string[],
+	endMs: number,
+): StrainSamples => {
+	const values: number[][] = [];
+	for (let t = 0; t <= endMs; t += STRAIN_EVERY_MS) {
+		const strains = bot.strainsAt(t);
+		values.push(skills.map(s => Math.round(Math.min(1, Math.max(0, strains[s] ?? 0)) * 100)));
+	}
+	return {
+		from: 0, every: STRAIN_EVERY_MS, skills: [...skills], values,
+	};
+};
 
 /** Play a mania chart through to its end: the score, the checkpoints, and the
  *  replay in the order the client may learn it. */

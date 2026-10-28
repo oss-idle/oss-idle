@@ -21,7 +21,7 @@ msgstr "(match in progress)"
 msgid "(only admins can see this)"
 msgstr "(only admins can see this)"
 
-#: src/components/character/ProfileMedal.tsx
+#: src/components/character/MedalTip.tsx
 msgid "{category} ({tier})"
 msgstr "{category} ({tier})"
 
@@ -169,7 +169,7 @@ msgstr "<0>Unranked:</0> signed in, on a map or difficulty that isn't ranked. Sa
 msgid "A heart in the corner of the main menu, to thank you every time you start the game."
 msgstr "A heart in the corner of the main menu, to thank you every time you start the game."
 
-#: src/components/character/ProfileMedal.tsx
+#: src/components/character/MedalTip.tsx
 msgid "A hidden medal"
 msgstr "A hidden medal"
 
@@ -372,11 +372,6 @@ msgstr "awaiting reply"
 #: src/pages/DesktopDone.tsx
 msgid "Back in oss!idle already? You can close this tab."
 msgstr "Back in oss!idle already? You can close this tab."
-
-#: src/pages/admin/AdminNav.tsx
-#: src/routes/admin/balancing.tsx
-msgid "balancing"
-msgstr "balancing"
 
 #: src/routes/maps/$id.tsx
 msgid "beatmap info"
@@ -761,6 +756,10 @@ msgstr "First Place Ranks"
 msgid "Fixed"
 msgstr "Fixed"
 
+#: src/components/leaderboard/medalLine.ts
+msgid "Followers"
+msgstr "Followers"
+
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Font Size"
 msgstr "Font Size"
@@ -1070,6 +1069,10 @@ msgstr "mapped by {creator}"
 #: src/pages/scores/ScorePage.tsx
 msgid "mapped by <0>{creator}</0>"
 msgstr "mapped by <0>{creator}</0>"
+
+#: src/components/leaderboard/medalLine.ts
+msgid "Mapped sets ranked or loved"
+msgstr "Mapped sets ranked or loved"
 
 #: src/pages/help/FAQ.tsx
 msgid "Maps and rankings"
@@ -1445,6 +1448,14 @@ msgstr "Permanent"
 msgid "Pick your own main menu background: set <0>menu.background</0> to an image link in your skin."
 msgstr "Pick your own main menu background: set <0>menu.background</0> to an image link in your skin."
 
+#: src/pages/beatmaps/BeatmapsetHeader.tsx
+msgid "planned"
+msgstr "planned"
+
+#: src/components/MapsetCard.tsx
+msgid "Planned"
+msgstr "Planned"
+
 #: src/components/AudioPlayer.tsx
 msgid "play"
 msgstr "play"
@@ -1524,6 +1535,10 @@ msgstr "Press F9 in the game to open the community overlay: who is online, where
 #: src/pages/rankings/RankingsNav.tsx
 msgid "prestige"
 msgstr "prestige"
+
+#: src/components/leaderboard/medalLine.ts
+msgid "Prestiges"
+msgstr "Prestiges"
 
 #: src/components/MapsetCard.tsx
 #: src/pages/beatmaps/PreviewButton.tsx
@@ -2004,6 +2019,10 @@ msgstr "Silence {name}?"
 msgid "Simplest, nothing to install."
 msgstr "Simplest, nothing to install."
 
+#: src/pages/oauth/scopes.ts
+msgid "Simulate plays on your behalf."
+msgstr "Simulate plays on your behalf."
+
 #: src/components/character/CharacterRanks.tsx
 msgid "Skill Ranking"
 msgstr "Skill Ranking"
@@ -2017,10 +2036,6 @@ msgstr "skills"
 #: src/pages/characters/CharacterPreview.tsx
 msgid "Skills"
 msgstr "Skills"
-
-#: src/components/leaderboard/medalLine.ts
-msgid "Skills fully upgraded"
-msgstr "Skills fully upgraded"
 
 #: src/pages/admin/AdminNav.tsx
 #: src/routes/admin/skins.tsx
@@ -2272,10 +2287,6 @@ msgstr "Up to {max}, or paste them into the text."
 msgid "Update"
 msgstr "Update"
 
-#: src/components/leaderboard/medalLine.ts
-msgid "Upgrades held"
-msgstr "Upgrades held"
-
 #: src/pages/store/SupporterPerks.tsx
 msgid "Upload {bonus} more new maps a month from the editor."
 msgstr "Upload {bonus} more new maps a month from the editor."
@@ -2412,6 +2423,11 @@ msgstr "Write something about yourself, in BBCode."
 #: src/components/character/UserPage.tsx
 msgid "Writing a me! page is an <0>oss!supporter</0> perk."
 msgstr "Writing a me! page is an <0>oss!supporter</0> perk."
+
+#: src/pages/admin/AdminNav.tsx
+#: src/routes/admin/xp.tsx
+msgid "XP gains"
+msgstr "XP gains"
 
 #: src/components/character/RollbackUpgradeDialog.tsx
 msgid "XP level right after the upgrade was bought"

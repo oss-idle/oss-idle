@@ -14,8 +14,10 @@ import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
 import { scrollSpeedToMs } from '@oss-idle/shared/rulesets/mania/scroll_speed';
 import type { ScoreDTO } from '@oss-idle/shared/score';
 
+import DockPill from '../components/dock/DockPill';
 import PlayLeaderboard, { type LivePlay } from '../components/gameplay/PlayLeaderboard';
 import WarmupHint from '../components/gameplay/WarmupHint';
+import RatedVersion from '../components/RatedVersion';
 import { SETTINGS } from '../db/settings';
 import GameplayRenderer from '../gameplay/gameplayRenderer';
 import {
@@ -42,7 +44,7 @@ const BOARD = NAMES.map((name, i) => ({
 }));
 
 /** The gameplay HUD over a looping play: the strain panel and warm-up bar on the right, the
- *  solo leaderboard on the left. `?at=<ms>` starts the song there, the way arriving mid-play
+ *  solo leaderboard on the left, the play's chrome and dock as gameplay lays them out. `?at=<ms>` starts the song there, the way arriving mid-play
  *  does. */
 export default function PlayHudPreview() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,6 +99,8 @@ export default function PlayHudPreview() {
 			renderer.clear(vp);
 			const g = renderer.draw(now, vp, {
 				onGrade: setGrade,
+				mobile: w < 850,
+				safeBottom: parseFloat(getComputedStyle(canvas.parentElement!).paddingBottom) || 0,
 				strain: {
 					source: bot,
 					gauges,
@@ -116,15 +120,24 @@ export default function PlayHudPreview() {
 	}, []);
 
 	return (
-		<div style={{
-			position: 'fixed', inset: 0, background: '#1c1c2a',
+		<div className='play' style={{
+			position: 'fixed', background: '#1c1c2a', 
 		}}>
 			<canvas ref={canvasRef} style={{
 				position: 'absolute', inset: 0, width: '100%', height: '100%',
 			}} />
 			<div ref={gradeRef} className='play__grade'>{skin.grade(grade)}</div>
 			<WarmupHint bar={WARMUP} boxRef={warmupRef} />
+			<div className='play__actions'>
+				<button className='play__abort'>abort</button>
+				<button className='play__quit'>quit</button>
+			</div>
+			<div className='play__title'>
+				Kobaryo - Yura-Yura Sweet Genocide [feat. t+pazolite]
+				<RatedVersion version='YuRa-yUrA!!!' rate={0.7} />
+			</div>
 			<PlayLeaderboard rows={BOARD} live={live} />
+			<DockPill />
 		</div>
 	);
 }

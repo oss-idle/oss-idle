@@ -6,7 +6,11 @@ import {
 import Synced from '@oss-idle/shared/helpers/synced';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
-import { xpGivesLevel } from '@oss-idle/shared/xp';
+import { maxUpgrades } from '@oss-idle/shared/upgrades';
+import {
+	xpGivesLevel,
+	xpToLevel,
+} from '@oss-idle/shared/xp';
 
 import {
 	selectedDefLoaded,
@@ -69,6 +73,7 @@ export default class Character extends DAO(t) {
 			void skill.upgrades.set(columns[`${skill.name}Upgrades`] ?? 0);
 			void skill.overdrive.set(columns[`${skill.name}Overdrive`] ?? 0);
 			void skill.prestige.set(columns[`${skill.name}Prestige`] ?? 0);
+			void skill.lifetimeXp.set(columns[`${skill.name}LifetimeXp`] ?? 0);
 		});
 	}
 
@@ -115,6 +120,37 @@ export default class Character extends DAO(t) {
 		const columns = this.skillColumns();
 		columns[`${skill}TotalXp`] = Math.max(0, columns[`${skill}TotalXp`] - amount);
 		this.progress.overallTotalXp = Math.max(0, this.progress.overallTotalXp - amount);
+		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
+		await this.persistSkills();
+	}
+
+	/** Debug mode: put skills at these real levels as if earned - their total xp
+	 *  the level's price, which is what {@link relevel} reads back - and at these
+	 *  prestiges, the upgrades held to the slots left. */
+	public async setLevels(
+		levels: Partial<Record<string, number>>,
+		prestige: Partial<Record<string, number>> = {},
+	): Promise<void> {
+		const columns = this.skillColumns();
+		for (const skill of this.skills) {
+			const count = prestige[skill.name];
+			if (count !== undefined) {
+				skill.prestige.set(count);
+				skill.upgrades.set(Math.min(skill.upgrades.get(), maxUpgrades(count)));
+			}
+			const level = levels[skill.name];
+			if (level === undefined) continue;
+			const totalXp = Math.ceil(xpToLevel(level));
+			this.progress.overallTotalXp = Math.max(
+				0, this.progress.overallTotalXp + totalXp - (columns[`${skill.name}TotalXp`] ?? 0),
+			);
+			columns[`${skill.name}TotalXp`] = totalXp;
+			// the level is the level: the sim plays it, not what the lifetime bought
+			columns[`${skill.name}LifetimeXp`] = totalXp;
+			skill.lifetimeXp.set(totalXp);
+			skill.level.set(level);
+			skill.xp.set(0);
+		}
 		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
 		await this.persistSkills();
 	}
@@ -192,15 +228,19 @@ export default class Character extends DAO(t) {
 	}
 
 	/** The live offline character: whichever local one was last played, else the
-	 *  newest generation. */
-	public static async guest(): Promise<Character> {
+	 *  newest generation. None until the player has chosen to play locally. */
+	public static async localCurrent(): Promise<Character | undefined> {
 		const current = await Character.first(
 			'SELECT * FROM character WHERE local = 1 ORDER BY current DESC, generation DESC LIMIT 1',
 		);
-		if (!current) return await Character.newCharacter();
+		if (!current) return undefined;
 		await current.readProgress();
 		await current.relevel();
 		return current;
+	}
+
+	public static async guest(): Promise<Character> {
+		return await Character.localCurrent() ?? await Character.newCharacter();
 	}
 
 	/** Whether an id belongs to the local lineage rather than a server character. */

@@ -1,3 +1,5 @@
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ph } from '@lingui/core/macro';
 import {
 	Trans,
@@ -18,7 +20,8 @@ import MedalLineIcon from './MedalLineIcon';
 
 type Row = { id: number, name: string, country: string, value: number, current: number };
 
-/** One medal line on the overview: its medals and the players furthest along it. */
+/** One medal line on the overview: its medals and the players furthest along it.
+ *  The whole card opens the line's board. */
 export default function MedalProgressCard({ line, goals, rows }: {
 	line: string,
 	goals: Goal[],
@@ -32,6 +35,7 @@ export default function MedalProgressCard({ line, goals, rows }: {
 			search={{ page: 1 }}
 			className='medal-progress__title'>
 			{i18n._(LINE_NAMES[line])}
+			<FontAwesomeIcon icon={faChevronRight} />
 		</Link>
 		<div className='medal-line'>
 			{goals.map(g => <MedalLineIcon key={g.id} id={g.id} />)}

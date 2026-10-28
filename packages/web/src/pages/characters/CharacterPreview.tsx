@@ -6,6 +6,7 @@ import { Trans } from '@lingui/react/macro';
 
 import { countryName } from '@oss-idle/shared/display/country';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
+import { xpGivesLevel } from '@oss-idle/shared/xp';
 
 import type {
 	getCharacter,
@@ -76,7 +77,7 @@ export default function CharacterPreview({ character, stats }: {
 							ruleset={character.ruleset}
 							skill={'overall'}
 							progress={{
-								level: character.profile.overallLevel, xp: character.profile.overallXp,
+								...xpGivesLevel(character.profile.overallLifetimeXp),
 								lifetimeXp: character.profile.overallLifetimeXp,
 							}}
 						/>

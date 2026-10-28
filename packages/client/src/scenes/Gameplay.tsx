@@ -5,9 +5,7 @@ import {
 	useLingui,
 } from '@lingui/react/macro';
 import { Beatmap } from 'osu-classes';
-import { BeatmapDecoder } from 'osu-parsers';
 import {
-	type ReactNode,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -61,7 +59,6 @@ import MatchScoreboard from '../components/multiplayer/MatchScoreboard';
 import RoundWaiting from '../components/multiplayer/RoundWaiting';
 import RatedVersion from '../components/RatedVersion';
 import ResultMods from '../components/result/ResultMods';
-import Character from '../db/schema/character';
 import { Score } from '../db/schema/score';
 import { ScoreXP } from '../db/schema/score_xp';
 import { SETTINGS } from '../db/settings';
@@ -78,6 +75,7 @@ import {
 import { publishPlayfieldEdge } from '../gameplay/playfieldEdge';
 import { modsOfPlay } from '../gameplay/playMods';
 import { rateOfPlay } from '../gameplay/playRate';
+import ServerStrains from '../gameplay/ServerStrains';
 import {
 	type WarmupStage,
 	warmupStage,
@@ -85,26 +83,20 @@ import {
 import { debugMode } from '../globals';
 import Controls from '../input/Controls';
 import { logPlayFinished } from '../logs';
-import Account from '../online/account';
 import {
 	abortLocalPlay,
 	currentLocalPlay,
 	finishLocalPlay,
 	localPlayResult,
-	type LocalStart,
-	startLocalPlay,
 } from '../online/localPlay';
 import Multiplayer from '../online/multiplayer';
 import {
 	abortPlaySession,
 	fetchPlayResult,
 	finishPlaySession,
-	inMatchMessage,
 	type PlayContext,
 	PlayResultError,
-	restrictedMessage,
 	skipPlaySession,
-	startPlaySession,
 } from '../online/play';
 import PlayManager from '../online/playManager';
 import Socket from '../online/socket';
@@ -114,20 +106,14 @@ import { loadStoryboardAssets } from '../osu/beatmap/storyboard';
 import calculatePP from '../osu/pp';
 import { currentSkin } from '../osu/skin/Skin';
 import { maniaOffsets } from '../rulesets/mania/wire';
-import {
-	chartDef,
-	loadPlayer,
-} from '../rulesets/registry';
+import { chartDef } from '../rulesets/registry';
 import type {
 	ManiaPlayer,
 	PlayBot,
 } from '../rulesets/ruleset';
 import { sizeCanvas } from '../sizeCanvas';
 import SceneManager, { SCENE } from './SceneManager';
-import {
-	DialogPanel,
-	Transition,
-} from './Transition';
+import { Transition } from './Transition';
 
 /** A play of a chart open in the editor: the character plays it from `start`,
  *  like a debug play (no-fail, never saved), then the editor takes over again. */
@@ -142,7 +128,7 @@ export type TestPlay = {
 const leavePlay = (test?: TestPlay) =>
 	(test ? test.back() : SceneManager.set(Multiplayer.afterPlay()));
 
-type InnerProps = {
+type Props = {
 	beatmapInfo: LightBeatmap,
 	beatmap: Beatmap,
 	play: PlayContext,
@@ -179,35 +165,7 @@ const SKIP_WAIT_MS = 5000;
  *  How many times is the machine's business (RESULT_ATTEMPTS). */
 const RESULT_POLL_MS = 200;
 
-/** How long a play may take to start before the cover gives up and says so.
- *  Longer than the session request's own timeout, so this only catches a step
- *  that has no timeout of its own - and the cover is opaque, so a boot that
- *  never finishes is a frozen screen with nothing on it. */
-const BOOT_TIMEOUT_MS = 30_000;
-
-type Refusal = 'load' | 'empty' | 'ruleset';
-
-/** What a play needs before it starts - its chart, and the player of its ruleset (its
- *  skills and their strain load with it) - or why it can't. */
-const loadPlayable = async (
-	beatmapInfo: LightBeatmap,
-	test?: TestPlay,
-): Promise<{ chart: Beatmap, player: ManiaPlayer } | { refused: Refusal }> => {
-	let chart: Beatmap;
-	try {
-		chart = await playChart(beatmapInfo, test);
-	} catch (e) {
-		console.error('[gameplay] beatmap load failed', e);
-		return { refused: 'load' };
-	}
-	if (chart.hitObjects.length === 0) return { refused: 'empty' };
-	const player = await loadPlayer(beatmapInfo.metadata.mode, beatmapInfo.metadata.keys);
-	return player ? {
-		chart, player,
-	} : { refused: 'ruleset' };
-};
-
-function GameplayInner({
+export default function Gameplay({
 	beatmapInfo, 
 	beatmap, 
 	play,
@@ -215,7 +173,7 @@ function GameplayInner({
 	player,
 	transition, 
 	test,
-}: InnerProps) {
+}: Props) {
 	music.mode.set(PLAYER_MODE.SINGLE);
 
 	const [skin] = useSynced(currentSkin);
@@ -252,7 +210,9 @@ function GameplayInner({
 	const botRef = useRef<Bot | null>(null);
 	// source of the strain HUD's per-skill values - the playing bot when the play
 	// is simulated locally, or a display-only side analysis for ranked replays
-	const strainBotRef = useRef<PlayBot | null>(null);
+	const strainBotRef = useRef<StrainHud['source'] | null>(null);
+	/** a server play's gauges, fed by its replay chunks */
+	const serverStrainsRef = useRef<ServerStrains | null>(null);
 	const gauges = useMemo(() => player.strainGauges(), [i18n, player]);
 	// osu!'s in-game leaderboard, unless a match's live standings take its place
 	const board = useBoardRows(
@@ -338,15 +298,14 @@ function GameplayInner({
 	// always stay in lock-step (HMR preserves both refs → seamless resume)
 	const ensureGame = () => {
 		if (gameRef.current !== null || botRef.current !== null || !character) return;
-		// ranked play replays the server's exact offsets; guest / unranked play is
-		// simulated locally from the character's skills; debug play uses the same
-		// fixed-level bot as the strain debug view.
-		let debugBot: PlayBot | undefined;
-		if (play.mode === 'debug') {
-			debugBot = test ? player.bot(character.skills, timesPlayed) : player.debugBot();
-			botRef.current = debugBot;
-		} else {
+		// every play replays offsets resolved before it (the server's, or the local
+		// session's), but an editor test play, which a local bot plays
+		let testBot: PlayBot | undefined;
+		if (play.offsets) {
 			botRef.current = new ReplayBot(play.offsets);
+		} else {
+			testBot = player.bot(character.skills, timesPlayed);
+			botRef.current = testBot;
 		}
 		// scroll speed is a purely visual preference (applied below via pxPerUnit);
 		// the bot's reading window must stay scroll-speed-independent so the same map
@@ -356,22 +315,27 @@ function GameplayInner({
 		gameRef.current = new ManiaGame(beatmap, botRef.current, {
 			noFail: play.mode === 'debug', divine, rate, mods, playOn,
 		});
-		// ranked replays don't analyze strain locally - run a display-only analysis
-		// of the same map with the character's skills (an approximation of the
-		// server's authoritative play, for the strain HUD only)
+		// the strain gauges: the bot itself for a test or local play, the server's
+		// samples for a play it ran
 		const local = owned && play.mode !== 'ranked'
 			? currentLocalPlay()
 			: undefined;
-		if (debugBot) {
-			strainBotRef.current = debugBot;
+		if (testBot) {
+			strainBotRef.current = testBot;
 		} else if (local?.token === (owned ? play.token : '')) {
 			// the play being watched *is* this analysis - no approximation needed
 			strainBotRef.current = local.bot;
+		} else if (play.mode === 'ranked' || play.mode === 'debug') {
+			// the server played it: its gauges come with the replay
+			serverStrainsRef.current = new ServerStrains();
+			serverStrainsRef.current.add(play.strains);
+			strainBotRef.current = serverStrainsRef.current;
 		} else {
-			strainBotRef.current = player.bot(character.skills, timesPlayed, tirednessOf(play));
-			new ManiaGame(beatmap, strainBotRef.current, {
+			const bot = player.bot(character.skills, timesPlayed, tirednessOf(play));
+			new ManiaGame(beatmap, bot, {
 				divine, rate, mods, playOn,
 			});
+			strainBotRef.current = bot;
 		}
 		clockRef.current = null;
 		hitsoundPtr.current = 0;
@@ -748,6 +712,7 @@ function GameplayInner({
 			if (msg.offsets.length) {
 				gameRef.current?.appendReplay(bot.addOffsets(maniaOffsets(msg.offsets)));
 			}
+			serverStrainsRef.current?.add(msg.strains);
 			cursor = msg.next;
 			offsetCursorRef.current = cursor;
 			done = msg.done;
@@ -810,6 +775,7 @@ function GameplayInner({
 
 		let w = 0;
 		let h = 0;
+		let safeBottom = 0;
 		// the whole gameplay frame (playfield + HUD) is drawn by the shared renderer;
 		// this scene keeps the clock/audio plumbing and the play-only chrome
 		const renderer = new GameplayRenderer(ctx, game, skin);
@@ -817,6 +783,7 @@ function GameplayInner({
 		const resize = () => {
 			w = window.innerWidth;
 			h = window.innerHeight;
+			safeBottom = parseFloat(getComputedStyle(canvas.parentElement!).paddingBottom) || 0;
 			sizeCanvas(canvas, ctx, w, h);
 		};
 		resize();
@@ -1077,8 +1044,8 @@ function GameplayInner({
 			}, {
 				debug,
 				mobile,
+				safeBottom,
 				strain: strain(),
-				debugStats: player.debugStats,
 				onGrade: setGrade,
 			});
 			field = g;
@@ -1238,272 +1205,4 @@ function GameplayInner({
 			)}
 		</div>
 	);
-}
-
-/** Start or join the client-owned play for this map and describe it the way a
- *  ranked play is described: a replay with a live timeline. */
-const localContext = async (
-	character: Character,
-	beatmapInfo: LightBeatmap,
-	chart: Beatmap,
-	start: LocalStart,
-): Promise<PlayContext> => {
-	const run = await startLocalPlay(character, beatmapInfo, chart, start);
-	return {
-		...run.tired,
-		mode: run.mode,
-		token: run.token,
-		beatmapId: run.beatmapId,
-		rate: run.rate,
-		mods: run.mods,
-		offsets: run.offsets,
-		startedAt: run.startedAt,
-		endsAt: run.endsAt,
-	};
-};
-
-type Props = {
-	beatmapInfo: LightBeatmap,
-	transition: Transition,
-	/** dev: play with the debug bot, no-fail, never saved/submitted */
-	debugPlay?: boolean,
-	test?: TestPlay,
-};
-
-/** The chart a play runs: the stored one, or for a test play the editor's, decoded
- *  under the ids of the difficulty it edits. */
-const playChart = async (beatmapInfo: LightBeatmap, test?: TestPlay): Promise<Beatmap> => {
-	if (!test) return beatmapInfo.load();
-	const beatmap = new BeatmapDecoder().decodeFromString(test.chart);
-	beatmap.metadata.beatmapId = beatmapInfo.metadata.id;
-	beatmap.metadata.beatmapSetId = beatmapInfo.set.metadata.id;
-	return beatmap;
-};
-
-/**
- * Loads a play behind the transition cover, then hands off to GameplayInner
- *
- * Runs the slow work - parse the beatmap, resolve the play session - while the
- * cover hides it, and routes the failure cases into the cover as dialogs (the
- * cover stays up, the user chooses what to do):
- *  - the beatmap won't load → offer to go back.
- *  - the server refused to rank → offer to play locally (unranked) or go back.
- *
- * On success it mounts GameplayInner, which builds the game, paints a frozen
- * first frame, then reveals the cover and starts the clock.
- */
-export default function Gameplay({ 
-	beatmapInfo,
-	transition,
-	debugPlay, 
-	test,
-}: Props) {
-	const [boot, setBoot] = useState<{ 
-		beatmap: Beatmap;
-		play: PlayContext;
-		timesPlayed: number;
-		player: ManiaPlayer;
-	} | null>(null);
-	// run the boot once; the ref survives HMR effect re-runs so a hot reload never
-	// re-loads (and never mints a second server play session).
-	const booted = useRef(false);
-	const { t } = useLingui();
-
-	useEffect(() => {
-		// Run exactly once. The ref guard (not an effect-cleanup flag) is deliberate:
-		// under StrictMode the effect mounts → unmounts → remounts, and a cleanup that
-		// cancelled the in-flight boot would abort the only run, so the play would
-		// never resolve. Surviving HMR re-runs also means we never mint a 2nd session.
-		if (booted.current) return;
-		booted.current = true;
-
-		// nothing below is allowed to leave the cover up forever
-		let settled = false;
-		const done = () => {
-			settled = true;
-			window.clearTimeout(watchdog);
-		};
-		const watchdog = window.setTimeout(() => {
-			if (settled) return;
-			console.warn('[gameplay] boot timed out');
-			void (async () => {
-				await dialog<void>(resolve => (
-					<DialogPanel
-						title={t`Couldn't start play`}
-						message={t`This play took too long to start.`}
-						actions={[{
-							label: t`Back`, onClick: () => resolve(),
-						}]} />
-				));
-				leavePlay(test);
-				await transition.reveal();
-			})();
-		}, BOOT_TIMEOUT_MS);
-
-		// show interactive content over the fully-covered screen and await a choice
-		// A dialog is the boot waiting on a person, which has no timeout worth
-		// enforcing - and firing the watchdog here would put its own panel over
-		// theirs and strand the promise nobody can answer any more.
-		const dialog = <T,>(
-			render: (resolve: (v: T) => void) => ReactNode,
-		): Promise<T> => {
-			done();
-			return transition.covered.then(() => new Promise<T>(resolve => 
-				transition.setContent(render(resolve)),
-			));
-		};
-
-		// swap back to song select (or the editor) behind the cover, then fade it out to reveal it
-		const backToSelect = async () => {
-			leavePlay(test);
-			await transition.reveal();
-		};
-
-		const fail = async (message: string) => {
-			done();
-			await dialog<void>(resolve => (
-				<DialogPanel 
-					title={t`Couldn't start play`} 
-					message={message} 
-					actions={[{ 
-						label: t`Back`, 
-						onClick: () => resolve(), 
-					}]} />
-			));
-			await backToSelect();
-		};
-
-		// debug and test plays are purely local: no character validation, no server session
-		const localOnly = debugPlay || !!test;
-
-		const refusals: Record<Refusal, string> = {
-			load: t`This difficulty failed to load.`,
-			empty: t`This difficulty has no notes to play.`,
-			ruleset: t`This difficulty can't be played here.`,
-		};
-
-		void (async () => {
-			const playable = await loadPlayable(beatmapInfo, test);
-			if ('refused' in playable) {
-				await fail(refusals[playable.refused]);
-				return;
-			}
-			const { chart: live, player } = playable;
-
-			if (localOnly) {
-				done();
-				setBoot({
-					beatmap: live, play: { mode: 'debug' }, timesPlayed: 0, player,
-				});
-				return;
-			}
-
-			// commit to a character before scoring - a play resolved mid-validation must
-			// not be mis-scored. During server downtime this waits rather than guessing.
-			await Account.ready();
-			const character = Entities.character.get();
-			let session = await startPlaySession(
-				character, live.metadata.beatmapId, beatmapInfo.lockedRate, beatmapInfo.lockedMods,
-			);
-
-			// start-or-join can hand back a play on a *different* map (quit without
-			// abort, then launched another) - its replay wouldn't match this chart.
-			// Offer to abort the running play or back out.
-			if (session.mode === 'ranked' && session.beatmapId !== live.metadata.beatmapId) {
-				const choice = await dialog<'abort' | 'cancel'>(resolve => (
-					<DialogPanel
-						title={t`Already playing`}
-						message={
-							t`Your character is still playing another map. Abort that play to start this one?`
-						}
-						actions={[
-							{
-								label: t`Abort it`, primary: true, onClick: () => resolve('abort'),
-							},
-							{
-								label: t`Cancel`, onClick: () => resolve('cancel'),
-							},
-						]}
-					/>
-				));
-				if (choice === 'cancel') {
-					done();
-					await backToSelect();
-					return;
-				}
-				await abortPlaySession(session.token);
-				session = await startPlaySession(
-					character, live.metadata.beatmapId, beatmapInfo.lockedRate, beatmapInfo.lockedMods,
-				);
-				if (session.mode === 'ranked' && session.beatmapId !== live.metadata.beatmapId) {
-					await fail(t`Couldn't take over the running play.`);
-					return;
-				}
-			}
-
-			if (session.mode === 'restricted') {
-				await fail(restrictedMessage());
-				return;
-			}
-			if (session.mode === 'inMatch') {
-				await fail(inMatchMessage());
-				return;
-			}
-
-			let play: PlayContext;
-			if (session.mode === 'refused') {
-				const choice = await dialog<'local' | 'cancel'>(resolve => (
-					<DialogPanel
-						title={t`Play unranked ?`}
-						message={
-							t`A game is already in progress. Play locally instead? It won't be submitted.`
-						}
-						actions={[
-							{
-								label: t`Play unranked`, primary: true, onClick: () => resolve('local'), 
-							},
-							{
-								label: t`Cancel`, onClick: () => resolve('cancel'), 
-							},
-						]}
-					/>
-				));
-				if (choice === 'cancel') {
-					done();
-					await backToSelect();
-					return;
-				}
-				play = await localContext(character, beatmapInfo, live, { mode: 'unranked' });
-			} else if (session.mode === 'ranked') {
-				play = session;
-			} else {
-				// start (or join) the local play, then watch it - the same shape the
-				// server hands back for a ranked one
-				play = await localContext(character, beatmapInfo, live, session);
-			}
-
-			const timesPlayed = await Score.countPlays(
-				character.id, 
-				live.metadata.beatmapId,
-				character.progress.memoryResetAt,
-				character.memoryForgets(),
-			);
-			done();
-			setBoot({
-				beatmap: live, play, timesPlayed, player,
-			});
-		})();
-	}, [beatmapInfo, transition, debugPlay, test, t]);
-
-	// nothing to show until the play is resolved - the cover is hiding this anyway
-	if (!boot) return <div className="play" />;
-	return <GameplayInner 
-		beatmapInfo={beatmapInfo} 
-		beatmap={boot.beatmap}
-		play={boot.play} 
-		timesPlayed={boot.timesPlayed} 
-		player={boot.player}
-		transition={transition} 
-		test={test}
-	/>;
 }

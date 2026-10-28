@@ -1,6 +1,7 @@
 import {
 	type MapCover,
 	mapCoverUrl,
+	ownCoverUrl,
 } from '@oss-idle/shared/beatmap';
 
 import { publish } from '../discord/publish';
@@ -19,13 +20,23 @@ export type AnnounceSet = MapCover & {
 	difficulties: { version: string; sr: number }[];
 };
 
+/** osu!'s cover when osu! serves one (an old set may have none), else our own background. */
+const coverOf = async (set: MapCover) => {
+	const osu = mapCoverUrl(set, 'cover', apiBaseUrl);
+	if (!set.osuId || !set.background) return osu;
+	const served = await fetch(osu!, {
+		method: 'HEAD', signal: AbortSignal.timeout(5000),
+	}).then(res => res.ok, () => false);
+	return served ? osu : ownCoverUrl(set, apiBaseUrl);
+};
+
 /** Post the "now ranked" (or loved) embed to the map feed. Fires from the rank sweep when a
  *  scheduled map's date passes (not at upload), so each map announces once it's
  *  actually live, pinging the opt-in role for its status. No-op outside prod or without a configured webhook. */
 export const announceRanked = async (set: AnnounceSet): Promise<void> => {
 	if (!isProd || !env.MAP_FEED_WEBHOOK) return;
 
-	const cover = mapCoverUrl(set, 'cover', apiBaseUrl);
+	const cover = await coverOf(set);
 	const asc = [...set.difficulties].sort((a, b) => a.sr - b.sr);
 	const role = set.loved ? env.MAP_FEED_LOVED_ROLE_ID : env.MAP_FEED_ROLE_ID;
 

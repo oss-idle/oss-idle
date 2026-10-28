@@ -1,5 +1,6 @@
 import type { Grade } from '@oss-idle/shared/grade';
 import type { Mod } from '@oss-idle/shared/mods';
+import type { StrainSamples } from '@oss-idle/shared/play';
 
 import type {
 	CharacterRow,
@@ -55,6 +56,10 @@ export type Simulated = {
 	failSeconds?: number,
 	/** per-skill xp, mods applied, before any debug scaling */
 	skillXp: Record<string, number>,
+	/** per-skill xp the play's strain is worth before anything multiplies it */
+	rawXp?: Record<string, number>,
+	/** the strain gauges over the play, streamed with its offsets */
+	strains?: StrainSamples,
 	/** the play's minutes and those its physical skills were strained, for fatigue */
 	strain?: { minutes: number, strained: number },
 };

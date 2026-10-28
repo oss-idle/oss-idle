@@ -6,6 +6,7 @@ import {
 
 import {
 	backgroundOf,
+	emptyIn,
 	fileIdsOf,
 	multiplierOf,
 	parseChart,
@@ -189,5 +190,19 @@ describe('editor chart', () => {
 		const two = withBackground(one, 'other.png');
 		expect(backgroundOf(two)).toBe('other.png');
 		expect(two.match(/^0,0,/gm)).toHaveLength(1);
+	});
+
+	it('moves an empty chart outside the ruleset into it, nothing else', () => {
+		const template = OSU.replace('PreviewTime: 0', 'PreviewTime: 0\r\nMode: 0')
+			.replace('CircleSize:4', 'CircleSize:5')
+			.replace(/\[HitObjects\][^[]*/, '[HitObjects]\r\n\r\n');
+		const sevenKey = emptyIn(template, 'mania7k');
+		expect(sevenKey).toContain('Mode: 3\r\n');
+		expect(parseChart(sevenKey).keys).toBe(7);
+		expect(emptyIn(sevenKey, 'mania7k')).toBe(sevenKey);
+		expect(parseChart(emptyIn(sevenKey, 'mania4k')).keys).toBe(4);
+		expect(emptyIn(template, 'osu')).toBe(template);
+		expect(emptyIn(sevenKey, 'osu')).toContain('Mode: 0\r\n');
+		expect(emptyIn(OSU, 'mania7k')).toBe(OSU);
 	});
 });

@@ -21,6 +21,7 @@ const SCOPE_ABOUT = {
 	identify:
 		'Allows reading of the public profile of the user (/me). Always given to Authorization Code Grant tokens.',
 	'friends.read': 'Allows reading of the user\'s friend list.',
+	simulate: 'Allows simulating plays on behalf of the user (Simulate Play).',
 };
 
 const using = (api: string, language: Language) => (language === 'bash'

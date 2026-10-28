@@ -5,17 +5,10 @@ import {
 	type MedalDef,
 	medalLook,
 } from '@oss-idle/shared/achievements/catalogue';
-import {
-	medalCategoryName,
-	medalTierName,
-} from '@oss-idle/shared/display/medals';
 
-import {
-	medalDescription,
-	medalName,
-} from '../../rulesets';
 import MedalIcon from './MedalIcon';
 import MedalProgressBar from './MedalProgressBar';
+import MedalTip from './MedalTip';
 
 const share = new Intl.NumberFormat(undefined, {
 	style: 'percent', maximumSignificantDigits: 3,
@@ -39,17 +32,7 @@ export default function ProfileMedal({ medal, unlockedAt, progress, holders, pla
 		: <MedalIcon look={medalLook(medal)} />;
 	return <div className={`profile-medal ${locked ? 'is-locked' : ''}`}>
 		{icon}
-		<div className='profile-medal__tip'>
-			<div className='profile-medal__group'>
-				<Trans>{ph({ category: medalCategoryName(medal.category) })} ({ph({ tier: medalTierName(medal.tier) })})</Trans>
-			</div>
-			<div className='profile-medal__main'>
-				<div className='profile-medal__big'>{icon}</div>
-				<div className='profile-medal__name'>{medalName(medal.id)}</div>
-				<div className='profile-medal__desc'>
-					{hidden ? <Trans>A hidden medal</Trans> : medalDescription(medal.id)}
-				</div>
-			</div>
+		<MedalTip medal={medal} icon={icon} hidden={hidden}>
 			<div className='profile-medal__foot'>
 				<div className='profile-medal__rarity'>
 					<Trans>{ph({ holders: holders.toLocaleString() })} players ({ph({ share: share.format(players ? holders / players : 0) })})</Trans>
@@ -59,6 +42,6 @@ export default function ProfileMedal({ medal, unlockedAt, progress, holders, pla
 					<Trans>Achieved on {ph({ date: day.format(unlockedAt) })}</Trans>
 				</div>}
 			</div>
-		</div>
+		</MedalTip>
 	</div>;
 }

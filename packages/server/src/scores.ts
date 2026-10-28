@@ -14,7 +14,11 @@ import {
 import { ANNOUNCE_CHANNEL } from '@oss-idle/shared/community/wire';
 import { parseMods } from '@oss-idle/shared/mods';
 import { betterScore } from '@oss-idle/shared/scoreOrder';
-import { gainLevels } from '@oss-idle/shared/xp';
+import {
+	gainLevels,
+	playLevelOf,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import { db } from './db/client';
 import {
@@ -123,7 +127,7 @@ export async function purgeBeatmapScores(beatmapId: number): Promise<void> {
 }
 
 /** Whether a difficulty's set is loved: its plays give no pp. */
-const isLovedBeatmap = async ({ setStatus }: ServerRuleset, beatmapId: number) => {
+export const isLovedBeatmap = async ({ setStatus }: ServerRuleset, beatmapId: number) => {
 	const [row] = await db.select({ id: beatmaps.id })
 		.from(beatmaps)
 		.innerJoin(setStatus, eq(setStatus.setId, beatmaps.setId))
@@ -357,9 +361,7 @@ export async function applySkillXp(
 	// and totals it read at the start, so a purchase committing in between would
 	// be silently reverted - the spent levels handed back while the upgrade it
 	// bought stays (`${skill}Upgrades` isn't in the update set).
-	const {
-		row, gains, overallLevel,
-	} = await db.transaction(async tx => {
+	const { row, gains } = await db.transaction(async tx => {
 		const [row] = await tx
 			.select()
 			.from(profile)
@@ -405,17 +407,24 @@ export async function applySkillXp(
 
 		await tx.update(profile).set(updates).where(eq(profile.id, characterId));
 		return {
-			row, gains, overallLevel: overall.level,
+			row, gains,
 		};
 	});
 
-	// Discord I/O never holds the row lock.
+	// Discord I/O never holds the row lock. The levels announced are the ones shown.
 	if (announceMilestones) await announceSkillLevels(ruleset, characterId, [
-		...gains.map(g => ({
-			skill: g.skill, from: g.fromLevel, to: g.toLevel,
-		})),
+		...gains.map(g => {
+			const was = skillOf(row, g.skill);
+			return {
+				skill: g.skill,
+				from: Math.floor(playLevelOf(was.level, was.xp, was.lifetimeXp, was.prestige)),
+				to: Math.floor(playLevelOf(g.toLevel, g.toXp, was.lifetimeXp + g.xp, was.prestige)),
+			};
+		}),
 		{
-			skill: 'overall', from: row.overallLevel, to: overallLevel,
+			skill: 'overall',
+			from: xpGivesLevel(row.overallLifetimeXp).level,
+			to: xpGivesLevel(row.overallLifetimeXp + gains.reduce((sum, g) => sum + g.xp, 0)).level,
 		},
 	]);
 	return gains;

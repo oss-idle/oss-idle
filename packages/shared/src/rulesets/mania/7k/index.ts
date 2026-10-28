@@ -46,6 +46,7 @@ export const mania7k = {
 	prestigeNote: prestigeNote7k,
 	skillsNote: skillsNote7k,
 	physicalSkills: PHYSICAL_SKILLS_7K,
+	gauged: Skills7k.filter(s => s !== SKILL_7K.accuracy && s !== SKILL_7K.memory),
 	rateSkill: SKILL_7K.speed,
 	warmupSkill: SKILL_7K.stamina,
 	performanceArgs,

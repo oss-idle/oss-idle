@@ -9,7 +9,7 @@ npm run build   # dist/my-addon.js: one file, ready to publish`;
 export const CONTRACT = `// the whole contract: two exports
 export const mount = (addon, host) => {
 	// addon: { id, name, version, gameVersion, authorId, authorName }
-	// host: { version, react, ruleset, editor }
+	// host: { version, react, ruleset, api, editor }
 	// host.ruleset.current(): the ruleset the player picked ('mania4k', ...);
 	// host.ruleset.watch(ruleset => ...) follows it, tag an add-on made for one with its id
 	console.log(\`\${addon.name} \${addon.version} on oss!idle \${host.version}\`);
@@ -18,6 +18,17 @@ export const mount = (addon, host) => {
 export const unmount = () => {
 	// undo everything mount did: listeners, timers, elements
 };`;
+
+export const API = `// API v2 as the signed-in player: no OAuth app, no token
+const me = await host.api.me();
+const play = await host.api.simulate({
+	beatmap_id: 4212,
+	rate: 1.2,
+	skills: { speed: { level: 120, upgrades: 3 }, stamina: { level: 95 } },
+});
+console.log(me.username, play.rank, play.pp, play.xp);
+
+// with the SDK: this.api, typed (AddonApi and the objects are exported)`;
 
 export const SDK_ADDON = `import { Addon, defineAddon } from '@oss-idle/addon-sdk';
 

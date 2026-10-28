@@ -3,8 +3,8 @@ import {
 	SKILL,
 	type SkillName,
 } from '@oss-idle/shared/rulesets/mania/4k/skills';
-import Memory from '@oss-idle/shared/rulesets/mania/4k/skills/memory';
 import type { Judgement } from '@oss-idle/shared/rulesets/mania/judgement';
+import { FORGET_PLAYS } from '@oss-idle/shared/rulesets/mania/memoryRecall';
 
 import {
 	forgetMemory,
@@ -15,7 +15,7 @@ import { play } from './play';
 
 export const ruleset = serverRuleset<Judgement, SkillName>(mania4k, play, {
 	afterUpgrade: async (r, characterId, skill) => {
-		if (skill === SKILL.memory) await forgetMemory(r, characterId, Memory.FORGET_PLAYS);
+		if (skill === SKILL.memory) await forgetMemory(r, characterId, FORGET_PLAYS);
 	},
 	// memory's progress is the maps it has learned, so that is what its
 	// prestige spends - the play counts the profile shows are left alone

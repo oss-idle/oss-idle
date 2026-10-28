@@ -14,7 +14,11 @@ import { medalXPMultiplier } from '@oss-idle/shared/achievements/catalogue';
 import { OWNER_ID } from '@oss-idle/shared/groups';
 import { NO_MEDALS } from '@oss-idle/shared/mods';
 import type { MedalBatch } from '@oss-idle/shared/play';
-import { maxUpgrades } from '@oss-idle/shared/upgrades';
+import { BASE_MAX_UPGRADES } from '@oss-idle/shared/upgrades';
+import {
+	playLevelOf,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import { countCurated } from './beatmaps/curated';
 import { countMapped } from './beatmaps/mapped';
@@ -31,6 +35,7 @@ import {
 import {
 	addMedals,
 	getMedals,
+	removeMedals,
 } from './db/schema/character_medal';
 import { getCharacterTotals } from './db/schema/character_totals';
 import { users } from './db/schema/user';
@@ -245,11 +250,13 @@ const countersOf = (r: ServerRuleset): Record<string, (p: Live) => number> => ({
 	hits: p => p.totals.hits,
 	time: p => p.totals.playTime / 3600,
 	friends: p => p.followers,
-	...Object.fromEntries(r.def.skills.map(s => [s, (p: Live) => p.skills[s].level])),
-	overall: p => p.profile.overallLevel,
+	...Object.fromEntries(r.def.skills.map(s => [s, (p: Live) => {
+		const { level, xp, lifetimeXp, prestige } = p.skills[s];
+		return Math.floor(playLevelOf(level, xp, lifetimeXp, prestige));
+	}])),
+	overall: p => xpGivesLevel(p.profile.overallLifetimeXp).level,
 	upgrades: p => r.def.skills.reduce((sum, s) => sum + p.skills[s].upgrades, 0),
-	ladders: p => r.def.skills.filter(s =>
-		p.skills[s].upgrades >= maxUpgrades(p.skills[s].prestige)).length,
+	ladders: p => r.def.skills.filter(s => p.skills[s].upgrades >= BASE_MAX_UPGRADES).length,
 	overdrive: p => p.overdrive,
 	prestige: p => p.prestige,
 	first: p => p.firsts,
@@ -311,6 +318,9 @@ type Progress = Awaited<ReturnType<typeof progress>>;
 type Rule = {
 	test: (p: Progress) => boolean,
 	rule: string,
+	/** read from stored scores and what is built from them: a score reprocess
+	 *  takes it back when the replayed scores no longer earn it */
+	scores?: true,
 	/** the counted value (its best) and its goal, for medals earned at a threshold */
 	value?: (p: Progress) => number,
 	current?: (p: Progress) => number,
@@ -318,6 +328,12 @@ type Rule = {
 };
 
 const amount = (n: number) => n.toLocaleString('en-US');
+
+/** The counters read from a character's own stored scores and the pp and totals built
+ *  from them: the lines a score reprocess rewrites. #1s and top-% ranks also depend on
+ *  other players, so a reprocess leaves their medals alone (Adri: "only the most obvious
+ *  ones like star rating, pp, grades"). */
+export const SCORE_LINES = ['pass', 'fc', 'hits', 'pp', 'play-pp'];
 
 /** A line of medals earned at thresholds of one counter's best. */
 const series = (
@@ -331,10 +347,16 @@ const series = (
 	value: (p: Progress) => p.best[counter] ?? 0,
 	current: (p: Progress) => counters[counter](p),
 	goal: min,
+	...SCORE_LINES.includes(counter) && { scores: true as const },
 }]));
 
 const one = (rule: string, test: (p: Progress) => boolean): Rule => ({
 	test, rule,
+});
+
+/** A one-off medal read from stored scores. */
+const fromScores = (rule: string, test: (p: Progress) => boolean): Rule => ({
+	test, rule, scores: true,
 });
 
 const STAR_STEPS = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -349,14 +371,15 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 			Object.fromEntries(STAR_STEPS.map(n => [`pass-${n}`, n])), 'pass'),
 		...s('best star rating (floored) among stored scores on ranked maps with 0 misses',
 			Object.fromEntries(STAR_STEPS.map(n => [`fc-${n}`, n])), 'fc'),
-		'grade-ss': one('a stored SS, X or XX at 1.0x rate or faster',
+		'grade-ss': fromScores('a stored SS, X or XX at 1.0x rate or faster',
 			p => ['SS', 'X', 'XX'].some(g => p.grades.has(g))),
-		'grade-x': one('a stored X or XX at 1.0x rate or faster',
+		'grade-x': fromScores('a stored X or XX at 1.0x rate or faster',
 			p => ['X', 'XX'].some(g => p.grades.has(g))),
-		'grade-xx': one('a stored XX at 1.0x rate or faster', p => p.grades.has('XX')),
-		'rice': one('a score on a 4★+ ranked map whose single notes are over 90% of its objects',
+		'grade-xx': fromScores('a stored XX at 1.0x rate or faster', p => p.grades.has('XX')),
+		'rice': fromScores('a score on a 4★+ ranked map whose single notes are over 90% of its objects',
 			p => p.rice),
-		'ln': one('a score on a 4★+ ranked map whose long notes are over 50% of its objects', p => p.ln),
+		'ln': fromScores('a score on a 4★+ ranked map whose long notes are over 50% of its objects',
+			p => p.ln),
 		...s('play count', {
 			'plays-100': 100, 'plays-1k': 1_000, 'plays-5k': 5_000, 'plays-25k': 25_000, 'plays-100k': 100_000,
 		}, 'plays'),
@@ -370,7 +393,7 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 			'friends-1': 1, 'friends-5': 5, 'friends-25': 25, 'friends-100': 100, 'friends-1k': 1_000,
 		}, 'friends'),
 		...Object.fromEntries(r.def.skills.flatMap(skill => Object.entries(s(
-			`${skill} level (earned)`,
+			`${skill} level`,
 			Object.fromEntries(SKILL_STEPS.map(n => [`${skill}-${n}`, n])),
 			skill,
 		)))),
@@ -381,7 +404,7 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 		...s('upgrades held across all skills', {
 			'upgrades-1': 1, 'upgrades-10': 10, 'upgrades-50': 50, 'upgrades-100': 100,
 		}, 'upgrades'),
-		...s('skills with every upgrade bought', {
+		...s('skills at upgrade level 10', {
 			'ladders-1': 1, 'ladders-5': 5, 'ladders-10': 10, 'ladders-11': 11,
 		}, 'ladders'),
 		...s('highest raw overdrive on a skill (ω)', {
@@ -411,7 +434,7 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 		...s('approved (ranked or loved) and live sets the account mapped', {
 			'mapper-1': 1, 'mapper-2': 2, 'mapper-5': 5, 'mapper-10': 10, 'mapper-50': 50, 'mapper-100': 100,
 		}, 'mapper'),
-		'combo-727': one('a stored score with max combo exactly 727', p => p.combo727),
+		'combo-727': fromScores('a stored score with max combo exactly 727', p => p.combo727),
 		'same-map-100': one('played a single map ≥ 100 times', p => p.mostReplays >= 100),
 		'fail-99': one('the shown play failed after ≥ 99% of the map', p => p.nearMiss),
 		'fail-10s': one(`the shown play failed in the song's first ${EARLY_FAIL_SECONDS} seconds`,
@@ -421,10 +444,11 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 			p => p.nightOwl,
 		),
 		'first-chat': one('has sent a #oss!idle chat message (counted since medals exist)', p => p.chatted),
-		'possessed': one(`a ${amount(PERFECT_SCORE)} score on TAG underground - POSSESSION [CHALLENGE]`,
+		'possessed': fromScores(`a ${amount(PERFECT_SCORE)} score on TAG underground - POSSESSION [CHALLENGE]`,
 			p => p.possessed),
-		'parallax': one('an S or better on The Parallax II: Future Sequence [Marathon]', p => p.parallax),
-		'wonderful': one('an SS or better on Yuyoyuppe - AiAe [Wafles\' SHD] at 1.0x rate or faster',
+		'parallax': fromScores('an S or better on The Parallax II: Future Sequence [Marathon]',
+			p => p.parallax),
+		'wonderful': fromScores('an SS or better on Yuyoyuppe - AiAe [Wafles\' SHD] at 1.0x rate or faster',
 			p => p.wonderful),
 	};
 };
@@ -527,6 +551,51 @@ export const pushMedals = async (r: ServerRuleset, characterId: number): Promise
 	});
 };
 
+export type MedalChanges = { added: string[], removed: string[] };
+
+/** The score-read medals (`scores`) against a character's stored scores as they are
+ *  now, their lines' bests taken back to now: those it earns and lacks, those it holds
+ *  and no longer earns. Every other medal stays as it is, to be awarded on its next
+ *  play as usual. Reads only. */
+export const scoreMedalChanges = async (
+	r: ServerRuleset, character: CharacterRow,
+): Promise<MedalChanges> => {
+	const fromScores = (id: string) => RULES(r)[id]?.scores;
+	const earned = new Set((await earnedWithLive(r, character, SCORE_LINES)).filter(fromScores));
+	const held = (await getMedals(r, character.id)).map(m => m.medalId).filter(fromScores);
+	return {
+		added: [...earned].filter(id => !held.includes(id)),
+		removed: held.filter(id => !earned.has(id)),
+	};
+};
+
+/** After a score reprocess replayed a character: its score-read medals follow the new
+ *  scores both ways, and the score lines' bests come back to now, so a medal taken back
+ *  has to be earned again. Levels and xp stay as earned. */
+export const recalculateMedals = async (
+	r: ServerRuleset, characterId: number,
+): Promise<MedalChanges> => {
+	const character = await getCharacterById(characterId);
+	if (!character) return {
+		added: [], removed: [],
+	};
+	await recordProgress(r, characterId);
+	const changes = await scoreMedalChanges(r, character);
+	const { progress: lines } = r;
+	await db.update(lines)
+		.set({ value: sql`${lines.current}` })
+		.where(and(eq(lines.characterId, characterId), inArray(lines.line, SCORE_LINES)));
+	const batch = await addMedals(r, characterId, changes.added);
+	await removeMedals(r, characterId, changes.removed);
+	if (!batch.ids.length && !changes.removed.length) return changes;
+	await reindexCharacter(r, characterId);
+	// a character with no socket open receives nothing
+	if (batch.ids.length) hub.sendTo(characterId, {
+		type: 'medals', medals: batch,
+	});
+	return changes;
+};
+
 /** How many characters hold each medal, out of every character that has played. */
 export const medalHolders = async ({ medals, totals }: ServerRuleset) => {
 	const [held, [{ players }]] = await Promise.all([
@@ -548,17 +617,18 @@ export const medalHolders = async ({ medals, totals }: ServerRuleset) => {
 export const medalMultiplier = async (r: ServerRuleset, characterId: number): Promise<number> =>
 	medalXPMultiplier(r.def.medals, (await getMedals(r, characterId)).map(m => m.medalId));
 
-/** The medal lines with a progress board. A per-account line ranks each
- *  account's current character. */
+/** The medal lines with a progress board, in medal category order. A
+ *  per-account line ranks each account's current character. */
 const BOARDS: Record<string, { perAccount?: true }> = {
-	hits: {},
 	plays: {},
+	hits: {},
 	time: {},
-	first: {},
-	upgrades: {},
-	ladders: {},
+	friends: { perAccount: true },
 	overdrive: {},
+	prestige: {},
+	first: {},
 	curator: { perAccount: true },
+	mapper: { perAccount: true },
 };
 
 export const ProgressLines = Object.keys(BOARDS);

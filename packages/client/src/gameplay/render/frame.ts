@@ -31,7 +31,11 @@ export type PlayfieldGeometry = {
 
 export type StrainHud = {
 	/** what the gauges read: the live strain, by skill */
-	source: { strainsAt(now: number): Readonly<Record<string, number>> },
+	source: {
+		strainsAt(now: number): Readonly<Record<string, number>>,
+		/** moves when it learns more of the song (a server play's samples come with its replay) */
+		revision?: number,
+	},
 	/** the sparklines, top to bottom */
 	gauges: readonly { skill: string, label: string }[],
 	/** where on the warm-up bar, 0 cold to 1 exhausted */
@@ -47,10 +51,10 @@ export type DrawOptions = {
 	debug?: boolean,
 	/** stacks the top-right accuracy/score lower (narrow screens) */
 	mobile?: boolean,
+	/** how much of the bottom the system bars cover (safe-area inset) */
+	safeBottom?: number,
 	/** draws the strain panel when set */
 	strain?: StrainHud,
-	/** the ruleset's debug readouts over the playfield */
-	debugStats?: (game: ManiaGame, now: number) => string[],
 	/** fired only when the live grade changes (drive a DOM grade badge from it) */
 	onGrade?: (grade: Grade) => void,
 };

@@ -5,6 +5,7 @@ import {
 } from '../upgrades.js';
 import {
 	effectiveLevelOf,
+	playLevelOf,
 	xpForLevel,
 } from '../xp.js';
 
@@ -17,6 +18,8 @@ export default class SkillState<S extends string = string> {
 	public readonly upgrades = new Synced(0);
 	public readonly overdrive = new Synced(0);
 	public readonly prestige = new Synced(0);
+	/** Everything the skill ever earned, prestige or not: what it plays at follows it. */
+	public readonly lifetimeXp = new Synced(0);
 
 	constructor(
 		public readonly name: S,
@@ -63,7 +66,19 @@ export default class SkillState<S extends string = string> {
 		return effectiveLevelOf(this.level.get(), this.xp.get(), this.prestige.get());
 	}
 
+	/** The level the skill plays at in the sim: see {@link playLevelOf}. */
+	public playLevel(): number {
+		return playLevelOf(this.level.get(), this.xp.get(), this.lifetimeXp.get(), this.prestige.get());
+	}
+
+	/** Take on `from`'s whole progression. */
+	public copy(from: SkillState): void {
+		this.apply(from.state());
+		void this.lifetimeXp.set(from.lifetimeXp.get());
+	}
+
 	gainXP(xp: number): number {
+		this.lifetimeXp.set(this.lifetimeXp.get() + xp);
 		this.xp.set(this.xp.get() + xp);
 		let levelsGained = 0;
 		do {

@@ -10,6 +10,7 @@ export default function DocsEndpoint({ endpoint: e, api, language }: {
 	api: string;
 	language: Language;
 }) {
+	const method = e.method ?? 'GET';
 	return <>
 		<h2 id={e.id}>{e.title}</h2>
 		<p>
@@ -22,17 +23,19 @@ export default function DocsEndpoint({ endpoint: e, api, language }: {
 		<p>{e.about}</p>
 		<DocsSample
 			request={{
-				method: 'GET', url: `${api}/api/v2${e.example.path}`, query: e.example.query,
+				method, url: `${api}/api/v2${e.example.path}`, query: e.example.query, json: e.example.body,
 			}}
 			response={e.response}
 			language={language}
 		/>
 		<h3>Request</h3>
 		<p>
-			<small className='docs__badge docs__badge--get'>GET</small> <b><code>{e.path}</code></b>
+			<small className={`docs__badge docs__badge--${method.toLowerCase()}`}>{method}</small>{' '}
+			<b><code>{e.path}</code></b>
 		</p>
 		{e.url && <DocsParams title='URL Parameters' params={e.url} />}
 		{e.query && <DocsParams title='Query Parameters' params={e.query} />}
+		{e.body && <DocsParams title='Body Parameters' params={e.body} />}
 		<h3>Response format</h3>
 		<p>{e.format}</p>
 	</>;

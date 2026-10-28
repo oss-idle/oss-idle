@@ -22,6 +22,7 @@ import {
 	activateLocale,
 	i18n,
 } from './i18n';
+import { startGuestBeat } from './online/guestBeat';
 import { watchMapFolders } from './osu/beatmap/diskSync';
 import { watchSkinFolders } from './osu/skin/skinFolders';
 import { initFrameLimiter } from './responsive/frameLimiter';
@@ -34,6 +35,7 @@ initFrameLimiter(); // cap every rAF loop to the frame limiter setting
 void bootAddons().then(startAutoUpdates); // mount enabled installed add-ons
 void watchMapFolders();
 void watchSkinFolders();
+startGuestBeat();
 SETTINGS.uiScale.forceSync(scale => desktop()?.setZoomFactor?.(scale));
 
 // dev tools; the static DEV_TOOLS drops them from a release build. The profiler

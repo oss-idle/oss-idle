@@ -35,10 +35,11 @@ export const rateSteps = (speedUpgrades: number): number[] => {
 	return steps;
 };
 
-/** What any slowed-down play keeps of its score, like osu!'s HT. Faster plays keep it all. */
-export const SLOW_SCORE_MULTIPLIER = 0.3;
-
-export const scoreMultiplier = (rate: number): number => rate < 1 ? SLOW_SCORE_MULTIPLIER : 1;
+/** What a slowed-down play keeps of its score: x0.6 one step below x1, down to x0.3 at the
+ *  slowest rate. Faster plays keep it all. */
+export const scoreMultiplier = (rate: number): number => rate < 1
+	? round(0.3 + (Math.max(MIN_RATE, rate) - MIN_RATE) * 0.3 / (1 - RATE_STEP - MIN_RATE))
+	: 1;
 
 export const rateSchema = z.number().min(MIN_RATE).max(MAX_RATE);
 

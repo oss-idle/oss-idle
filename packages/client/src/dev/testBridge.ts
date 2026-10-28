@@ -27,9 +27,10 @@ import { menuWarmed } from '../warmup/menuWarmed';
 
 /**
  * Dev-only window handle the end-to-end suite (`packages/e2e`) drives the app
- * through. It reads the same state the UI reads, and its only write is the one
- * a browser cannot do from the outside: end a local play now instead of waiting
- * the song out. Everything else a test does, it does by clicking.
+ * through. It reads the same state the UI reads, and writes only to skip what a
+ * test is not about: end a local play now instead of waiting the song out, or
+ * answer the first-Play choice with local play without its menu clicks.
+ * Everything else a test does, it does by clicking.
  *
  * Loaded from main.tsx behind `DEV_TOOLS` (dev, or a staging build's menu), so a
  * release build never contains it.
@@ -198,9 +199,14 @@ const bridge = {
 	/** the difficulty the music player has, playing or not */
 	nowPlaying: (): number | undefined => music.beatmap.get()?.metadata.id,
 	/** The session has answered *and* the live character it decided on is in
-	 *  place - the placeholder is still there for a moment after it resolves. */
+	 *  place (or it decided there is none yet) - the placeholder is still there
+	 *  for a moment after it resolves. */
 	sessionReady: (): boolean =>
-		Account.resolved.get() && Entities.character.get().id !== 0,
+		Account.resolved.get() && (Entities.character.get().id !== 0 || Account.noCharacter.get()),
+	/** no character yet: the first Play asks for local or online play */
+	noCharacter: (): boolean => Account.noCharacter.get(),
+	/** the first-Play choice, answered with local play (boot.spec clicks it) */
+	playLocally: (): Promise<void> => Account.playLocally(),
 	character,
 	/** every local database write so far has reached IndexedDB */
 	saved: (): Promise<void> => DB.saved(),

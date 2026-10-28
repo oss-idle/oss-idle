@@ -35,6 +35,8 @@
 	--z-page: 5000;
 	--z-direct-link: 5100;
 	--z-dock-left: 5110;
+	/* the strain debug view: over song select and both docks */
+	--z-strain-debug: 5150;
 	--z-tooltip: 5200;
 	--z-dialog-portal: 5300;
 	--z-community: 9500;
@@ -55,6 +57,7 @@
 	--z-share-preview: 10060;
 	--z-message: 10070;
 	--z-tutorial: 15000;
+	--z-play-choice: 17000;
 	--z-onboarding: 20000;
 	--z-playground: 99990;
 	--z-fps: 99998;
@@ -71,7 +74,6 @@
 	--z-select-topshape: 12;
 	--z-select-top: 13;
 	--z-select-search: 20;
-	--z-select-strain: 60;
 	--z-select-botbar: 100;
 	--z-select-exit: 500;
 	--z-select-mobile-scores: 1000;

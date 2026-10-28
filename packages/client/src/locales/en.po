@@ -249,7 +249,7 @@ msgstr "2. Close"
 msgid "A break longer than 30 seconds"
 msgstr "A break longer than 30 seconds"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "A game is already in progress. Play locally instead? It won't be submitted."
 msgstr "A game is already in progress. Play locally instead? It won't be submitted."
 
@@ -287,7 +287,7 @@ msgstr "abort"
 msgid "Abort"
 msgstr "Abort"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Abort it"
 msgstr "Abort it"
 
@@ -437,10 +437,6 @@ msgstr "All but the difficulty name is shared by the set: saving writes it to ev
 msgid "All ranked beatmaps downloaded."
 msgstr "All ranked beatmaps downloaded."
 
-#: src/scenes/Gameplay.tsx
-msgid "Already playing"
-msgstr "Already playing"
-
 #: src/components/character/RebirthView.tsx
 msgid "Already reborn with this character"
 msgstr "Already reborn with this character"
@@ -517,13 +513,12 @@ msgid "Average XP boost"
 msgstr "Average XP boost"
 
 #: src/components/page/pageBar.tsx
+#: src/components/PlayChoice.tsx
 #: src/components/songselect/BeatmapInfo.tsx
 #: src/components/Tutorial.tsx
 #: src/components/WebBrowser.tsx
 #: src/editor/builtinActions.ts
 #: src/editor/EditorActions.tsx
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
 #: src/scenes/MainMenu.tsx
 #: src/scenes/MainMenu.tsx
 msgid "Back"
@@ -781,8 +776,6 @@ msgstr "By Title"
 #: src/components/songselect/CardContextMenu.tsx
 #: src/scenes/Gameplay.tsx
 #: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
 #: src/scenes/MainMenu.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -1035,12 +1028,7 @@ msgstr "Could not withdraw it"
 msgid "Couldn't load beatmaps: {error}"
 msgstr "Couldn't load beatmaps: {error}"
 
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
-msgid "Couldn't start play"
-msgstr "Couldn't start play"
-
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Couldn't take over the running play."
 msgstr "Couldn't take over the running play."
 
@@ -1709,6 +1697,10 @@ msgstr "Hold every note until the next (full LN)"
 msgid "Host is changing map..."
 msgstr "Host is changing map..."
 
+#: src/components/PlayChoice.tsx
+msgid "How do you want to play?"
+msgstr "How do you want to play?"
+
 #: src/components/listing/IconField.tsx
 msgid "Icon"
 msgstr "Icon"
@@ -1792,6 +1784,10 @@ msgstr "Interface"
 msgid "Inverse the whole map"
 msgstr "Inverse the whole map"
 
+#: src/components/PlayChoice.tsx
+msgid "It can never be moved online."
+msgstr "It can never be moved online."
+
 #: src/editor/EditorView.tsx
 msgid "It is in the ranking queue: withdraw it to update it"
 msgstr "It is in the ranking queue: withdraw it to update it"
@@ -1863,6 +1859,10 @@ msgstr "Last week"
 #: src/scenes/Options.tsx
 msgid "Layout"
 msgstr "Layout"
+
+#: src/components/PlayChoice.tsx
+msgid "Leaderboards, multiplayer, one character on every device."
+msgstr "Leaderboards, multiplayer, one character on every device."
 
 #: src/scenes/Gameplay.tsx
 msgid "Leave - your character keeps playing"
@@ -2303,6 +2303,10 @@ msgstr "Next tool"
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "No {ruleset} difficulty of it is online yet: upload one first"
 msgstr "No {ruleset} difficulty of it is online yet: upload one first"
+
+#: src/components/PlayChoice.tsx
+msgid "No account. Your character stays on this device."
+msgstr "No account. Your character stays on this device."
 
 #: src/components/addons/BrowseAddonsView.tsx
 msgid "No add-ons found."
@@ -2775,21 +2779,23 @@ msgstr "Play it one more time"
 msgid "Play it one time fewer"
 msgstr "Play it one time fewer"
 
+#: src/components/PlayChoice.tsx
+#: src/components/PlayChoice.tsx
+msgid "Play locally"
+msgstr "Play locally"
+
 #: src/components/songselect/CardContextMenu.tsx
 msgid "Play next"
 msgstr "Play next"
 
+#: src/components/PlayChoice.tsx
 #: src/components/Tutorial.tsx
 msgid "Play online"
 msgstr "Play online"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Play unranked"
 msgstr "Play unranked"
-
-#: src/scenes/Gameplay.tsx
-msgid "Play unranked ?"
-msgstr "Play unranked ?"
 
 #: src/editor/actions.ts
 msgid "Playback"
@@ -3391,6 +3397,10 @@ msgstr "Show Locked"
 msgid "Show scores"
 msgstr "Show scores"
 
+#: src/components/dock/DockPill.tsx
+msgid "Show the dock"
+msgstr "Show the dock"
+
 #: src/editor/EditorTimingPoint.tsx
 msgid "Show the first bar line"
 msgstr "Show the first bar line"
@@ -3424,6 +3434,10 @@ msgstr "Sign in to create and publish add-ons."
 #: src/editor/EditorView.tsx
 msgid "Sign in to upload your maps"
 msgstr "Sign in to upload your maps"
+
+#: src/components/PlayChoice.tsx
+msgid "Sign in with osu!"
+msgstr "Sign in with osu!"
 
 #: src/components/options/SignIn.tsx
 msgid "Sign out"
@@ -3782,15 +3796,15 @@ msgstr "There are no matches available."
 msgid "There are no skin files in there"
 msgstr "There are no skin files in there"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty can't be played here."
 msgstr "This difficulty can't be played here."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty failed to load."
 msgstr "This difficulty failed to load."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty has no notes to play."
 msgstr "This difficulty has no notes to play."
 
@@ -3809,10 +3823,6 @@ msgstr "This is an <0>automated, idle</0> osu!mania stable client: your characte
 #: src/editor/EditorView.tsx
 msgid "This map belongs to another mapper"
 msgstr "This map belongs to another mapper"
-
-#: src/scenes/Gameplay.tsx
-msgid "This play took too long to start."
-msgstr "This play took too long to start."
 
 #: src/osu/skin/importSkin.ts
 msgid "This skin is too big"
@@ -4336,7 +4346,7 @@ msgstr "Your character can play <0>on-repeat</0>, automatically, on playlists yo
 msgid "Your character can play <0>on-repeat</0>, automatically, on playlists you crafted.<1> Right-click</1> a beatmap to add it and <2>group by playlist</2>, then start a beatmap to enter playlist mode."
 msgstr "Your character can play <0>on-repeat</0>, automatically, on playlists you crafted.<1> Right-click</1> a beatmap to add it and <2>group by playlist</2>, then start a beatmap to enter playlist mode."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Your character is still playing another map. Abort that play to start this one?"
 msgstr "Your character is still playing another map. Abort that play to start this one?"
 

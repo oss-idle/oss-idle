@@ -40,6 +40,8 @@ export default tseslint.config(
 			'packages/shared/src/locales/*.ts',
 			'packages/e2e/playwright-report/**',
 			'packages/e2e/test-results/**',
+			// gitignored notes and mockups
+			'spec/**',
 		],
 	},
 	...tseslint.configs.recommended,

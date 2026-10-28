@@ -21,6 +21,8 @@ import {
 	GROUPS,
 	OWNER_ID,
 } from '@oss-idle/shared/groups';
+import { RULESET_IDS } from '@oss-idle/shared/rulesets/ids';
+import { xpGivesLevel } from '@oss-idle/shared/xp';
 
 // One .env for the whole backend: the bot reads the server's.
 config({ path: fileURLToPath(new URL('../../server/.env', import.meta.url)) });
@@ -114,11 +116,15 @@ const db = mysql.createPool({
 
 type Linked = { name?: string; level?: number; badges: string[] };
 
+/** The current character's lifetime xp, from its ruleset's own table. */
+const LIFETIME_XP = `COALESCE(${RULESET_IDS.map(id => `(SELECT p.overall_lifetime_xp FROM \`${id}_character\` p
+	WHERE p.id = c.id AND c.ruleset = '${id}')`).join(', ')})`;
+
 /** Discord id → name and overall level of the account's current character and its badge role names,
  *  for linked accounts. */
 const linkedMembers = async (filter = '', args: unknown[] = []) => {
 	const [rows] = await db.query<RowDataPacket[]>(
-		`SELECT u.id, u.discord_id AS discordId, c.name, c.overall_level AS level,
+		`SELECT u.id, u.discord_id AS discordId, c.name, ${LIFETIME_XP} AS lifetimeXp,
 			u.supporter_until > UTC_TIMESTAMP() AS supporter,
 			(SELECT GROUP_CONCAT(g.\`group\`) FROM user_group g WHERE g.user_id = u.id) AS \`groups\`
 		FROM user u LEFT JOIN \`character\` c ON c.id = u.current_character
@@ -131,7 +137,7 @@ const linkedMembers = async (filter = '', args: unknown[] = []) => {
 		if (row.supporter) keys.add('supporter');
 		const linked: Linked = {
 			name: row.name ?? undefined,
-			level: row.level ?? undefined,
+			level: row.lifetimeXp === null ? undefined : xpGivesLevel(Number(row.lifetimeXp)).level,
 			badges: BADGES.filter(badge => keys.has(badge.key)).map(badge => badge.name),
 		};
 		return [row.discordId as string, linked];
@@ -228,8 +234,8 @@ const syncMember = async (member: GuildMember, linked: Linked | undefined) => {
 	const stale = member.roles.cache.filter(role => tierOfRole(role) !== undefined
 		? role !== want
 		: isBadge(role) && !badges.has(role.id));
-	if (linked?.name && member.nickname !== linked.name) {
-		// Discord never lets a bot rename the server owner or anyone ranked above it
+	// Discord never lets a bot rename the server owner or anyone ranked above it
+	if (linked?.name && member.nickname !== linked.name && member.manageable) {
 		await member.setNickname(linked.name)
 			.catch(err => console.error(`[discord] nickname of ${member.id}:`, err.message));
 	}

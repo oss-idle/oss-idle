@@ -20,8 +20,7 @@ import {
  *  press was a jump (two same-hand notes at once). */
 type HandAction = { entry: SkillStrain, anchor: RuntimeNote, jump: boolean };
 
-/** In the nps..max band the hand drifts late; chance per press that the player
- *  snaps back on time instead of drifting further. */
+/** Chance per press in the nps..max band that it drifts late. */
 const RECOVERY_CHANCE_MIN = 0.01;
 const RECOVERY_CHANCE_MAX = 0.15;
 const MAX_RECOVERY_CHANCE_MIN = 0.01;
@@ -44,7 +43,7 @@ const JUMP_JACK_STRAIN_FACTOR = 0.6;
  * Three caps, in presses per second per hand:
  *  - `comfort`: below it the hand is fresh - no strain at all.
  *  - `nps`: comfort..nps is hittable cleanly but dirties accuracy (unpure).
- *  - `max`: nps..max the presses drift late, sometimes recovering; past `max`
+ *  - `max`: nps..max some presses drift late; past `max`
  *    the hand physically can't keep up - each press is delayed by the full
  *    deficit and the lateness compounds into `lateFloor`, a hard minimum on
  *    how early the press can land (enforced across all skills by the bot).
@@ -209,7 +208,7 @@ export default class JackSpeed extends Skill {
 			const t = (speed - this.comfort) / (this.nps - this.comfort);
 			currentStrain.unpure = (currentStrain.unpure ?? 0) + lerp(0, 0.01, t);
 		} else if (speed <= this.max) {
-			// drifting: each press lands a bit late unless the player recovers
+			// drifting: a press lands a bit late with the recovery chance
 			const t = (speed - this.nps) / (this.max - this.nps);
 			currentStrain.strain = lerp(0.1, 0.4, t) * relief;
 			if (Math.random() <= this.recovery_min) {

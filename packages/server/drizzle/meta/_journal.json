@@ -708,6 +708,34 @@
       "when": 1796860800000,
       "tag": "0109_rank_ruleset_diffs",
       "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "5",
+      "when": 1796947200000,
+      "tag": "0110_memory_decay",
+      "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "5",
+      "when": 1797033600000,
+      "tag": "0111_xp_gains",
+      "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "5",
+      "when": 1797120000000,
+      "tag": "0112_xp_gain_map",
+      "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "5",
+      "when": 1797206400000,
+      "tag": "0113_score_version",
+      "breakpoints": true
     }
   ]
 }

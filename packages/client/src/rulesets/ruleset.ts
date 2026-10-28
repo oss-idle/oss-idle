@@ -40,12 +40,10 @@ export type PlayBot = Bot & {
 export type ManiaPlayer = {
 	/** a bot playing with a copy of `skills` (the live ones never move mid-play) */
 	bot(skills: readonly SkillState[], timesPlayed: number, tired?: Tiredness): PlayBot,
-	/** the fixed-level bot of the debug play and the skin preview */
+	/** a fixed-level bot for the skin preview */
 	debugBot(): PlayBot,
 	/** the strain gauges, top to bottom, in the active locale */
 	strainGauges(): { skill: string, label: string }[],
-	/** debug readouts over the playfield */
-	debugStats?(game: ManiaGame, now: number): string[],
 };
 
 /** A ruleset on the client: its def, and what it does here beyond it. */

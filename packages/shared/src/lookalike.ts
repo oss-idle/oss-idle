@@ -1,0 +1,211 @@
+const IGNORABLE = /\p{Default_Ignorable_Code_Point}/gu;
+const NON_ASCII = /\P{ASCII}/gu;
+
+/** A name as it reads: NFKC folds fullwidth and styled letters, invisible
+ *  characters go, and other scripts' letters drawn like ASCII ones become them
+ *  (Cyrillic a, Greek o). */
+export const lookalike = (name: string) => name.normalize('NFKC')
+	.replace(IGNORABLE, '')
+	.replace(NON_ASCII, c => ASCII_OF.get(c) ?? c);
+
+/** What two names are compared by: the same key reads as the same name. */
+export const nameKey = (name: string) => lookalike(name).toLowerCase().replace(/ +/g, ' ');
+
+// From Unicode's confusables.txt (UTS #39, 18.0.0): single non-ASCII characters
+// whose prototype is ASCII, minus those NFKC already folds.
+const CONFUSABLES: [string, string][] = [
+	[' ', '\u2028\u2029\u1680\u2800'],
+	['!', '\u01C3\u2D51'],
+	['$', '\u0586'],
+	['&', '\u{1F672}\u{1F674}\u{1F675}\uA778'],
+	['\'', '\u055D\u2CFF\u2018\u2019\u201B\u05F3\u2032\u2035\u055A\u055B\u02B9\u02C8\u02CA'
+		+ '\u02CB\u02F4\u02BB\u02BD\u02BC\u02BE\uA78C\uA78B\u05D9\u07F4\u07F5\u144A\u16CC'
+		+ '\u{1E94B}\u{16F51}\u{16F52}'],
+	['\'\'', '\u1CD3\u201C\u201D\u201F\u05F4\u3003\u02BA\u02F6\u02EE\u05F2'],
+	['\'B', '\u0181'],
+	['\'D', '\u018A'],
+	['\'P', '\u01A4'],
+	['\'T', '\u01AC'],
+	['\'Y', '\u01B3'],
+	['(', '\u2768\u2772\u3014\u2E62\uFD3E\u{10141}'],
+	['((', '\u2E28'],
+	[')', '\u2769\u2773\u3015\u2E63\uFD3F\u{10140}'],
+	['))', '\u2E29'],
+	['*', '\u204E\u066D\u2217\u{1031F}'],
+	['**', '\u156F'],
+	['+', '\u16ED\u2795\u{11055}\u{1E6E9}\u1429\u1540\u{16869}\u{1029B}'],
+	[',', '\u060D\u066B\u201A\u2E12\uA4F9\u{16F53}'],
+	['-', '\u2010\u2012\u2013\u06D4\u2043\u02D7\u2212\u2796\u{10191}\u2CBB\u2CBA\u174D'
+		+ '\u1BF3\uAA7D'],
+	['-.', '\uA4FE'],
+	['.', '\u{1D16D}\uABEC\u0701\u0702\uA60E\u{10A50}\u0660\u06F0\u{1ECAE}\uA4F8'],
+	['.,', '\uA4FB'],
+	['..', '\uA4FA'],
+	['/', '\u1735\u2041\u2215\u2044\u2571\u27CB\u29F8\u{1D23A}\u31D2\u31D3\u3033\u2CC7'
+		+ '\u2CC6\u30CE\u4E3F'],
+	['//', '\u2AFD'],
+	['///', '\u2AFB'],
+	['2', '\u{1CCF2}\uA75A\u01A7\u03E8\uA644\u1CB7\u10C7\u14BF\u1616\uA6EF'],
+	['3', '\u{1D206}\u0969\u0AE9\u{1CCF3}\uA7AB\u021C\u01B7\uA76A\u2C9C\u2CC4\u2CCC\u0417'
+		+ '\u04E0\u1C95\u0545\u1702\u{16F3B}\u{118CA}'],
+	['4', '\u{16E82}\u{1CCF4}\uAB9E\u13CE\u{118AF}'],
+	['5', '\u{1CCF5}\u01BC\u{118BB}'],
+	['6', '\u{1CCF6}\u2CD3\u2CD2\u03EC\u2CDC\u0431\uABBE\u13EE\uA543\u{118D5}'],
+	['7', '\u{1D1FE}\u{1D212}\u{1CCF7}\u{16E8A}\u1C84\u172A\u{104D2}\u{118C6}'],
+	['8', '\u0B03\u{11445}\u09EA\u0A6A\u{1E8CB}\u{1CCF8}\u0223\u0222\uA589\u{169FE}'
+		+ '\u{1031A}'],
+	['9', '\u0A67\u0B68\u{1E2F2}\u09ED\u0D6D\u{1CCF9}\uA76F\uA76E\u2CCB\u2CCA\u{169C1}'
+		+ '\u{118CC}\u{118AC}\u{118D6}'],
+	[':', '\u0903\u0A83\u{11002}\u{11082}\u{11182}\u{115BE}\u{116AC}\u{11838}\u0589\u0703'
+		+ '\u0704\u0831\u1361\u16EC\u1803\u1809\u205A\u05C3\u{10AF5}\u{1123A}\u02F8\u1393'
+		+ '\uA789\u2236\u{1D108}\u02D0\u{1015B}\u{11DD9}\uA4FD'],
+	['::', '\u2E2C\u2237'],
+	[':=', '\u2254'],
+	['<', '\u2039\u276E\u02C2\u{1D236}\u2D66\u1438\u16B2\u{16AEC}\u{1032D}'],
+	['<<', '\u226A'],
+	['<<<', '\u22D8'],
+	['=', '\u1400\u2E40\u30A0\uA4FF\uA78A\u{10190}\u{11053}\uA60C'],
+	['=:', '\u2255'],
+	['>', '\u203A\u276F\u02C3\u{1D237}\u1433\u{16F3F}'],
+	['><', '\u2AA5'],
+	['>>', '\u226B\u2A20'],
+	['>>>', '\u22D9'],
+	['?', '\u0294\u0241\u097D\u13AE\uA6EB'],
+	['A', '\u{1CCD6}\u{1DF6A}\u0391\u0410\u13AA\u15C5\uA4EE\u{16F40}\u{102A0}'],
+	['AA', '\uA732'],
+	['AE', '\u00C6\u04D4'],
+	['AO', '\uA734'],
+	['AR', '\u{1F707}'],
+	['AU', '\uA736'],
+	['AV', '\uA738\uA73A'],
+	['AY', '\uA73C'],
+	['B', '\u{1CCD7}\uA7B4\u0392\u2C82\u0412\u13F4\u15F7\uA557\uA4D0\u{10282}\u{102A1}'
+		+ '\u{10301}'],
+	['C', '\u{1F74C}\u{118E9}\u{118F2}\u{1CCD8}\u2CA4\u0421\u13DF\uA4DA\u{102A2}\u{10302}'
+		+ '\u{10415}\u{1051B}'],
+	['C\'', '\u0187'],
+	['D', '\u{1CCD9}\u13A0\u15DE\u15EA\uA4D3'],
+	['E', '\u22FF\u{1CCDA}\u{1DF81}\u0395\u0415\u2D39\u13AC\uA5CB\uA4F0\u{118A6}\u{118AE}'
+		+ '\u{10286}'],
+	['F', '\u{1D213}\u{1CCDB}\uA798\u03DC\u07D3\u15B4\uA4DD\u{118C2}\u{118A2}\u{10287}'
+		+ '\u{102A5}\u{10525}'],
+	['G', '\u{1CCDC}\u050C\u13C0\u13F3\uA4D6'],
+	['G\'', '\u0193'],
+	['H', '\u{1CCDD}\u0397\u2C8E\u041D\u13BB\u157C\uA4E7\u{102CF}'],
+	['J', '\u{1CCDF}\uA7B2\u037F\u0408\u13AB\u148D\uA4D9'],
+	['K', '\u{1CCE0}\u039A\u2C94\u041A\u13E6\u16D5\uA4D7\u{10518}'],
+	['K\'', '\u0198'],
+	['L', '\u{1D22A}\u{1CCE1}\u2CD0\u13DE\u14AA\uA4E1\u{16F16}\u{118A3}\u{118B2}\u{1041B}'
+		+ '\u{10526}'],
+	['M', '\u{1CCE2}\u039C\u03FA\u2C98\u041C\u13B7\u15F0\u16D6\u{10C21}\uA4DF\u{102B0}'
+		+ '\u{10311}'],
+	['MB', '\u{1F76B}'],
+	['N', '\u{1CCE3}\u039D\u2C9A\u{11ABE}\uA4E0\u{10513}'],
+	['O', '\u07C0\u0CE6\u3007\u{118E0}\u{11DE0}\u{1E140}\u{1E2F0}\u{1CCF0}\u{1CCE4}\u039F'
+		+ '\u2C9E\u041E\u1CBF\u0555\u2D54\u12D0\u0B20\u{104C2}\u{10C17}\u{16AE9}\uA4F3'
+		+ '\u{118B5}\u{10292}\u{102AB}\u{1030F}\u{10404}\u{10516}'],
+	['OE', '\u0152'],
+	['OO', '\uA74E\uA698'],
+	['Oy', '\u0478'],
+	['P', '\u{1CCE5}\u03A1\u2CA2\u2CCE\u0420\u13E2\u146D\uA4D1\u{10295}'],
+	['P\'', '\u1486'],
+	['Q', '\u{1CCE6}\u051A\u2D55'],
+	['QE', '\u{1F700}'],
+	['R', '\u{1D216}\u{1CCE7}\u01A6\u024C\u13A1\u13D2\u{104B4}\u1587\uA4E3\u{16F35}'],
+	['S', '\u{1CCE8}\u0405\u10BD\u10FD\u1CBD\u054F\u13D5\u13DA\uA576\u{16AD6}\uA4E2'
+		+ '\u{16F3A}\u{10296}\u{10420}'],
+	['T', '\u22A4\u27D9\u{1F768}\u{1D373}\u{1CCE9}\u03A4\u2CA6\u0422\u07E0\u13A2\uA50B'
+		+ '\u3112\uA4D4\u{16F0A}\u{118BC}\u{10297}\u{102B1}\u{10315}\u4E05'],
+	['T3', '\uA728'],
+	['U', '\u222A\u22C3\u{1CCEA}\u054D\u1200\u{104CE}\u144C\uA4F4\u{16F42}\u{118B8}'],
+	['U\'', '\u1467'],
+	['V', '\u{1CEFC}\u{1D20D}\u{1E145}\u0667\u06F7\u{1CCEB}\u0474\u2D38\u13D9\u142F'
+		+ '\u{10C1F}\uA6DF\uA4E6\u{16F08}\u{118A0}\u{1051D}'],
+	['VB', '\u{1F76C}'],
+	['W', '\u{1D20C}\u{118E6}\u{118EF}\u{1CCEC}\u051C\u13B3\u13D4\uA4EA'],
+	['X', '\u166D\u2573\u{10322}\u{10CFC}\u{118EC}\u{1CCED}\uA7B3\u03A7\u2CAC\u0425\u2D5D'
+		+ '\u1CF5\u16B7\u{10C82}\u{10C13}\uA4EB\u{10290}\u{102B4}\u{10317}\u{10527}'],
+	['Y', '\u{1CCEE}\u03A5\u2CA8\u0423\u04AE\u07CC\u13A9\u13BD\u{10C20}\u311A\uA4EC'
+		+ '\u{16F43}\u{118A4}\u{102B2}\u4E2B'],
+	['Z', '\u{118E5}\u{102F5}\u{1CCEF}\u2C6B\u0396\u2C8C\u10CD\u13C3\u{11ABC}\uA6C9\uA4DC'
+		+ '\u{118A9}\u{10507}'],
+	['\\', '\u2216\u2572\u27CD\u29F5\u29F9\u{1D20F}\u{1D23B}\u31D4\u4E36'],
+	['\\\\', '\u2CF9\u244A'],
+	['^', '\u02C4\u02C6\u18D4'],
+	['_', '\u0640\u07FA\u{145C1}'],
+	['a', '\u237A\u{1DF5A}\u0251\uAB64\u03B1\u0430'],
+	['aa', '\uA733'],
+	['ae', '\u00E6\u04D5'],
+	['ao', '\uA735'],
+	['au', '\uA737'],
+	['av', '\uA739\uA73B'],
+	['ay', '\uA73D'],
+	['b', '\u{1D207}\u0184\u042C\u07D5\u13CF\u1472\u15AF\u{16EB6}\u{1031C}'],
+	['b\'', '\u1488'],
+	['bl', '\u042B'],
+	['c', '\u{1D134}\u1D04\u2CA5\u0441\u1C83\u1004\u105A\uABAF\u{1043D}'],
+	['co', '\uAB43'],
+	['d', '\u{1018B}\u0501\u13E7\u146F\uA4D2'],
+	['d\'', '\u1487'],
+	['dz', '\u02A3'],
+	['e', '\u212E\uAB32\u0435\u04BD'],
+	['f', '\u{1017E}\uAB35\uA799\u0192\u0284\u1E9D\u0584'],
+	['g', '\u0261\u1D83\u018D\u0581'],
+	['h', '\u04BB\u04BA\u10B9\u0570\u13C2'],
+	['i', '\u00A1\u2373\u0131\u026A\u0269\u03B9\u2C93\u0456\uA647\u0582\uAB75\u13A5'
+		+ '\u{118C3}'],
+	['ie', '\u{1DF5D}'],
+	['j', '\u0237\u03F3\u0458\u0575'],
+	['l', '\u0964\uA8CE\u104A\uAA5D\u{11047}\u{110C0}\u{11141}\u{111C5}\u{113D4}\u{1144B}'
+		+ '\u{11641}\u{11C41}\u05C0\u{115C5}\u21BF\u2223\u23FD\u2502\u2503\u{1D100}\u0661'
+		+ '\u06F1\u{10320}\u{10CFA}\u{11DE1}\u{1D377}\u{1E141}\u{1E8C7}\u{1ED01}\u{1CCF1}'
+		+ '\uA830\u{1CCDE}\uA7AE\uA7FE\u0196\uA781\u01C0\u0399\u2C92\u0406\u04CF\u04C0'
+		+ '\u05D5\u05DF\u0627\u07CA\u2D4A\u2D4F\u{11DDA}\u16C1\u16D0\u{10CA5}\u{10C3E}'
+		+ '\uA56F\u{16EAA}\uA4F2\u{16F28}\u{1028A}\u{10926}\u{10309}\u{1050E}\u{16D63}'],
+	['l\'', '\u05F1'],
+	['lL', '\u1EFA'],
+	['lO', '\u042E'],
+	['ll', '\u0965\uA8CF\u104B\u{11048}\u{110C1}\u{11142}\u{111C6}\u{113D5}\u{1144C}'
+		+ '\u{11642}\u{11C42}\u2016\u2225\u{1D262}\u01C1\u05F0'],
+	['lll', '\uA516'],
+	['ls', '\u02AA'],
+	['lt', '\u20B6'],
+	['lz', '\u02AB'],
+	['n', '\u0578\u057C'],
+	['o', '\u0C02\u0C82\u0D02\u0D82\u{11302}\u0966\u09E6\u0A66\u0AE6\u0B66\u0BE6\u0C66'
+		+ '\u0D66\u0E50\u0ED0\u1040\u17E0\u1A80\u1A90\u{114D0}\u0665\u06F5\u1D0F\u1D11'
+		+ '\uAB3D\u03BF\u03C3\u2C9F\u03ED\u043E\u1C82\u10FF\u0585\u05E1\u0647\u06BE\u06C1'
+		+ '\u06D5\u0840\u07CB\u0D20\u1BEA\u101D\u{10D07}\u{11124}\u1A45\u{104EA}\u110B'
+		+ '\u11BC\u{118C8}\u{118D7}\u{1092C}\u{1042C}'],
+	['oe', '\u0153'],
+	['oi', '\u{1DF5E}'],
+	['oo', '\u221E\uA74F\uA699\u1147\u11EE'],
+	['ou', '\u{1DF5F}'],
+	['oy', '\u0479'],
+	['p', '\u2374\u00FE\u01BF\u03C1\u03F8\u2CA3\u2CCF\u0440'],
+	['q', '\u051B\u0563\u0566'],
+	['r', '\uAB47\uAB48\u1D26\u2C85\u0433\uAB81\u{16A19}'],
+	['r\'', '\u0491'],
+	['rn', '\u{118E3}\u0560\u{11700}'],
+	['s', '\uA731\u01BD\u0455\u0D1F\uABAA\u{118C1}\u{10448}'],
+	['sss', '\u{1F75C}'],
+	['tf', '\uA777'],
+	['th', '\u{1DF64}'],
+	['ts', '\u02A6'],
+	['u', '\uA79F\u1D1C\uAB4E\uAB52\u028B\u03C5\u057D\u{104F6}\u{118D8}'],
+	['ue', '\u1D6B'],
+	['uo', '\uAB63'],
+	['v', '\u2228\u22C1\u1D20\u03BD\u0475\u05D8\u{11706}\uABA9\u{118C0}'],
+	['w', '\u29E2\u{1DF7D}\u026F\uA7FA\u1D21\u2CBD\u0461\u0448\u051D\u0561\u{1170A}'
+		+ '\u{1170E}\u{1170F}\uAB83\uABA4'],
+	['wh', '\u{1DF65}'],
+	['x', '\u166E\u00D7\u292B\u292C\u2A2F\u0445\u1763\u1BEC\u1541\u157D\u{10CC2}'],
+	['y', '\u0263\u1D8C\u028F\u1EFF\uAB5A\u03B3\u2CA9\u0443\u04AF\u10E7\u{118C4}\u{118DC}'],
+	['z', '\u1D22\u2C6C\u2C8D\u2D2D\uAB93'],
+	['{', '\u2774\u{1D114}'],
+	['}', '\u2775'],
+	['~', '\u2053\u301C\u223C'],
+];
+
+const ASCII_OF = new Map(CONFUSABLES.flatMap(([ascii, chars]) =>
+	[...chars].map(c => [c, ascii] as const)));

@@ -39,6 +39,7 @@ export const osu = {
 	prestigeNote: () => undefined,
 	skillsNote: () => '',
 	physicalSkills: [],
+	gauged: [],
 	performanceArgs: ({ maxCombo, counts }, rate = 1, mods = []) => ({
 		lazer: false,
 		clockRate: rate,

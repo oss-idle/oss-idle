@@ -7,14 +7,15 @@ import { overdriveText } from '@oss-idle/shared/display/overdrive';
 export type Goal = { id: string, goal: number };
 
 export const LINE_NAMES: Record<string, MessageDescriptor> = {
-	hits: msg`Notes hit`,
 	plays: msg`Play count`,
+	hits: msg`Notes hit`,
 	time: msg`Hours played`,
-	first: msg`#1 ranks`,
-	upgrades: msg`Upgrades held`,
-	ladders: msg`Skills fully upgraded`,
+	friends: msg`Followers`,
 	overdrive: msg`Highest overdrive`,
+	prestige: msg`Prestiges`,
+	first: msg`#1 ranks`,
 	curator: msg`Proposed maps ranked`,
+	mapper: msg`Mapped sets ranked or loved`,
 };
 
 export const lineValue = (line: string, value: number): string =>

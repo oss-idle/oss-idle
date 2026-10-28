@@ -3,6 +3,7 @@ import * as jsxRuntime from 'react/jsx-runtime';
 import * as ReactDOM from 'react-dom';
 import * as ReactDOMClient from 'react-dom/client';
 
+import type { AddonApi } from '@oss-idle/shared/apiV2';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import { VERSION } from '@oss-idle/shared/version';
 
@@ -11,6 +12,7 @@ import {
 	editorHost,
 } from '../editor/editorHost';
 import { selectedRuleset } from '../rulesets/registry';
+import { addonApi } from './api';
 import { Owned } from './owned';
 
 /** The ruleset the player picked: an add-on made for one can tell when it is in another. */
@@ -28,7 +30,7 @@ const rulesetHost: RulesetHost = {
 /**
  * What the game hands its add-ons: its version, its own React (so an add-on bundles
  * none: the SDK's `sharedReact` reads it from `globalThis.ossIdle`), the ruleset the
- * player picked, and the editor for add-ons of the Editor type. `mount` gets an add-on's own copy, which drops
+ * player picked, API v2 as the signed-in player, and the editor for add-ons of the Editor type. `mount` gets an add-on's own copy, which drops
  * whatever the add-on left registered when it stops.
  */
 export type AddonHost = {
@@ -36,6 +38,7 @@ export type AddonHost = {
 	/** React's modules by import path: 'react', 'react-dom', 'react-dom/client', 'react/jsx-runtime' */
 	react: Record<string, unknown>,
 	ruleset: RulesetHost,
+	api: AddonApi,
 	editor: EditorHost,
 };
 
@@ -51,6 +54,7 @@ globalThis.ossIdle = {
 	version: VERSION,
 	react,
 	ruleset: rulesetHost,
+	api: addonApi,
 	editor: editorHost,
 };
 
@@ -65,6 +69,7 @@ export const hostFor = (): { host: AddonHost, release: () => void } => {
 				current: rulesetHost.current,
 				watch: onChange => owned.own(rulesetHost.watch(onChange)),
 			},
+			api: addonApi,
 			editor: { watch: (onOpen, onClose) => owned.own(editorHost.watch(onOpen, onClose)) },
 		},
 		release: () => owned.release(),

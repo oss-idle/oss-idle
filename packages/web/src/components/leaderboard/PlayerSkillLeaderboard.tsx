@@ -3,7 +3,6 @@ import './PlayerLeaderboard.css';
 import { Trans } from '@lingui/react/macro';
 
 import { levelFromTotalXp } from '@oss-idle/shared/display/levelDisplay';
-import { level } from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import { PAGE_SIZE } from '@oss-idle/shared/rankings';
@@ -44,9 +43,9 @@ const cell = (board: Board, player: Player, s: SkillSort) => {
 	if (board === 'lifetime') {
 		return levelFromTotalXp(s === 'overall' ? p.overallLifetimeXp : p.skills[s].lifetimeXp);
 	}
-	// what the skill holds now: the level, with its parts on hover
+	// the level shown, with its parts on hover
 	return s === 'overall'
-		? level(p.overallLevel, p.overallXp)
+		? levelFromTotalXp(p.overallLifetimeXp)
 		: <SkillLevel
 			level={p.skills[s].level}
 			xp={p.skills[s].xp}

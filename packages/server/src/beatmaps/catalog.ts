@@ -3,6 +3,7 @@ import { statSync } from 'node:fs';
 import {
 	and,
 	eq,
+	gt,
 	inArray,
 	isNotNull,
 	isNull,
@@ -18,6 +19,7 @@ import {
 
 import {
 	APPROVED_STATUSES,
+	type BeatmapStatus,
 	INTRO_SET_ID,
 	isApproved,
 	type MapTag,
@@ -89,9 +91,25 @@ export const playerMapCondition = ({ setStatus }: ServerRuleset) => and(
 	or(eq(setStatus.status, 'unranked'), eq(setStatus.status, 'pending')),
 );
 
+/** A player's own map ranked or loved for a time still to come: out of the game until then,
+ *  but its page, its download and its mapper's profile show it as planned. */
+export const plannedCondition = ({ setStatus }: ServerRuleset) => and(
+	isNull(beatmapset.deletedAt),
+	isNotNull(beatmapset.uploadedAt),
+	inArray(setStatus.status, [...APPROVED_STATUSES]),
+	or(isNull(setStatus.rankedAt), gt(setStatus.rankedAt, sql`now()`)),
+);
+
 /** A difficulty with a page: live, or on a player's map still up. For queries joining `beatmaps`. */
 export const shownDiffCondition = (r: ServerRuleset) =>
-	or(liveDiffCondition(r), and(playerMapCondition(r), diffsOf(r)));
+	or(liveDiffCondition(r), and(or(playerMapCondition(r), plannedCondition(r)), diffsOf(r)));
+
+/** A set's status and ranked date as the site shows them: 'planned', its date secret until it goes live. */
+export const shownStatusColumns = (r: ServerRuleset) => ({
+	status: sql<BeatmapStatus | 'planned'>`case when ${plannedCondition(r)} then 'planned' else ${r.setStatus.status} end`,
+	rankedAt: sql<Date | null>`case when ${r.setStatus.rankedAt} <= now() then ${r.setStatus.rankedAt} end`
+		.mapWith(r.setStatus.rankedAt),
+});
 
 /** The ruleset's status of every set, for a query on `beatmapset`. */
 export const withStatus = ({ setStatus }: ServerRuleset) =>
@@ -116,7 +134,7 @@ export const isSetLive = (setId: number): Promise<boolean> => inAnyRuleset(setId
 
 /** Whether anyone may download a set: a live one, or a player's own not ranked yet. */
 export const isSetPublic = (setId: number): Promise<boolean> =>
-	inAnyRuleset(setId, r => or(liveCondition(r), playerMapCondition(r)));
+	inAnyRuleset(setId, r => or(liveCondition(r), playerMapCondition(r), plannedCondition(r)));
 
 // `runtime: false` marks a catalog entry the client hasn't downloaded yet, as
 // opposed to its local runtime store of downloaded sets.

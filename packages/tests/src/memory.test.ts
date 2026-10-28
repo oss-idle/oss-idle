@@ -8,6 +8,12 @@ import { newStrain } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import Memory from '@oss-idle/shared/rulesets/mania/4k/skills/memory';
 import SpeedJam from '@oss-idle/shared/rulesets/mania/4k/skills/speedjam';
 import type { BotContext } from '@oss-idle/shared/rulesets/mania/bot';
+import {
+	DAILY_DECAY,
+	DAY_MS,
+	FORGET_PLAYS,
+	recall,
+} from '@oss-idle/shared/rulesets/mania/memoryRecall';
 import type RuntimeNote from '@oss-idle/shared/rulesets/mania/runtimeNote';
 
 const note = (time: number) => ({ time }) as unknown as RuntimeNote;
@@ -99,12 +105,34 @@ describe('Memory training weight is a learning hump', () => {
 	});
 });
 
-describe('Memory.recall', () => {
+describe('memory recall', () => {
 	it('forgets FORGET_PLAYS per upgrade, never below zero, then keeps counting', () => {
 		const plays = (n: number, from: number) => Array.from({ length: n }, (_, i) => from + i);
-		expect(Memory.recall(plays(25, 0), [])).toBe(25);
-		expect(Memory.recall(plays(25, 0), [100])).toBe(15);
-		expect(Memory.recall(plays(5, 0), [100, 101])).toBe(0);
-		expect(Memory.recall([...plays(5, 0), ...plays(3, 200)], [100])).toBe(3);
+		expect(recall(plays(25, 0), [], 300)).toBeCloseTo(25, 3);
+		expect(recall(plays(25, 0), [100], 300)).toBeCloseTo(15, 3);
+		expect(recall(plays(5, 0), [100, 101], 300)).toBe(0);
+		expect(recall([...plays(5, 0), ...plays(3, 200)], [100], 300)).toBeCloseTo(3, 3);
+	});
+
+	it('fades by DAILY_DECAY each day a map goes untouched', () => {
+		const kept = 1 - DAILY_DECAY;
+		const ten = Array(10).fill(0);
+		expect(recall([0], [], 0)).toBe(1);
+		expect(recall(ten, [], DAY_MS)).toBeCloseTo(10 * kept, 9);
+		expect(recall(ten, [], 20 * DAY_MS)).toBeCloseTo(10 * kept ** 20, 9);
+		// the fade runs before an upgrade's forgetting, and on what is left after it
+		expect(recall(Array(20).fill(0), [DAY_MS], 2 * DAY_MS))
+			.toBeCloseTo((20 * kept - FORGET_PLAYS) * kept, 9);
+	});
+
+	it('counts a fail as the share of the map it reached', () => {
+		expect(recall([0, {
+			at: 1, share: 0.3, 
+		}], [], 1)).toBeCloseTo(1.3, 6);
+		expect(recall([{
+			at: 0, share: 0.5, 
+		}, {
+			at: 1, share: 0.25, 
+		}], [2], 2)).toBe(0);
 	});
 });

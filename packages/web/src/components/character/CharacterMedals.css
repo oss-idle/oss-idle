@@ -150,3 +150,14 @@
 .profile-medal__progress .is-best {
 	opacity: 0.35;
 }
+
+.profile-medal__tip.is-floating {
+	position: static;
+	display: flex;
+	padding-bottom: 8px;
+	transform: none;
+}
+
+.profile-medal__tip.is-floating::after {
+	display: none;
+}

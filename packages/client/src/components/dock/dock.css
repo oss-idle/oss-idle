@@ -559,7 +559,37 @@ html.is-chat-open .dock:not(.dock--left) {
 	}
 }
 
-/* over gameplay on a phone: low enough to stay under the receptors */
+/* over gameplay in portrait it would cover the receptors: it waits off the
+   right edge, a cursor-wide strip showing, until tapped (DockPill) */
+@media (max-width: 850px) and (orientation: portrait) {
+	.dock--pill {
+		transition:
+			bottom 0.3s ease,
+			transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+	}
+	.dock--pill.dock--tucked {
+		transform: translateX(calc(100% + 8px - 40px));
+		transition:
+			bottom 0.3s ease,
+			transform 0.3s cubic-bezier(0.55, 0, 0.75, 0.2);
+	}
+}
+
+.dock__untuck {
+	display: none;
+	position: absolute;
+	inset: 0;
+	background: none;
+	border: 0;
+	cursor: pointer;
+}
+@media (max-width: 850px) and (orientation: portrait) {
+	.dock__untuck {
+		display: block;
+	}
+}
+
+/* over gameplay on a phone (landscape): low enough to stay under the receptors */
 @media (max-width: 600px), (max-height: 500px) {
 	.dock {
 		--dock-control: 34px;

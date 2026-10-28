@@ -468,7 +468,10 @@
 .mp-scoreboard {
 	/* osu!'s spot, at the left edge; as big as osu! has it while the room left of the
 	   playfield allows, smaller only past that */
-	--mp-u: max(5.5px, min(1vh, (100vw - var(--playfield-right, 100vw) - 16px) / 21.5));
+	--mp-u: max(
+		5.5px,
+		min(1vh, (100vw - var(--playfield-right, 100vw) - 16px) / 21.5)
+	);
 	position: absolute;
 	left: 0;
 	top: max(136px, calc(24% - 14px));

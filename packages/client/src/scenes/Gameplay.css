@@ -2,6 +2,8 @@
 	position: absolute;
 	inset: 0;
 	overflow: hidden;
+	/* read by the canvas HUD: the system bars a phone draws over the page */
+	padding-bottom: env(safe-area-inset-bottom);
 	background: #05040a;
 }
 

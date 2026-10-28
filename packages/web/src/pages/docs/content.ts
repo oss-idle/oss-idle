@@ -1,5 +1,8 @@
+import { STRAIN_CAP } from '@oss-idle/shared/fatigue';
+import { Mods } from '@oss-idle/shared/mods';
 import { MATCH_EVENT } from '@oss-idle/shared/multiplayer';
 import type { Scope } from '@oss-idle/shared/oauth';
+import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 
 import { rulesetDef } from '../../rulesets';
 
@@ -7,7 +10,7 @@ import { rulesetDef } from '../../rulesets';
 
 export type Param = {
 	name: string;
-	type: 'integer' | 'integer[]' | 'string';
+	type: 'integer' | 'integer[]' | 'number' | 'string' | 'string[]' | 'object';
 	optional?: boolean;
 	about: string;
 };
@@ -18,6 +21,7 @@ export type Sample = {
 	url: string;
 	query?: Record<string, string>;
 	form?: Record<string, string>;
+	json?: unknown;
 	token?: boolean;
 };
 
@@ -25,12 +29,14 @@ export type Endpoint = {
 	id: string;
 	title: string;
 	path: string;
+	method?: 'POST';
 	scope: Scope;
 	user?: boolean;
 	about: string;
 	url?: Param[];
 	query?: Param[];
-	example: { path: string; query?: Record<string, string> };
+	body?: Param[];
+	example: { path: string; query?: Record<string, string>; body?: unknown };
 	response?: unknown;
 	format: string;
 };
@@ -428,6 +434,97 @@ export const ENDPOINTS: EndpointSection[] = [
 		],
 	},
 	{
+		id: 'simulations',
+		title: 'Simulations',
+		endpoints: [
+			{
+				id: 'simulate-play',
+				title: 'Simulate Play',
+				method: 'POST',
+				path: '/simulate',
+				scope: 'simulate',
+				user: true,
+				about: 'Plays a live ranked or loved 4K beatmap as a character in the state you give would,'
+					+ ' and answers its score, its pp and the xp each skill earns. Nothing of the request is'
+					+ ' kept. Up to 1200 simulations per minute per user; when every simulation server is busy'
+					+ ' it answers 429 with a Retry-After header, so try again a moment later.',
+				body: [
+					{
+						name: 'beatmap_id', type: 'integer', about: 'A live ranked or loved 4K beatmap.',
+					},
+					{
+						name: 'rate', type: 'number', optional: true,
+						about: 'Playback rate, 0.5 to 1.5 in steps of 0.05 (default 1). The speed upgrades'
+							+ ' given must allow it.',
+					},
+					{
+						name: 'mods', type: 'string[]', optional: true,
+						about: `Any of ${Mods.join(', ')}. NF plays earn no pp and no xp.`,
+					},
+					{
+						name: 'generation', type: 'integer', optional: true,
+						about: 'The character\'s generation (default 1): what its rebirths unlocked.',
+					},
+					{
+						name: 'strain_minutes', type: 'number', optional: true,
+						about: `Strained minutes, 0 to ${STRAIN_CAP} (default 0). Fatigue and warm-up follow from them`
+							+ ' with the stamina upgrades, as in the game.',
+					},
+					{
+						name: 'map_plays', type: 'integer', optional: true,
+						about: 'The character\'s plays of this beatmap, for memory (default 0).',
+					},
+					{
+						name: 'skills', type: 'object', optional: true,
+						about: `By skill (${Skills.join(', ')}): { level, xp, lifetime_xp, prestige, upgrades,`
+							+ ' overdrive }, all but level optional (0). A skill left out plays at level 0.',
+					},
+				],
+				example: {
+					path: '/simulate',
+					body: {
+						beatmap_id: 2697726,
+						rate: 1,
+						mods: ['HR'],
+						strain_minutes: 45,
+						map_plays: 3,
+						skills: {
+							speed: {
+								level: 120, lifetime_xp: 123456, prestige: 1, upgrades: 5,
+							},
+							stamina: { level: 110 },
+						},
+					},
+				},
+				response: {
+					beatmap_id: 2697726,
+					rate: 1,
+					mods: ['HR'],
+					score: 912345,
+					accuracy: 0.9812,
+					max_combo: 1234,
+					rank: 'S',
+					pp: 123.4,
+					perfect: false,
+					passed: true,
+					statistics: {
+						divine: 0, marvelous: 812, perfect: 301, great: 40, good: 6, bad: 2, miss: 1,
+					},
+					unstable_rate: 87.2,
+					strained_minutes: 1.42,
+					xp: {
+						speed: 1234, stamina: 980,
+					},
+				},
+				format: 'Score\'s fields but id, character_id and ended_at; passed; unstable_rate;'
+					+ ' strained_minutes, the minutes of it the physical skills strained for (what fatigue counts);'
+					+ ' fail_progress (0 to 1) and fail_seconds when it failed, but not with EZ or NF; xp:'
+					+ ' by skill, what the play earns (nothing for a fail), leaving out what depends on the'
+					+ ' character\'s history: the medal bonus, mindblock and the bonus for a first X.',
+			},
+		],
+	},
+	{
 		id: 'users',
 		title: 'Users',
 		endpoints: [
@@ -632,8 +729,8 @@ export const OBJECTS: ObjectDoc[] = [
 			['join_date', 'Timestamp', ''],
 			['statistics', 'UserStatistics', ''],
 			['skills', 'object', 'Each skill with its level, progress, total_xp, prestige and upgrades.'
-				+ ' The level shown in game is level + progress / 100 + prestige; total_xp counts'
-				+ ' from the last prestige.'],
+				+ ' The level shown in game is level + progress / 100, prestige bonus levels included;'
+				+ ' total_xp is every xp the skill ever earned.'],
 			['rank_history', 'object', 'mode, and data: the global rank of each of the last 90 days.'],
 		],
 	},
@@ -664,8 +761,9 @@ export const OBJECTS: ObjectDoc[] = [
 			['play_time', 'integer', 'In seconds.'],
 			['total_hits', 'integer', ''],
 			['level', 'object',
-				'current: the overall level. progress: how far into the next one, in percent (0 to 99).'
-				+ ' total_xp: every xp the level and its progress stand for.'],
+				'current: the overall level, without prestige bonus levels. progress: how far into the'
+				+ ' next one, in percent (0 to 99). total_xp: every xp ever earned, what the level and'
+				+ ' its progress stand for.'],
 			['grade_counts', 'object', 'xx, x, ss, s and a.'],
 			['statistics', 'object', `Judgement counts over the best scores: ${JUDGEMENTS}.`],
 		],

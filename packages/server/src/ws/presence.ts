@@ -8,6 +8,7 @@ import {
 	MAKISEBOT_USER_ID,
 } from '@oss-idle/shared/groups';
 import compareVersions from '@oss-idle/shared/helpers/compareVersions';
+import { xpGivesLevel } from '@oss-idle/shared/xp';
 
 import {
 	type CharacterRow,
@@ -79,7 +80,7 @@ const buildEntry = async (params: {
 		pp: Number(profile.pp),
 		accuracy: r.def.accuracyOf(totals as unknown as Record<string, number>),
 		playCount: totals.playCount,
-		level: profile.overallLevel,
+		level: xpGivesLevel(profile.overallLifetimeXp).level,
 		status,
 		loc: geo.loc,
 		tz: geo.tz,

@@ -6,6 +6,11 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
+import {
+	debugCharacterBody,
+	debugSimBody,
+} from '@oss-idle/shared/debug';
+import { restedFatigue } from '@oss-idle/shared/fatigue';
 import { editsCharacter } from '@oss-idle/shared/groups';
 import {
 	characterNameBody,
@@ -30,6 +35,7 @@ import { requireAuth } from '../auth/middleware';
 import {
 	assertActionAvailable,
 	assertNewestGeneration,
+	performDebugCharacter,
 	performPrestige,
 	performRebirth,
 	performUpgrade,
@@ -57,16 +63,26 @@ import {
 	clientUrl,
 	env,
 } from '../env';
+import { isProd } from '../env';
 import { pushMedals } from '../medals';
 import { count } from '../metrics';
 import { isPlaying } from '../play';
 import { reindexCharacter } from '../rankings';
+import { rateLimit } from '../rateLimit';
 import { ENABLED_RULESETS } from '../rulesets/enabled';
+import {
+	debugReplay,
+	debugStrains,
+} from '../rulesets/mania/4k/debug';
 import {
 	enabledRulesets,
 	rulesetOfBeatmap,
 	selectedRuleset,
 } from '../rulesets/registry';
+import {
+	accountScores,
+	scoreSyncState,
+} from '../scoreSync';
 import { isSupporter } from '../supporter';
 import { saveUploadedImage } from '../uploads';
 import {
@@ -106,6 +122,11 @@ const editableCharacter = async (userId: number, characterId: number) => {
 };
 
 /** The signed-in account's own character (created during first-login onboarding). */
+
+const scoresQuery = z.object({
+	ruleset: z.enum(RULESET_IDS),
+	after: z.coerce.number().int().min(0).default(0),
+});
 export const meRoutes = new Hono()
 	// The account's character, or null when onboarding is still needed.
 	.get('/character', requireAuth, async c => {
@@ -303,6 +324,56 @@ export const meRoutes = new Hono()
 		return c.json({
 			character: await characterById(row.id, user), spent, ratio,
 		});
+	})
+
+	// Debug mode on a dev server: the fatigue as it stands now, to start from.
+	.get('/debug/character', requireAuth, async c => {
+		if (isProd) throw new HTTPException(404, { message: 'Not found' });
+		const { row } = await currentCharacter(c.get('userId'));
+		const profile = await profileOf(selectedRuleset(row), row.id);
+		return c.json({ fatigueMinutes: restedFatigue(profile.fatigue ?? undefined, Date.now()) });
+	})
+
+	// Debug mode on a dev server: put skills at chosen levels, fatigue at chosen
+	// minutes. Not on prod.
+	.post('/debug/character', requireAuth, valid('json', debugCharacterBody), async c => {
+		if (isProd) throw new HTTPException(404, { message: 'Not found' });
+		const { user, row } = await currentCharacter(c.get('userId'));
+		await performDebugCharacter(selectedRuleset(row), row.id, c.req.valid('json'));
+		const character = await characterById(row.id, user);
+		announceCharacter(character);
+		return c.json({ character });
+	})
+
+	// The account's scores, for a client to rebuild its local copy of them
+	.get('/scores/state', requireAuth, async c => c.json(await scoreSyncState(c.get('userId'))))
+	.get(
+		'/scores',
+		requireAuth,
+		rateLimit('me-scores', 120, c => String(c.get('userId'))),
+		valid('query', scoresQuery),
+		async c => {
+			const { ruleset, after } = c.req.valid('query');
+			const r = enabledRulesets().find(e => e.def.id === ruleset);
+			if (!r) throw new HTTPException(404, { message: 'This server does not play that ruleset' });
+			return c.json(await accountScores(r, c.get('userId'), after));
+		},
+	)
+
+	// Debug mode on a dev server: the strain view of a 4K map with the knobs on
+	// the character. Not on prod.
+	.post('/debug/strains', requireAuth, valid('json', debugSimBody), async c => {
+		if (isProd) throw new HTTPException(404, { message: 'Not found' });
+		const { row } = await currentCharacter(c.get('userId'));
+		return c.json(await debugStrains(row.id, c.req.valid('json')));
+	})
+
+	// Debug mode on a dev server: the knobs' whole no-fail replay of a 4K map, to
+	// watch. Not on prod.
+	.post('/debug/play', requireAuth, valid('json', debugSimBody), async c => {
+		if (isProd) throw new HTTPException(404, { message: 'Not found' });
+		const { row } = await currentCharacter(c.get('userId'));
+		return c.json(await debugReplay(row.id, c.req.valid('json')));
 	})
 
 	// Every character the account owns, oldest generation first - the hall of fame.

@@ -7,17 +7,15 @@ import { warmupTrend } from '@oss-idle/shared/fatigue';
 import { type Mod } from '@oss-idle/shared/mods';
 import { allowedRate } from '@oss-idle/shared/rate';
 import { hasUnlock } from '@oss-idle/shared/rebirth';
-import CharacterBot from '@oss-idle/shared/rulesets/mania/4k/bots/character';
+import type { ScoreLike } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import { modXpMultipliers } from '@oss-idle/shared/rulesets/mania/4k/modXp';
 import {
 	MINDBLOCK_SKILLS,
-	PHYSICAL_SKILLS,
 	SKILL,
+	type SkillName,
 } from '@oss-idle/shared/rulesets/mania/4k/skills';
-import { makeOrderedSkills } from '@oss-idle/shared/rulesets/mania/4k/skills/factory';
-import Memory from '@oss-idle/shared/rulesets/mania/4k/skills/memory';
-import { tireSkill } from '@oss-idle/shared/rulesets/mania/4k/tiring';
 import type { ScoreState } from '@oss-idle/shared/rulesets/mania/scoring';
+import type { SimBot } from '@oss-idle/shared/rulesets/mania/sim';
 import { xpScore } from '@oss-idle/shared/rulesets/mania/xpScore';
 
 import { getPlays } from '../../../db/schema/beatmaps_played';
@@ -25,27 +23,25 @@ import {
 	type ProfileRow,
 	skillOf,
 } from '../../../db/schema/character';
+import { sim } from '../../../sim';
 import type { RulesetPlay } from '../../play';
 import type { ServerRuleset } from '../../ruleset';
 import {
-	playStrain,
 	serverXp,
 	tiredness,
 } from '../playRules';
-import { runManiaPlay } from '../simulate';
+import {
+	runManiaPlay,
+	strainSamples,
+} from '../simulate';
+import { playStrain } from '../xpRules';
+import { STRAINED_4K } from './simState';
 
 const decoder = new BeatmapDecoder();
 
-// Notes where no physical skill strains past its threshold add no fatigue.
-// Coordination rests around 0.15-0.2 on LN maps, so it counts from higher up.
-export const STRAINED_4K = {
-	...Object.fromEntries(PHYSICAL_SKILLS.map(skill => [skill, 0.2])),
-	coordination: 0.3,
-};
-
-/** Build the character's skills, loaded with their level/XP (and play count for
- *  Memory) so the simulation runs at the character's current state, tired. */
-export async function loadCharacterSkills(
+/** The character's bot for a play of `beatmapId`: its skills at their current
+ *  progress, tired, memory at its plays of the map. */
+export const botFor = async (
 	r: ServerRuleset,
 	profile: ProfileRow,
 	beatmapId: number,
@@ -53,23 +49,12 @@ export async function loadCharacterSkills(
 	fatigue = 0,
 	/** how warmed up, 0 cold to 1 warm */
 	warm = 1,
-) {
-	const skills = makeOrderedSkills();
-	for (const skill of skills) {
-		const columns = skillOf(profile, skill.name);
-		skill.level.set(columns.level);
-		skill.xp.set(columns.xp);
-		skill.upgrades.set(columns.upgrades);
-		skill.overdrive.set(columns.overdrive);
-		skill.prestige.set(columns.prestige);
-		tireSkill(skill, fatigue, warm);
-
-		if (skill instanceof Memory) {
-			skill.timesPlayed.set(await getPlays(r, profile.id, beatmapId));
-		}
-	}
-	return skills;
-}
+) => sim().mania4k.bot({
+	progress: skill => skillOf(profile, skill),
+	fatigue,
+	warm,
+	plays: await getPlays(r, profile.id, beatmapId),
+});
 
 /** The xp a finished play is worth: mindblock and the bonus for a first X.
  *  Exported so the score replay awards xp by the same rules a live play does,
@@ -78,7 +63,7 @@ export const getServerXP = async (
 	r: ServerRuleset,
 	characterId: number,
 	beatmapId: number,
-	bot: CharacterBot,
+	bot: SimBot<SkillName, ScoreLike>,
 	chart: Beatmap,
 	score: ScoreState,
 	rate = 1,
@@ -106,22 +91,61 @@ export const play: RulesetPlay = {
 		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,
 	}) {
 		const { fatigue, warmup: warm } = tired;
-		const skills = await loadCharacterSkills(r, profile, beatmapId, fatigue, warm);
+		const divine = hasUnlock(profile.generation, 'DIVINE');
+		const native = sim().mania4k.play;
+		if (native) {
+			const {
+				xpScore: score, skillXp, rawXp, strainedShare, totalLength, ...played
+			} = native({
+				chart: text,
+				play: {
+					progress: skill => skillOf(profile, skill),
+					fatigue,
+					warm,
+					plays: await getPlays(r, profile.id, beatmapId),
+				},
+				rate, mods, divine, round, strained: STRAINED_4K, gauged: r.def.gauged as SkillName[],
+			});
+			if (board) return {
+				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+			};
+			const length = totalLength / rate;
+			return {
+				...played,
+				skillXp: await serverXp(r, profile.id, beatmapId, skillXp, {
+					mindblock: MINDBLOCK_SKILLS,
+					modMultipliers: modXpMultipliers(mods),
+					grade: score.grade,
+					stars: sr,
+					fatigue,
+				}),
+				rawXp,
+				strain: {
+					minutes: length / 60_000,
+					strained: playStrain(STRAINED_4K, { strainedShare: () => strainedShare }, length),
+				},
+			};
+		}
+		const bot = await botFor(r, profile, beatmapId, fatigue, warm);
 		const chart = decoder.decodeFromString(text);
-		const bot = new CharacterBot(skills);
 		const options = {
-			divine: hasUnlock(profile.generation, 'DIVINE'), rate, mods, playOn: round,
+			divine, rate, mods, playOn: round,
 		};
-		const { game, played } = runManiaPlay(chart, bot, options, round);
+		const { game, played: run } = runManiaPlay(chart, bot, options, round);
+		const played = {
+			...run, strains: strainSamples(bot, r.def.gauged, run.endSongTime),
+		};
 		if (board) return {
 			...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
 		};
 		const length = chart.totalLength / rate;
+		const score = xpScore(chart, game, options);
 		return {
 			...played,
 			skillXp: await getServerXP(
-				r, profile.id, beatmapId, bot, chart, xpScore(chart, game, options), rate, sr, mods, fatigue,
+				r, profile.id, beatmapId, bot, chart, score, rate, sr, mods, fatigue,
 			),
+			rawXp: bot.getRawXP?.(length, score),
 			strain: {
 				minutes: length / 60_000,
 				strained: playStrain(STRAINED_4K, bot, length),

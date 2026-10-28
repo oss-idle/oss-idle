@@ -60,6 +60,7 @@ import PlayQueue, { fillQueue } from '../gameplay/playQueue';
 import {
 	canPlayAt,
 	liveSpeedUpgrades,
+	selectedRate,
 } from '../gameplay/playRate';
 import {
 	rateStars,
@@ -83,12 +84,14 @@ import BeatmapAPI, {
 import BeatmapStore, { beatmapsVersion } from '../osu/beatmap/beatmap_store';
 import { matchesSearch } from '../osu/beatmap/beatmapSearch';
 import {
+	bestRankOf,
 	EMPTY_HISTORY,
 	EMPTY_PLAYLISTS,
 	type Group,
 	groupsOf,
 	itemStatus,
 	type PlaylistsByBeatmap,
+	rankKey,
 } from '../osu/beatmap/grouping';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
@@ -112,19 +115,20 @@ const getHistory = async (character: Character) => {
 	const scores = await Score.query(
 		'SELECT * FROM score WHERE characterId = ?'
 		, [character.id]);
-	const bestRank = new Map<number, number>();
+	// the grade of the top score at each rate, as the map card shows it
+	const best = new Map<string, Score>();
 	const lastPlayed = new Map<number, number>();
 	for (const s of scores) {
-		bestRank.set(
-			s.beatmapId, 
-			Math.min(bestRank.get(s.beatmapId) ?? Infinity, Grades.indexOf(s.grade)),
-		);
+		const key = rankKey(s.beatmapId, s.rate);
+		const top = best.get(key);
+		if (!top || s.isHigherThan(top)) best.set(key, s);
 		lastPlayed.set(
 			s.beatmapId, 
 			Math.max(lastPlayed.get(s.beatmapId) ?? 0,
 				s.playedAt,
 			));
 	}
+	const bestRank = new Map([...best].map(([key, s]) => [key, Grades.indexOf(s.grade)]));
 	return {
 		bestRank, lastPlayed, 
 	};
@@ -148,8 +152,8 @@ const SORT_COMPARATORS: Record<SortOption, (
 	'By Title': (a, b) => 
 		a.set.metadata.title.localeCompare(b.set.metadata.title),
 	'By Rank Achieved': (a, b, h) => 
-		(h.bestRank.get(b.beatmap.metadata.id) ?? Infinity) 
-		- (h.bestRank.get(a.beatmap.metadata.id) ?? Infinity),
+		(bestRankOf(h, b.beatmap) ?? Infinity) 
+		- (bestRankOf(h, a.beatmap) ?? Infinity),
 	'Recently Played': (a, b, h) => 
 		(h.lastPlayed.get(b.beatmap.metadata.id) ?? 0) 
 		- (h.lastPlayed.get(a.beatmap.metadata.id) ?? 0),
@@ -409,6 +413,8 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	// keeps using the full `items` so a search never loses the current selection
 	// at a rate, stars change: the sort, the star groups and a star search follow
 	const [ratedStars] = useSynced(rateStars);
+	// grades are per rate: the rank sort and groups follow the picked one
+	const [pickedRate] = useSynced(selectedRate);
 	const filteredItems = useMemo(() => {
 		if (!history) return [];
 		const filtered = search.trim() ? 
@@ -417,7 +423,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 		return comparator ? 
 			[...filtered].sort((a, b) => comparator(a, b, history)) 
 			: filtered;
-	}, [items, search, history, comparator, ratedStars]);
+	}, [items, search, history, comparator, ratedStars, pickedRate]);
 
 	// accordion: at most one group open at a time (null = all collapsed). A fresh
 	// group mode resets it; the active group then re-opens via the effect below.
@@ -465,7 +471,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			downloadSnapshot,
 		)
 			.map((g) => g.key).join('\n');
-	}, [group, version, items, history, playlistsByBeatmap, downloadSnapshot, ratedStars]);
+	}, [group, version, items, history, playlistsByBeatmap, downloadSnapshot, ratedStars, pickedRate]);
 
 	// the selection's group opens automatically when the selection moves into it
 	// (closing any other) - but stays collapsible by hand, since we only re-open on
@@ -493,7 +499,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			playlistsByBeatmap, 
 			downloadSnapshot,
 		),
-		[filteredItems, group, history, expandedKey, playlistsByBeatmap, downloadSnapshot],
+		[filteredItems, group, history, expandedKey, playlistsByBeatmap, downloadSnapshot, pickedRate],
 	);
 
 	/**

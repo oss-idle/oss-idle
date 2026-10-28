@@ -1,15 +1,11 @@
-/* Reusable scene-transition cover. Sits above everything; the fade is driven by
- * the phase class (duration is set inline from FADE_MS in Transition.tsx). The
- * backdrop is opaque so the scene swap behind it is never visible while covered. */
+/* The fade to black into gameplay. Sits above everything; the fade is driven by
+ * the phase class (duration is set inline from FADE_MS in Transition.tsx). It is
+ * opaque so the scene swap behind it is never visible while covered. */
 .transition {
 	position: fixed;
 	inset: 0;
 	z-index: var(--z-transition);
-	display: grid;
-	place-items: center;
-	padding: 2rem;
-	text-align: center;
-	background: radial-gradient(circle at 50% 45%, #14101a 0%, #05040a 80%);
+	background: #000;
 }
 .transition--in {
 	animation-name: transition-fade-in;
@@ -73,37 +69,4 @@
 	color: var(--osu-pink-light);
 	font-weight: 700;
 	font-size: 1rem;
-}
-.transition__message {
-	color: var(--text-dim);
-	font-size: 1rem;
-	line-height: 1.5;
-}
-.transition__actions {
-	display: flex;
-	gap: 0.8rem;
-	margin-top: 0.4rem;
-}
-.transition__btn {
-	padding: 0.6rem 1.4rem;
-	border-radius: 999px;
-	font-weight: 700;
-	font-size: 0.95rem;
-	color: var(--text-dim);
-	background: rgba(255, 255, 255, 0.06);
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	transition: all 0.16s ease;
-}
-.transition__btn:hover {
-	color: #fff;
-	border-color: rgba(255, 255, 255, 0.3);
-}
-.transition__btn--primary {
-	color: #fff;
-	background: rgba(255, 102, 171, 0.92);
-	border-color: transparent;
-	box-shadow: 0 8px 28px rgba(255, 102, 171, 0.4);
-}
-.transition__btn--primary:hover {
-	background: var(--osu-pink-light);
 }

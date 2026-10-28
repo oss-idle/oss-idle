@@ -38,6 +38,8 @@ export type RulesetDef<J extends string = string, S extends string = string> = {
 	skillsNote(): string,
 	/** the skills fatigue and warm-up act on */
 	physicalSkills: readonly S[],
+	/** the skills the strain gauges show during a play, top to bottom */
+	gauged: readonly S[],
 	/** the skill whose gear unlocks rates, and the one whose gear warms up faster */
 	rateSkill?: S,
 	warmupSkill?: S,

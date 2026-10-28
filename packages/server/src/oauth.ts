@@ -19,8 +19,10 @@ import { createMiddleware } from 'hono/factory';
 import {
 	parseScopes,
 	type Scope,
+	SCOPES,
 } from '@oss-idle/shared/oauth';
 
+import { sessionUserId } from './auth/middleware';
 import { db } from './db/client';
 import {
 	type OAuthClientRow,
@@ -179,16 +181,12 @@ export const tokenRoutes = new Hono().post('/token', async c => {
 	return 'error' in answer ? c.json(answer, 400) : c.json(answer);
 });
 
-export type ApiToken = { clientId: number; userId?: number; scopes: Scope[] };
+/** `clientId` is unset for the game's own session: its add-ons call the API as the player. */
+export type ApiToken = { clientId?: number; userId?: number; scopes: Scope[] };
 
 type TokenEnv = { Variables: { token: ApiToken } };
 
-/** A valid Bearer token; `c.get('token')` tells whose. */
-export const apiToken = createMiddleware<TokenEnv>(async (c, next) => {
-	const auth = c.req.header('Authorization');
-	const raw = auth?.startsWith('Bearer ') ? auth.slice('Bearer '.length).trim() : undefined;
-	if (!raw) return c.json({ authentication: 'basic' }, 401);
-
+const oauthToken = async (raw: string): Promise<ApiToken | undefined> => {
 	const [row] = await db
 		.select({
 			clientId: oauthTokens.clientId, userId: oauthTokens.userId, scopes: oauthTokens.scopes,
@@ -196,16 +194,31 @@ export const apiToken = createMiddleware<TokenEnv>(async (c, next) => {
 		.from(oauthTokens)
 		.where(and(eq(oauthTokens.id, sha256(raw)), gt(oauthTokens.expiresAt, new Date())))
 		.limit(1);
-	if (!row) return c.json({ authentication: 'basic' }, 401);
-	if (row.userId !== null && await isRestricted(row.userId)) {
-		return c.json({ error: 'The account is restricted' }, 403);
-	}
-
-	c.set('token', {
+	return row && {
 		clientId: row.clientId,
 		userId: row.userId ?? undefined,
 		scopes: parseScopes(row.scopes) ?? [],
-	});
+	};
+};
+
+/** A valid Bearer token, or the game's session (cookie, or the desktop app's Bearer);
+ *  `c.get('token')` tells whose. */
+export const apiToken = createMiddleware<TokenEnv>(async (c, next) => {
+	const auth = c.req.header('Authorization');
+	const raw = auth?.startsWith('Bearer ') ? auth.slice('Bearer '.length).trim() : undefined;
+	let token = raw ? await oauthToken(raw) : undefined;
+	if (!token) {
+		const userId = await sessionUserId(c);
+		token = userId === undefined ? undefined : {
+			userId, scopes: [...SCOPES],
+		};
+	}
+	if (!token) return c.json({ authentication: 'basic' }, 401);
+	if (token.userId !== undefined && await isRestricted(token.userId)) {
+		return c.json({ error: 'The account is restricted' }, 403);
+	}
+
+	c.set('token', token);
 	await next();
 });
 

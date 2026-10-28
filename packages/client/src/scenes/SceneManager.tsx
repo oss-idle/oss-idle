@@ -11,6 +11,7 @@ import { ScoreDTO } from '@oss-idle/shared/score';
 import { Score } from '../db/schema/score';
 import type EditorSession from '../editor/session';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
+import type { Boot } from './bootPlay';
 import type { TestPlay } from './Gameplay';
 import IntroScreen from './IntroScreen';
 import {
@@ -59,14 +60,14 @@ export default class SceneManager {
 		[SCENE.SELECT]: (mode?: SongSelectMode) => <SongSelect mode={mode} />,
 		[SCENE.GAME]: (
 			beatmapInfo: LightBeatmap, 
+			boot: Boot,
 			transition: Transition, 
-			debug = false,
 			test?: TestPlay,
 		) => <Gameplay 
 			key={++mounts}
 			beatmapInfo={beatmapInfo}
+			{...boot}
 			transition={transition} 
-			debugPlay={debug} 
 			test={test}
 		/>,
 		[SCENE.RESULT]: (

@@ -37,6 +37,10 @@ import {
 } from './scroll.js';
 
 
+/** The map through the mania ruleset, so its hit objects are notes and holds
+ *  with a real `column` (osu-parsers alone decodes only generic objects). */
+export const toMania = (beatmap: Beatmap) => new ManiaRuleset().applyToBeatmap(beatmap);
+
 export type ReplayOffset = {
 	id: string,
 	tail?: true,
@@ -56,6 +60,11 @@ export type ManiaGameOptions = {
 	mods?: readonly Mod[]
 	/** a match round: a fail is recorded, but the play goes on to the end */
 	playOn?: boolean
+	/** this map's `hpMultiplier` at this rate, from an earlier play of it: its
+	 *  search runs the whole map hundreds of times */
+	hpMultiplier?: number
+	/** the map already through `toMania`, from an earlier play of it */
+	converted?: ReturnType<typeof toMania>
 };
 
 /** One entry on the resolution timeline: a bot input judged at `time`, or - when
@@ -93,6 +102,8 @@ export class ManiaGame {
 	readonly songStartMs: number;
 	readonly songEndMs: number;
 	readonly totalNotes: number;
+	/** osu!mania's HP gain multiplier for this map at this rate */
+	readonly hpMultiplier: number;
 
 	/** judgement hit windows (ms) for this map's OD */
 	readonly windows: HitWindows;
@@ -144,21 +155,24 @@ export class ManiaGame {
 	private readonly playOn: boolean;
 
 	constructor(rawBeatmap: Beatmap, bot: Bot, options: ManiaGameOptions = {}) {
-		// apply the mania ruleset so hit objects become mania notes/holds with a
-		// real `column` (osu-parsers alone decodes only generic objects)
-		const beatmap = new ManiaRuleset().applyToBeatmap(rawBeatmap);
+		const beatmap = options.converted ?? toMania(rawBeatmap);
 		this.keyCount = beatmap.totalColumns;
 		this.columnFlash = new Array(this.keyCount).fill(-Infinity);
 		this.holdStart = new Array(this.keyCount).fill(-Infinity);
 		this.holdEnd = new Array(this.keyCount).fill(-Infinity);
 
+		const { timingPoints } = beatmap.controlPoints;
 		this.notes = beatmap.hitObjects
 			.filter(o => 'column' in o)
-			.map(o => RuntimeNote.fromHitObject(
-				o,
-				beatSnap(o.startTime, beatmap.controlPoints.timingPoints),
-				(samples, time) => noteSounds(samples, time, beatmap.controlPoints, beatmap.general.sampleSet),
-			));
+			.map(o => {
+				const note = RuntimeNote.fromHitObject(
+					o,
+					beatSnap(o.startTime, timingPoints),
+					(samples, time) => noteSounds(samples, time, beatmap.controlPoints, beatmap.general.sampleSet),
+				);
+				if (note.hold) note.endSnap = beatSnap(note.endTime, timingPoints);
+				return note;
+			});
 		const rate = options.rate ?? 1;
 		if (rate !== 1) for (const n of this.notes) {
 			n.time /= rate;
@@ -171,7 +185,7 @@ export class ManiaGame {
 		// to 1M over the note count.
 		const drain = beatmap.difficulty.drainRate;
 		const inc = maxHpIncrease(drain);
-		const hpMultiplier = computeHpMultiplier(
+		this.hpMultiplier = options.hpMultiplier ?? computeHpMultiplier(
 			this.notes.map(n => n.hold
 				? {
 					start: n.time, end: n.endTime, nested: [inc, inc], own: 0, 
@@ -188,7 +202,7 @@ export class ManiaGame {
 			beatmap.difficulty.overallDifficulty, 
 			this.notes.length,
 			options.noFail || mods.includes('NF'),
-			hpMultiplier,
+			this.hpMultiplier,
 			options.divine,
 			scoreMultiplier(rate) * modsScoreMultiplier(mods),
 			worstAllowed(mods),

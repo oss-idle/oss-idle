@@ -39,6 +39,9 @@ export default class RuntimeNote {
 	 *  error at the tail to form the long note's single judgement. */
 	public headOffset?: number;
 
+	/** a hold's tail beat-snap divisor, as `snap` */
+	public endSnap = 0;
+
 	/** scroll positions of the head and the tail (see {@link placeOn}) */
 	public headPos = 0;
 	public tailPos = 0;

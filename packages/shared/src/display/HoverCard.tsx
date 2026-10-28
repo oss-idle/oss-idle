@@ -5,13 +5,16 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-const style: CSSProperties = {
+const place: CSSProperties = {
 	position: 'fixed',
 	display: 'flex',
 	flexDirection: 'column',
 	// above the client's page overlay (5000), which the upgrades panel opens in
 	zIndex: 'var(--z-tooltip, 5200)',
 	pointerEvents: 'none',
+};
+
+const box: CSSProperties = {
 	padding: '0.4rem 0.6rem',
 	borderRadius: 6,
 	background: 'rgba(0, 0, 0, 0.85)',
@@ -47,11 +50,14 @@ export default function HoverCard({
 	card,
 	children,
 	className,
+	bare,
 }: {
 	/** nothing hovers when undefined */
 	card: ReactNode,
 	children: ReactNode,
 	className?: string,
+	/** the card draws its own box */
+	bare?: boolean,
 }) {
 	const [at, setAt] = useState<DOMRect | undefined>(undefined);
 	// flipped under the anchor when there is no room for it above
@@ -66,7 +72,8 @@ export default function HoverCard({
 		{children}
 		{at !== undefined && card !== undefined && typeof document !== 'undefined' && createPortal(
 			<span ref={keepOnScreen} style={{
-				...style,
+				...place,
+				...bare ? {} : box,
 				left: at.left + at.width / 2,
 				top: below ? at.bottom + GAP_PX : at.top - GAP_PX,
 				transform: `translate(-50%, ${below ? '0' : '-100%'})`,

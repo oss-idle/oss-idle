@@ -8,15 +8,24 @@ import { Grades } from '@oss-idle/shared/grade';
 
 import { CarouselItem } from '../../components/BeatmapCarousel';
 import type { PlaylistMembership } from '../../db/schema/playlist';
+import { selectedRate } from '../../gameplay/playRate';
 import { starsOf } from '../../gameplay/rateStars';
+import type LightBeatmap from './LightBeatmap';
 
 /** Per-character play history, keyed by beatmap (difficulty) id. Mirrors what
  *  SongSelect derives from the local score table; the two history-based group
  *  modes (rank / recency) read from it. */
 export interface PlayHistory {
-	bestRank: Map<number, number>;   // beatmapId -> best Grades index
+	bestRank: Map<string, number>;   // rankKey -> Grades index of the top score at that rate
 	lastPlayed: Map<number, number>; // beatmapId -> most recent playedAt (ms epoch)
 }
+
+export const rankKey = (beatmapId: number, rate: number): string =>
+	`${beatmapId}@${rate.toFixed(2)}`;
+
+/** Best Grades index at the difficulty's locked rate, else the picked one. */
+export const bestRankOf = (history: PlayHistory, beatmap: LightBeatmap): number | undefined =>
+	history.bestRank.get(rankKey(beatmap.metadata.id, beatmap.lockedRate ?? selectedRate.get()));
 
 export const EMPTY_HISTORY: PlayHistory = { 
 	bestRank: new Map(), 
@@ -209,7 +218,7 @@ export function groupOf(
 		}
 		case 'By Status': return statusGroup(item);
 		case 'By Rank Achieved': {
-			const rank = history.bestRank.get(bm.id);
+			const rank = bestRankOf(history, item.beatmap);
 			if (rank === undefined) return {
 				key: 'unplayed', 
 				label: t`Unplayed`,

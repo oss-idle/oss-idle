@@ -17,7 +17,8 @@ export const LAYER = {
 	OPTIONS: 5,
 	WEB: 6,
 	TUTORIAL: 7,
-	ONBOARDING: 8,
+	PLAY_CHOICE: 8,
+	ONBOARDING: 9,
 } as const;
 
 /** The layer the surfaces inside a host belong to (a page, the community

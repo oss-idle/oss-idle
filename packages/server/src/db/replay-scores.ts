@@ -33,7 +33,6 @@ import {
 } from '@oss-idle/shared/fatigue';
 import { parseMods } from '@oss-idle/shared/mods';
 import { hasUnlock } from '@oss-idle/shared/rebirth';
-import CharacterBot from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import type { SkillName } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
@@ -41,11 +40,11 @@ import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
 import { getBeatmap } from '../beatmaps';
 import { addFatigue } from '../fatigue';
 import {
+	botFor,
 	getServerXP,
-	loadCharacterSkills,
-	STRAINED_4K,
 } from '../rulesets/mania/4k/play';
-import { playStrain } from '../rulesets/mania/playRules';
+import { STRAINED_4K } from '../rulesets/mania/4k/simState';
+import { playStrain } from '../rulesets/mania/xpRules';
 import {
 	loadRulesets,
 	rulesetFor,
@@ -55,6 +54,7 @@ import {
 	applySkillXp,
 	onSubmitScore,
 } from '../scores';
+import { loadSim } from '../sim';
 import { db } from './client';
 import { addBeatmapPlayed } from './schema/beatmaps_played';
 import {
@@ -119,9 +119,8 @@ const xpFor = async (row: DumpedScore) => {
 	const tired = restedFatigue(profile.fatigue ?? undefined, at);
 	const fatigue = fatigueLevel(tired);
 	const warm = warmup(tired, skillOf(profile, 'stamina').upgrades);
-	const skills = await loadCharacterSkills(r, profile, beatmapId, fatigue, warm);
+	const bot = await botFor(r, profile, beatmapId, fatigue, warm);
 	const chart = decoder.decodeFromString(beatmap.chart);
-	const bot = new CharacterBot(skills);
 	const rate = Number(row.rate ?? 1);
 	const game = new ManiaGame(chart, bot, {
 		divine: hasUnlock(profile.generation, 'DIVINE'), rate,
@@ -147,6 +146,7 @@ const main = async () => {
 		locale: 'en', messages: {},
 	});
 	await loadRulesets();
+	await loadSim();
 	r = rulesetFor('mania4k');
 
 	const rows = JSON.parse(readFileSync(file, 'utf8')) as DumpedScore[];

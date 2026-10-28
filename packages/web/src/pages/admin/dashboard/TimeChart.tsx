@@ -15,8 +15,8 @@ export type Series = {
 	label: string;
 	/** One value per bucket, oldest first; undefined leaves a gap. */
 	values: (number | undefined)[];
-	/** 1-3: the dashboard's categorical slots. */
-	slot: 1 | 2 | 3;
+	/** 1-3: the dashboard's categorical slots; gray for a fourth, neutral line. */
+	slot: 1 | 2 | 3 | 'gray';
 };
 
 type Props = {

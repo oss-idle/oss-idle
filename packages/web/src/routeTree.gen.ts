@@ -55,6 +55,7 @@ import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthDiscordRouteImport } from './routes/auth/discord'
 import { Route as AuthDesktopRouteImport } from './routes/auth/desktop'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
+import { Route as AdminXpRouteImport } from './routes/admin/xp'
 import { Route as AdminVersionsRouteImport } from './routes/admin/versions'
 import { Route as AdminTeamRouteImport } from './routes/admin/team'
 import { Route as AdminSkinsRouteImport } from './routes/admin/skins'
@@ -66,7 +67,6 @@ import { Route as AdminEmojiRouteImport } from './routes/admin/emoji'
 import { Route as AdminClaimsRouteImport } from './routes/admin/claims'
 import { Route as AdminChatRouteImport } from './routes/admin/chat'
 import { Route as AdminBugsRouteImport } from './routes/admin/bugs'
-import { Route as AdminBalancingRouteImport } from './routes/admin/balancing'
 import { Route as AdminAddonsRouteImport } from './routes/admin/addons'
 import { Route as RankingsMedalsIndexRouteImport } from './routes/rankings/medals/index'
 import { Route as RankingsSkillsSkillRouteImport } from './routes/rankings/skills/$skill'
@@ -306,6 +306,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminXpRoute = AdminXpRouteImport.update({
+  id: '/xp',
+  path: '/xp',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminVersionsRoute = AdminVersionsRouteImport.update({
   id: '/versions',
   path: '/versions',
@@ -359,11 +364,6 @@ const AdminChatRoute = AdminChatRouteImport.update({
 const AdminBugsRoute = AdminBugsRouteImport.update({
   id: '/bugs',
   path: '/bugs',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminBalancingRoute = AdminBalancingRouteImport.update({
-  id: '/balancing',
-  path: '/balancing',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAddonsRoute = AdminAddonsRouteImport.update({
@@ -422,7 +422,6 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/store': typeof StoreRoute
   '/admin/addons': typeof AdminAddonsRoute
-  '/admin/balancing': typeof AdminBalancingRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -434,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/admin/skins': typeof AdminSkinsRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/versions': typeof AdminVersionsRoute
+  '/admin/xp': typeof AdminXpRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
@@ -489,7 +489,6 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/store': typeof StoreRoute
   '/admin/addons': typeof AdminAddonsRoute
-  '/admin/balancing': typeof AdminBalancingRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -501,6 +500,7 @@ export interface FileRoutesByTo {
   '/admin/skins': typeof AdminSkinsRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/versions': typeof AdminVersionsRoute
+  '/admin/xp': typeof AdminXpRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
@@ -558,7 +558,6 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/store': typeof StoreRoute
   '/admin/addons': typeof AdminAddonsRoute
-  '/admin/balancing': typeof AdminBalancingRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
   '/admin/claims': typeof AdminClaimsRoute
@@ -570,6 +569,7 @@ export interface FileRoutesById {
   '/admin/skins': typeof AdminSkinsRoute
   '/admin/team': typeof AdminTeamRoute
   '/admin/versions': typeof AdminVersionsRoute
+  '/admin/xp': typeof AdminXpRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
@@ -628,7 +628,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/store'
     | '/admin/addons'
-    | '/admin/balancing'
     | '/admin/bugs'
     | '/admin/chat'
     | '/admin/claims'
@@ -640,6 +639,7 @@ export interface FileRouteTypes {
     | '/admin/skins'
     | '/admin/team'
     | '/admin/versions'
+    | '/admin/xp'
     | '/auth/callback'
     | '/auth/desktop'
     | '/auth/discord'
@@ -695,7 +695,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/store'
     | '/admin/addons'
-    | '/admin/balancing'
     | '/admin/bugs'
     | '/admin/chat'
     | '/admin/claims'
@@ -707,6 +706,7 @@ export interface FileRouteTypes {
     | '/admin/skins'
     | '/admin/team'
     | '/admin/versions'
+    | '/admin/xp'
     | '/auth/callback'
     | '/auth/desktop'
     | '/auth/discord'
@@ -763,7 +763,6 @@ export interface FileRouteTypes {
     | '/settings'
     | '/store'
     | '/admin/addons'
-    | '/admin/balancing'
     | '/admin/bugs'
     | '/admin/chat'
     | '/admin/claims'
@@ -775,6 +774,7 @@ export interface FileRouteTypes {
     | '/admin/skins'
     | '/admin/team'
     | '/admin/versions'
+    | '/admin/xp'
     | '/auth/callback'
     | '/auth/desktop'
     | '/auth/discord'
@@ -1198,6 +1198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/xp': {
+      id: '/admin/xp'
+      path: '/xp'
+      fullPath: '/admin/xp'
+      preLoaderRoute: typeof AdminXpRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/versions': {
       id: '/admin/versions'
       path: '/versions'
@@ -1275,13 +1282,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBugsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/balancing': {
-      id: '/admin/balancing'
-      path: '/balancing'
-      fullPath: '/admin/balancing'
-      preLoaderRoute: typeof AdminBalancingRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
     '/admin/addons': {
       id: '/admin/addons'
       path: '/addons'
@@ -1343,7 +1343,6 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteRouteChildren {
   AdminAddonsRoute: typeof AdminAddonsRoute
-  AdminBalancingRoute: typeof AdminBalancingRoute
   AdminBugsRoute: typeof AdminBugsRoute
   AdminChatRoute: typeof AdminChatRoute
   AdminClaimsRoute: typeof AdminClaimsRoute
@@ -1355,12 +1354,12 @@ interface AdminRouteRouteChildren {
   AdminSkinsRoute: typeof AdminSkinsRoute
   AdminTeamRoute: typeof AdminTeamRoute
   AdminVersionsRoute: typeof AdminVersionsRoute
+  AdminXpRoute: typeof AdminXpRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAddonsRoute: AdminAddonsRoute,
-  AdminBalancingRoute: AdminBalancingRoute,
   AdminBugsRoute: AdminBugsRoute,
   AdminChatRoute: AdminChatRoute,
   AdminClaimsRoute: AdminClaimsRoute,
@@ -1372,6 +1371,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminSkinsRoute: AdminSkinsRoute,
   AdminTeamRoute: AdminTeamRoute,
   AdminVersionsRoute: AdminVersionsRoute,
+  AdminXpRoute: AdminXpRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

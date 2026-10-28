@@ -23,6 +23,10 @@ import { matchScoresTable } from '../db/schema/match';
 import { scoreTable } from '../db/schema/score';
 import { milestonesTable } from '../db/schema/skill_milestone';
 import { unrankedScoreTable } from '../db/schema/unranked_score';
+import {
+	xpGainMapTable,
+	xpGainTable,
+} from '../db/schema/xp_gain';
 import type {
 	RulesetPlay,
 	RulesetProgression,
@@ -60,6 +64,8 @@ export const serverRuleset = <J extends string, S extends string>(
 		requestVotes: votesTable(name('beatmap_request_vote')),
 		levelMaps: levelMapsTable(name('level_map')),
 		levelVotes: levelVotesTable(name('level_vote')),
+		xpGains: xpGainTable(name('xp_gain')),
+		xpGainMaps: xpGainMapTable(name('xp_gain_map')),
 	};
 };
 

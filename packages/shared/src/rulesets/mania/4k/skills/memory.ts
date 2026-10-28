@@ -28,8 +28,9 @@ import Skill from './skill.js';
  * tamed error - organically "stealing" the SpeedJam XP it prevented.
  */
 export default class Memory extends Skill {
-	/** how many times this character cleared this map *before* the current attempt.
-	 *  Seeded per play from server `beatmaps_played` / the local score count. */
+	/** the plays of this map that still train memory before this attempt: a pass counts
+	 *  one, a fail played on the server the share of the map it reached, all fading a little
+	 *  each day. Seeded per play from server `beatmaps_played` / the local score count. */
 	public readonly timesPlayed = new Synced(0);
 
 	// Plays needed to reach min / max memorization, interpolated by skill: a

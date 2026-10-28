@@ -46,6 +46,7 @@ import {
 	setColumns,
 	setLiveChanged,
 	shownDiffCondition,
+	shownStatusColumns,
 	unrankedSet,
 	unrankedSets,
 	withStatus,
@@ -114,7 +115,10 @@ const listQuery = z.object({
 /** A set's live difficulties in one ruleset, easiest first, each with the set's row there. */
 const setDiffs = (r: ServerRuleset, id: number) => db
 	.select({
-		set: setColumns(r), beatmap: beatmapListColumns,
+		set: {
+			...setColumns(r), ...shownStatusColumns(r),
+		},
+		beatmap: beatmapListColumns,
 	})
 	.from(beatmaps)
 	.innerJoin(beatmapset, eq(beatmaps.setId, beatmapset.id))

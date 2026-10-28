@@ -17,7 +17,9 @@ import type {
 	PlayDeltas,
 	PlayResult,
 	PlayState,
+	StrainSamples,
 } from '@oss-idle/shared/play';
+import { strainsBetween } from '@oss-idle/shared/play';
 import { LEAD_IN_MS } from '@oss-idle/shared/play';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import type { ScoreDTO } from '@oss-idle/shared/score';
@@ -34,6 +36,7 @@ import {
 import { applyPendingAction } from './character/pending';
 import { pushCharacter } from './character/push';
 import { playerFor } from './character/ruleset';
+import { addMemory } from './db/schema/beatmaps_played';
 import {
 	type CharacterRow,
 	profileOf,
@@ -45,6 +48,11 @@ import {
 	toScoreDTO,
 } from './db/schema/score';
 import { isRestricted } from './db/schema/user';
+import {
+	recordXpGains,
+	type XpGain,
+	xpGainsOf,
+} from './db/schema/xp_gain';
 import {
 	isProd,
 	redisKeyPrefix,
@@ -73,6 +81,7 @@ import {
 	applySkillXp,
 	submitScore,
 } from './scores';
+import { SCORE_VERSION } from './sim';
 import { hub } from './ws/hub';
 import { update as updatePresence } from './ws/presence';
 
@@ -99,6 +108,8 @@ type Pending = {
 	/** read only by the ruleset's client */
 	offsets: unknown[],
 	reveals: number[],
+	/** the strain gauges over the whole play, streamed with the offsets */
+	strains?: StrainSamples,
 	startedAt: number,
 	/** when the play really ends: a failed one, at its fail. Never sent out */
 	endsAt: number,
@@ -107,6 +118,8 @@ type Pending = {
 	songEndMs?: number,
 	draft: NewScoreRow,
 	skillXp: Record<string, number>,
+	/** raw xp per skill at the level each played at, recorded once the play pays */
+	xpGains?: XpGain[],
 	/** the play's minutes and those its physical skills were strained, for fatigue once it pays */
 	strain?: { minutes: number, strained: number },
 	/** how tired the character played it, 0 rested to 1 exhausted */
@@ -122,6 +135,8 @@ type Pending = {
 	failProgress?: number,
 	/** seconds into the song a failed play failed, at its rate (a medal checks it) */
 	failSeconds?: number,
+	/** how far into the map a failed play was played, 0-1: the share of a play it trains memory */
+	reached?: number,
 	/** NF in a match round: played on the server, never submitted */
 	unranked?: true,
 	/** scored on a player's unranked map's leaderboard: no XP, no pp, nothing ranked */
@@ -281,7 +296,9 @@ type OffsetChunk = {
 	offsets: unknown[],
 	next: number,
 	done: boolean,
+	strains?: StrainSamples,
 };
+
 
 type RankedStartPlayResult = {
 	status: 'ranked',
@@ -308,8 +325,15 @@ function chunkFrom(p: Pending, from: number): OffsetChunk {
 	const horizon = Date.now() - p.startedAt - LEAD_IN_MS + STREAM_BUFFER_MS;
 	let i = Math.max(0, from);
 	while (i < p.reveals.length && p.reveals[i] <= horizon) i++;
+	const done = i >= p.offsets.length;
+	// the gauges change only at notes: their samples go out with the notes revealed
+	const strains = p.strains && strainsBetween(
+		p.strains,
+		from > 0 ? p.reveals[from - 1] : -Infinity,
+		done ? Infinity : i > 0 ? p.reveals[i - 1] : -Infinity,
+	);
 	return {
-		offsets: p.offsets.slice(from, i), next: i, done: i >= p.offsets.length,
+		offsets: p.offsets.slice(from, i), next: i, done, ...strains && { strains },
 	};
 }
 
@@ -541,6 +565,7 @@ async function simulateAndStore(
 		rate: String(rate),
 		sr: String(stars),
 		mods: modsKey(mods),
+		version: SCORE_VERSION,
 	};
 
 	const startedAt = Date.now();
@@ -561,11 +586,14 @@ async function simulateAndStore(
 		draft,
 		samples: played.samples,
 		skillXp: scaleXp(played.skillXp, xpMultiplier),
+		...played.strains && { strains: played.strains },
+		...played.rawXp && { xpGains: xpGainsOf(r, profile, played.rawXp) },
 		fatigue,
 		warmup: warm,
 		warmupBar: bar,
 		...played.failedAt ? {
 			failedAt: played.failedAt, failProgress: played.failProgress, failSeconds: played.failSeconds,
+			reached: Math.min(1, played.endSongTime / played.lastNoteEnd),
 		} : {},
 		...board ? { board: 'unranked' as const } : { strain: played.strain },
 	};
@@ -648,12 +676,20 @@ const parseUnrankedResult = async (
 	};
 };
 
+/** A fail trains memory up to where it got, on the maps and mods a pass would. */
+const rememberFail = async (r: ServerRuleset, play: Pending) => {
+	if (!play.reached || play.unranked || play.board) return;
+	if (!await getLiveBeatmap(r, play.draft.beatmapId)) return;
+	await addMemory(r, play.draft.characterId, play.draft.beatmapId, play.reached);
+};
+
 const parsePlayResult = async (play: Pending, notify: boolean): Promise<ParsedResult> => {
 	// the character the play earns for: the session's own, or the one it played as
 	const characterId = play.draft.characterId;
 	const r = rulesetFor(play.ruleset);
 
 	if (play.failedAt) {
+		await rememberFail(r, play);
 		return {
 			token: play.token,
 			failed: true,
@@ -695,6 +731,7 @@ const parsePlayResult = async (play: Pending, notify: boolean): Promise<ParsedRe
 	play.draft.playedAt = new Date();
 	const row = await submitScore(r, play.draft);
 	const gains = await applySkillXp(r, characterId, play.skillXp);
+	if (play.xpGains) await recordXpGains(r, play.draft.beatmapId, play.xpGains);
 	if (play.strain) {
 		await addFatigue(r, characterId, play.strain.minutes, play.strain.strained, Date.now());
 	}

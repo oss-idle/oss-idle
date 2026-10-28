@@ -72,8 +72,8 @@ export default function SkillXPBar({
 	delay?: number
 	/** how long this bar's whole fill may take, however many levels it crosses */
 	budgetMs?: number
-	/** the skill's prestige and lifetime total, so the level hovers like the
-	 *  ones on the skill pages - the bar itself still counts xp levels */
+	/** the skill's prestige and lifetime total, so the xp level hovers with the
+	 *  level shown on the skill pages */
 	prestige?: number
 	lifetimeXp?: number
 }) {
@@ -128,11 +128,12 @@ export default function SkillXPBar({
 			<span className="skillxp__name">{selectedDef().skillName(skill)}</span>
 			{/* keyed so each level-up remounts and replays the pop animation */}
 			<span className="skillxp__level" key={state.level}>
-				<i>Lv</i><SkillLevel
+				<i>XP Lv</i><SkillLevel
 					level={state.level}
 					xp={state.fill * SkillState.xpForLevel(state.level)}
 					prestige={prestige}
 					lifetimeXp={lifetimeXp}
+					xpLevel
 				/>
 				{gainedLevels > 0 && <em 
 					className="skillxp__levelup" 

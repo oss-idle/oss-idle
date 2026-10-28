@@ -19,7 +19,7 @@ export default defineConfig({
 	test: {
 		environment: 'node', // pure logic - no DOM, no browser automation
 		include: ['src/**/*.test.ts'],
-		// Scenario tests run a chart many times; dense charts need headroom.
+		// The benchmark plays every fixture chart many times; dense charts need headroom.
 		testTimeout: 600000,
 		hookTimeout: 600000,
 		teardownTimeout: 600000,

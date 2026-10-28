@@ -21,11 +21,13 @@ import {
 	Column,
 	DAO,
 	DB,
+	type Insert,
 	integer,
 	real,
 	table,
 	text,
 } from '../dao';
+import { MemoryFail } from './memory_fail';
 import { ScoreBest } from './score_best';
 import { ScoreBestPP } from './score_best_pp';
 import {
@@ -135,10 +137,48 @@ export class Score extends DAO(t) {
 		};
 	}
 
-	/** Every character's local scores on this difficulty, with their bests and XP. */
-	static async clearBeatmap(beatmapId: number): Promise<void> {
+	/** Swap `characterIds`' copies of server scores for `fetched` in one write, then
+	 *  work their bests out again. Local-only plays stay, and so does a copy played
+	 *  after `before` (one that finished while `fetched` was downloading). */
+	static async replaceServerScores(
+		characterIds: readonly number[],
+		fetched: readonly ScoreDTO[],
+		before: number,
+	): Promise<void> {
+		if (!characterIds.length) return;
+		const ids = characterIds.map(Number).join(', ');
 		await DB.write(db => {
-			for (const table of [this.table, ScoreBest.table, ScoreBestPP.table, ScoreXP.table])
+			db.run(
+				`DELETE FROM score WHERE characterId IN (${ids}) AND onlineId != -1 AND playedAt <= ?`,
+				[before],
+			);
+			const kept = new Set((db.exec(
+				`SELECT onlineId FROM score WHERE characterId IN (${ids}) AND onlineId != -1`,
+			)[0]?.values ?? []).map(row => row[0] as number));
+			for (const dto of fetched) {
+				if (kept.has(dto.id)) continue;
+				t.insert(db, Score.fromDTO(dto) as unknown as Insert<typeof t.columns>);
+			}
+			const bests = [['score_best', `${rankValueSQL()} DESC`], ['score_best_pp', 'pp DESC']];
+			for (const [best, order] of bests) {
+				db.run(`DELETE FROM ${best} WHERE characterId IN (${ids})`);
+				db.run(`INSERT INTO ${best} (characterId, beatmapId, scoreId)
+					SELECT characterId, beatmapId, id FROM (
+						SELECT characterId, beatmapId, id, ROW_NUMBER() OVER (
+							PARTITION BY characterId, beatmapId ORDER BY ${order}, id ASC
+						) AS n FROM score WHERE characterId IN (${ids})
+					) WHERE n = 1`);
+			}
+		});
+		void scoresVersion.set(scoresVersion.get() + 1);
+	}
+
+	/** Every character's local scores on this difficulty, with their bests, XP and fails. */
+	static async clearBeatmap(beatmapId: number): Promise<void> {
+		await MemoryFail.ensure();
+		await DB.write(db => {
+			const tables = [this.table, ScoreBest.table, ScoreBestPP.table, ScoreXP.table, MemoryFail.table];
+			for (const table of tables)
 				db.run(`DELETE FROM ${table.name} WHERE beatmapId = ?`, [beatmapId]);
 		});
 		void scoresVersion.set(scoresVersion.get() + 1);
@@ -161,6 +201,20 @@ export class Score extends DAO(t) {
 				JOIN score_best b ON b.scoreId = s.id
 				WHERE b.characterId = ? AND b.beatmapId = ?`,
 			[characterId, beatmapId],
+		);
+	}
+
+	/** Best score at this rate; rates are RATE_STEP multiples, the tolerance absorbs float drift. */
+	static bestAtRate(
+		characterId: number,
+		beatmapId: number,
+		rate: number,
+	): Promise<Score | undefined> {
+		return this.first(
+			`SELECT * FROM score
+				WHERE characterId = ? AND beatmapId = ? AND ABS(rate - ?) < 0.001
+				ORDER BY ${rankValueSQL()} DESC, id ASC LIMIT 1`,
+			[characterId, beatmapId, rate],
 		);
 	}
 
@@ -190,26 +244,29 @@ export class Score extends DAO(t) {
 		);
 	}
 
-	/** How many times this character has played this map locally - drives the
-	 *  memory skill for guest / unranked plays (ranked uses the server count).
-	 *  Plays from before memory was last prestiged do not count: that training
-	 *  is what the prestige spent. */
-	/** Plays of this map that still train memory: those since its last prestige,
-	 *  less what each memory upgrade bought after that forgot. */
-	static countPlays(
+	/** Local plays of this map that still train memory - the memory skill for guest /
+	 *  unranked plays (ranked uses the server's): passes, and fails by the share of the
+	 *  map they reached, since its last prestige, less what each memory upgrade bought
+	 *  after that forgot. */
+	static async countPlays(
 		characterId: number,
 		beatmapId: number,
 		since = 0,
 		forgetAt: readonly number[] = [],
 	): Promise<number> {
+		await MemoryFail.ensure();
 		return DB.read(db => {
 			const res = db.exec(
-				`SELECT playedAt FROM score
+				`SELECT playedAt, 1 FROM score
+					WHERE characterId = ? AND beatmapId = ? AND playedAt >= ?
+				UNION ALL SELECT playedAt, share FROM memory_fail
 					WHERE characterId = ? AND beatmapId = ? AND playedAt >= ?`,
-				[characterId, beatmapId, since],
+				[characterId, beatmapId, since, characterId, beatmapId, since],
 			);
-			const playedAt = (res[0]?.values ?? []).map(r => r[0] as number);
-			return recall(playedAt, forgetAt.filter(t => t >= since));
+			const played = (res[0]?.values ?? []).map(([at, share]) => ({
+				at: at as number, share: share as number,
+			}));
+			return recall(played, forgetAt.filter(t => t >= since));
 		});
 	}
 }

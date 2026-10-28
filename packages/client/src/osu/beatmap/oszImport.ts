@@ -4,6 +4,7 @@ import {
 	t,
 } from '@lingui/core/macro';
 import {
+	strToU8,
 	unzip,
 	type Unzipped,
 } from 'fflate';
@@ -12,12 +13,14 @@ import * as ppjs from 'rosu-pp-js-web';
 
 import { unwrapArchive } from '@oss-idle/shared/osuSkin/files';
 import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
+import { emptyIn } from '@oss-idle/shared/rulesets/mania/editor/chart';
 
 import { music } from '../../audio/MusicPlayer';
 import { SETTINGS } from '../../db/settings';
 import { message } from '../../globals';
 import { pickFile } from '../../pickFile';
 import { ENABLED_RULESETS } from '../../rulesets/enabled';
+import { selectedRuleset } from '../../rulesets/registry';
 import SceneManager, { SCENE } from '../../scenes/SceneManager';
 import rosuReady from '../rosu';
 import BeatmapStore, {
@@ -48,10 +51,14 @@ export const localSetId = (map: SetNames) =>
 		: `${map.artist}\n${map.title}\n${map.creator}`);
 
 /** Store an .osz from the player's own files as a local set. */
-export const importOsz = async (data: Uint8Array): Promise<SetRecord> =>
-	importFiles(unwrapArchive(await new Promise<Unzipped>((resolve, reject) => {
+export const importOsz = async (data: Uint8Array): Promise<SetRecord> => {
+	const files = unwrapArchive(await new Promise<Unzipped>((resolve, reject) => {
 		unzip(data, (err, out) => (err ? reject(err) : resolve(out)));
-	})));
+	}));
+	return importFiles({
+		...files, ...emptyChartsInRuleset(files),
+	});
+};
 
 /** A local set's metadata out of its files: the set `id` when given, else the one its charts
  *  give it. */
@@ -81,6 +88,17 @@ export const localMetadata = async (files: Unzipped, setId?: number): Promise<St
 	return {
 		id, artist, title, creator, versions,
 	};
+};
+
+/** The set's charts with no notes made charts of the picked ruleset, for the editor to open:
+ *  only those, rewritten. */
+export const emptyChartsInRuleset = (files: Unzipped): Unzipped => {
+	const decoder = new TextDecoder();
+	return Object.fromEntries(Object.keys(files).filter(isChart).flatMap(file => {
+		const text = decoder.decode(files[file]);
+		const moved = emptyIn(text, selectedRuleset.get());
+		return moved === text ? [] : [[file, strToU8(moved)]];
+	}));
 };
 
 /** Store an unpacked set as a local set, replacing the one it was imported as before,

@@ -1,5 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 
+import { xpGivesLevel } from '@oss-idle/shared/xp';
+
 import type { getCharacter } from '../../api/characters';
 import { SkillBar } from './SkillBar';
 
@@ -10,7 +12,7 @@ export default function CharacterSkills({ character }: {
 	return <div className='character__block character__block-skills'>
 		<div className='character__block-title'><Trans>Skills</Trans></div>
 		<div className='main-skill'><SkillBar ruleset={character.ruleset} skill={'overall'} progress={{
-			level: character.profile.overallLevel, xp: character.profile.overallXp,
+			...xpGivesLevel(character.profile.overallLifetimeXp),
 			lifetimeXp: character.profile.overallLifetimeXp,
 		}} /></div>
 		<ul className='skills'>

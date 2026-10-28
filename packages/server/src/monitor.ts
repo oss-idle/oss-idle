@@ -16,6 +16,7 @@ import {
 	env,
 	redisKeyPrefix,
 } from './env';
+import { guestCount } from './guests';
 import {
 	count,
 	DISK_KEEP_H,
@@ -118,6 +119,7 @@ const sampleHost = async () => {
 	await gaugeMax('activity', 'online', await presenceCount());
 	await gaugeMax('activity', 'clients', await clientCount());
 	await gaugeMax('activity', 'playing', await getPlaying());
+	await gaugeMax('activity', 'guests', await guestCount());
 	await sampleDisk();
 };
 

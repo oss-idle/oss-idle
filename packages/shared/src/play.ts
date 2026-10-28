@@ -19,13 +19,40 @@ export const LEAD_IN_MS = 2000;
  * are pushed to every one of the character's sockets.
  */
 
+/** Song ms between two strain gauge samples. */
+export const STRAIN_EVERY_MS = 250;
+
+/** The strain gauges every `every` ms of song time from `from`: each sample the
+ *  play's ruleset's gauged skills' strain, 0-100, in `skills` order. */
+export const strainSamplesDTO = z.object({
+	from: z.number(),
+	every: z.number().int().positive(),
+	skills: z.array(z.string()),
+	values: z.array(z.array(z.number().int().min(0).max(100))),
+});
+export type StrainSamples = z.infer<typeof strainSamplesDTO>;
+
+/** The samples of `s` after song time `after`, up to and with `upTo`: a chunk's share. */
+export const strainsBetween = (
+	s: StrainSamples, after: number, upTo: number,
+): StrainSamples | undefined => {
+	const first = Math.max(0, Math.floor((after - s.from) / s.every) + 1);
+	const last = Math.min(s.values.length - 1, Math.floor((upTo - s.from) / s.every));
+	if (last < first) return undefined;
+	return {
+		...s, from: s.from + first * s.every, values: s.values.slice(first, last + 1),
+	};
+};
+
 /** A slice of the replay stream: the offsets revealed so far, the resume
  *  cursor, and whether every offset has been delivered. An offset is the play's
- *  ruleset's own: only that ruleset's client reads one. */
+ *  ruleset's own: only that ruleset's client reads one. The strain gauge samples
+ *  up to the last offset revealed come with it, gated the same way. */
 const offsetChunk = {
 	offsets: z.array(z.unknown()),
 	next: z.number().int().min(0),
 	done: z.boolean(),
+	strains: strainSamplesDTO.optional(),
 };
 
 /** Outcome of `play:start`. `ranked` carries everything the client needs to

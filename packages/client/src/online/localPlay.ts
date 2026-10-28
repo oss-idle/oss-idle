@@ -15,6 +15,7 @@ import type {
 } from '@oss-idle/shared/rulesets/mania/maniaGame';
 
 import Character from '../db/schema/character';
+import { MemoryFail } from '../db/schema/memory_fail';
 import { Score } from '../db/schema/score';
 import { ScoreXP } from '../db/schema/score_xp';
 import { selectedMods } from '../gameplay/playMods';
@@ -67,6 +68,8 @@ type LocalRun = {
 	startedAt: number;
 	endsAt: number;
 	songStartMs: number;
+	/** how far into the map the play got, 0-1: what a fail trains memory by */
+	reached: number;
 	samples: [number, number, Grade][];
 	timer: number;
 };
@@ -231,6 +234,7 @@ const simulate = async (
 		startedAt,
 		endsAt: startedAt + LEAD_IN_MS + endSongTime,
 		songStartMs: game.songStartMs,
+		reached: Math.min(1, endSongTime / lastNoteEnd),
 		samples,
 		timer: 0,
 	};
@@ -310,9 +314,11 @@ export const finalizeLocalPlay = async (token: string): Promise<void> => {
 
 	let saved = score;
 	let gains: SkillGain[] | undefined;
-	// a failed play is never saved or paid for; an unranked one is saved but
-	// earns nothing, the same rules the scene used to apply
-	if (!failed) {
+	// a failed play is never saved or paid for, only remembered up to where it got;
+	// an unranked one is saved but earns nothing, the same rules the scene used to apply
+	if (failed) {
+		void MemoryFail.record(Number(character.id), run.beatmapId, run.reached);
+	} else {
 		saved = await score.add().catch(() => score);
 		if (run.mode === 'guest' && isRankedMods(run.mods)) {
 			gains = run.bot.gains({

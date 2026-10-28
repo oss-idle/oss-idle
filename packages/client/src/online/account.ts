@@ -16,6 +16,7 @@ import {
 import Auth from './auth';
 import { rpc } from './client';
 import { projectPending } from './projectPending';
+import { syncScores } from './scoreSync';
 
 /** Give a single validation attempt this long before declaring us offline. */
 const VALIDATE_TIMEOUT_MS = 15_000;
@@ -61,6 +62,11 @@ export default class Account {
 	 * in the background); back to true once the server answers again.
 	 */
 	public static readonly online = new Synced(true);
+	/**
+	 * No character to play with: signed out (or not onboarded yet) and no local
+	 * character on this device. Play asks for local or online play first.
+	 */
+	public static readonly noCharacter = new Synced(false);
 
 	private static initialized = false;
 	public static init() {
@@ -88,13 +94,23 @@ export default class Account {
 				// off; a database that cannot be read or written is no reason for
 				// the player's levels to stop moving everywhere they are shown.
 				Entities.character.set(character);
-				void mirrorLocally(character);
+				void Account.noCharacter.set(false);
+				void mirrorLocally(character).then(syncScores);
 				return;
 			}
-			// No account character: fall back to guest only once we KNOW we're
-			// signed out. While still validating, keep the loading character.
-			if (resolved) Entities.character.set(await Character.guest());
+			// No account character: fall back to the local one only once we KNOW
+			// we're signed out. While still validating, keep the loading character.
+			if (!resolved) return;
+			const local = await Character.localCurrent();
+			Entities.character.set(local ?? Entities.placeholder());
+			void Account.noCharacter.set(!local);
 		});
+	}
+
+	/** The player chose local play: their first local character. */
+	public static async playLocally(): Promise<void> {
+		Entities.character.set(await Character.newCharacter());
+		await Account.noCharacter.set(false);
 	}
 
 	/**

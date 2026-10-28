@@ -121,6 +121,9 @@
 .slot-3 {
 	--slot: var(--series-3);
 }
+.slot-gray {
+	--slot: var(--chart-muted);
+}
 .time-chart__line {
 	stroke: var(--slot);
 }

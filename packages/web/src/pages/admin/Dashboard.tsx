@@ -49,6 +49,9 @@ const tiles = (stats: AdminStats, metrics: AdminMetrics | undefined) => {
 			label: 'Server version', value: stats.serverVersion,
 		},
 		{
+			label: 'Play simulation', value: `${stats.sim.name} ${stats.sim.version}`,
+		},
+		{
 			label: 'Online / game open now',
 			value: `${stats.online.toLocaleString()} / ${stats.clients.toLocaleString()}`,
 		},
@@ -57,6 +60,10 @@ const tiles = (stats: AdminStats, metrics: AdminMetrics | undefined) => {
 		},
 		{
 			label: 'Players', value: stats.players.toLocaleString(),
+		},
+		{
+			label: 'Guests now / total',
+			value: `${stats.guests.toLocaleString()} / ${stats.guestsTotal.toLocaleString()}`,
 		},
 		{
 			label: 'Scores', value: stats.scores.toLocaleString(),

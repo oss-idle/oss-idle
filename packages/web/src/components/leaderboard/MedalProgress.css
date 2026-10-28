@@ -5,19 +5,57 @@
 	margin-top: 10px;
 }
 
+.medal-progress__group {
+	margin: 20px 0 0;
+	color: hsl(var(--hsl-c1));
+	font-size: 18px;
+	font-weight: 600;
+}
+
 .medal-progress__card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 	padding: 14px;
 	border-radius: 8px;
 	background-color: hsl(var(--hsl-b4));
+	transition: background-color 120ms;
+}
+
+.medal-progress__card:hover {
+	background-color: hsl(var(--hsl-b3));
 }
 
 .medal-progress__title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	color: hsl(var(--hsl-c1));
 	font-size: 15px;
 	font-weight: 600;
+}
+
+.medal-progress__title svg {
+	color: hsl(var(--hsl-c2));
+	font-size: 12px;
+}
+
+.medal-progress__card:hover .medal-progress__title svg {
+	color: hsl(var(--hsl-l1));
+}
+
+/* the title's link covers the card; players and medals stay above it */
+.medal-progress__title::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.medal-progress__card .medal-line__icon,
+.medal-progress__name {
+	position: relative;
+	z-index: 1;
 }
 
 .medal-line {

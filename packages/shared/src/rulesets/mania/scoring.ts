@@ -234,6 +234,13 @@ export function judgeHold(headErr: number, tailErr: number, w: HitWindows): Judg
 	return JUDGEMENT.BAD;
 }
 
+/** A release on its own: its long note's judgement when the press was clean - a
+ *  miss once it leaves the tail's window (early past BAD, late past GOOD). */
+export function judgeRelease(release: number, w: HitWindows): Judgement {
+	if (release > w[JUDGEMENT.GOOD] || release < -w[JUDGEMENT.BAD]) return JUDGEMENT.MISS;
+	return judgeHold(0, Math.abs(release), w);
+}
+
 const MAX_SCORE = 1_000_000;
 
 /** Running score / combo / accuracy state for a play. */

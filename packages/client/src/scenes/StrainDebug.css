@@ -1,7 +1,7 @@
 .strain {
-	position: absolute;
+	position: fixed;
 	inset: 0;
-	z-index: var(--z-select-strain);
+	z-index: var(--z-strain-debug);
 	display: flex;
 	flex-direction: column;
 	background: rgba(5, 4, 10, 0.94);
@@ -95,14 +95,6 @@
 	text-transform: none;
 	color: var(--osu-pink-light);
 }
-.strain__time {
-	margin-left: 0.4rem;
-	font-style: normal;
-	font-size: 0.72rem;
-	font-weight: 600;
-	text-transform: none;
-	color: var(--text-dim);
-}
 .strain__ur {
 	font-size: 0.78rem;
 	font-weight: 700;
@@ -144,4 +136,103 @@
 	width: 100%;
 	border-radius: 8px;
 	background: rgba(0, 0, 0, 0.35);
+}
+
+/* the debug bot's knobs: sized for the game's big cursor */
+.strain__controls {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+	gap: 0.8rem 1.6rem;
+	align-items: center;
+	padding: 1rem 1.4rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.strain__knob {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.strain__knob-label {
+	min-width: 7.5rem;
+	font-weight: 700;
+	color: #fff;
+}
+.strain__knob button {
+	flex: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	font-size: 1.4rem;
+	font-weight: 700;
+	line-height: 1;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.strain__knob button:hover {
+	background: rgba(255, 102, 171, 0.3);
+	border-color: rgba(255, 102, 171, 0.6);
+}
+.strain__range {
+	flex: 1;
+	min-width: 80px;
+	height: 40px;
+	-webkit-appearance: none;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
+}
+.strain__range::-webkit-slider-runnable-track {
+	height: 10px;
+	border-radius: 5px;
+	background: rgba(255, 255, 255, 0.16);
+}
+.strain__range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 30px;
+	height: 30px;
+	margin-top: -10px;
+	border-radius: 50%;
+	background: var(--osu-pink-light);
+	border: 3px solid #fff;
+}
+.strain__number {
+	flex: none;
+	width: 4.8rem;
+	height: 40px;
+	padding: 0 0.5rem;
+	border-radius: 10px;
+	font-size: 1.1rem;
+	font-weight: 700;
+	text-align: center;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.35);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.strain__readout {
+	color: var(--text-dim);
+	font-size: 0.85rem;
+}
+.strain__control-actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.6rem;
+}
+.strain__cell .strain__knob-label {
+	min-width: 0;
+}
+.strain__cell .strain__number {
+	width: 3.8rem;
+}
+.strain__cell .strain__range {
+	min-width: 40px;
+}
+.strain__hint {
+	margin: 0.2rem 0 0 0.2rem;
+	font-size: 0.8rem;
+	color: var(--text-dim);
+}
+.strain__legend {
+	grid-column: 1 / -1;
 }

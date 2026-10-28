@@ -8,7 +8,10 @@ import num from '@oss-idle/shared/display/num';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 import hitAccuracy from '@oss-idle/shared/rulesets/mania/hitAccuracy';
 import { countsOf } from '@oss-idle/shared/rulesets/ruleset';
-import { xpForLevel } from '@oss-idle/shared/xp';
+import {
+	levelProgress,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import Character from '../../db/schema/character';
 import {
@@ -34,13 +37,11 @@ export default function UserCard({
 	online_stats: Awaited<ReturnType<typeof getCharacterStats>> | undefined;
 }) {
 	const { t } = useLingui();
-	const nextGlobal = online_character ? 
-		xpForLevel(online_character.profile.overallLevel) 
-		: undefined;
+	const overall = online_character && xpGivesLevel(online_character.profile.overallLifetimeXp);
 	const pp = num(online_character?.profile.pp);
 	const accuracy = online_stats && accuracyText(hitAccuracy(countsOf(online_stats)));
-	const level = num(online_character?.profile.overallLevel);
-	const levelProgress = (online_character?.profile.overallXp ?? 0) / (nextGlobal || 1);
+	const level = num(overall?.level);
+	const progress = overall ? levelProgress(overall.level, overall.xp) : 0;
 	return (
 		<div
 			className="game__user"
@@ -72,7 +73,7 @@ export default function UserCard({
 				<div className="game__user-level-bar">
 					<div
 						className="game__user-level-bar-fill"
-						style={{ width: `${Math.min(1, levelProgress) * 100}%` }}
+						style={{ width: `${Math.min(1, progress) * 100}%` }}
 					/>
 				</div>
 			</div>

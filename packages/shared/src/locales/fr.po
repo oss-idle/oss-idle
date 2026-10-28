@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-27 00:17\n"
+"PO-Revision-Date: 2026-10-28 18:45\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -305,10 +305,6 @@ msgstr "Rejouer la map en boucle"
 #: src/rulesets/mania/7k/display.ts
 msgid "Build a better warmup routine to endure long maps"
 msgstr "Améliore ton warm up pour gérer des maps plus longues"
-
-#: src/rulesets/mania/medalText.ts
-msgid "Buy every upgrade of a skill"
-msgstr "Toutes les améliorations d'une compétence achetées"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Buy your first upgrade"
@@ -1017,6 +1013,10 @@ msgstr "Maîtrise"
 #: src/rulesets/mania/medalText.ts
 msgid "Max out the upgrades of {count} skills at once"
 msgstr "Acheter toutes les améliorations de {count} compétences en même temps"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out the upgrades of a skill"
+msgstr "Acheter toutes les améliorations d'une compétence"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Meltdown"

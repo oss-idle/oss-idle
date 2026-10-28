@@ -71,7 +71,7 @@ const MAX_DOTS = 12;
 /** The status pill's colour, as osu!web's: ranked lime, loved pink, pending orange - and
  *  a player's unranked upload, osu!'s unsubmitted map, orange too. */
 const PILL_HUE: Record<string, string> = {
-	ranked: 'lime-1', loved: 'pink-1', pending: 'orange-1', unranked: 'orange-1',
+	ranked: 'lime-1', loved: 'pink-1', pending: 'orange-1', planned: 'orange-1', unranked: 'orange-1',
 };
 
 const pillStyle = (status = 'ranked') =>
@@ -79,12 +79,13 @@ const pillStyle = (status = 'ranked') =>
 
 const capsule = (status?: string) => status === 'unranked' ? <Trans>Unranked</Trans>
 	: status === 'pending' ? <Trans>Pending</Trans>
-		: status === 'loved' ? <Trans>Loved</Trans>
-			: <Trans>Ranked</Trans>;
+		: status === 'planned' ? <Trans>Planned</Trans>
+			: status === 'loved' ? <Trans>Loved</Trans>
+				: <Trans>Ranked</Trans>;
 
 /** When it was approved, or for a player's own map, uploaded or submitted for rank. */
 const dateOf = (mapset: Mapset) => mapset.status === 'unranked' ? mapset.createdAt
-	: mapset.status === 'pending' ? mapset.submittedAt
+	: mapset.status === 'pending' || mapset.status === 'planned' ? mapset.submittedAt
 		: mapset.rankedAt;
 
 /**

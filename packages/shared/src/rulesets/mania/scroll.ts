@@ -153,6 +153,24 @@ export class ScrollModel {
 		const seg = segs[lo];
 		return seg.cumulative + seg.speed * (t - seg.time);
 	}
+
+	/** When the scroll reaches `pos`: the inverse of {@link positionAt} (the
+	 *  latest such time across a stop). */
+	timeAt(pos: number): number {
+		const segs = this.segments;
+		if (pos < segs[0].cumulative) {
+			return segs[0].time + (segs[0].speed ? (pos - segs[0].cumulative) / segs[0].speed : 0);
+		}
+		let lo = 0;
+		let hi = segs.length - 1;
+		while (lo < hi) {
+			const mid = (lo + hi + 1) >> 1;
+			if (segs[mid].cumulative <= pos) lo = mid;
+			else hi = mid - 1;
+		}
+		const seg = segs[lo];
+		return seg.time + (seg.speed ? (pos - seg.cumulative) / seg.speed : 0);
+	}
 }
 
 /**

@@ -17,12 +17,15 @@ function gcd(a: number, b: number): number {
  * (most recent) uninherited timing point at `time`.
  */
 const beatSnap = (time: number, timingPoints: TimingPoint[]): number => {
-	let tp: TimingPoint | undefined;
-	for (const p of timingPoints) {
-		if (p.startTime <= time) tp = p;
-		else break;
+	// the last point at or before `time` (osu-classes keeps them sorted)
+	let lo = 0;
+	let hi = timingPoints.length;
+	while (lo < hi) {
+		const mid = (lo + hi) >> 1;
+		if (timingPoints[mid].startTime <= time) lo = mid + 1;
+		else hi = mid;
 	}
-	tp ??= timingPoints[0];
+	const tp = timingPoints[lo - 1] ?? timingPoints[0];
 	if (!tp || tp.beatLength <= 0) return 0;
 
 	// fractional position within the beat, in [0, 1)

@@ -1,7 +1,5 @@
 import './Transition.css';
 
-import type { ReactNode } from 'react';
-
 import sleep from '@oss-idle/shared/helpers/sleep';
 import Synced from '@oss-idle/shared/helpers/synced';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
@@ -13,7 +11,6 @@ type Phase = 'in' | 'covered' | 'out';
 type TransitionState = {
 	/** identifies the active transition so a stale handle can't drive a newer one */
 	id: number;
-	content: ReactNode;
 	phase: Phase;
 };
 
@@ -26,37 +23,25 @@ export class Transition {
 	private revealing?: Promise<void>;
 	private readonly id = ++counter;
 
-	private constructor(content: ReactNode) {
+	private constructor() {
 		void state.set({
-			id: this.id, content, phase: 'in', 
+			id: this.id, phase: 'in',
 		});
 		this.covered = sleep(FADE_MS).then(() => {
-			if (this.active()) 
+			if (this.active())
 				void state.set({
-					id: this.id, content: this.content(), phase: 'covered', 
+					id: this.id, phase: 'covered',
 				});
 		});
 	}
 
-	/** Begin a transition. Returns a handle the scenes use to drive the rest. */
-	static begin(content: ReactNode): Transition {
-		return new Transition(content);
+	/** Begin a fade to black. Returns a handle the scenes use to drive the rest. */
+	static begin(): Transition {
+		return new Transition();
 	}
 
 	private active(): boolean {
 		return state.get()?.id === this.id;
-	}
-
-	private content(): ReactNode {
-		return state.get()?.content ?? null;
-	}
-
-	setContent(content: ReactNode): void {
-		if (!this.active()) return;
-		const s = state.get()!;
-		void state.set({
-			...s, content, 
-		});
 	}
 
 	/**
@@ -69,7 +54,7 @@ export class Transition {
 			await this.covered;
 			if (!this.active()) return;
 			void state.set({
-				...state.get()!, phase: 'out', 
+				...state.get()!, phase: 'out',
 			});
 			await sleep(FADE_MS);
 			if (this.active()) void state.set(null);
@@ -84,55 +69,17 @@ export default function TransitionOverlay() {
 		<div
 			className={`transition transition--${s.phase}`}
 			style={{ animationDuration: `${FADE_MS}ms` }}
-		>
-			{s.content}
-		</div>
+		/>
 	);
 }
 
-/** A loading panel: spinner + a title/subtitle. The default "something's coming" content. */
+/** A loading panel: spinner + a title/subtitle. */
 export function LoadingPanel({ title, sub }: { title: string; sub?: string }) {
 	return (
 		<div className="transition__panel">
 			<div className="transition__spinner" />
 			<div className="transition__title">{title}</div>
 			{sub && <div className="transition__sub">{sub}</div>}
-		</div>
-	);
-}
-
-export type DialogAction = { 
-	label: string; 
-	onClick: () => void; 
-	primary?: boolean 
-};
-
-/** An interactive panel: a message plus one or more action buttons. */
-export function DialogPanel({ 
-	title,
-	message,
-	actions,
-}: { 
-	title: string;
-	message?: string; 
-	actions: DialogAction[] 
-}) {
-	return (
-		<div className="transition__panel">
-			<div className="transition__title">{title}</div>
-			{message && <div className="transition__message">{message}</div>}
-			<div className="transition__actions">
-				{actions.map((a) => (
-					<button
-						key={a.label}
-						type="button"
-						className={`transition__btn ${a.primary ? 'transition__btn--primary' : ''}`}
-						onClick={a.onClick}
-					>
-						{a.label}
-					</button>
-				))}
-			</div>
 		</div>
 	);
 }

@@ -85,3 +85,20 @@ export const getLatestScore = async (characterId: number, beatmapId: number) => 
 	});
 	return res.ok ? res.json() : undefined;
 };
+
+/** What the signed-in account's local scores are checked against (online/scoreSync.ts). */
+export const fetchScoreState = async () => {
+	const res = await rpc.v1.me.scores.state.$get();
+	return res.ok ? await res.json() : undefined;
+};
+export type ScoreState = NonNullable<Awaited<ReturnType<typeof fetchScoreState>>>;
+
+/** A page of every score the signed-in account ever stored in `ruleset`, after `after`. */
+export const fetchMyScores = async (ruleset: ScoreState['rulesets'][number], after: number) => {
+	const res = await rpc.v1.me.scores.$get({
+		query: {
+			ruleset, after: String(after),
+		},
+	});
+	return res.ok ? await res.json() : undefined;
+};

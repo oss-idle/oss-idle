@@ -12,6 +12,7 @@ import {
 	mysqlEnum,
 	mysqlTable,
 	primaryKey,
+	smallint,
 	timestamp,
 	varchar,
 } from 'drizzle-orm/mysql-core';
@@ -76,6 +77,8 @@ export const scoreColumns = <J extends string>(judgements: readonly J[]) => ({
 	}),
 	// modsKey: "HR,SD"
 	mods: varchar({ length: 16 }).notNull().default(''),
+	// the score version the play was simulated on (sim.ts SCORE_VERSION): the reprocessor brings older ones up
+	version: smallint().notNull().default(1),
 });
 
 type ScoreCols = { characterId: AnyMySqlColumn; beatmapId: AnyMySqlColumn };

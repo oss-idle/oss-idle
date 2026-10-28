@@ -30,8 +30,15 @@ import {
 	ensureRankings,
 	sweepRankHistory,
 } from './rankings';
-import { redis } from './redis';
+import {
+	redis,
+	versionKey,
+} from './redis';
 import { loadRulesets } from './rulesets/registry';
+import {
+	loadSim,
+	SCORE_VERSION,
+} from './sim';
 import { sweepThanks } from './supporter';
 import { hub } from './ws/hub';
 import {
@@ -46,6 +53,8 @@ import { registerWs } from './ws/routes';
 
 activateServerI18n();
 await loadRulesets();
+await loadSim();
+await redis.set(versionKey, SCORE_VERSION);
 
 // the sweeps and socket heartbeats are fire-and-forget: a database or Redis blip in
 // one must not end the worker, and every socket it holds with it

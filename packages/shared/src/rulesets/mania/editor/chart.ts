@@ -1,3 +1,11 @@
+import {
+	OSU_MODE,
+	type OsuMode,
+	type RulesetId,
+	rulesetOf,
+	RULESETS,
+} from '../../ids.js';
+
 /** A mania note as the editor holds it; `end` makes it a long note. The hitsound
  *  fields are carried verbatim so keysounds survive an edit. */
 export type Note = {
@@ -240,6 +248,19 @@ export const writeChart = (chart: Chart, doc: ChartDoc): string => {
 		? withValue(withTiming, 'Editor', 'Bookmarks', doc.bookmarks.map(Math.round).join(','))
 		: withoutValue(withTiming, 'Editor', 'Bookmarks');
 	return withMetadata(withBookmarks, doc.metadata, false).join(eolOf(chart.text));
+};
+
+/** A chart with no notes outside ruleset `id` (osu!'s featured artist templates are osu!
+ *  ones) as one of its charts; any other chart as it is. */
+export const emptyIn = (text: string, id: RulesetId): string => {
+	const lines = text.split(/\r?\n/);
+	const ruleset: { mode: OsuMode, keys?: number } = RULESETS[id];
+	const keys = Math.round(Number(valueOf(lines, 'Difficulty', 'CircleSize')));
+	const inside = rulesetOf(Number(valueOf(lines, 'General', 'Mode') || 0), keys) === id;
+	if (inside || sectionLines(lines, 'HitObjects').length) return text;
+	const moved = withValue(lines, 'General', 'Mode', String(OSU_MODE[ruleset.mode]));
+	return (ruleset.keys ? withValue(moved, 'Difficulty', 'CircleSize', String(ruleset.keys)) : moved)
+		.join(eolOf(text));
 };
 
 /** Another difficulty's text with the set-wide metadata (all but its name) of `metadata`. */

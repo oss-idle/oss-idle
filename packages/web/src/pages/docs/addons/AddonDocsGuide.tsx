@@ -1,4 +1,5 @@
 import {
+	API,
 	CAN_UPDATE,
 	CONTRACT,
 	SCAFFOLD,
@@ -71,6 +72,10 @@ export default function AddonDocsGuide() {
 					</td>
 				</tr>
 				<tr>
+					<td><code>host.api</code></td>
+					<td>The API as the signed-in player (see <a href='#the-api'>The API</a>).</td>
+				</tr>
+				<tr>
 					<td><code>host.editor</code></td>
 					<td>The editor, for add-ons of the Editor type (see <a href='#the-editor'>The editor</a>).</td>
 				</tr>
@@ -92,6 +97,16 @@ export default function AddonDocsGuide() {
 			{' '}<code>false</code>; the game asks again every few seconds.
 		</p>
 		<DocsCode code={CAN_UPDATE} />
+
+		<h2 id='the-api'>The API</h2>
+		<p>
+			<code>host.api</code> calls the <a href='/web/docs'>API</a> as the signed-in player, with every
+			{' '}scope: one method per endpoint, and calls that take a ruleset default to the one the player
+			{' '}picked. It answers with what the server knows, not the player&apos;s local state. A call fails
+			{' '}with an error carrying the HTTP <code>status</code>: 401 while the player is a guest, 429 past
+			{' '}the rate limits.
+		</p>
+		<DocsCode code={API} />
 
 		<h1 id='types-and-tags'>Types and tags</h1>
 		<p>

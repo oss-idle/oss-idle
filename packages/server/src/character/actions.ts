@@ -4,10 +4,12 @@ import {
 } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 
+import type { DebugCharacterBody } from '@oss-idle/shared/debug';
 import type { PendingAction } from '@oss-idle/shared/pendingAction';
 import {
 	applyPrestige,
 	applyUpgrade,
+	BASE_MAX_UPGRADES,
 	canPrestige,
 	canRebirth,
 	canUpgrade,
@@ -15,7 +17,10 @@ import {
 	revertUpgrade,
 	type UpgradeState,
 } from '@oss-idle/shared/upgrades';
-import { xpGivesLevel } from '@oss-idle/shared/xp';
+import {
+	xpGivesLevel,
+	xpToLevel,
+} from '@oss-idle/shared/xp';
 
 import { db } from '../db/client';
 import {
@@ -214,7 +219,7 @@ export const performUpgrade = async (
 			// lifetime counts for the medals; prestige resets the upgrades themselves
 			upgradesBought: current.upgradesBought + 1,
 			laddersCompleted: current.laddersCompleted
-				+ (next.upgrades >= maxUpgrades(state.prestige) ? 1 : 0),
+				+ (next.upgrades === BASE_MAX_UPGRADES ? 1 : 0),
 		};
 
 		await tx.update(r.profile).set(updates).where(eq(r.profile.id, characterId));
@@ -227,6 +232,50 @@ export const performUpgrade = async (
 
 	await reindexCharacter(r, characterId);
 	return purchase;
+};
+
+/** Debug mode, dev servers only: put skills at these real levels as if earned -
+ *  their total xp the level's price, the overall level moved with it - at these
+ *  prestiges (the upgrades held to the slots left), and the fatigue at these
+ *  strained minutes as of now. */
+export const performDebugCharacter = async (
+	r: ServerRuleset,
+	characterId: number,
+	{ levels = {}, prestige = {}, fatigueMinutes }: DebugCharacterBody,
+): Promise<void> => {
+	for (const skill of [...Object.keys(levels), ...Object.keys(prestige)]) assertSkill(r, skill);
+	await db.transaction(async tx => {
+		const current = await lockProfile(tx, r, characterId);
+		let updates: Partial<ProfileRow> = {};
+		let overallTotalXp = current.overallTotalXp;
+		for (const [skill, level] of Object.entries(levels)) {
+			const totalXp = Math.ceil(xpToLevel(level));
+			overallTotalXp = Math.max(0, overallTotalXp + totalXp - skillOf(current, skill).totalXp);
+			updates = {
+				// the level is the level: the sim plays it, not what the lifetime bought
+				...updates, ...skillColumnsFor(skill, {
+					level, xp: 0, totalXp, lifetimeXp: totalXp,
+				}),
+			};
+		}
+		for (const [skill, count] of Object.entries(prestige)) {
+			updates = {
+				...updates, ...skillColumnsFor(skill, {
+					prestige: count, upgrades: Math.min(skillOf(current, skill).upgrades, maxUpgrades(count)),
+				}),
+			};
+		}
+		const overall = xpGivesLevel(overallTotalXp);
+		await tx.update(r.profile).set({
+			...updates, overallTotalXp, overallLevel: overall.level, overallXp: Math.round(overall.xp),
+			...fatigueMinutes === undefined ? {} : {
+				fatigue: {
+					at: Date.now(), minutes: fatigueMinutes,
+				},
+			},
+		}).where(eq(r.profile.id, characterId));
+	});
+	await reindexCharacter(r, characterId);
 };
 
 /** Admin: undo a skill's last upgrade, refunding its levels and their xp as
@@ -261,7 +310,7 @@ export const performUpgradeRevert = async (
 			...spendTotals(current, skill, -Math.round(prev.refund)),
 			upgradesBought: Math.max(0, current.upgradesBought - 1),
 			laddersCompleted: Math.max(0, current.laddersCompleted
-				- (state.upgrades >= maxUpgrades(state.prestige) ? 1 : 0)),
+				- (state.upgrades === BASE_MAX_UPGRADES ? 1 : 0)),
 		};
 
 		await tx.update(r.profile).set(updates).where(eq(r.profile.id, characterId));

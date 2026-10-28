@@ -21,8 +21,15 @@ test.describe('boot', () => {
 		await expect(page.locator('.bm-card').first()).toBeVisible();
 	});
 
-	test('a first run is the local guest', async ({ game }) => {
-		await game.open();
+	test('a first run has no character until Play picks local play', async ({ game, page }) => {
+		await game.open({ local: false });
+		await game.enterMenu();
+		await page.locator('.menu__logo-enter').click();
+		await expect(game.menuOption('Editor')).toHaveClass(/disabled/);
+		await game.menuOption('Play').click();
+		await page.locator('.play-choice__btn', { hasText: 'Play locally' }).click();
+		await game.expectScene('SELECT');
+
 		const character = await game.character();
 		expect(character.guest).toBe(true);
 		// the local lineage lives below zero, apart from the server's id space

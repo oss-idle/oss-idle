@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-27 00:17\n"
+"PO-Revision-Date: 2026-10-28 18:45\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -26,7 +26,7 @@ msgstr "(partie en cours)"
 msgid "(only admins can see this)"
 msgstr "(visible seulement des administrateurs)"
 
-#: src/components/character/ProfileMedal.tsx
+#: src/components/character/MedalTip.tsx
 msgid "{category} ({tier})"
 msgstr "{category} ({tier})"
 
@@ -174,7 +174,7 @@ msgstr "<0>Non classé :</0> connecté, sur une map ou une difficulté non class
 msgid "A heart in the corner of the main menu, to thank you every time you start the game."
 msgstr "Un coeur dans le menu principal, pour te remercier à chaque fois que tu lances le jeu."
 
-#: src/components/character/ProfileMedal.tsx
+#: src/components/character/MedalTip.tsx
 msgid "A hidden medal"
 msgstr "Une médaille cachée"
 
@@ -377,11 +377,6 @@ msgstr "en attente de réponse"
 #: src/pages/DesktopDone.tsx
 msgid "Back in oss!idle already? You can close this tab."
 msgstr "Déjà de retour sur oss!idle ? Tu peux fermer cet onglet."
-
-#: src/pages/admin/AdminNav.tsx
-#: src/routes/admin/balancing.tsx
-msgid "balancing"
-msgstr "équilibrage"
 
 #: src/routes/maps/$id.tsx
 msgid "beatmap info"
@@ -766,6 +761,10 @@ msgstr "Premières places"
 msgid "Fixed"
 msgstr "Corrigé"
 
+#: src/components/leaderboard/medalLine.ts
+msgid "Followers"
+msgstr "Abonnés"
+
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Font Size"
 msgstr "Taille du texte"
@@ -1076,6 +1075,10 @@ msgstr "mappé par {creator}"
 msgid "mapped by <0>{creator}</0>"
 msgstr "créée par <0>{creator}</0>"
 
+#: src/components/leaderboard/medalLine.ts
+msgid "Mapped sets ranked or loved"
+msgstr "Mapsets mappés classés ou loved"
+
 #: src/pages/help/FAQ.tsx
 msgid "Maps and rankings"
 msgstr "Maps et classements"
@@ -1191,7 +1194,7 @@ msgstr "les plus demandées"
 
 #: src/components/AudioPlayer.tsx
 msgid "mute"
-msgstr ""
+msgstr "couper le son"
 
 #: src/UserMenu.tsx
 msgid "My Profile"
@@ -1450,9 +1453,17 @@ msgstr "Permanent"
 msgid "Pick your own main menu background: set <0>menu.background</0> to an image link in your skin."
 msgstr "Choisis ton propre fond d'écran : modifie <0>menu.background</0> dans ton skin vers un lien d'image."
 
+#: src/pages/beatmaps/BeatmapsetHeader.tsx
+msgid "planned"
+msgstr "planifiée"
+
+#: src/components/MapsetCard.tsx
+msgid "Planned"
+msgstr "Planifiée"
+
 #: src/components/AudioPlayer.tsx
 msgid "play"
-msgstr ""
+msgstr "lecture"
 
 #: src/components/leaderboard/medalLine.ts
 msgid "Play count"
@@ -1530,6 +1541,10 @@ msgstr "Appuie sur F9 en jeu pour ouvrir l'overlay communautaire : qui est en li
 msgid "prestige"
 msgstr "prestige"
 
+#: src/components/leaderboard/medalLine.ts
+msgid "Prestiges"
+msgstr "Prestiges"
+
 #: src/components/MapsetCard.tsx
 #: src/pages/beatmaps/PreviewButton.tsx
 msgid "preview"
@@ -1561,7 +1576,7 @@ msgstr "Coeur sur le profil"
 
 #: src/components/AudioPlayer.tsx
 msgid "progress"
-msgstr ""
+msgstr "progression"
 
 #: src/components/leaderboard/MedalBoardTabs.tsx
 msgid "Progress"
@@ -2009,6 +2024,10 @@ msgstr "Mute {name} ?"
 msgid "Simplest, nothing to install."
 msgstr "Le plus simple, rien à installer."
 
+#: src/pages/oauth/scopes.ts
+msgid "Simulate plays on your behalf."
+msgstr "Simuler des parties à ta place."
+
 #: src/components/character/CharacterRanks.tsx
 msgid "Skill Ranking"
 msgstr "Rang compétence"
@@ -2022,10 +2041,6 @@ msgstr "compétences"
 #: src/pages/characters/CharacterPreview.tsx
 msgid "Skills"
 msgstr "Compétences"
-
-#: src/components/leaderboard/medalLine.ts
-msgid "Skills fully upgraded"
-msgstr "Compétences améliorées au maximum"
 
 #: src/pages/admin/AdminNav.tsx
 #: src/routes/admin/skins.tsx
@@ -2277,10 +2292,6 @@ msgstr "Jusqu'à {max}, ou colle-les dans le texte."
 msgid "Update"
 msgstr "Mettre à jour"
 
-#: src/components/leaderboard/medalLine.ts
-msgid "Upgrades held"
-msgstr "Améliorations achetées"
-
 #: src/pages/store/SupporterPerks.tsx
 msgid "Upload {bonus} more new maps a month from the editor."
 msgstr "Envoie {bonus} nouvelles maps de plus par mois depuis l'éditeur."
@@ -2316,7 +2327,7 @@ msgstr "Tout voir"
 
 #: src/components/AudioPlayer.tsx
 msgid "volume"
-msgstr ""
+msgstr "volume"
 
 #: src/pages/Login.tsx
 msgid "We only use your osu! username, avatar and country."
@@ -2417,6 +2428,11 @@ msgstr "Écris quelque chose sur toi, en BBCode."
 #: src/components/character/UserPage.tsx
 msgid "Writing a me! page is an <0>oss!supporter</0> perk."
 msgstr "Écrire une page me! est un avantage <0>oss!supporter</0>."
+
+#: src/pages/admin/AdminNav.tsx
+#: src/routes/admin/xp.tsx
+msgid "XP gains"
+msgstr "Gains d'XP"
 
 #: src/components/character/RollbackUpgradeDialog.tsx
 msgid "XP level right after the upgrade was bought"

@@ -19,7 +19,7 @@ export default function AdminNav() {
 		<Link to='/admin/emoji' {...tab}>{t`emoji`}</Link>
 		{admin && <Link to='/admin/bugs' {...tab}>{t`bug reports`}</Link>}
 		{admin && <>
-			<Link to='/admin/balancing' {...tab}>{t`balancing`}</Link>
+			<Link to='/admin/xp' {...tab}>{t`XP gains`}</Link>
 			<Link to='/admin/nomination' {...tab}>{t`map nomination`}</Link>
 			<Link to='/admin/claims' {...tab}>{t`map claims`}</Link>
 			<Link to='/admin/addons' {...tab}>{t`add-ons`}</Link>

@@ -10,8 +10,9 @@ import { playLabel } from '@oss-idle/shared/mods';
 import type { SkillGain } from '@oss-idle/shared/play';
 import { versionLabel } from '@oss-idle/shared/rate';
 import type { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
+import type SkillState from '@oss-idle/shared/rulesets/skillState';
 import type { ScoreDTO } from '@oss-idle/shared/score';
-import { effectiveLevelOf } from '@oss-idle/shared/xp';
+import { playLevelOf } from '@oss-idle/shared/xp';
 
 import { music } from '../../audio/MusicPlayer';
 import { playShutter } from '../../audio/shutter';
@@ -44,9 +45,9 @@ type Props = {
 	loved?: boolean,
 };
 
-/** The level a gain reached, as its result screen bar ends on it. */
-const levelLabel = (p: SkillGain, prestige = 0): string => {
-	const shown = effectiveLevelOf(p.toLevel, p.toXp, prestige);
+/** The level a gain's skill is shown at after the play. */
+const levelLabel = (p: SkillGain, skill?: SkillState): string => {
+	const shown = playLevelOf(p.toLevel, p.toXp, skill?.lifetimeXp.get() ?? 0, skill?.prestige.get());
 	const whole = Math.floor(shown);
 	const part = Math.floor((shown - whole) * 100);
 	if (whole < LEVEL_COLOUR_MIN || part === 0) return `${whole}`;
@@ -104,7 +105,7 @@ export default function ShareScoreButton({
 			},
 			gains: gains.map(g => ({
 				name: selectedDef().skillName(g.skill),
-				level: levelLabel(g, character.skills.find(s => s.name === g.skill)?.prestige.get()),
+				level: levelLabel(g, character.skills.find(s => s.name === g.skill)),
 				levels: g.toLevel - g.fromLevel,
 				gained: g.gained,
 			})),

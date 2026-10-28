@@ -16,7 +16,7 @@ const decoder = new BeatmapDecoder();
 const cache = new Map<number, Beatmap>();
 
 /** Fetch a chart's `.osu` from the API, caching it to disk for offline reruns. */
-async function fetchChart(id: number): Promise<string> {
+export async function fetchChart(id: number): Promise<string> {
 	const file = `${CACHE_DIR}${id}.osu`;
 	if (existsSync(file)) return readFileSync(file, 'utf8');
 

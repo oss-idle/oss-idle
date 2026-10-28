@@ -5,7 +5,9 @@ import {
 	useLingui,
 } from '@lingui/react/macro';
 import {
+	memo,
 	useLayoutEffect,
+	useReducer,
 	useRef,
 	useState,
 } from 'react';
@@ -20,17 +22,34 @@ import {
 	rankTierGradient,
 } from '@oss-idle/shared/display/rankTier';
 
+const timeFormats = new Map<string, Intl.DateTimeFormat>();
+const timeFormat = (locale: string, tz?: string) => {
+	const key = `${locale}|${tz ?? ''}`;
+	let format = timeFormats.get(key);
+	if (!format) {
+		format = new Intl.DateTimeFormat(locale, {
+			hour: '2-digit',
+			minute: '2-digit',
+			...(tz ? { timeZone: tz } : {}),
+		});
+		timeFormats.set(key, format);
+	}
+	return format;
+};
+
 /**
  * One online character, osu!stable user-panel style: avatar, name and a
  * status-tinted strip. Shows the character's stats, swapping to its local time,
  * country and status on hover.
  */
-export default function PlayerCard({ character, onClick, className = '' }: {
+function PlayerCard({ character, onClick, className = '' }: {
 	character: PresenceEntry;
-	onClick?: () => void;
+	onClick?: (character: PresenceEntry) => void;
 	className?: string;
 }) {
 	const { i18n } = useLingui();
+	// Memoized, so the local time only moves on hover, where it shows.
+	const [, refresh] = useReducer((n: number) => n + 1, 0);
 
 	// Fade the avatar in on load - but skip the fade if it's already cached
 	// (complete before we mount), so cached cards don't flash.
@@ -46,11 +65,7 @@ export default function PlayerCard({ character, onClick, className = '' }: {
 
 	// Fall back to the viewer's local zone when the character has no geo tz
 	// (e.g. localhost / a lookup miss) so it shows a time, not a dash.
-	const localTime = new Intl.DateTimeFormat(i18n.locale, {
-		hour: '2-digit',
-		minute: '2-digit',
-		...(character.tz ? { timeZone: character.tz } : {}),
-	}).format(new Date());
+	const localTime = timeFormat(i18n.locale, character.tz).format(new Date());
 	const country = countryName(character.country, i18n.locale);
 	const statusText = character.status === 'playing' && character.nowPlaying
 		? character.nowPlaying
@@ -70,7 +85,8 @@ export default function PlayerCard({ character, onClick, className = '' }: {
 		<div
 			className={`player-card ${className}`}
 			data-status={character.status}
-			onClick={onClick}
+			onClick={() => onClick?.(character)}
+			onMouseEnter={refresh}
 		>
 			<div className="player-card__avatar">
 				<img
@@ -105,3 +121,5 @@ export default function PlayerCard({ character, onClick, className = '' }: {
 		</div>
 	);
 }
+
+export default memo(PlayerCard);

@@ -3,13 +3,21 @@ import {
 	count,
 	desc,
 	eq,
+	gt,
 	sql,
 } from 'drizzle-orm';
 import {
+	double,
 	int,
 	mysqlTable,
 	primaryKey,
+	timestamp,
 } from 'drizzle-orm/mysql-core';
+
+import {
+	DAILY_DECAY,
+	DAY_MS,
+} from '@oss-idle/shared/rulesets/mania/memoryRecall';
 
 import type { ServerRuleset } from '../../rulesets/ruleset';
 import { db } from '../client';
@@ -31,13 +39,21 @@ export const playedTable = (name: string) => mysqlTable(name as 'beatmaps_played
 	beatmapId: int().notNull()
 		.references(() => beatmaps.id, { onDelete: 'cascade' }),
 	plays: int().notNull().default(0),
-	memory: int().notNull().default(0),
+	// plays that still train memory as of memoryAt, fading by DAILY_DECAY a day;
+	// declared first so an update decays it before moving memoryAt
+	memory: double().notNull().default(0),
+	memoryAt: timestamp().notNull().defaultNow(),
 }, table => [
 	primaryKey({ columns: [table.characterId, table.beatmapId] }),
 ]);
 
 export type PlayedTable = ReturnType<typeof playedTable>;
 export type BeatmapsPlayedRow = PlayedTable['$inferSelect'];
+
+/** The memory plays left now, after the fade since memoryAt. */
+const memoryNow = (played: PlayedTable) => sql<number>`${played.memory} * POW(
+	${1 - DAILY_DECAY}, TIMESTAMPDIFF(SECOND, ${played.memoryAt}, NOW()) / ${DAY_MS / 1000}
+)`;
 
 
 export const getMostPlayed = (
@@ -53,7 +69,7 @@ export const getMostPlayed = (
 		.innerJoin(beatmaps, eq(beatmaps.id, r.played.beatmapId))
 		.innerJoin(beatmapset, eq(beatmapset.id, beatmaps.setId))
 		.innerJoin(r.setStatus, eq(r.setStatus.setId, beatmapset.id))
-		.where(eq(r.played.characterId, characterId))
+		.where(and(eq(r.played.characterId, characterId), gt(r.played.plays, 0)))
 		.orderBy(desc(r.played.plays))
 		.offset(offset)
 		.limit(limit));
@@ -68,19 +84,19 @@ export const getTotalPlayed = async (
 			maps: count(),
 		})
 		.from(beatmaps_played)
-		.where(eq(beatmaps_played.characterId, characterId))
+		.where(and(eq(beatmaps_played.characterId, characterId), gt(beatmaps_played.plays, 0)))
 		.groupBy(beatmaps_played.characterId))[0]?.maps ?? 0;
 };
 
-/** How many times this character has already played this map (0 if never).
- *  Read before a play to drive the memory skill. */
+/** The plays of this map that still train memory (0 if never played): read
+ *  before a play to drive the memory skill. */
 export const getPlays = async (
 	{ played: beatmaps_played }: ServerRuleset,
 	characterId: number,
 	beatmapId: number,
 ): Promise<number> => {
 	const row = (await db
-		.select({ plays: beatmaps_played.memory })
+		.select({ plays: memoryNow(beatmaps_played).mapWith(Number) })
 		.from(beatmaps_played)
 		.where(
 			and(
@@ -100,7 +116,9 @@ export const resetMemory = async (
 ) => {
 	return db
 		.update(beatmaps_played)
-		.set({ memory: 0 })
+		.set({
+			memory: 0, memoryAt: sql`NOW()`,
+		})
 		.where(eq(beatmaps_played.characterId, characterId));
 };
 
@@ -112,7 +130,9 @@ export const forgetMemory = async (
 ) => {
 	return db
 		.update(beatmaps_played)
-		.set({ memory: sql`GREATEST(${beatmaps_played.memory} - ${plays}, 0)` })
+		.set({
+			memory: sql`GREATEST(${memoryNow(beatmaps_played)} - ${plays}, 0)`, memoryAt: sql`NOW()`,
+		})
 		.where(eq(beatmaps_played.characterId, characterId));
 };
 
@@ -136,8 +156,30 @@ export const addBeatmapPlayed = async (
 		.onDuplicateKeyUpdate({
 			set: {
 				plays: sql`${beatmaps_played.plays} + 1`,
-				memory: sql`${beatmaps_played.memory} + 1`,
+				memory: sql`${memoryNow(beatmaps_played)} + 1`,
+				memoryAt: sql`NOW()`,
 			},
 		})
 	;
 };
+
+/** A failed play trains memory up to where it got: `share` of a play. Only passes
+ *  count as plays, so a map only ever failed stays out of the played lists. */
+export const addMemory = (
+	{ played: beatmaps_played }: ServerRuleset,
+	characterId: number,
+	beatmapId: number,
+	share: number,
+) => db
+	.insert(beatmaps_played)
+	.values({
+		characterId,
+		beatmapId,
+		memory: share,
+	})
+	.onDuplicateKeyUpdate({
+		set: {
+			memory: sql`${memoryNow(beatmaps_played)} + ${share}`,
+			memoryAt: sql`NOW()`,
+		},
+	});

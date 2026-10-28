@@ -64,7 +64,7 @@ export default class Bot7k extends Bot {
 		for (const note of ctx.notes) {
 			const strains = {} as Strains;
 			for (const skill of this.skills) {
-				const handled = Math.min(1, skill.effectiveLevel() / CAP_LEVEL) * 0.8;
+				const handled = Math.min(1, skill.playLevel() / CAP_LEVEL) * 0.8;
 				strains[skill.name] = Math.max(0, DEMANDS[skill.name](note, map) - handled);
 			}
 			this.strains.set(note, strains);
@@ -88,7 +88,7 @@ export default class Bot7k extends Bot {
 		if (side === 'press') this.blamed.set(note, skill);
 		if (Math.random() < strain ** 3 * MISS_CHANCE) return Infinity;
 		const accuracy = this.skills.find(s => s.name === SKILL_7K.accuracy);
-		const steady = 1 - 0.7 * Math.min(1, (accuracy?.effectiveLevel() ?? 0) / CAP_LEVEL);
+		const steady = 1 - 0.7 * Math.min(1, (accuracy?.playLevel() ?? 0) / CAP_LEVEL);
 		return gaussian(BASE_SIGMA_MS * steady * (1 + STRAIN_SIGMA * strain));
 	}
 

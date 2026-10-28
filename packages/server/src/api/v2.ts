@@ -11,7 +11,19 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
+import type {
+	ApiCountryRanking,
+	ApiFriend,
+	ApiMatch,
+	ApiRanking,
+	ApiSkillRanking,
+	ApiUserRanking,
+} from '@oss-idle/shared/apiV2';
 import { batchIds } from '@oss-idle/shared/oauth';
+import {
+	playLevelOf,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import {
 	liveDiffCondition,
@@ -79,6 +91,10 @@ import {
 	userCompact,
 	userStatistics,
 } from './objects';
+import {
+	simulate,
+	simulateBody,
+} from './simulate';
 
 
 const notFound = (what: string) => new HTTPException(404, { message: `${what} not found` });
@@ -192,7 +208,7 @@ const rankingQuery = valid('query', z.object({
 
 type Hydrated = Awaited<ReturnType<typeof ppPage>>[number];
 
-const rankingEntry = (ruleset: ServerRuleset, r: Hydrated, rank: number) => ({
+const rankingEntry = (ruleset: ServerRuleset, r: Hydrated, rank: number): ApiUserRanking => ({
 	rank,
 	...userStatistics(ruleset.def, r.profile, r.totals, {}),
 	user: userCompact({
@@ -205,7 +221,7 @@ const rankingEntry = (ruleset: ServerRuleset, r: Hydrated, rank: number) => ({
 });
 
 /** osu!'s ranking page: 50 rows, and the cursor for the next page while there is one. */
-const rankingPage = <T>(rows: T[], page: number) => ({
+const rankingPage = <T>(rows: T[], page: number): ApiRanking<T> => ({
 	ranking: rows,
 	...rows.length === PAGE_SIZE && { cursor: { page: page + 1 } },
 });
@@ -226,7 +242,7 @@ const rankingRoutes = new Hono()
 			play_count: r.playCount,
 			ranked_score: r.rankedScore,
 			performance: r.pp,
-		})), page));
+		}) satisfies ApiCountryRanking), page));
 	})
 
 	.get('/skill/:skill', needs('public'), rankingQuery, async c => {
@@ -237,12 +253,17 @@ const rankingRoutes = new Hono()
 		return c.json(rankingPage(rows.map((r, i) => ({
 			...rankingEntry(ruleset, r, rankOf(page, i)),
 			skill: skill === 'overall'
-				? { level: r.profile.overallLevel }
+				? { level: xpGivesLevel(r.profile.overallLifetimeXp).level }
 				: {
-					level: r.profile.skills[skill].level,
+					level: Math.floor(playLevelOf(
+						r.profile.skills[skill].level,
+						r.profile.skills[skill].xp,
+						r.profile.skills[skill].lifetimeXp,
+						r.profile.skills[skill].prestige,
+					)),
 					prestige: r.profile.skills[skill].prestige,
 				},
-		})), page));
+		}) satisfies ApiSkillRanking), page));
 	})
 
 	.get('/:type', needs('public'), rankingQuery, async c => {
@@ -265,8 +286,11 @@ const rankingRoutes = new Hono()
 export const apiV2Routes = new Hono()
 	.use('*', rateLimit('api-v2', 1200))
 	.use('*', apiToken)
-	// osu!'s documented ceiling, per application
-	.use('*', rateLimit('api-v2-client', 1200, c => String(c.get('token').clientId)))
+	// osu!'s documented ceiling, per application (the game's, per player)
+	.use('*', rateLimit('api-v2-client', 1200, c => {
+		const { clientId, userId } = c.get('token');
+		return clientId === undefined ? `game:${userId}` : String(clientId);
+	}))
 
 	// osu!'s mode, in the path where osu! puts it; `?mode=` elsewhere
 	.get(`/me/${MODE}?`, needs('identify'), async c => {
@@ -288,8 +312,22 @@ export const apiV2Routes = new Hono()
 			}),
 			is_online: f.online,
 			is_mutual: f.mutual,
-		})));
+		}) satisfies ApiFriend));
 	})
+
+	// the sim API (simulate.ts): a character state's play on a live map
+	.post(
+		'/simulate',
+		needs('simulate'),
+		rateLimit('api-v2-simulate', 1200, c => String(c.get('token').userId)),
+		valid('json', simulateBody),
+		async c => {
+			const answer = await simulate(c.req.valid('json'));
+			if (!('error' in answer)) return c.json(answer);
+			const wait = answer.status === 429 ? { 'Retry-After': '1' } : undefined;
+			return c.json({ error: answer.error }, answer.status, wait);
+		},
+	)
 
 	.get(`/users/:user/${MODE}?`, needs('public'), async c =>
 		c.json(await fullUser(apiRuleset(c), await byUser(c.req.param('user')))))
@@ -410,7 +448,7 @@ export const apiV2Routes = new Hono()
 			},
 			events,
 			users: [...users.values()],
-		});
+		} satisfies ApiMatch);
 	})
 
 	.get('/news', needs('public'), listQuery, async c => {

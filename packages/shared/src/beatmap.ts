@@ -51,10 +51,14 @@ export type MapCover = {
 /** A difficulty as a set's panel lists it. */
 export type PanelDiff = { id: number, version: string, sr: number, keys: number };
 
+/** Our own preview of a set's background, when one of its difficulties has one. */
+export const ownCoverUrl = (set: MapCover, apiBase = '') =>
+	set.background ? `${apiBase}/v1/beatmap/preview/${set.id}/${set.background}` : undefined;
+
 /** A set's cover: osu!'s when it is on osu!, else our own preview background. */
 export const mapCoverUrl = (set: MapCover, size: 'list' | 'card' | 'cover', apiBase = '') => {
 	if (set.osuId) return `https://assets.ppy.sh/beatmaps/${set.osuId}/covers/${size}.jpg`;
-	if (set.background) return `${apiBase}/v1/beatmap/preview/${set.id}/${set.background}`;
+	return ownCoverUrl(set, apiBase);
 };
 
 /** Downloads a set into the game: the desktop app takes it from the OS, an

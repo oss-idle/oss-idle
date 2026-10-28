@@ -302,10 +302,6 @@ msgid "Build a better warmup routine to endure long maps"
 msgstr "Build a better warmup routine to endure long maps"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Buy every upgrade of a skill"
-msgstr "Buy every upgrade of a skill"
-
-#: src/rulesets/mania/medalText.ts
 msgid "Buy your first upgrade"
 msgstr "Buy your first upgrade"
 
@@ -1012,6 +1008,10 @@ msgstr "Mastery"
 #: src/rulesets/mania/medalText.ts
 msgid "Max out the upgrades of {count} skills at once"
 msgstr "Max out the upgrades of {count} skills at once"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out the upgrades of a skill"
+msgstr "Max out the upgrades of a skill"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Meltdown"

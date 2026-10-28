@@ -40,6 +40,12 @@ export const api: Bilingual = {
 				],
 			},
 			{
+				title: 'Simulations',
+				blocks: [
+					'An application with the simulate permission can ask how a play would go for a given character. We keep nothing of these requests. Only the count of requests is kept, for a minute, to apply the rate limit.',
+				],
+			},
+			{
 				title: 'No guarantee',
 				blocks: [
 					'The API is free and provided as it is. It can change, break or stop; we try to announce changes that break applications in the news beforehand.',
@@ -89,6 +95,12 @@ export const api: Bilingual = {
 				blocks: [
 					'Restez sous les limites de requêtes indiquées dans la documentation de l\'API et gardez ce que vous pouvez plutôt que de le redemander. Ne contournez pas les limites avec plusieurs applications, comptes ou adresses.',
 					'N\'utilisez pas l\'API pour tricher, envoyer du spam, nuire aux joueurs ou les harceler, ou copier oss!idle en entier.',
+				],
+			},
+			{
+				title: 'Simulations',
+				blocks: [
+					'Une application qui a la permission simulate peut demander comment se passerait une partie pour un personnage donné. Nous ne gardons rien de ces requêtes. Seul le nombre de requêtes est gardé, pendant une minute, pour appliquer la limite de requêtes.',
 				],
 			},
 			{

@@ -32,10 +32,15 @@ const bash = (s: Sample) => [
 	s.method === 'GET' ? `    --get "${withQuery(s)}" \\` : `    "${withQuery(s)}" \\`,
 	...Object.entries(headersOf(s)).map(([k, v]) => `    --header "${k}: ${v}" \\`),
 	...s.form ? [`    --data "${new URLSearchParams(s.form)}"`] : [],
+	...s.json === undefined ? [] : [`    --data '${JSON.stringify(s.json, undefined, 4)}'`],
 ].join('\n').replace(/ \\$/, '');
 
 const object = (o: Record<string, string>) =>
 	`{\n${Object.entries(o).map(([k, v]) => `    "${k}": "${v}",`).join('\n')}\n}`;
+
+const bodyLine = (s: Sample) => s.form
+	? '\n    body,'
+	: s.json === undefined ? '' : '\n    body: JSON.stringify(body),';
 
 const javascript = (s: Sample) => [
 	`const url = new URL(\n    "${s.url}"\n);`,
@@ -46,7 +51,8 @@ const javascript = (s: Sample) => [
 	].join('\n')] : [],
 	`const headers = ${object(headersOf(s))};`,
 	...s.form ? [`let body = "${new URLSearchParams(s.form)}";`] : [],
-	`fetch(url, {\n    method: "${s.method}",\n    headers,${s.form ? '\n    body,' : ''}\n}).then(response => response.json());`,
+	...s.json === undefined ? [] : [`let body = ${JSON.stringify(s.json, undefined, 4)};`],
+	`fetch(url, {\n    method: "${s.method}",\n    headers,${bodyLine(s)}\n}).then(response => response.json());`,
 ].join('\n\n');
 
 /** A request as highlighted HTML, in the picked language. */

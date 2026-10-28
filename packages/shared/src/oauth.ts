@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-/** osu!'s API scopes we have. `identify` comes with every user token. */
-export const SCOPES = ['public', 'identify', 'friends.read'] as const;
+/** osu!'s API scopes we have, and our own `simulate` (the sim API). `identify` comes with every
+ *  user token. */
+export const SCOPES = ['public', 'identify', 'friends.read', 'simulate'] as const;
 export type Scope = typeof SCOPES[number];
 
 /** Space-separated scopes, as OAuth sends them; unknown ones are refused. */

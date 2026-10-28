@@ -43,19 +43,35 @@ describe('fatigue', () => {
 		expect(restedFatigue(tired, 3 * 3_600_000)).toBeCloseTo(4 * 60);
 	});
 
-	it('rests a fully strained map off with 2 or 3 easy ones', () => {
-		const strained = session([1], session(loop(1, 1)));
-		expect(session([0, 0], strained).minutes).toBeGreaterThan(strained.minutes - MAP);
-		expect(session([0, 0, 0], strained).minutes).toBeLessThan(strained.minutes - MAP);
+	it('rests a play strained up to 20% like waiting and adds 3x a fully strained one', () => {
+		const tired = session(loop(1, 1));
+		const end = tired.at + MAP * 60_000;
+		for (const share of [0, 0.1, 0.2]) {
+			expect(afterPlay(tired, MAP, share * MAP, end).minutes).toBeCloseTo(restedFatigue(tired, end));
+		}
+		expect(afterPlay(tired, MAP, 0.25 * MAP, end).minutes).toBeGreaterThan(restedFatigue(tired, end));
+		expect(afterPlay(tired, MAP, MAP, end).minutes).toBeCloseTo(tired.minutes + 3 * MAP);
 	});
 
-	it('kicks in after 5 hours of full strain and floors at 7', () => {
+	it('tires more with each share of strain past 20%', () => {
+		const tired = session(loop(1, 1));
+		const after = [0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1].map(share => session([share], tired).minutes);
+		expect(after.every((m, i) => i === 0 || m > after[i - 1])).toBe(true);
+	});
+
+	it('rests a fully strained map off with 3 easy ones', () => {
+		const strained = session([1], session(loop(1, 1)));
+		expect(session([0, 0], strained).minutes).toBeGreaterThan(strained.minutes - 3 * MAP);
+		expect(session([0, 0, 0], strained).minutes).toBeLessThanOrEqual(strained.minutes - 3 * MAP);
+	});
+
+	it('kicks in at 5 hours of fatigue and floors at 7', () => {
 		expect(fatigueLevel(5 * 60)).toBe(0);
 		expect(fatigueLevel(5.5 * 60)).toBeGreaterThan(0);
 		expect(fatigueLevel(6 * 60)).toBeCloseTo(0.5);
 		expect(fatigueLevel(7 * 60)).toBe(1);
-		expect(level(session(loop(1, 5)))).toBe(0);
-		expect(level(session(loop(1, 10)))).toBe(1);
+		expect(level(session(loop(1, 2)))).toBe(0);
+		expect(level(session(loop(1, 4)))).toBe(1);
 	});
 
 	it('tires a loop of normal maps much slower', () => {
@@ -146,8 +162,9 @@ describe('warmupTrend', () => {
 	it('points right for strained maps, left for easy ones, harder for more', () => {
 		expect(warmupTrend(MAP, MAP)).toBe(3);
 		expect(warmupTrend(MAP, 0)).toBe(-3);
-		expect(warmupTrend(MAP, MAP * 0.3)).toBe(1);
-		expect(warmupTrend(MAP, MAP * 0.15)).toBe(-1);
+		expect(warmupTrend(MAP, MAP * 0.6)).toBe(1);
+		expect(warmupTrend(MAP, MAP * 0.4)).toBe(-2);
+		expect(warmupTrend(MAP, MAP * 0.2)).toBe(-3);
 		expect(warmupTrend(0, 0)).toBe(0);
 	});
 });

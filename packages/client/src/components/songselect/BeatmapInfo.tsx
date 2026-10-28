@@ -43,7 +43,9 @@ export default function BeatmapInfo({
 	}, [version, rate, rated]);
 	const stars = local ?? starsOf(version);
 	const tries = useAsync(
-		() => getMemoryPlays(version.metadata.id).catch(() => undefined),
+		() => getMemoryPlays(version.metadata.id)
+			.then(plays => Math.round(plays * 100) / 100)
+			.catch(() => undefined),
 		[version.metadata.id],
 	);
 	const shownVersion = useRatedVersion(version);

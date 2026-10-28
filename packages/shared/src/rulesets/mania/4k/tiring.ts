@@ -11,7 +11,7 @@ import type Skill from './skills/skill.js';
 /** A physical skill at fatigue `fatigue` and warm-up `warm` plays at the level part of the xp behind its level reaches. */
 export const tireSkill = (skill: Skill, fatigue: number, warm = 1) => {
 	if (!PHYSICAL_SKILLS.includes(skill.name)) return;
-	const kept = keptShare(skill.level.get(), fatigue, warm);
+	const kept = keptShare(skill.playLevel(), fatigue, warm);
 	if (kept >= 1) return;
 	const { level, xp } = xpGivesLevel((xpToLevel(skill.level.get()) + skill.xp.get()) * kept);
 	skill.level.set(level);

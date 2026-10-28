@@ -1,0 +1,37 @@
+{
+  "name": "@oss-idle/api-types",
+  "version": "1.3.0",
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "Types of oss!idle's API v2: its objects, and the add-on host's api. Types only.",
+  "keywords": [
+    "oss-idle",
+    "osu",
+    "api",
+    "types"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oss-idle/oss-idle.git",
+    "directory": "packages/api-types"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "rollup-plugin-dts": "^6.5.1"
+  }
+}

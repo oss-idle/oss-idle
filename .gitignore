@@ -67,6 +67,8 @@ packages/desktop/electron-builder.staging.yml
 # Test charts fetched from the beatmap API (see packages/tests/src/sim.ts)
 /packages/tests/.charts-cache/
 /packages/tests/src/.charts-cache/
+# The balance harness's sample cache and report (npm run balance)
+/packages/tests/.balance/
 
 # In memory stats backup
 /packages/server/src/stats.json
@@ -96,3 +98,4 @@ packages/e2e/blob-report
 
 # idle e2e reports from nm
 e2e-results/
+.env.bak*

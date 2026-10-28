@@ -15,6 +15,7 @@ import {
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import CommunityOverlay from './components/community/CommunityOverlay';
+import ConfirmPrompt from './components/ConfirmPrompt';
 import Cursor from './components/Cursor';
 import DirectLinkPanel from './components/direct/DirectLinkPanel';
 import PlayDock from './components/dock/PlayDock';
@@ -25,6 +26,7 @@ import Message from './components/Message';
 import OldHostPrompt from './components/OldHostPrompt';
 import Onboarding from './components/Onboarding';
 import PageOverlay from './components/page/PageOverlay';
+import PlayChoice from './components/PlayChoice';
 import Popups from './components/Popups';
 import RestrictedNotice from './components/RestrictedNotice';
 import Tutorial from './components/Tutorial';
@@ -77,7 +79,9 @@ export default function App() {
 			<PageOverlay />
 			<DirectLinkPanel />
 			<PlayDock />
+			<ConfirmPrompt />
 			<TransitionOverlay />
+			<PlayChoice />
 			<Onboarding />
 			<Tutorial />
 			<OldHostPrompt />

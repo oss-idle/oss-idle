@@ -1,3 +1,13 @@
+import type {
+	ApiBeatmap,
+	ApiBeatmapset,
+	ApiNewsPost,
+	ApiScore,
+	ApiStatistics,
+	ApiUser,
+	ApiUserCompact,
+	ApiUserStatistics,
+} from '@oss-idle/shared/apiV2';
 import { mapCoverUrl } from '@oss-idle/shared/beatmap';
 import { GoodGrades } from '@oss-idle/shared/grade';
 import {
@@ -7,6 +17,10 @@ import {
 import type { RulesetDef } from '@oss-idle/shared/rulesets/ruleset';
 import type { ScoreDTO } from '@oss-idle/shared/score';
 import { supportLevel } from '@oss-idle/shared/supporter';
+import {
+	playLevelOf,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import type { BeatmapRow } from '../db/schema/beatmap';
 import type { RulesetSetRow } from '../db/schema/beatmapset';
@@ -34,7 +48,10 @@ import { levelPercent } from './levelPercent';
 const lower = <K extends string>(k: K) => k.toLowerCase() as Lowercase<K>;
 
 /** A play's or a player's count per judgement, by the ruleset's judgements. */
-export const statistics = (def: RulesetDef, counts: Readonly<Record<string, number>>) =>
+export const statistics = (
+	def: RulesetDef,
+	counts: Readonly<Record<string, number>>,
+): ApiStatistics =>
 	Object.fromEntries(def.judgements.map(j => [lower(j), counts[j]]));
 
 const iso = (d: Date | null | undefined) => d?.toISOString();
@@ -48,7 +65,7 @@ type UserCompactInput = {
 	avatarUrl: string;
 };
 
-export const userCompact = (u: UserCompactInput) => ({
+export const userCompact = (u: UserCompactInput): ApiUserCompact => ({
 	id: u.userId,
 	character_id: u.characterId,
 	username: u.name,
@@ -61,12 +78,22 @@ const gradeCounts = (totals: CharacterTotalsRow) =>
 	Object.fromEntries(GoodGrades.map(g => [lower(g), totals[g]])) as
 		Record<Lowercase<typeof GoodGrades[number]>, number>;
 
+/** osu!'s level object for every xp ever earned. */
+const levelOfXp = (totalXp: number) => {
+	const { level, xp } = xpGivesLevel(totalXp);
+	return {
+		current: level,
+		progress: levelPercent(level, xp),
+		total_xp: totalXp,
+	};
+};
+
 export const userStatistics = (
 	def: RulesetDef,
-	profile: Pick<ProfileRow, 'pp' | 'overallLevel' | 'overallXp' | 'overallTotalXp'>,
+	profile: Pick<ProfileRow, 'pp' | 'overallLifetimeXp'>,
 	totals: CharacterTotalsRow,
 	ranks: { global?: number; country?: number },
-) => ({
+): ApiUserStatistics => ({
 	pp: Number(profile.pp),
 	global_rank: ranks.global,
 	country_rank: ranks.country,
@@ -75,11 +102,7 @@ export const userStatistics = (
 	play_count: totals.playCount,
 	play_time: totals.playTime,
 	total_hits: totals.hits,
-	level: {
-		current: profile.overallLevel,
-		progress: levelPercent(profile.overallLevel, profile.overallXp),
-		total_xp: profile.overallTotalXp,
-	},
+	level: levelOfXp(profile.overallLifetimeXp),
 	grade_counts: gradeCounts(totals),
 	statistics: statistics(def, totals as unknown as Record<string, number>),
 });
@@ -91,7 +114,7 @@ export const apiUser = (
 	profile: ProfileRow,
 	totals: CharacterTotalsRow,
 	ranks: { global?: number; country?: number },
-) => {
+): ApiUser => {
 	const { mode, variant }: { mode: string, variant?: string } = RULESETS[def.id];
 	const supporter = supporterActive(user);
 	return {
@@ -111,10 +134,11 @@ export const apiUser = (
 		statistics: userStatistics(def, profile, totals, ranks),
 		skills: Object.fromEntries(def.skills.map(s => {
 			const skill = skillOf(profile, s);
+			const shown = playLevelOf(skill.level, skill.xp, skill.lifetimeXp, skill.prestige);
 			return [s, {
-				level: skill.level,
-				progress: levelPercent(skill.level, skill.xp),
-				total_xp: skill.totalXp,
+				level: Math.floor(shown),
+				progress: Math.min(99, Math.floor((shown % 1) * 100)),
+				total_xp: skill.lifetimeXp,
 				prestige: skill.prestige,
 				upgrades: skill.upgrades,
 			}];
@@ -125,7 +149,7 @@ export const apiUser = (
 	};
 };
 
-export const apiScore = (def: RulesetDef, score: ScoreDTO) => ({
+export const apiScore = (def: RulesetDef, score: ScoreDTO): ApiScore => ({
 	id: score.id,
 	character_id: score.characterId,
 	beatmap_id: score.beatmapId,
@@ -146,7 +170,7 @@ type BeatmapInput = Omit<BeatmapRow, 'chart'>;
 /** osu!'s status for an approved set: ranked or loved. */
 const apiStatus = (s: Pick<RulesetSetRow, 'status'>) => s.status === 'loved' ? 'loved' : 'ranked';
 
-export const apiBeatmap = (b: BeatmapInput, set: Pick<RulesetSetRow, 'status'>) => ({
+export const apiBeatmap = (b: BeatmapInput, set: Pick<RulesetSetRow, 'status'>): ApiBeatmap => ({
 	id: b.id,
 	osu_id: b.osuId ?? undefined,
 	beatmapset_id: b.setId,
@@ -163,7 +187,7 @@ export const apiBeatmap = (b: BeatmapInput, set: Pick<RulesetSetRow, 'status'>) 
 	url: `${clientUrl}/web/maps/${b.setId}?diff=${b.id}`,
 });
 
-export const apiBeatmapset = (s: RulesetSetRow, beatmaps: BeatmapInput[] = []) => ({
+export const apiBeatmapset = (s: RulesetSetRow, beatmaps: BeatmapInput[] = []): ApiBeatmapset => ({
 	id: s.id,
 	osu_id: s.osuId ?? undefined,
 	artist: s.artist,
@@ -183,7 +207,7 @@ export const apiBeatmapset = (s: RulesetSetRow, beatmaps: BeatmapInput[] = []) =
 
 const absolute = (url: string) => /^https?:/.test(url) ? url : `${apiBaseUrl}${url}`;
 
-export const apiNewsPost = (row: NewsRow, author: string, withContent = false) => ({
+export const apiNewsPost = (row: NewsRow, author: string, withContent = false): ApiNewsPost => ({
 	id: row.id,
 	slug: row.slug,
 	title: row.title,

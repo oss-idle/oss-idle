@@ -16,7 +16,7 @@ import {
 import { MAKISEBOT_ID } from '@oss-idle/shared/groups';
 import { PAGE_SIZE } from '@oss-idle/shared/rankings';
 import { rankValue } from '@oss-idle/shared/scoreOrder';
-import { effectiveLevelOf } from '@oss-idle/shared/xp';
+import { playLevelOf } from '@oss-idle/shared/xp';
 
 import { db } from './db/client';
 import {
@@ -70,7 +70,7 @@ const ROOT = `${redisKeyPrefix}ranking:`;
 // in parallel).
 const META = `${redisKeyPrefix}rankmeta:`;
 // Bump when the set layout changes so the next deploy rebuilds from MySQL.
-const SCHEMA = 13;  // boards per ruleset
+const SCHEMA = 14;  // skill boards on the shown level, overall on lifetime xp
 const builtKey = (r: ServerRuleset) => `${META}built:v${SCHEMA}:${r.def.id}`;
 const lockKey = (r: ServerRuleset) => `${META}lock:v${SCHEMA}:${r.def.id}`;
 
@@ -133,20 +133,20 @@ function index(
 	pipeline.zadd(countryKey('medals', data.user.country), weight, member);
 	pipeline.zadd(globalKey('pp'), Number(data.profile.pp), member);
 	pipeline.zadd(globalKey('score'), data.totals?.rankedScore ?? 0, member);
-	pipeline.zadd(globalKey('overall'), data.profile.overallTotalXp, member);
+	pipeline.zadd(globalKey('overall'), data.profile.overallLifetimeXp, member);
 	pipeline.zadd(countryKey('pp', data.user.country), Number(data.profile.pp), member);
 	pipeline.zadd(
 		countryKey('score', data.user.country),
 		data.totals?.rankedScore ?? 0,
 		member,
 	);
-	pipeline.zadd(countryKey('overall', data.user.country), data.profile.overallTotalXp, member);
+	pipeline.zadd(countryKey('overall', data.user.country), data.profile.overallLifetimeXp, member);
 	// skill boards rank on the level the listings show, so the page reads in the
 	// same order as its own numbers
 	let prestiges = 0;
 	for (const skill of r.def.skills) {
 		const columns = skillOf(data.profile, skill);
-		const level = effectiveLevelOf(columns.level, columns.xp, columns.prestige);
+		const level = playLevelOf(columns.level, columns.xp, columns.lifetimeXp, columns.prestige);
 		pipeline.zadd(globalKey(skill), level, member);
 		pipeline.zadd(countryKey(skill, data.user.country), level, member);
 
@@ -236,6 +236,20 @@ const withHighest = (highest: Highest = {}, ranks: BoardRanks, at: number): High
 	return next;
 };
 
+/** `highest` with the pp peak of the daily samples, which predate highest-rank
+ *  tracking. Sample i is dated like the rank graph: `date` minus its age in days. */
+const withHistoryPeak = ({ date, ranks, highest = {} }: RankHistory): Highest => {
+	if (!ranks.length) return highest;
+	const rank = Math.min(...ranks);
+	if (rank >= (highest.pp?.rank ?? Infinity)) return highest;
+	const at = Date.parse(date) - (ranks.length - 1 - ranks.indexOf(rank)) * 86_400_000;
+	return {
+		...highest, pp: {
+			rank, at, 
+		}, 
+	};
+};
+
 const ranksOf = async (r: ServerRuleset, id: number, country: string): Promise<BoardRanks> => {
 	const keys = boardKeys(r, country);
 	const pipeline = redis.pipeline();
@@ -255,6 +269,8 @@ const refreshTodayRank = async (
 	row: Pick<ProfileRow, 'id' | 'rankHistory'>,
 	country: string,
 ) => {
+	// mid-rebuild the boards are part filled: a rank read there is not one
+	if (!await redis.exists(builtKey(r))) return;
 	const boards = await ranksOf(r, row.id, country);
 	const rank = boards.pp;
 	if (rank === undefined) return;
@@ -660,8 +676,8 @@ export const sweepRankHistory = async (): Promise<void> => {
 const sweepRankHistoryOf = async (r: ServerRuleset): Promise<void> => {
 	const { profile } = r;
 	const today = new Date().toISOString().slice(0, 10);
-	const doneKey = `${META}rankhistory:v3:${r.def.id}:${today}`;
-	if (await redis.exists(doneKey)) return;
+	const doneKey = `${META}rankhistory:v4:${r.def.id}:${today}`;
+	if (await redis.exists(doneKey) || !await redis.exists(builtKey(r))) return;
 	const got = await redis.set(`${doneKey}:lock`, '1', 'EX', 600, 'NX');
 	if (got !== 'OK') return;
 	try {
@@ -685,7 +701,7 @@ const sweepRankHistoryOf = async (r: ServerRuleset): Promise<void> => {
 			const previous = row.rankHistory ?? {
 				date: '', ranks: [],
 			};
-			const highest = withHighest(previous.highest, ranks, now);
+			const highest = withHighest(withHistoryPeak(previous), ranks, now);
 			const moved = JSON.stringify(highest) !== JSON.stringify(previous.highest ?? {});
 			if (previous.date === today && !moved) continue;
 			await db
@@ -743,6 +759,7 @@ export async function ensureRankings(): Promise<void> {
 		const got = await redis.set(lockKey(r), '1', 'EX', 300, 'NX');
 		if (got !== 'OK') continue;
 		try {
+			await redis.del(builtKey(r));
 			await rebuildAll(r);
 			await redis.set(builtKey(r), '1');
 			console.log(`Rankings index built for ${r.def.id}.`);

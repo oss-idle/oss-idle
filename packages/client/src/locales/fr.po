@@ -8,7 +8,7 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-27 00:17\n"
+"PO-Revision-Date: 2026-10-28 18:45\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -142,7 +142,7 @@ msgstr "{name} gardera son pseudo"
 
 #: src/components/community/chat/mentions.ts
 msgid "{name} mentioned you"
-msgstr ""
+msgstr "{name} t'a mentionné"
 
 #: src/logs.ts
 msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
@@ -166,7 +166,7 @@ msgstr "{online} utilisateurs en ligne"
 
 #: src/components/community/chat/Reactions.tsx
 msgid "{others} more"
-msgstr ""
+msgstr "{others} autres"
 
 #: src/online/presence.ts
 msgid "{result} on {map}"
@@ -254,7 +254,7 @@ msgstr "2. Fermer"
 msgid "A break longer than 30 seconds"
 msgstr "Une pause de plus de 30 secondes"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "A game is already in progress. Play locally instead? It won't be submitted."
 msgstr "Une partie est déjà en cours. Jouer en local à la place ? Le score ne sera pas envoyé."
 
@@ -292,7 +292,7 @@ msgstr "abandonner"
 msgid "Abort"
 msgstr "Abandonner"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Abort it"
 msgstr "L'abandonner"
 
@@ -352,7 +352,7 @@ msgstr "Ajouter au temps actuel"
 
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Add friend"
-msgstr ""
+msgstr "Ajouter comme ami"
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "Add sound files..."
@@ -442,10 +442,6 @@ msgstr "Tout sauf le nom de la difficulté est commun au set : sauvegarder l'éc
 msgid "All ranked beatmaps downloaded."
 msgstr "Toutes les maps classées ont été téléchargées."
 
-#: src/scenes/Gameplay.tsx
-msgid "Already playing"
-msgstr "Déjà en jeu"
-
 #: src/components/character/RebirthView.tsx
 msgid "Already reborn with this character"
 msgstr "Déjà effectué avec ce personnage"
@@ -486,7 +482,7 @@ msgstr "Cacher auto."
 
 #: src/components/addons/InstalledAddonRow.tsx
 msgid "Auto-update"
-msgstr ""
+msgstr "Mise à jour auto."
 
 #: src/components/community/chat/ChannelPicker.tsx
 msgid "Automated announcements of stuff going on in oss!idle."
@@ -522,13 +518,12 @@ msgid "Average XP boost"
 msgstr "Boost d'XP moyen"
 
 #: src/components/page/pageBar.tsx
+#: src/components/PlayChoice.tsx
 #: src/components/songselect/BeatmapInfo.tsx
 #: src/components/Tutorial.tsx
 #: src/components/WebBrowser.tsx
 #: src/editor/builtinActions.ts
 #: src/editor/EditorActions.tsx
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
 #: src/scenes/MainMenu.tsx
 #: src/scenes/MainMenu.tsx
 msgid "Back"
@@ -786,15 +781,13 @@ msgstr "Par titre"
 #: src/components/songselect/CardContextMenu.tsx
 #: src/scenes/Gameplay.tsx
 #: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
 #: src/scenes/MainMenu.tsx
 msgid "Cancel"
 msgstr "Annuler"
 
 #: src/components/community/chat/ReplyBar.tsx
 msgid "Cancel the reply"
-msgstr ""
+msgstr "Annuler la réponse"
 
 #: src/components/Onboarding.tsx
 msgid "Change"
@@ -841,7 +834,7 @@ msgstr "Chat"
 
 #: src/scenes/Options.tsx
 msgid "chat|mention|ping|notification|sound|@"
-msgstr ""
+msgstr "chat|mention|ping|notification|son|@"
 
 #: src/scenes/Options.tsx
 msgid "chat|message|private|pm|friends"
@@ -1040,12 +1033,7 @@ msgstr "Impossible de la retirer"
 msgid "Couldn't load beatmaps: {error}"
 msgstr "Impossible de charger les maps : {error}"
 
-#: src/scenes/Gameplay.tsx
-#: src/scenes/Gameplay.tsx
-msgid "Couldn't start play"
-msgstr "Impossible de démarrer la partie"
-
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Couldn't take over the running play."
 msgstr "Il n'a pas été possible de prendre la main sur la partie en cours."
 
@@ -1170,7 +1158,7 @@ msgstr "Description"
 
 #: src/components/options/MentionPings.tsx
 msgid "Desktop notification for mentions while the game is in the background"
-msgstr ""
+msgstr "Notification sur le bureau pour les mentions quand le jeu est en arrière-plan"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "Detail"
@@ -1532,7 +1520,7 @@ msgstr "Fréquences"
 
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Friend"
-msgstr ""
+msgstr "Ami"
 
 #: src/components/community/CommunityHeader.tsx
 msgid "Friends"
@@ -1613,7 +1601,7 @@ msgstr "Aller à la map"
 
 #: src/components/community/chat/ReplyRef.tsx
 msgid "Go to the message"
-msgstr ""
+msgstr "Voir le message"
 
 #: src/components/Tutorial.tsx
 msgid "Got it!"
@@ -1714,6 +1702,10 @@ msgstr "Maintenir chaque note jusqu'à la suivante (full LN)"
 msgid "Host is changing map..."
 msgstr "L'hôte change de map..."
 
+#: src/components/PlayChoice.tsx
+msgid "How do you want to play?"
+msgstr "Comment veux-tu jouer ?"
+
 #: src/components/listing/IconField.tsx
 msgid "Icon"
 msgstr "Icône"
@@ -1797,6 +1789,10 @@ msgstr "Interface"
 msgid "Inverse the whole map"
 msgstr "Inverser toute la map"
 
+#: src/components/PlayChoice.tsx
+msgid "It can never be moved online."
+msgstr "Ce personnage ne pourra jamais passer en ligne."
+
 #: src/editor/EditorView.tsx
 msgid "It is in the ranking queue: withdraw it to update it"
 msgstr "Elle est dans la file de classement : retire-la pour la mettre à jour"
@@ -1868,6 +1864,10 @@ msgstr "La semaine dernière"
 #: src/scenes/Options.tsx
 msgid "Layout"
 msgstr "Disposition"
+
+#: src/components/PlayChoice.tsx
+msgid "Leaderboards, multiplayer, one character on every device."
+msgstr "Classements, multijoueur, un seul personnage sur tous tes appareils."
 
 #: src/scenes/Gameplay.tsx
 msgid "Leave - your character keeps playing"
@@ -2001,7 +2001,7 @@ msgstr "Lv<0/>"
 
 #: src/components/community/chat/NameCard.tsx
 msgid "Lv<0>{level}</0>"
-msgstr ""
+msgstr "Lv<0>{level}</0>"
 
 #: src/scenes/Options.tsx
 msgid "Main menu"
@@ -2098,7 +2098,7 @@ msgstr "Médailles débloquées"
 
 #: src/components/community/chat/MentionSuggestions.tsx
 msgid "Mention a player"
-msgstr ""
+msgstr "Mentionner un joueur"
 
 #: src/editor/EditorSummary.tsx
 msgid "Metadata"
@@ -2143,7 +2143,7 @@ msgstr "Plus"
 
 #: src/components/community/chat/ReactPicker.tsx
 msgid "More emoji"
-msgstr ""
+msgstr "Plus d'emoji"
 
 #: src/components/addons/BrowseAddonsView.tsx
 #: src/components/skins/BrowseSkinsView.tsx
@@ -2228,7 +2228,7 @@ msgstr "Musicale"
 
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
-msgstr ""
+msgstr "Amis en commun"
 
 #: src/components/addons/AddonEditMeta.tsx
 #: src/components/community/CommunityBody.tsx
@@ -2309,6 +2309,10 @@ msgstr "Outil suivant"
 msgid "No {ruleset} difficulty of it is online yet: upload one first"
 msgstr "Aucune difficulté {ruleset} de cette map n'est encore en ligne : envoies-en une d'abord"
 
+#: src/components/PlayChoice.tsx
+msgid "No account. Your character stays on this device."
+msgstr "Sans compte. Ton personnage reste sur cet appareil."
+
 #: src/components/addons/BrowseAddonsView.tsx
 msgid "No add-ons found."
 msgstr "Aucun add-on trouvé."
@@ -2323,7 +2327,7 @@ msgstr "Pas d'image de fond"
 
 #: src/components/community/chat/ReactPicker.tsx
 msgid "No emoji found"
-msgstr ""
+msgstr "Aucun emoji trouvé"
 
 #: src/components/songselect/TopBar.tsx
 msgid "No Grouping"
@@ -2496,7 +2500,7 @@ msgstr "Off"
 
 #: src/components/community/chat/NameCard.tsx
 msgid "Offline"
-msgstr ""
+msgstr "Hors ligne"
 
 #: src/editor/builtinActions.ts
 msgid "Offset in ms, like -15"
@@ -2723,7 +2727,7 @@ msgstr "Choisir une musique"
 
 #: src/components/options/MentionPings.tsx
 msgid "Ping when someone mentions you"
-msgstr ""
+msgstr "Ping quand quelqu'un te mentionne"
 
 #: src/components/options/PitchFollowsRate.tsx
 msgid "Pitch follows the rate (Double and Half mods)"
@@ -2780,21 +2784,23 @@ msgstr "Jouer cette map une fois de plus"
 msgid "Play it one time fewer"
 msgstr "Jouer cette map une fois de moins"
 
+#: src/components/PlayChoice.tsx
+#: src/components/PlayChoice.tsx
+msgid "Play locally"
+msgstr "Jouer en local"
+
 #: src/components/songselect/CardContextMenu.tsx
 msgid "Play next"
 msgstr "Jouer la prochaine"
 
+#: src/components/PlayChoice.tsx
 #: src/components/Tutorial.tsx
 msgid "Play online"
 msgstr "Jouer en ligne"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Play unranked"
 msgstr "Jouer hors classement"
-
-#: src/scenes/Gameplay.tsx
-msgid "Play unranked ?"
-msgstr "Jouer hors classement ?"
 
 #: src/editor/actions.ts
 msgid "Playback"
@@ -2811,7 +2817,7 @@ msgstr "Joué par {playerName} le {playedAt}"
 
 #: src/components/community/chat/MentionSuggestions.tsx
 msgid "Players matching <0>@{query}</0>"
-msgstr ""
+msgstr "Joueurs correspondant à <0>@{query}</0>"
 
 #: src/editor/EditorViewOptions.tsx
 #: src/editor/EditorViewOptions.tsx
@@ -2963,7 +2969,7 @@ msgstr "Atteindre le niveau d'XP Lv{PRESTIGE_MIN_LEVEL} sur une compétence perm
 
 #: src/components/community/chat/ReactPicker.tsx
 msgid "React"
-msgstr ""
+msgstr "Réagir"
 
 #: src/components/Announce.tsx
 msgid "Read the full article"
@@ -3077,7 +3083,7 @@ msgstr "Remplacer l'image de fond ?"
 
 #: src/components/community/chat/ChatTabContents.tsx
 msgid "Reply"
-msgstr ""
+msgstr "Répondre"
 
 #: src/components/community/PlayerMenu.tsx
 msgid "Report"
@@ -3246,7 +3252,7 @@ msgstr "Rechercher par artiste, titre, mappeur, stars>5..."
 
 #: src/components/community/chat/ReactPicker.tsx
 msgid "Search emoji"
-msgstr ""
+msgstr "Rechercher un emoji"
 
 #: src/components/addons/BrowseAddonsView.tsx
 #: src/components/community/chat/ChannelPicker.tsx
@@ -3396,6 +3402,10 @@ msgstr "Afficher les verrouillées"
 msgid "Show scores"
 msgstr "Afficher les scores"
 
+#: src/components/dock/DockPill.tsx
+msgid "Show the dock"
+msgstr "Afficher le dock"
+
 #: src/editor/EditorTimingPoint.tsx
 msgid "Show the first bar line"
 msgstr "Afficher la première ligne de mesure"
@@ -3429,6 +3439,10 @@ msgstr "Connecte-toi pour créer et publier des add-ons."
 #: src/editor/EditorView.tsx
 msgid "Sign in to upload your maps"
 msgstr "Connecte-toi pour envoyer tes maps"
+
+#: src/components/PlayChoice.tsx
+msgid "Sign in with osu!"
+msgstr "Se connecter avec osu!"
 
 #: src/components/options/SignIn.tsx
 msgid "Sign out"
@@ -3787,15 +3801,15 @@ msgstr "Aucune partie disponible."
 msgid "There are no skin files in there"
 msgstr "Aucun fichier de skin trouvé"
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty can't be played here."
 msgstr "Cette difficulté ne peut pas être jouée ici."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty failed to load."
 msgstr "Le chargement de cette difficulté a échoué."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "This difficulty has no notes to play."
 msgstr "Cette difficulté n'a aucune note à jouer."
 
@@ -3814,10 +3828,6 @@ msgstr "Il s'agit d'une version <0>automatisée</0> du jeu osu!mania (version st
 #: src/editor/EditorView.tsx
 msgid "This map belongs to another mapper"
 msgstr "Cette map appartient à un autre mappeur"
-
-#: src/scenes/Gameplay.tsx
-msgid "This play took too long to start."
-msgstr "Ce play a mis trop de temps à démarrer."
 
 #: src/osu/skin/importSkin.ts
 msgid "This skin is too big"
@@ -3844,7 +3854,7 @@ msgstr "Fuseau horaire"
 
 #: src/components/dock/DockRepeatCount.tsx
 msgid "Times to play it"
-msgstr ""
+msgstr "Nombre de fois à jouer cette map"
 
 #: src/editor/actions.ts
 #: src/editor/EditorSummary.tsx
@@ -4327,7 +4337,7 @@ msgstr "Tes add-ons"
 
 #: src/components/options/MentionPings.tsx
 msgid "Your browser blocks notifications from oss!idle: allow them in its site settings."
-msgstr ""
+msgstr "Ton navigateur bloque les notifications d'oss!idle : autorise-les dans les paramètres du site."
 
 #: src/scenes/Editor.tsx
 msgid "Your changes since the last save will be lost."
@@ -4341,7 +4351,7 @@ msgstr "Ton personnage peut jouer <0>en boucle</0>, automatiquement, sur des pla
 msgid "Your character can play <0>on-repeat</0>, automatically, on playlists you crafted.<1> Right-click</1> a beatmap to add it and <2>group by playlist</2>, then start a beatmap to enter playlist mode."
 msgstr "Ton personnage peut jouer <0>en boucle</0>, automatiquement, sur des playlists que tu as créées.<1> Clic droit</1> sur une map pour l'ajouter et sélectionne <2>grouper par playlist</2>, puis lance une map pour entrer en mode playlist."
 
-#: src/scenes/Gameplay.tsx
+#: src/scenes/bootPlay.ts
 msgid "Your character is still playing another map. Abort that play to start this one?"
 msgstr "Ton personnage est encore sur une autre map. Abandonner pour démarrer celle-là ?"
 

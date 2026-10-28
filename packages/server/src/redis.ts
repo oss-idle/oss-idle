@@ -5,6 +5,7 @@ import { Redis } from 'ioredis';
 import {
 	env,
 	redisDb,
+	redisKeyPrefix,
 } from './env';
 
 /**
@@ -29,6 +30,10 @@ export const redis = new Redis({
 // Log connection errors instead of crashing the worker - a request that needs
 // Redis while it's down will reject and surface as a 500, same as the DB.
 redis.on('error', err => console.error('Redis error:', err.message));
+
+/** Where a booted server says which score version it simulates on (sim.ts SCORE_VERSION),
+ *  for the score reprocessor. */
+export const versionKey = `${redisKeyPrefix}score-version`;
 
 const LOCK_MS = 5000;
 const UNLOCK = `

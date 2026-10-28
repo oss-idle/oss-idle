@@ -39,13 +39,18 @@ export default class Game {
 
 	/** Load the client and wait for the dev bridge and the resolved session.
 	 *  A reload first waits out the page's pending local saves. */
-	async open(): Promise<void> {
+	async open({ local = true } = {}): Promise<void> {
 		await this.page.evaluate(() => window.__idle?.saved());
 		await this.page.goto('/');
 		await this.page.waitForFunction(() => !!window.__idle, undefined, { timeout: 60_000 });
 		await this.page.waitForFunction(
 			() => window.__idle!.sessionReady(), undefined, { timeout: 60_000 },
 		);
+		// a fresh device has no character until the first Play; specs start as the
+		// local guest unless that choice is what they test
+		if (local) await this.page.evaluate(async () => {
+			if (window.__idle!.noCharacter()) await window.__idle!.playLocally();
+		});
 	}
 
 	/** Click through the intro to the main menu. */

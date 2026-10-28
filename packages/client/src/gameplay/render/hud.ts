@@ -78,8 +78,9 @@ export const drawWarmupGauge = (
 	const font = ctx.font;
 	ctx.shadowColor = SHADOW;
 	ctx.shadowBlur = 3;
-	if (w < 120) {
-		// no needle: the way the map moves it follows the state
+	// narrow: the state under the label, the way the map moves the needle beside it
+	const narrow = w < 120;
+	if (narrow) {
 		ctx.textAlign = 'right';
 		ctx.fillStyle = 'rgba(255,255,255,0.7)';
 		ctx.fillText(label, bx + w, by);
@@ -90,17 +91,16 @@ export const drawWarmupGauge = (
 		ctx.fillStyle = arrowColor;
 		ctx.fillText(arrows, sx, by + 13);
 		ctx.font = font;
-		ctx.shadowBlur = 0;
-		return;
+	} else {
+		ctx.textAlign = 'left';
+		ctx.fillStyle = 'rgba(255,255,255,0.7)';
+		ctx.fillText(label, bx, by);
+		ctx.textAlign = 'right';
+		ctx.fillStyle = ZONE_COLORS[zone];
+		ctx.fillText(state, bx + w, by);
 	}
-	ctx.textAlign = 'left';
-	ctx.fillStyle = 'rgba(255,255,255,0.7)';
-	ctx.fillText(label, bx, by);
-	ctx.textAlign = 'right';
-	ctx.fillStyle = ZONE_COLORS[zone];
-	ctx.fillText(state, bx + w, by);
 	ctx.shadowBlur = 0;
-	const y = by + 7;
+	const y = by + (narrow ? 20 : 7);
 	ctx.save();
 	ctx.translate(bx, y);
 	ctx.fillStyle = warmupFill(ctx, w);
@@ -123,7 +123,7 @@ export const drawWarmupGauge = (
 	ctx.closePath();
 	ctx.fill();
 	ctx.restore();
-	if (!trend) return;
+	if (!trend || narrow) return;
 	// the way the map moves the needle, beside its tip on the side it heads to -
 	// the other side when the bar ends first
 	ctx.font = '800 14px "Exo 2", sans-serif';
@@ -152,7 +152,8 @@ const strainLayout = (vp: Size, fieldRight: number, gauges: number) => {
 	const width = stacked
 		? Math.max(STACKED_MIN, Math.min(SPARK_W, vp.w - 12 - fieldRight - FIELD_GAP))
 		: SPARK_W + NAME_W;
-	const top = Math.max(190, vp.h * 0.3);
+	// stacked, as high as it goes: the warm-up bar stays clear of the HP bar's top
+	const top = stacked ? 190 : Math.max(190, vp.h * 0.3);
 	const row = stacked ? 35 : SPARK_H + 7;
 	return {
 		stacked,
@@ -173,19 +174,23 @@ const PER_POINT = 8;
 
 /**
  * Every gauge's load over the whole song, read from the strain analysis (done for the whole
- * map before the play): arriving mid-play shows everything played so far at once. Worked out
- * once per play.
+ * map before the play, or streamed with a server play's replay): arriving mid-play shows
+ * everything played so far at once. Worked out once per play, and again as samples arrive.
  */
 const makeStrainProfile = () => {
 	let profile = new Float32Array(0);
 	let source: StrainHud['source'] | undefined;
 	let end = -1;
+	let revision: number | undefined;
 	return (strain: StrainHud, songEnd: number) => {
 		const n = strain.gauges.length;
-		if (strain.source === source && songEnd === end && profile.length === n * POINTS) return profile;
+		if (strain.source === source && songEnd === end && revision === strain.source.revision
+			&& profile.length === n * POINTS) return profile;
 		source = strain.source;
 		end = songEnd;
-		profile = new Float32Array(n * POINTS);
+		revision = strain.source.revision;
+		if (profile.length === n * POINTS) profile.fill(0);
+		else profile = new Float32Array(n * POINTS);
 		for (let k = 0; k < POINTS * PER_POINT; k++) {
 			const at = strain.source.strainsAt(k / (POINTS * PER_POINT) * songEnd);
 			const point = Math.floor(k / PER_POINT);
@@ -327,15 +332,12 @@ const drawStrainPanel = (
 
 // debug-only telemetry over the playfield (nps, visible notes, transitions, ...)
 const drawDebugStats = (f: Frame, cxField: number) => {
-	const { ctx, game, now, vp, opts } = f;
+	const { ctx, game, now, vp } = f;
 	ctx.fillStyle = '#fff';
 	ctx.font = '800 23px "Exo 2", sans-serif';
 	ctx.textAlign = 'center';
 	ctx.fillText(`${game.npsAt(now)}nps`, cxField, vp.h * 0.32);
 	ctx.fillText(`${game.visibleNotesAt(now).length}v`, cxField, vp.h * 0.28);
-	(opts.debugStats?.(game, now) ?? []).forEach((line, i) => {
-		ctx.fillText(line, cxField, vp.h * (0.36 + i * 0.03));
-	});
 	ctx.textAlign = 'left';
 	ctx.fillText(
 		`x${Math.round(game.scroll.getSpeedAt(now) * 100) / 100}`,
@@ -368,7 +370,9 @@ export const makeHud = () => {
 		const tNow = performance.now();
 		hpEased += (game.score.hp / MAX_HP - hpEased) * (1 - Math.exp(-(tNow - hpLast) / HP_EASE_MS));
 		hpLast = tNow;
-		if (stage) stageHud(stage, hpEased, opts.mobile ? 60 : 0);
+		// under the title where it is centred at the top; narrower, the title sits under the play
+		// actions (Gameplay.css, 600px) and the score keeps the top
+		if (stage) stageHud(stage, hpEased, opts.mobile && vp.w > 600 ? 60 : 0);
 
 		if (opts.debug) drawDebugStats(f, cxField);
 		if (opts.strain) {
@@ -396,7 +400,7 @@ export const makeHud = () => {
 		errorBar.hits = game.hits;
 		errorBar.now = now;
 		errorBar.cx = vp.w / 2;
-		errorBar.y = vp.h - 14;
+		errorBar.y = vp.h - 14 - (opts.safeBottom ?? 0);
 		drawHitErrorBar(f.skin, ctx, errorBar);
 	};
 };

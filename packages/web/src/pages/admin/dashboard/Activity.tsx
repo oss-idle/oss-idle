@@ -31,6 +31,9 @@ export default function Activity({ metrics }: Props) {
 						{
 							label: 'In a play', slot: 2, values: gauge(a.playing),
 						},
+						{
+							label: 'Local guests', slot: 'gray', values: gauge(a.guests),
+						},
 					]}
 				/>
 				<TimeChart

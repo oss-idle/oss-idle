@@ -4,14 +4,15 @@ import lerp from './math/lerp.js';
 /** The character's fatigue in strained minutes, as of `at` (ms). */
 export type Fatigue = { at: number, minutes: number };
 
-// The character tires a minute per minute its physical skills are strained and
-// rests REST_RATE per other minute played and a minute per minute idle, the gaps
-// between queued maps included: one fully strained map takes 2-3 easy ones to
-// rest. From fresh, nonstop full strain starts to tell after 5 hours and reaches
-// the floor at 7. Strain stops counting at STRAIN_CAP: every
-// curve below is clamped to end by then.
-const REST_RATE = 0.2;
-const STRAIN_CAP = 7 * 60;
+// A play strained for at most LIGHT_SHARE of its length rests a minute per minute,
+// like idle (the gaps between queued maps included); past it, the play eases up to
+// tiring STRAIN_RATE minutes per minute fully strained: a fully strained map takes 3
+// easy ones to rest. Past 5 hours of fatigue it starts to tell and reaches the
+// floor at 7. Strain stops counting at STRAIN_CAP: every curve below is clamped to
+// end by then.
+const LIGHT_SHARE = 0.2;
+const STRAIN_RATE = 3;
+export const STRAIN_CAP = 7 * 60;
 const ONSET_MINUTES = 5 * 60;
 const FULL_MINUTES = 7 * 60;
 const FATIGUE_CB = cubic_bezier(.4, 0, .6, 1);
@@ -114,15 +115,19 @@ export const warmupBar = (minutes: number, upgrades = 0): number => {
 	return lerp(at[i - 1], at[i], Math.min(1, Math.max(0, t)));
 };
 
+/** The fatigue minutes a play `minutes` long, `strained` of them, adds: less than 0 rests. */
+const playedStrain = (minutes: number, strained: number): number =>
+	(minutes > 0 ? minutes * lerp(-1, STRAIN_RATE, ease(strained / minutes, LIGHT_SHARE, 1)) : 0);
+
 /** Which way and how hard a play `minutes` long, `strained` of them, moves the
  *  warm-up bar: 1 to 3 right (warming), -1 to -3 left (cooling), 0 neither. */
 export const warmupTrend = (minutes: number, strained: number): number => {
 	if (minutes <= 0) return 0;
-	// net strained minutes per minute played: 1 fully strained, -REST_RATE fully easy
-	const drift = (strained - REST_RATE * (minutes - strained)) / minutes;
+	// fatigue minutes per minute played: STRAIN_RATE fully strained, -1 light
+	const drift = playedStrain(minutes, strained) / minutes;
 	return drift >= 0
-		? Math.ceil(Math.min(1, drift) * 3)
-		: -Math.ceil(Math.min(1, -drift / REST_RATE) * 3);
+		? Math.ceil(Math.min(1, drift / STRAIN_RATE) * 3)
+		: -Math.ceil(Math.min(1, -drift) * 3);
 };
 
 /** The share of the physical skills' xp gains a play at fatigue `level` keeps. */
@@ -136,7 +141,7 @@ export const afterPlay = (
 	now: number,
 ): Fatigue => {
 	const rested = restedFatigue(before, now - minutes * 60_000);
-	const next = rested + strained - REST_RATE * (minutes - strained);
+	const next = rested + playedStrain(minutes, strained);
 	return {
 		at: now, minutes: Math.min(STRAIN_CAP, Math.max(0, next)),
 	};

@@ -6,7 +6,10 @@ import {
 import { CONTACT_EMAIL } from '@oss-idle/shared/contact';
 import Synced from '@oss-idle/shared/helpers/synced';
 import type { Mod } from '@oss-idle/shared/mods';
-import type { PlayState } from '@oss-idle/shared/play';
+import type {
+	PlayState,
+	StrainSamples,
+} from '@oss-idle/shared/play';
 import type { ReplayOffset } from '@oss-idle/shared/rulesets/mania/maniaGame';
 
 import type Character from '../db/schema/character';
@@ -35,6 +38,8 @@ export type RankedPlayContext = {
 	/** resume cursor + whether every offset has already been delivered */
 	next: number;
 	done: boolean;
+	/** the strain gauges up to the last offset revealed; the rest come with the offsets */
+	strains?: StrainSamples;
 	startedAt: number;
 	endsAt: number;
 	/** how tired the character plays it, 0 rested to 1 exhausted */
@@ -75,11 +80,12 @@ export type LocalPlayContext = {
  *                 authoritative. The client replays the offsets seeked to the
  *                 play's live position (`startedAt`) and fetches the result on
  *                 finish; the server finalises on its own clock regardless.
- *  - `debug`    - dev only: played by the debug bot, no-fail, never
- *                 saved or submitted. Launched from the strain debug view.
+ *  - `debug`    - dev only: no-fail, never saved or submitted. From the strain
+ *                 debug view, the server's whole replay of the debug bot and
+ *                 its gauges; from the editor, a local bot.
  */
 export type PlayContext =
-	| { mode: 'debug' }
+	| { mode: 'debug', offsets?: ReplayOffset[], strains?: StrainSamples }
 	| LocalPlayContext
 	| RankedPlayContext;
 
@@ -167,6 +173,7 @@ export async function startPlaySession(
 				offsets: maniaOffsets(play.offsets),
 				next: play.next,
 				done: play.done,
+				strains: play.strains,
 				startedAt: play.startedAt + skew,
 				endsAt: play.endsAt + skew,
 				fatigue: play.fatigue,

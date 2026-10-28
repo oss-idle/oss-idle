@@ -1,8 +1,8 @@
 #!/bin/sh
-# Runs CI's lint and test steps before develop is pushed. Enabled by
+# Runs CI's lint and test steps before a version branch is pushed. Enabled by
 # `git config core.hooksPath scripts/git-hooks`.
-# ponytail: checks the working tree, not the pushed commit; fine while develop is pushed clean.
-grep -q ' refs/heads/develop ' || exit 0
+# ponytail: checks the working tree, not the pushed commit; fine while version branches are pushed clean.
+grep -qE ' refs/heads/(build|patch|minor|major) ' || exit 0
 npm run lint --silent && npm test --silent && exit 0
-echo 'Push blocked: CI would fail. Fix lint (npm run lint:fix) / tests on develop, commit, push again.' >&2
+echo 'Push blocked: CI would fail. Fix lint (npm run lint:fix) / tests on the branch, commit, push again.' >&2
 exit 1

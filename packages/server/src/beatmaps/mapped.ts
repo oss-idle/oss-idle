@@ -3,6 +3,7 @@ import {
 	countDistinct,
 	desc,
 	eq,
+	or,
 } from 'drizzle-orm';
 
 import { db } from '../db/client';
@@ -11,18 +12,24 @@ import { beatmaps } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
 import type { ServerRuleset } from '../rulesets/ruleset';
 import {
+	diffsOf,
 	listCondition,
 	listedAt,
 	panelColumns,
+	plannedCondition,
 	setColumns,
+	shownStatusColumns,
 	withStatus,
 } from './catalog';
 
-/** Which of a user's own maps: the ranked or the loved ones they mapped, or their unranked uploads. */
+/** Which of a user's own maps: the ranked or the loved ones they mapped, or their unranked
+ *  uploads - planned ones among them until they go live. */
 export type MappedStatus = 'ranked' | 'loved' | 'unranked';
 
 const mappedCondition = (r: ServerRuleset, userId: number, status: MappedStatus) =>
-	and(eq(beatmapset.ownerUserId, userId), listCondition(r, status));
+	and(eq(beatmapset.ownerUserId, userId), status === 'unranked'
+		? or(listCondition(r, status), and(plannedCondition(r), diffsOf(r)))
+		: listCondition(r, status));
 
 export const countMapped = async (r: ServerRuleset, userId: number, status: MappedStatus) => {
 	const [row] = await db.select({ n: countDistinct(beatmapset.id) })
@@ -38,6 +45,7 @@ export const getMapped = (r: ServerRuleset, userId: number, status: MappedStatus
 	profilePage(page, (offset, limit) => db
 		.select({
 			...setColumns(r),
+			...shownStatusColumns(r),
 			...panelColumns(),
 		})
 		.from(beatmapset)

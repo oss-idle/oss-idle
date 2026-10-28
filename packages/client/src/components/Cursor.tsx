@@ -69,13 +69,9 @@ export default function Cursor() {
 		};
 		const onUp = () => root.classList.remove('is-down');
 
-		// pointerrawupdate fires at the device's raw polling rate (ahead of the
-		// frame-coalesced pointermove), so it keeps `target` the freshest possible
-		// sample on every frame; pointermove stays as the fallback where unsupported.
-		window.addEventListener('pointerrawupdate', 
-			onMove as EventListener,
-			{ passive: true },
-		);
+		// pointermove, not pointerrawupdate: it's coalesced to one event right
+		// before each frame, while raw updates hit-test the page at the mouse's
+		// polling rate (~1 ms each over a busy DOM).
 		window.addEventListener('pointermove', onMove, { passive: true });
 		window.addEventListener('pointerdown', onDown);
 		window.addEventListener('pointerup', onUp);
@@ -111,7 +107,6 @@ export default function Cursor() {
 
 		return () => {
 			document.documentElement.classList.remove('custom-cursor');
-			window.removeEventListener('pointerrawupdate', onMove as EventListener);
 			window.removeEventListener('pointermove', onMove);
 			window.removeEventListener('pointerdown', onDown);
 			window.removeEventListener('pointerup', onUp);

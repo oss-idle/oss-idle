@@ -23,6 +23,8 @@ export const isStandalone = new Synced(!!desktop());
 export const isWebOpen = new Synced(false);
 export const isOptionsOpen = new Synced(false);
 export const isCommunityOpen = new Synced(false);
+/** Local or online play, asked before the first play on a device with no character. */
+export const isPlayChoiceOpen = new Synced(false);
 /** The main menu closed itself after a while without input. */
 export const menuIdle = new Synced(false);
 export const webUrl = new Synced('/');

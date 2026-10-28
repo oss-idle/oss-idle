@@ -21,6 +21,7 @@ import Entities from '../entity/entities';
 import {
 	canPlayAt,
 	liveSpeedUpgrades,
+	selectedRate,
 } from '../gameplay/playRate';
 import {
 	useRatedVersion,
@@ -81,9 +82,11 @@ function BeatmapCard({
 	// scoresVersion bumps on any score write, so an imported leaderboard score for
 	// the live character refreshes the grade without a reselect.
 	const [scoresV] = useSynced(scoresVersion);
+	const [pickedRate] = useSynced(selectedRate);
+	const rate = beatmap.lockedRate ?? pickedRate ?? 1;
 	const grade = useAsync(async () => 
-		(await Score.best(character.id, beatmap.metadata.id))?.grade
-	, [beatmap, character.id, scoresV]);
+		(await Score.bestAtRate(character.id, beatmap.metadata.id, rate))?.grade
+	, [beatmap, character.id, scoresV, rate]);
 
 	const version = useRatedVersion(beatmap);
 	useSynced(liveSpeedUpgrades);

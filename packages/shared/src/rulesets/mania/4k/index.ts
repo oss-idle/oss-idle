@@ -44,6 +44,8 @@ export const mania4k = {
 	prestigeNote,
 	skillsNote,
 	physicalSkills: PHYSICAL_SKILLS,
+	// accuracy, memory and consistency don't strain the way a gauge shows
+	gauged: Skills.filter(s => s !== SKILL.accuracy && s !== SKILL.memory && s !== SKILL.consistency),
 	rateSkill: SKILL.speed,
 	warmupSkill: SKILL.stamina,
 	rebirth: true,

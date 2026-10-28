@@ -73,6 +73,11 @@ ids) by uploading an `.osz` on `/web/admin/nomination`, then ranking it there.
 npm run lint:fix   # tabs, semicolons, single quotes
 npm test           # the vitest suite
 npm run teste2e    # the browser suite, against `npm run dev` (once: npm run teste2e:install)
+npm run balance    # the skill balance harness: dans and skill ladders played by the bot,
+                   # report in packages/tests/.balance/report.md (see packages/tests/src/balance/run.ts)
+npm run balance:ui # its dashboard on http://localhost:4190: the dan each level clears, overall and per
+                   # family, alarms, tuning guidance, the rungs' curves, XP, and the corpus editor
+                   # (BALANCE_REMOTE_WORKER runs the plays elsewhere - see src/balance/harness.ts)
 ```
 
 CI runs the typecheck, lint, tests and the client/web builds on every push and pull request.

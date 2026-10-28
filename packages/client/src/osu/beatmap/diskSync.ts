@@ -18,6 +18,7 @@ import {
 	type StoreMetadata,
 } from './beatmap_store';
 import {
+	emptyChartsInRuleset,
 	localId,
 	localMetadata,
 } from './oszImport';
@@ -47,9 +48,14 @@ const catalogMetadata = (known: RuntimeMetadata): StoreMetadata => ({
 
 /** The folder's metadata, out of its charts as they are now. */
 const refresh = async (entry: LibraryEntry): Promise<void> => {
-	const charts = await chartsIn(entry);
-	if (!Object.keys(charts).length) return;
+	const found = await chartsIn(entry);
+	if (!Object.keys(found).length) return;
 	const known = await ownsId('maps', entry) ? entry.info as RuntimeMetadata : undefined;
+	// a folder new to the game is an import; the editor's own saves stay as they are
+	const rewritten = known ? {} : emptyChartsInRuleset(found);
+	const charts = {
+		...found, ...rewritten,
+	};
 	let metadata = known && known.id > 0
 		? catalogMetadata(known)
 		: await localMetadata(charts, known?.id);
@@ -58,7 +64,7 @@ const refresh = async (entry: LibraryEntry): Promise<void> => {
 	if (owner && owner.name !== entry.name) {
 		metadata = await localMetadata(charts, localId(`folder\n${entry.name}`));
 	}
-	await writeEntry('maps', entry.name, {}, deriveSet(metadata, charts).runtimeMetadata);
+	await writeEntry('maps', entry.name, rewritten, deriveSet(metadata, charts).runtimeMetadata);
 };
 
 let queue: Promise<unknown> = Promise.resolve();

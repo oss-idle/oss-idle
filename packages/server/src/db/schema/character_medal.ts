@@ -1,6 +1,8 @@
 import {
+	and,
 	desc,
 	eq,
+	inArray,
 } from 'drizzle-orm';
 import {
 	int,
@@ -16,8 +18,9 @@ import type { ServerRuleset } from '../../rulesets/ruleset';
 import { db } from '../client';
 import { characters } from './character';
 
-/** The medals a character holds. Never removed: a medal stays earned even if
- *  what earned it is lost (a #1 taken back, a map unranked). */
+/** The medals a character holds. Never removed in play: a medal stays earned even
+ *  if what earned it is lost (a #1 taken back, a map unranked). Only a score reprocess
+ *  takes back the ones its replayed scores no longer earn (medals.ts `scores`). */
 export const medalsTable = (name: string) => mysqlTable(name as 'character_medal', {
 	characterId: int().notNull()
 		.references(() => characters.id, { onDelete: 'cascade' }),
@@ -61,4 +64,15 @@ export const addMedals = async (
 	return {
 		ids: fresh, held: held.size + fresh.length,
 	};
+};
+
+/** Take medals back: only a score reprocess does. */
+export const removeMedals = async (
+	{ medals: characterMedals }: ServerRuleset,
+	characterId: number,
+	ids: string[],
+) => {
+	if (!ids.length) return;
+	await db.delete(characterMedals)
+		.where(and(eq(characterMedals.characterId, characterId), inArray(characterMedals.medalId, ids)));
 };

@@ -41,10 +41,12 @@ import { SETTINGS } from '../db/settings';
 import Entities from '../entity/entities';
 import {
 	isOptionsOpen,
+	isPlayChoiceOpen,
 	isWebOpen,
 	menuIdle,
 } from '../globals';
 import Controls from '../input/Controls';
+import Account from '../online/account';
 import Auth from '../online/auth';
 import { checkAwayMedals } from '../online/medalWatch';
 import Multiplayer from '../online/multiplayer';
@@ -116,6 +118,7 @@ export default function MainMenu({ flash = false }: Props) {
 	const [parallaxOn] = useSynced(SETTINGS.parallax);
 	const parallax = useParallax(0.08, parallaxOn);
 	const [character] = useSynced(Entities.character);
+	const [noCharacter] = useSynced(Account.noCharacter);
 	const [skin] = useSynced(currentSkin);
 	const [user] = useSynced(Auth.user);
 	const [idle] = useSynced(menuIdle);
@@ -163,7 +166,7 @@ export default function MainMenu({ flash = false }: Props) {
 				setMenu(MENU.OPEN);
 				break;
 			case MENU.OPEN:
-				setMenu(MENU.PLAY);
+				openPlay();
 				break;
 			case MENU.PLAY:
 				toSongSelect();
@@ -172,7 +175,13 @@ export default function MainMenu({ flash = false }: Props) {
 				toEditSelect();
 				break;
 		}
-	}, [menu]);
+	}, [menu, noCharacter]);
+
+	/** With no character yet, Play asks for local or online play first. */
+	const openPlay = () => {
+		if (noCharacter) void isPlayChoiceOpen.set(true);
+		else setMenu(MENU.PLAY);
+	};
 
 	const toSongSelect = () => SceneManager.set(SCENE.SELECT);
 
@@ -247,7 +256,7 @@ export default function MainMenu({ flash = false }: Props) {
 			band: 'out',
 			flip: false,
 			order: 1,
-			onSelect: () => setMenu(MENU.PLAY),
+			onSelect: openPlay,
 		},
 		[OPTION.EDITOR]: {
 			menu: MENU.OPEN,
@@ -255,7 +264,8 @@ export default function MainMenu({ flash = false }: Props) {
 			band: 'mid',
 			flip: false,
 			order: 2,
-			onSelect: () => setMenu(MENU.EDIT),
+			disabled: noCharacter ? true : undefined,
+			onSelect: () => { if (!noCharacter) setMenu(MENU.EDIT); },
 		},
 		[OPTION.OPTIONS]: {
 			menu: MENU.OPEN,

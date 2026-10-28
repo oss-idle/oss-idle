@@ -122,7 +122,7 @@ const DESCRIPTIONS = defineMessages({
 	rice: 'Pass a 4★ or harder map made of over 90% single notes',
 	ln: 'Pass a 4★ or harder map made of over 50% long notes',
 	'upgrades-1': 'Buy your first upgrade',
-	'ladders-1': 'Buy every upgrade of a skill',
+	'ladders-1': 'Max out the upgrades of a skill',
 	'prestige-1': 'Prestige a skill',
 	rebirth: 'Rebirth your character',
 	'first-1': 'Take #1 on a ranked map',

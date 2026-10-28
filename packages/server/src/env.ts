@@ -60,6 +60,14 @@ const schema = z.object({
 	// Bearer token of the repo add-on builder (scripts/addon-builder.mts). Unset, nothing builds.
 	ADDON_BUILD_SECRET: z.string().min(32).optional(),
 
+	// The sim services (simService.ts) that play the sim API's requests, comma-separated in
+	// order of preference (simHosts.ts), and the bearer they take. Unset, this server plays
+	// them itself - never on prod.
+	SIM_SERVICE_URL: z.string().default('')
+		.transform(s => s.split(',').map(url => url.trim().replace(/\/$/, '')).filter(Boolean))
+		.pipe(z.array(z.url())),
+	SIM_SERVICE_SECRET: z.string().min(32).optional(),
+
 	// Redis holds the cross-process play state (pending plays, online/playing
 	// presence, session strain) so the API can run as a pm2 cluster. Defaults
 	// target a local redis-server; dev and prod are isolated by logical DB below.
