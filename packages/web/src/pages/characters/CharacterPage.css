@@ -41,10 +41,32 @@
 }
 
 .character__submeta {
+	position: relative;
 	background-color: hsl(var(--hsl-b45));
 	padding: 6px 50px;
 	font-size: 13px;
 	color: hsl(var(--hsl-c2));
+}
+
+.character__submeta-tooltip {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	left: 50px;
+	padding: 5px 10px;
+	border-radius: 6px;
+	background-color: hsl(var(--hsl-b6));
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+	font-size: 12px;
+	color: hsl(var(--hsl-c1));
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 0.1s;
+}
+
+.character__submeta:hover .character__submeta-tooltip {
+	opacity: 1;
 }
 
 /* Recessed under the bar above it: the same inner edge the stats block has. */
@@ -369,6 +391,10 @@
 
 	.character__submeta {
 		padding: 6px 15px;
+	}
+
+	.character__submeta-tooltip {
+		left: 15px;
 	}
 
 	.character__avatar {

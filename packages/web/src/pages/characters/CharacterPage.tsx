@@ -106,6 +106,8 @@ export default function CharacterPage({ id, character, stats }: {
 
 	if (!user) return <main><Trans>Loading…</Trans></main>;
 
+	const joined = new Date(user.createdAt);
+
 	const sections: Record<Section, ReactNode> = {
 		me: <UserPage
 			characterId={character.id}
@@ -205,9 +207,20 @@ export default function CharacterPage({ id, character, stats }: {
 				groups={character.groups}
 			/>
 			<div className='character__submeta'>
-				<Trans>Joined <b>{new Date(user.createdAt).toLocaleDateString(i18n.locale, {
+				<Trans>Joined <b>{joined.toLocaleDateString(i18n.locale, {
 					month: 'long', year: 'numeric',
 				})}</b></Trans>
+				<div className='character__submeta-tooltip'>
+					{joined.toLocaleString(i18n.locale, {
+						day: 'numeric',
+						month: 'long',
+						year: 'numeric',
+						hour: '2-digit',
+						minute: '2-digit',
+						timeZone: 'UTC',
+						timeZoneName: 'short',
+					})}
+				</div>
 			</div>
 			<ProfileTabs blocks={blocks} />
 			<div className='character__blocks' ref={blocks}>
