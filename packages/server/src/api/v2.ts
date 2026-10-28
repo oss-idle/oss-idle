@@ -43,6 +43,7 @@ import {
 	apiToken,
 	needs,
 } from '../oauth';
+import { livePlay } from '../play';
 import {
 	countryRank,
 	globalRank,
@@ -72,6 +73,7 @@ import {
 import {
 	apiBeatmap,
 	apiBeatmapset,
+	apiLivePlay,
 	apiNewsPost,
 	apiScore,
 	apiUser,
@@ -122,7 +124,7 @@ const fullUser = async (
 	]);
 	return apiUser(r.def, user, character, profile, totals, {
 		global, country,
-	});
+	}, r.play.tiredness(profile));
 };
 
 const listQuery = valid('query', z.object({
@@ -323,6 +325,12 @@ export const apiV2Routes = new Hono()
 		const { limit, offset } = c.req.valid('query');
 		const type = scoreType.parse(c.req.param('type'));
 		return c.json(await characterScores(apiRuleset(c), character.id, type, offset, limit));
+	})
+
+	.get('/characters/:id/playing', needs('public'), async c => {
+		const { character } = await byCharacter(idParam.parse(c.req.param('id')));
+		const play = await livePlay(character.id);
+		return c.json({ playing: play ? apiLivePlay(play, Date.now()) : null });
 	})
 
 	.get('/beatmaps/lookup', needs('public'), valid('query', lookupQuery), async c => {

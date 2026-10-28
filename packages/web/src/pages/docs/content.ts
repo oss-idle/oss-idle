@@ -78,6 +78,12 @@ const USER = {
 	support_level: 0,
 	join_date: '2026-06-06T15:36:55.000Z',
 	statistics: STATISTICS,
+	fatigue: {
+		minutes: 54.171, level: 0, at: '2026-07-07T17:56:34.000Z',
+	},
+	warmup: {
+		level: 1, bar: 0.448,
+	},
 	skills: {
 		stamina: {
 			level: 100, progress: 42, total_xp: 5294299, prestige: 0, upgrades: 4,
@@ -134,6 +140,21 @@ const SCORE = {
 		divine: 0, marvelous: 4749, perfect: 1041, great: 33, good: 2, bad: 0, miss: 0,
 	},
 	ended_at: '2026-07-07T17:56:34.000Z',
+};
+
+const LIVE_PLAY = {
+	beatmap_id: 2697726,
+	ruleset: 'mania4k',
+	rate: 1,
+	mods: ['HR'],
+	ranked: true,
+	started_at: '2026-07-07T17:51:27.000Z',
+	ends_at: '2026-07-07T17:56:34.000Z',
+	server_now: '2026-07-07T17:53:04.000Z',
+	fatigue: 0,
+	warmup: 1,
+	warmup_bar: 0.448,
+	warmup_trend: -3,
 };
 
 const RANKING_ROW = {
@@ -519,6 +540,17 @@ export const ENDPOINTS: EndpointSection[] = [
 				example: { path: '/characters/13/scores/firsts' },
 				format: 'See Get User Scores.',
 			},
+			{
+				id: 'get-character-playing',
+				title: 'Get Character Playing',
+				path: '/characters/{character}/playing',
+				scope: 'public',
+				about: 'The play the character has in flight: what is being played, when it ends, and the warm-up the gameplay HUD is drawing. Answers while the play is live, null the rest of the time.',
+				url: [CHARACTER_PARAM],
+				example: { path: '/characters/13/playing' },
+				response: { playing: LIVE_PLAY },
+				format: 'Field playing: a LivePlay, or null.',
+			},
 		],
 	},
 ];
@@ -564,6 +596,26 @@ export const OBJECTS: ObjectDoc[] = [
 			['covers', 'object', 'cover: the cover image.'],
 			['url', 'string', 'Its page on oss!idle.'],
 			['beatmaps', 'Beatmap[]', 'On Get Beatmapset.'],
+		],
+	},
+	{
+		id: 'live-play',
+		title: 'LivePlay',
+		about: 'A play in flight. Reported until the map would end, so a fail is not readable'
+			+ ' from it before the player\'s own client has it.',
+		fields: [
+			['beatmap_id', 'integer', 'The difficulty being played.'],
+			['ruleset', 'string', 'The ruleset it plays and scores in.'],
+			['rate', 'float', 'The speed it is being played at.'],
+			['mods', 'string[]', 'The mods it is being played with.'],
+			['ranked', 'boolean', 'False for a match round or an unranked map\'s own leaderboard: no score, no xp.'],
+			['started_at', 'Timestamp', 'When the play started, a two-second lead-in included.'],
+			['ends_at', 'Timestamp', 'When the map ends.'],
+			['server_now', 'Timestamp', 'The server\'s clock as it answered, so progress through the map needs no clock of your own.'],
+			['fatigue', 'float', '0 rested to 1 exhausted, as this play is being simulated.'],
+			['warmup', 'float', '0 cold to 1 warm.'],
+			['warmup_bar', 'float?', 'Where the warm-up bar\'s needle sits, 0 to 1.'],
+			['warmup_trend', 'integer?', 'Which way this map is moving it: 3 warming to -3 cooling.'],
 		],
 	},
 	{
@@ -631,6 +683,12 @@ export const OBJECTS: ObjectDoc[] = [
 			['support_level', 'integer', '0 to 3: the hearts on the profile.'],
 			['join_date', 'Timestamp', ''],
 			['statistics', 'UserStatistics', ''],
+			['fatigue', 'object', 'The session the character is in: minutes, the strained minutes it has'
+				+ ' accumulated as of this response; level, 0 rested to 1 exhausted; and at, when the'
+				+ ' last play that moved it ended.'],
+			['warmup', 'object', 'level, 0 cold to 1 warm, and bar, where the warm-up bar\'s needle'
+				+ ' sits, 0 to 1. Both are a function of the fatigue minutes and the character\'s'
+				+ ' stamina upgrades.'],
 			['skills', 'object', 'Each skill with its level, progress, total_xp, prestige and upgrades.'
 				+ ' The level shown in game is level + progress / 100 + prestige; total_xp counts'
 				+ ' from the last prestige.'],
