@@ -41,15 +41,16 @@
 }
 
 .character__submeta {
-	background-color: hsl(var(--hsl-b5));
+	background-color: hsl(var(--hsl-b45));
 	padding: 6px 50px;
 	font-size: 13px;
 	color: hsl(var(--hsl-c2));
+	box-shadow: inset 0 2px 3px -1px rgba(0, 0, 0, 0.25);
 }
 
 .character__socialmeta {
 	background-color: hsl(var(--hsl-b4));
-	height: 80px;
+	height: 56px;
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -208,7 +209,7 @@
 .character__blocks {
 	display: flex;
 	flex-direction: column;
-	padding-top: 20px;
+	padding-top: 8px;
 	gap: 10px;
 }
 
