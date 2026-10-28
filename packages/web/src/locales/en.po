@@ -934,6 +934,11 @@ msgstr "Its scores, pp and ranking progress are removed. The experience your ski
 msgid "Join the community"
 msgstr "Join the community"
 
+#. placeholder {0}: new Date(user.createdAt).toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric', })
+#: src/pages/characters/CharacterPage.tsx
+msgid "Joined <0>{0}</0>"
+msgstr "Joined <0>{0}</0>"
+
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
 msgstr "Keys"
