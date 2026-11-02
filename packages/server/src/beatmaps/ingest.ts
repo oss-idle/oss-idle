@@ -44,8 +44,11 @@ import {
 import { beatmapset } from '../db/schema/beatmapset';
 import { starsAtRates } from '../pp';
 import { KNOWN_MODES } from '../rulesets/enabled';
-import { enabledRulesets } from '../rulesets/registry';
-import { bakeCover } from './covers';
+import { queuedRulesets } from '../rulesets/registry';
+import {
+	bakeCover,
+	osuServesCover,
+} from './covers';
 import { creditMapper } from './credit';
 import {
 	seedStatus,
@@ -139,6 +142,7 @@ const upsertSet = async (metas: BeatmapMetadataSection[], allowRanked: boolean) 
 	const isIntro = osuSetId === INTRO_SET_ID;
 	const setMeta = {
 		artist: meta.artist, title: meta.title, creator: meta.creator,
+		...osuSetId !== undefined && { osuCover: await osuServesCover(osuSetId) },
 	};
 	let setId: number;
 	if (existing) {
@@ -173,6 +177,7 @@ const ownSet = async (metas: BeatmapMetadataSection[], owner: Owner) => {
 	if (owner.setId === undefined) {
 		const [{ id }] = await db.insert(beatmapset).values({
 			...fields, ownerUserId: owner.userId, osuId: owner.osuSetId,
+			...owner.osuSetId !== undefined && { osuCover: await osuServesCover(owner.osuSetId) },
 		}).$returningId();
 		await seedStatus(id, { status: 'unranked' });
 		return {
@@ -181,7 +186,7 @@ const ownSet = async (metas: BeatmapMetadataSection[], owner: Owner) => {
 	}
 	await db.update(beatmapset).set(fields).where(eq(beatmapset.id, owner.setId));
 	// uploadTarget refused a set ranked or queued in any ruleset: it is unranked in all of them
-	for (const r of enabledRulesets()) await writeStatus(r, owner.setId, { status: 'unranked' });
+	for (const r of queuedRulesets()) await writeStatus(r, owner.setId, { status: 'unranked' });
 	const [set] = await db.select({ osuId: beatmapset.osuId }).from(beatmapset)
 		.where(eq(beatmapset.id, owner.setId)).limit(1);
 	return {

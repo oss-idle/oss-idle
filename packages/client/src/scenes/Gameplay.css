@@ -154,11 +154,13 @@
 	}
 }
 
+/* under abort and quit: beside them it would run into a long title */
 .play__skip {
 	position: absolute;
-	bottom: 1rem;
-	right: 1.2rem;
-	z-index: var(--z-play-hud);
+	top: 100%;
+	left: 0;
+	margin-top: 0.5rem;
+	white-space: nowrap;
 	padding: 0.45rem 1rem;
 	border-radius: 999px;
 	font-weight: 700;
@@ -188,6 +190,11 @@
 		transform: none;
 		text-align: left;
 		font-size: 0.85rem;
+	}
+	/* the title moved under the row: this one takes its place beside abort and quit */
+	.play__skip {
+		position: static;
+		margin-top: 0;
 	}
 }
 

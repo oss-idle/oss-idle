@@ -19,6 +19,8 @@ export const LOGS_CHANNEL = '#logs';
 
 const LOG_COLOR = '#58a0ec';
 const LEVELUP_COLOR = '#81fa9b';
+/** Keep at most this many lines, as chat does. */
+const LOG_LIMIT = 200;
 
 export const logLines = new Synced<ChatLine[]>([]);
 
@@ -35,7 +37,7 @@ export const log = (text: string, color = LOG_COLOR, at = Date.now()): void => {
 		color,
 		at,
 	};
-	void logLines.set([...logLines.get(), line]);
+	void logLines.set([...logLines.get(), line].slice(-LOG_LIMIT));
 };
 
 const gainsSummary = (progression?: SkillGain[]): string => {

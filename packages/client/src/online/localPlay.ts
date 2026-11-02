@@ -28,6 +28,7 @@ import {
 	loadPlayer,
 } from '../rulesets/registry';
 import type { PlayBot } from '../rulesets/ruleset';
+import { geneticsXp } from './services/genetics';
 import Socket from './socket';
 
 /** Song-time gap between the accuracy/grade checkpoints the dock reads. */
@@ -329,6 +330,7 @@ export const finalizeLocalPlay = async (token: string): Promise<void> => {
 				mods: run.mods,
 				divine: hasUnlock(character.generation, 'DIVINE'),
 				multiplier: debugXpMultiplier.get(),
+				genetics: geneticsXp(character),
 			});
 			// the bot earned it on its own copy of the skills, so hand the gains to
 			// the live ones - which may have moved since the play started

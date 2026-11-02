@@ -25,7 +25,7 @@ const entryAvatar = (
  */
 export default function useScorePlayer(score: { characterId: number }, player?: BoardPlayer) {
 	const fetched = useAsync(async () => {
-		if (player) return undefined;
+		if (player || !score.characterId) return undefined;
 		return Character.isLocalId(score.characterId)
 			? await Character.get({ id: score.characterId })
 			: await getCharacter(score.characterId);

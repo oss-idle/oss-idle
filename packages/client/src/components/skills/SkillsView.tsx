@@ -4,7 +4,9 @@ import './skills.css';
 import { Trans } from '@lingui/react/macro';
 
 import { medalXPMultiplier } from '@oss-idle/shared/achievements/catalogue';
+import { geneticsXpParts } from '@oss-idle/shared/genetics';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
+import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { useSyncedAll } from '@oss-idle/shared/hooks/useSyncedAll';
 
 import type Character from '../../db/schema/character';
@@ -26,13 +28,19 @@ const medalBoost = async (id: number): Promise<MedalBoost> => {
 export default function SkillsView({ character }: { character: Character }) {
 	const online = character.id !== 0 && !character.isGuest();
 	const medals = useAsync(() => online ? medalBoost(character.id) : undefined, [character.id]);
+	const genetics = selectedDef().genetics;
+	const [held] = useSynced(character.genetics);
 
 	useSyncedAll(
 		() => character.skills.flatMap(s => [s.level, s.xp, s.upgrades, s.overdrive, s.prestige]),
 		[character],
 	);
 
-	const stats = character.skills.map(skill => skillStats(skill, medals));
+	const stats = character.skills.map(skill => skillStats(
+		skill,
+		medals,
+		genetics && geneticsXpParts(genetics, held, skill.name),
+	));
 	// every bar is drawn against the biggest total; all at x1 draws nothing
 	const scale = Math.log(Math.max(...stats.map(s => s.total))) || 1;
 
@@ -41,6 +49,7 @@ export default function SkillsView({ character }: { character: Character }) {
 			<span className="skill-legend">
 				<i className="is-upgrades" /><Trans>upgrades</Trans>
 				<i className="is-prestige" /><Trans>prestige</Trans>
+				{genetics && <><i className="is-genetics" /><Trans>genetics</Trans></>}
 				{medals && <><i className="is-medals" /><Trans>medals</Trans></>}
 			</span>
 			<div className="ladder__list skill-list">

@@ -61,7 +61,7 @@ export default function LineageList() {
 								<Trans>Gen {ph({ generation: character.generation })}</Trans>
 							</span>
 							<span className="lineage__overall">
-								<Trans>Overall Lv{ph({ level: character.overallLevel })}</Trans>
+								<Trans>Overall Lv{ph({ level: character.overallLifetimeLevel() })}</Trans>
 							</span>
 							<span className="lineage__unlocks">
 								{unlocks.length > 0 ? unlocks.join(', ') : <Trans>No unlocks</Trans>}

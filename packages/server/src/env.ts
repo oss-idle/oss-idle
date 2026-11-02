@@ -2,6 +2,8 @@ import 'dotenv/config';
 
 import { z } from 'zod';
 
+const PROD_CLIENT_URL = 'https://oss.idle.rhythmgamers.net';
+
 /**
  * Validated runtime configuration. Parsed once at boot; a missing or malformed
  * variable aborts startup with a readable error instead of failing deep inside
@@ -19,10 +21,16 @@ const schema = z.object({
 	// Client origin, per-env (resolved below) - used for CORS and the OAuth
 	// redirect. Dev and prod differ, but share one .env, so both are declared.
 	CLIENT_URL: z.url().default('http://localhost:5173'),
-	CLIENT_URL_PROD: z.url().default('https://oss.idle.rhythmgamers.net'),
+	CLIENT_URL_PROD: z.url().default(PROD_CLIENT_URL),
 	// Dev only: where browsers reach this API, when not localhost - e.g. the LAN
 	// staging, which proxies /v1 through the game's dev server.
 	API_URL: z.url().optional(),
+	// The PBE: production, plus its players' tools (pbe/). Never set on prod.
+	PBE: z.literal('1').optional(),
+	API_URL_PROD: z.url().default('https://api.oss.idle.rhythmgamers.net'),
+	// The session cookie, for a production server sharing prod's domain with its own sessions.
+	SESSION_COOKIE_NAME: z.string().min(1).default('session'),
+	SESSION_COOKIE_DOMAIN: z.string().min(1).default('oss.idle.rhythmgamers.net'),
 
 	DB_HOST: z.string().min(1),
 	DB_PORT: z.coerce.number().int().positive().default(3306),
@@ -47,6 +55,9 @@ const schema = z.object({
 	OSU_SCHEDULER_TOKEN: z.string().min(1),
 	// Another scheduler (its own token) for when that one can't be reached.
 	OSU_API_FALLBACK_URL: z.url().optional(),
+	// Where scores read from osu! are also sent, when set.
+	SCORE_CACHE_URL: z.url().optional(),
+	SCORE_CACHE_SECRET: z.string().min(32).optional(),
 	OSU_SCHEDULER_FALLBACK_TOKEN: z.string().min(1).optional(),
 
 	// Where an accepted request's .osz is pulled from when ingesting it straight
@@ -139,6 +150,8 @@ if (!parsed.success) {
 export const env = parsed.data;
 
 export const isProd = env.NODE_ENV === 'production';
+/** Never on prod's address, whatever its .env says. */
+export const isPbe = env.PBE === '1' && env.CLIENT_URL_PROD !== PROD_CLIENT_URL;
 
 /**
  * Listening port, resolved per-environment so dev (3873) and prod (3875) never
@@ -174,12 +187,12 @@ export const redisDb = env.REDIS_DB;
 export const redisKeyPrefix = isProd ? 'oss-idle:prod:' : 'oss-idle:dev:';
 
 /**
- * Public origin of this API. Fixed in prod; in dev localhost unless API_URL says
- * otherwise. Used to build the osu! OAuth redirect URI, which must exactly match
- * a registered callback.
+ * Public origin of this API, per-env like {@link clientUrl}; in dev localhost unless
+ * API_URL says otherwise. Used to build the osu! OAuth redirect URI, which must exactly
+ * match a registered callback.
  */
 export const apiBaseUrl = isProd
-	? 'https://api.oss.idle.rhythmgamers.net'
+	? env.API_URL_PROD
 	: env.API_URL ?? `http://localhost:${port}`;
 
 /** osu! OAuth callback (both dev + prod variants are registered on the app). */
@@ -204,4 +217,4 @@ export const cookieSecure = isProd;
 
 /** The session cookie covers every oss!idle host (the API and its edges, like
  *  na.oss.idle) in prod; the old osu.idle hosts can't set it, so theirs stay their own. */
-export const SESSION_COOKIE_DOMAIN = 'oss.idle.rhythmgamers.net';
+export const SESSION_COOKIE_DOMAIN = env.SESSION_COOKIE_DOMAIN;

@@ -5,6 +5,7 @@ import initSqlJs, {
 } from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
+import Synced from '@oss-idle/shared/helpers/synced';
 import {
 	LEGACY_SAVE_DB,
 	openSave,
@@ -14,7 +15,10 @@ import {
 	SAVE_STORE,
 } from '@oss-idle/shared/save';
 
-import { migrate } from './migrations';
+import {
+	markMigrated,
+	migrate,
+} from './migrations';
 // import { debugMode } from '../globals';
 
 /**
@@ -284,18 +288,47 @@ export const table = <C extends Columns>(
 // resolves on commit, not on the put's success: a reload in between drops it.
 // strict: the blob is on disk before the commit points at it, so a power cut
 // keeps the previous save instead of leaving an unreadable one
-async function idbSave(bytes: Uint8Array): Promise<void> {
+async function idbWrite(op: (store: IDBObjectStore) => void): Promise<void> {
 	const tx = (await openSave(SAVE_DB, true))
 		.transaction(SAVE_STORE, 'readwrite', { durability: 'strict' });
-	tx.objectStore(SAVE_STORE).put(bytes, SAVE_KEY);
+	op(tx.objectStore(SAVE_STORE));
 	await new Promise<void>((resolve, reject) => {
 		tx.oncomplete = () => resolve();
 		tx.onerror = tx.onabort = () => reject(tx.error);
 	});
 }
 
+const idbSave = (bytes: Uint8Array) => idbWrite(store => store.put(bytes, SAVE_KEY));
+
 // saves run one after another, so an older snapshot never lands last
 let saving: Promise<void> = Promise.resolve();
+// once the save is thrown away, nothing may write the old database back before the reload
+let discarded = false;
+
+/**
+ * A save copies the whole database: writes in a burst (a play's score, its bests, the
+ * character) are saved once, this long after the first, instead of each one by itself.
+ * Kept short, since a page that closes in between keeps only what was saved (the desktop
+ * window waits for it).
+ */
+const SAVE_DELAY_MS = 250;
+let due: ReturnType<typeof setTimeout> | undefined;
+let written: Database | undefined;
+
+/** Save the database as it is now, after any save already running. */
+const saveNow = (): Promise<void> => {
+	clearTimeout(due);
+	due = undefined;
+	if (!written) return saving;
+	const bytes = written.export();
+	saving = saving
+		.then(() => idbSave(bytes))
+		.catch(e => console.warn('[dao] failed to persist database', e));
+	return saving;
+};
+
+// closing the window leaves no second to wait
+window.addEventListener('pagehide', () => { if (due) void saveNow(); });
 
 const getDatabaseSchema = (db: Database) => {
 	const schema: any = {
@@ -405,6 +438,7 @@ async function connect(): Promise<Database> {
 	const db = saved ? new SQL.Database(saved) : new SQL.Database();
 	try {
 		for (const t of registry) db.run(t.ddl());
+		if (!saved) markMigrated(db);
 		if (migrate(db)) await idbSave(db.export());
 	} catch(e) {
 		console.error(e);
@@ -416,12 +450,19 @@ async function connect(): Promise<Database> {
 		indexedDB.deleteDatabase(LEGACY_SAVE_DB);
 	}
 	// if (debugMode.get()) {
-	(window as any).db = DB;
+	(window as any).db = {
+		...DB,
+		write: <T>(fn: (db: Database) => T) => DB.write(fn)
+			.finally(() => addonWrites.set(addonWrites.get() + 1)),
+	};
 	console.log(getDatabaseSchema(db));
 	(window as any).showDb = () => console.log(getDatabaseSchema(db));
 	// }
 	return db;
 }
+
+/** Bumped by writes through `window.db`, the handle add-ons write the game's tables with. */
+export const addonWrites = new Synced(0);
 
 /** The lazily-opened, schema-initialised database handle. A failed open is not
  *  kept: held, its rejection would be the answer to every later call for the
@@ -463,19 +504,25 @@ export const DB = {
 	async read<T>(fn: (db: Database) => T): Promise<T> {
 		return fn(await handle());
 	},
-	/** Write transaction: run several statements, then persist once. */
+	/** Write transaction: run several statements; the save follows (see SAVE_DELAY_MS). */
 	async write<T>(fn: (db: Database) => T): Promise<T> {
 		const db = await handle();
 		const result = fn(db);
-		const bytes = db.export();
-		saving = saving
-			.then(() => idbSave(bytes))
-			.catch(e => console.warn('[dao] failed to persist database', e));
-		await saving;
+		if (discarded) return result;
+		written = db;
+		due ??= setTimeout(() => void saveNow(), SAVE_DELAY_MS);
 		return result;
 	},
-	/** Resolves once every write made so far is on disk. */
-	saved: (): Promise<void> => saving,
+	/** Resolves once every write made so far is on disk; one waiting to be saved is saved now. */
+	saved: (): Promise<void> => (due ? saveNow() : saving),
+	/** Deletes the save: the next boot builds a fresh database, as for a new player. */
+	async discard(): Promise<void> {
+		discarded = true;
+		clearTimeout(due);
+		due = undefined;
+		await saving;
+		await idbWrite(store => store.delete(SAVE_KEY));
+	},
 };
 
 // ---- active-record base --------------------------------------------------

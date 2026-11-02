@@ -8,6 +8,7 @@ import {
 	MAKISEBOT_USER_ID,
 } from '@oss-idle/shared/groups';
 import compareVersions from '@oss-idle/shared/helpers/compareVersions';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import { xpGivesLevel } from '@oss-idle/shared/xp';
 
 import {
@@ -28,13 +29,23 @@ import {
 	ppTopPercent,
 } from '../rankings';
 import { redis } from '../redis';
-import { selectedRuleset } from '../rulesets/registry';
+import {
+	enabledRulesets,
+	rulesetFor,
+	selectedRuleset,
+} from '../rulesets/registry';
+import {
+	characterOfSlot,
+	parseSlot,
+	type Slot,
+} from '../slot';
 import { hub } from './hub';
 
 /**
- * The live roster behind the community overlay. Each open WebSocket adds one
- * entry; the entry carries everything a player card / world-map dot needs. Stored
- * in Redis (shared across the cluster) as a hash keyed by character, with a
+ * The live roster behind the community overlay. The slot an open WebSocket
+ * watches adds one entry, and so does every other slot of the account that keeps
+ * playing; the entry carries everything a player card / world-map dot needs. Stored
+ * in Redis (shared across the cluster) as a hash keyed by slot, with a
  * companion sorted set of last-seen times so a worker crash can't leak a ghost -
  * the sweep prunes anyone who stopped refreshing.
  */
@@ -56,15 +67,31 @@ const ADOPTION_TTL = 7 * 24 * 60 * 60 * 1000;
 /** A presence entry whose last-seen wasn't refreshed within this window is swept. */
 const PRESENCE_TTL = 90 * 1000;
 
+/** The account's newest socket, on any worker, while it is heard from: a reconnect can
+ *  land on another worker before the old socket's close, and that close must not take
+ *  the account offline. Refreshed by every heartbeat. */
+export const newestKey = (userId: number) => `${redisKeyPrefix}ws:newest:${userId}`;
+export const NEWEST_TTL_S = PRESENCE_TTL / 1000;
+
+/** Whether a game of the account is open. */
+export const hasClient = async (userId: number): Promise<boolean> =>
+	await redis.exists(newestKey(userId)) === 1;
+
+/** A slot's ruleset, or the character's picked one where this server doesn't play it. */
+const rulesetOfSlot = (character: CharacterRow, ruleset: RulesetId) =>
+	enabledRulesets().some(r => r.def.id === ruleset)
+		? rulesetFor(ruleset)
+		: selectedRuleset(character);
+
 const buildEntry = async (params: {
 	character: CharacterRow;
 	user: UserRow;
 	geo: GeoResult;
 	status: Status;
+	ruleset: RulesetId;
 }): Promise<PresenceEntry> => {
 	const { character, user, geo, status } = params;
-	// the card shows the ruleset the player picked
-	const r = selectedRuleset(character);
+	const r = rulesetOfSlot(character, params.ruleset);
 	const [totals, profile] = await Promise.all([
 		getCharacterTotals(r, character.id), profileOf(r, character.id),
 	]);
@@ -72,6 +99,7 @@ const buildEntry = async (params: {
 	return {
 		characterId: character.id,
 		userId: user.id,
+		ruleset: r.def.id,
 		name: character.name,
 		avatarUrl: resolveAvatarUrl(character.avatarUrl, user.avatarUrl),
 		country: user.country,
@@ -90,7 +118,7 @@ const buildEntry = async (params: {
 /** The card of a player who isn't online: what their presence entry would say, without where they are. */
 export const offlineEntry = (character: CharacterRow, user: UserRow): Promise<PresenceEntry> =>
 	buildEntry({
-		character, user, geo: {}, status: STATUS.idle,
+		character, user, geo: {}, status: STATUS.idle, ruleset: character.ruleset,
 	});
 
 /** MakiseBot's card, always online though no socket holds it: kept out of the
@@ -102,7 +130,7 @@ const makiseBotEntry = (): Promise<PresenceEntry | undefined> => makiseBot ??= (
 		getCharacterById(MAKISEBOT_ID), getUserById(MAKISEBOT_USER_ID),
 	]);
 	return character && user && buildEntry({
-		character, user, geo: {}, status: STATUS.idle,
+		character, user, geo: {}, status: STATUS.idle, ruleset: character.ruleset,
 	});
 })().catch((e: unknown) => {
 	console.error('[presence] MakiseBot card failed', e);
@@ -110,26 +138,39 @@ const makiseBotEntry = (): Promise<PresenceEntry | undefined> => makiseBot ??= (
 	return undefined;
 });
 
-const store = (entry: PresenceEntry): Promise<unknown> =>
+const store = (slot: Slot, entry: PresenceEntry): Promise<unknown> =>
 	redis.multi()
-		.hset(PRESENCE_KEY, String(entry.characterId), JSON.stringify(entry))
-		.zadd(SEEN_KEY, Date.now(), String(entry.characterId))
+		.hset(PRESENCE_KEY, slot, JSON.stringify(entry))
+		.zadd(SEEN_KEY, Date.now(), slot)
 		.exec();
 
-const readEntry = async (characterId: number): Promise<PresenceEntry | undefined> => {
-	const v = await redis.hget(PRESENCE_KEY, String(characterId));
+const readEntry = async (slot: Slot): Promise<PresenceEntry | undefined> => {
+	const v = await redis.hget(PRESENCE_KEY, slot);
 	return v ? JSON.parse(v) as PresenceEntry : undefined;
 };
 
-/** The timezone of a connected player's location, if known. */
-export const presenceTimezone = async (characterId: number): Promise<string | undefined> =>
-	(await readEntry(characterId))?.tz;
+/** The listed slots of a character. */
+const listedSlots = async (characterId: number): Promise<Slot[]> =>
+	(await redis.hkeys(PRESENCE_KEY) as Slot[]).filter(slot => characterOfSlot(slot) === characterId);
 
-/** Which of these characters are connected, in order. */
+/** The timezone of a connected player's location, if known. */
+export const presenceTimezone = async (characterId: number): Promise<string | undefined> => {
+	for (const slot of await listedSlots(characterId)) {
+		const tz = (await readEntry(slot))?.tz;
+		if (tz) return tz;
+	}
+	return undefined;
+};
+
+/** Whether this slot is on the roster. */
+export const isListed = async (slot: Slot): Promise<boolean> =>
+	await redis.hexists(PRESENCE_KEY, slot) === 1;
+
+/** Which of these characters are online in any ruleset, in order. */
 export const areOnline = async (characterIds: number[]): Promise<boolean[]> => {
 	if (!characterIds.length) return [];
-	const found = await redis.hmget(PRESENCE_KEY, ...characterIds.map(String));
-	return found.map((v, i) => v !== null || characterIds[i] === MAKISEBOT_ID);
+	const listed = new Set((await redis.hkeys(PRESENCE_KEY) as Slot[]).map(characterOfSlot));
+	return characterIds.map(id => listed.has(id) || id === MAKISEBOT_ID);
 };
 
 /** Live count of connected players. */
@@ -149,16 +190,17 @@ const broadcastOnline = async (): Promise<void> =>
 
 /** Register a newly connected player and announce them. */
 export const join = async (params: {
+	slot: Slot;
 	character: CharacterRow;
 	user: UserRow;
 	geo: GeoResult;
 }): Promise<PresenceEntry> => {
 	const entry = await buildEntry({
-		...params, status: STATUS.idle,
+		...params, status: STATUS.idle, ruleset: parseSlot(params.slot).ruleset,
 	});
 	// a restricted account never shows as online
 	if (params.user.restrictedAt) return entry;
-	await store(entry);
+	await store(params.slot, entry);
 	hub.broadcast({
 		type: 'presence:add', entry,
 	});
@@ -166,60 +208,22 @@ export const join = async (params: {
 	return entry;
 };
 
-/**
- * Move a connected player's roster entry onto the character a rebirth just
- * created. The entry is keyed by character, so without this the old id stops
- * being touched and is swept, while the new one has nothing to update - the
- * player disappears from the overlay until they reconnect.
- *
- * The card is rebuilt rather than relabelled: it is a different character, with
- * its own name, level and rank. Where it is and what it is doing carry over.
- */
-export const rekey = async (params: {
-	fromId: number;
-	character: CharacterRow;
-	user: UserRow;
-}): Promise<void> => {
-	const previous = await readEntry(params.fromId);
-	if (!previous || params.user.restrictedAt) return;
-
+/** Drop a slot off the roster and announce it. */
+export const leave = async (slot: Slot): Promise<void> => {
 	await redis.multi()
-		.hdel(PRESENCE_KEY, String(params.fromId))
-		.zrem(SEEN_KEY, String(params.fromId))
+		.hdel(PRESENCE_KEY, slot)
+		.zrem(SEEN_KEY, slot)
 		.exec();
-
-	const entry = await buildEntry({
-		character: params.character,
-		user: params.user,
-		geo: {
-			loc: previous.loc, tz: previous.tz,
-		},
-		status: previous.status,
-	});
-	await store(entry);
+	const { characterId, ruleset } = parseSlot(slot);
 	hub.broadcast({
-		type: 'presence:remove', characterId: params.fromId,
-	});
-	hub.broadcast({
-		type: 'presence:add', entry,
-	});
-};
-
-/** Drop a disconnected player and announce it. */
-export const leave = async (characterId: number): Promise<void> => {
-	await redis.multi()
-		.hdel(PRESENCE_KEY, String(characterId))
-		.zrem(SEEN_KEY, String(characterId))
-		.exec();
-	hub.broadcast({
-		type: 'presence:remove', characterId,
+		type: 'presence:remove', characterId, ruleset,
 	});
 	await broadcastOnline();
 };
 
-/** Refresh a player's last-seen so the sweep doesn't prune them. */
-export const touch = (characterId: number): Promise<number> =>
-	redis.zadd(SEEN_KEY, Date.now(), String(characterId));
+/** Refresh a slot's last-seen so the sweep doesn't prune it. */
+export const touch = (slot: Slot): Promise<number> =>
+	redis.zadd(SEEN_KEY, Date.now(), slot);
 
 type Platform = 'web' | 'desktop';
 
@@ -278,27 +282,27 @@ export const adoptionBreakdown = async (): Promise<
 	})).sort((a, b) => compareVersions(b.version, a.version));
 };
 
-/** Patch a connected player's entry (status / now-playing) and announce it. No-op
- *  if they have no live entry (e.g. a play whose client never opened a socket). */
+/** Patch a slot's entry (status / now-playing) and announce it. No-op if it has
+ *  no live entry (e.g. a play whose client never opened a socket). */
 export const update = async (
-	characterId: number,
+	slot: Slot,
 	patch: Partial<Pick<PresenceEntry, 'status' | 'nowPlaying'>>,
 ): Promise<void> => {
-	const entry = await readEntry(characterId);
+	const entry = await readEntry(slot);
 	if (!entry) return;
 	const next = {
 		...entry, ...patch,
 	};
-	await redis.hset(PRESENCE_KEY, String(characterId), JSON.stringify(next));
+	await redis.hset(PRESENCE_KEY, slot, JSON.stringify(next));
 	hub.broadcast({
 		type: 'presence:update', entry: next,
 	});
 };
 
-/** Rebuild a connected player's card from their current row - a play moves its
- *  pp, accuracy, play count, level and rank - and announce it. No-op offline. */
-export const refresh = async (character: CharacterRow, user: UserRow): Promise<void> => {
-	const previous = await readEntry(character.id);
+/** Rebuild a listed slot's card from the character's current row - a play moves
+ *  its pp, accuracy, play count, level and rank - and announce it. */
+const refreshSlot = async (slot: Slot, character: CharacterRow, user: UserRow): Promise<void> => {
+	const previous = await readEntry(slot);
 	if (!previous) return;
 	const entry = await buildEntry({
 		character,
@@ -307,21 +311,37 @@ export const refresh = async (character: CharacterRow, user: UserRow): Promise<v
 			loc: previous.loc, tz: previous.tz,
 		},
 		status: previous.status,
+		ruleset: parseSlot(slot).ruleset,
 	});
 	if (previous.nowPlaying) entry.nowPlaying = previous.nowPlaying;
-	await redis.hset(PRESENCE_KEY, String(character.id), JSON.stringify(entry));
+	await redis.hset(PRESENCE_KEY, slot, JSON.stringify(entry));
 	hub.broadcast({
 		type: 'presence:update', entry,
 	});
 };
 
+/** Rebuild every listed card of a character. No-op offline. */
+export const refresh = async (character: CharacterRow, user: UserRow): Promise<void> => {
+	for (const slot of await listedSlots(character.id)) await refreshSlot(slot, character, user);
+};
+
+/** Every connected player's card rebuilt from their rows: the boards were rebuilt
+ *  under them (a score recalc moves every pp), and a card keeps the rank read at connect. */
+export const refreshAll = async (): Promise<void> => {
+	for (const slot of await redis.hkeys(PRESENCE_KEY) as Slot[]) {
+		const character = await getCharacterById(characterOfSlot(slot));
+		const user = character && await getUserById(character.userId);
+		if (character && user) await refreshSlot(slot, character, user);
+	}
+};
+
 /** Prune entries whose last-seen has expired (a worker died without a clean
  *  close). Runs periodically on every worker; the deletes are idempotent. */
 export const sweepPresence = async (
-	/** what becomes of a character whose client vanished without closing */
-	gone: (characterId: number) => Promise<void> = leave,
+	/** what becomes of a slot no client has been heard from */
+	gone: (slot: Slot) => Promise<void> = leave,
 ): Promise<void> => {
 	const cutoff = Date.now() - PRESENCE_TTL;
-	const stale = await redis.zrangebyscore(SEEN_KEY, '-inf', cutoff);
-	for (const id of stale) await gone(Number(id));
+	const stale = await redis.zrangebyscore(SEEN_KEY, '-inf', cutoff) as Slot[];
+	for (const slot of stale) await gone(slot);
 };

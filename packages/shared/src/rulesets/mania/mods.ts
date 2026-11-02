@@ -5,9 +5,12 @@ import {
 	Judgements,
 } from './judgement.js';
 
-/** The worst judgement a play survives (SD: anything but a miss, PF: marvelous). */
+/** The worst judgement a play survives (SD: anything but a miss, PF: perfect, JT: marvelous). */
 export const worstAllowed = (mods: readonly Mod[]): Judgement | undefined =>
-	mods.includes('PF') ? JUDGEMENT.MARVELOUS : mods.includes('SD') ? JUDGEMENT.BAD : undefined;
+	mods.includes('JT') ? JUDGEMENT.MARVELOUS
+		: mods.includes('PF') ? JUDGEMENT.PERFECT
+			: mods.includes('SD') ? JUDGEMENT.BAD
+				: undefined;
 
 /** Whether `judgement` fails a play held to `worst`. */
 export const failsOn = (judgement: Judgement, worst: Judgement | undefined): boolean =>

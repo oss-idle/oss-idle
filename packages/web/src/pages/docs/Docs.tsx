@@ -74,7 +74,7 @@ const savedLanguage = (): Language => {
 	}
 };
 
-/** The public API reference, after osu!'s (osu.ppy.sh/docs): English only, not sent to Crowdin. */
+/** The public API reference, after osu!'s (osu.ppy.sh/docs): English only, not sent for translation. */
 export default function Docs() {
 	const api = API_URL || window.location.origin;
 	const site = window.location.origin;

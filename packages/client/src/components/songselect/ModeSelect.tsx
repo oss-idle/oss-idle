@@ -8,10 +8,15 @@ import {
 	variantName,
 } from '@oss-idle/shared/rulesets/display';
 import {
+	type OsuMode,
 	type RulesetId,
 	RULESETS,
 } from '@oss-idle/shared/rulesets/ids';
 
+import {
+	type UiSound,
+	uiSound,
+} from '../../audio/uiSounds';
 import Entities from '../../entity/entities';
 import useKeyboardOwner from '../../input/keyboardOwner';
 import Account from '../../online/account';
@@ -29,6 +34,12 @@ const MODES = Map.groupBy(ENABLED_RULESETS, id => RULESETS[id].mode as RulesetMo
 
 /** osu!'s mode menu: the modes stacked above the Mode button, the first on top. A mode
  *  of several rulesets splits into its variants on hover. */
+/** osu!'s ruleset sounds, by the osu! ruleset each one plays */
+const RULESET_SOUND: Partial<Record<OsuMode, UiSound>> = {
+	osu: 'ui/ruleset-select-osu',
+	mania: 'ui/ruleset-select-mania',
+};
+
 export default function ModeSelect({ anchor, onClose }: {
 	anchor: DOMRect,
 	onClose: () => void,
@@ -42,7 +53,10 @@ export default function ModeSelect({ anchor, onClose }: {
 
 	const pick = (id: RulesetId) => {
 		onClose();
-		if (id !== current) void pickRuleset(id);
+		if (id === current) return;
+		const sound = RULESET_SOUND[RULESETS[id].mode];
+		if (sound) uiSound(sound);
+		void pickRuleset(id);
 	};
 
 	return (

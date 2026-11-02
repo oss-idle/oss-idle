@@ -13,7 +13,7 @@ import {
 } from '@oss-idle/shared/rebirth';
 import {
 	canRebirth,
-	REBIRTH_MIN_OVERALL_LEVEL,
+	rebirthMinLevel,
 } from '@oss-idle/shared/upgrades';
 
 import Entities from '../../entity/entities';
@@ -35,7 +35,9 @@ export default function RebirthView() {
 	const lineage = useAsync(listCharacters, [character.id]);
 	// only the newest generation goes on: the ones behind it stay as they are
 	const reborn = lineage?.some(c => c.generation > generation) ?? false;
-	const ready = character.id !== 0 && !reborn && canRebirth(character.overallLevel) && !!name.trim();
+	const overall = character.overallLifetimeLevel();
+	const required = rebirthMinLevel(generation);
+	const ready = character.id !== 0 && !reborn && canRebirth(overall, generation) && !!name.trim();
 
 	const run = async () => {
 		if (busy) return;
@@ -66,7 +68,7 @@ export default function RebirthView() {
 		<div className="upgrades">
 			<p className="upgrades__hint">
 				<Trans>
-					After reaching overall Lv{REBIRTH_MIN_OVERALL_LEVEL} you can start over
+					After reaching overall Lv{required} you can start over
 					with a new character one generation up, which permanently unlocks a new
 					feature. Everything you have now stays available: the old character
 					remains playable, keeps its levels, and stays on the leaderboards. Pick
@@ -80,7 +82,7 @@ export default function RebirthView() {
 					<Trans>Generation {generation}</Trans>
 				</span>
 				<span>
-					<Trans>Overall Lv{ph({ level: character.overallLevel })} / {ph({ required: REBIRTH_MIN_OVERALL_LEVEL })}</Trans>
+					<Trans>Overall Lv{ph({ level: overall })} / {ph({ required })}</Trans>
 				</span>
 				<span>
 					{owned.length > 0
@@ -107,9 +109,9 @@ export default function RebirthView() {
 				>
 					{reborn
 						? <Trans>Already reborn with this character</Trans>
-						: canRebirth(character.overallLevel)
+						: canRebirth(overall, generation)
 							? <Trans>Rebirth</Trans>
-							: <Trans>Requires overall Lv{REBIRTH_MIN_OVERALL_LEVEL}</Trans>}
+							: <Trans>Requires overall Lv{required}</Trans>}
 				</button>
 			</div>
 

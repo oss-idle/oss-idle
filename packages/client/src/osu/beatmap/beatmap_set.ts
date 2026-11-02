@@ -31,18 +31,15 @@ export default class BeatmapSet {
 		return BeatmapAPI.downloadOsz(metadata);				
 	}
 
-	private _beatmaps?: Promise<Record<number, Beatmap>>;
-	get beatmaps(): Promise<Record<number, Beatmap>> {
-		return this._beatmaps ??= this.getRecord().then(r => Object.entries(r.osu)
-			.reduce((set, [id, text]) => {
-				const beatmap = (new BeatmapDecoder()).decodeFromString(text);
-				// the catalog's ids, over whatever an older stored file says
-				beatmap.metadata.beatmapId = Number(id);
-				beatmap.metadata.beatmapSetId = this.id;
-				set[Number(id)] = beatmap;
-				return set;
-			}, {} as Record<number, Beatmap>),
-		);
+	/** One difficulty, parsed: a set's other difficulties are not read. */
+	public async beatmap(id: number): Promise<Beatmap | undefined> {
+		const text = (await this.getRecord()).osu[id];
+		if (text === undefined) return undefined;
+		const beatmap = new BeatmapDecoder().decodeFromString(text);
+		// the catalog's ids, over whatever an older stored file says
+		beatmap.metadata.beatmapId = id;
+		beatmap.metadata.beatmapSetId = this.id;
+		return beatmap;
 	}
 
 	public static async getIntro(): Promise<LightBeatmapSet> {

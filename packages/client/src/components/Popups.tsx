@@ -6,10 +6,25 @@ import {
 	useState,
 } from 'react';
 
-import type { Popup } from '@oss-idle/shared/helpers/log';
+import type {
+	Popup,
+	PopupType,
+} from '@oss-idle/shared/helpers/log';
 import Log from '@oss-idle/shared/helpers/log';
 
+import {
+	type UiSound,
+	uiSound,
+} from '../audio/uiSounds';
+
 // how long a popup lingers before it starts sliding away
+/** chat popups bring their own sound: the mention ping, or a message's */
+const SOUNDS: Partial<Record<PopupType, UiSound>> = {
+	good: 'ui/notification-done',
+	bad: 'ui/notification-error',
+	neutral: 'ui/notification-default',
+};
+
 const HOLD_MS = 4000;
 const ERROR_HOLD_MD = 30000;
 // must match the exit transition in Popups.css
@@ -33,6 +48,8 @@ export default function Popups() {
 
 	useEffect(() => {
 		return Log.listeners.popup.on((popup) => {
+			const sound = SOUNDS[popup.type];
+			if (sound) uiSound(sound);
 			setPopups((cur) => [...cur, {
 				...popup, leaving: false, 
 			}]);

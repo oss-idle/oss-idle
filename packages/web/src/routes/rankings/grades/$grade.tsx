@@ -17,8 +17,8 @@ export const Route = createFileRoute('/rankings/grades/$grade')({
 	validateSearch: zodValidator(pageCountrySearch),
 	loaderDeps: ({ search }) => search,
 	loader: ({ params, deps }) => deps.country
-		? getCountryGradesRanking(params.grade as Grade, deps.country, deps.page, deps.friends)
-		: getGradesRanking(params.grade as Grade, deps.page, deps.friends),
+		? getCountryGradesRanking(params.grade as Grade, deps.country, deps.page, deps)
+		: getGradesRanking(params.grade as Grade, deps.page, deps),
 	component: GradesRoute,
 	staticData: { title: msg`rankings` },
 });

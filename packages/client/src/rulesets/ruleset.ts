@@ -1,5 +1,6 @@
 import type { Beatmap } from 'osu-classes';
 
+import type { GlyphName } from '@oss-idle/shared/achievements/glyphs';
 import type { Mod } from '@oss-idle/shared/mods';
 import type { SkillGain } from '@oss-idle/shared/play';
 import type { Bot } from '@oss-idle/shared/rulesets/mania/bot';
@@ -27,6 +28,8 @@ export type FinishedPlay = {
 	divine: boolean,
 	/** the debug xp scaling */
 	multiplier: number,
+	/** each skill's xp scaling from the character's genetics */
+	genetics?: Readonly<Record<string, number>>,
 };
 
 /** The bot a character plays a map with: its strain feeds the HUD, its play pays out. */
@@ -46,10 +49,32 @@ export type ManiaPlayer = {
 	strainGauges(): { skill: string, label: string }[],
 };
 
+/** A gene's name, and what it does at `n` (its tier times its tree's strength). */
+export type GeneText = { name: () => string, does: (n: number) => string };
+
+export type QuizAnswer = {
+	skill: string,
+	text: () => string,
+	/** why it points there, said back on the result */
+	because: () => string,
+};
+export type QuizQuestion = { ask: () => string, answers: QuizAnswer[] };
+
+/** What a ruleset shows of its genetics, in its own words: each ruleset's trees differ. */
+export type ClientGenetics = {
+	genes: Record<string, GeneText>,
+	/** everyday questions, each answer pointing at a skill */
+	quiz: QuizQuestion[],
+	/** each skill in a few plain words */
+	pitch: Record<string, () => string>,
+	glyph: Record<string, GlyphName>,
+};
+
 /** A ruleset on the client: its def, and what it does here beyond it. */
 export type ClientRuleset = {
 	def: RulesetDef,
 	progression?: ClientProgression,
+	genetics?: ClientGenetics,
 	/** its local play, when this device plays it */
 	player?: () => Promise<ManiaPlayer>,
 };

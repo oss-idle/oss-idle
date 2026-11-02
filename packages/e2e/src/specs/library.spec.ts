@@ -52,7 +52,8 @@ test.describe('library', () => {
 
 		await game.enterSongSelect();
 		await game.search(title);
-		await game.selectCard(diffId);
+		// the only result is selected on its own: another click would play it
+		await expect(game.card(diffId)).toHaveClass(/is-active/, { timeout: 30_000 });
 		const tab = async (name: string) => {
 			await page.locator('.lb__select .dropdown__current').click();
 			await page.locator('.lb__select .dropdown__option', { hasText: name }).click();

@@ -10,6 +10,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import PrestigeView from '../components/character/PrestigeView';
 import RebirthView from '../components/character/RebirthView';
+import GeneticsView from '../components/genetics/GeneticsView';
 import Page from '../components/page/Page';
 import SkillsView from '../components/skills/SkillsView';
 import UpgradesView from '../components/upgrades/UpgradesView';
@@ -21,7 +22,7 @@ import {
 } from '../rulesets/registry';
 
 /** The character page: the skills, then the three progression loops, one per tab. */
-export default function Character() {
+export default function Character({ tab = 'upgrades' }: { tab?: string }) {
 	const { t } = useLingui();
 	const [character] = useSynced(Entities.character);
 	const [ruleset] = useSynced(selectedRuleset);
@@ -30,8 +31,14 @@ export default function Character() {
 		<Page
 			title={<Trans>Character</Trans>}
 			onBack={() => openPage.set(undefined)}
-			initialTab="upgrades"
+			initialTab={tab}
 			tabs={[
+				...rulesetDef(ruleset).genetics ? [{
+					id: 'genetics',
+					label: <Trans>Genetics</Trans>,
+					subtitle: t`What your character was born good at, kept through prestige`,
+					render: () => <GeneticsView character={character} />,
+				}] : [],
 				{
 					id: 'skills',
 					label: <Trans>Skills</Trans>,

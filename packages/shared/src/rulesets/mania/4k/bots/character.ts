@@ -622,14 +622,15 @@ export default class CharacterBot extends Bot {
 		/** debug xp scaling for local plays; the server scales its own */
 		xpMultiplier: number = 1,
 		mods: readonly Mod[] = [],
+		/** each skill's own scaling */
+		perSkill: Readonly<Record<string, number>> = {},
 	): SkillProgress[] {
 		if (this.progression) return this.progression;
 
 		const xp = modXp(this.getSkillsXP(length, score), mods);
-		if (xpMultiplier > 1) {
-			for (const name of Object.keys(xp) as SkillName[]) {
-				xp[name] = Math.floor(xp[name] * xpMultiplier);
-			}
+		for (const name of Object.keys(xp) as SkillName[]) {
+			const factor = Math.max(1, xpMultiplier) * (perSkill[name] ?? 1);
+			if (factor !== 1) xp[name] = Math.floor(xp[name] * factor);
 		}
 		this.progression = this.skills.map((skill) => {
 			const gained = xp[skill.name];

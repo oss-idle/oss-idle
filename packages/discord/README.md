@@ -11,14 +11,19 @@ reaches them and deleted once nobody holds them.
 Linked team members also get their group's role (`Administrators`, `Global
 Moderation Team`) and supporters a `Supporter` one, in the site's colours. They
 sit right above the level roles so their colour wins, but aren't hoisted, so the
-member list still groups by level. The bot makes them on start and takes them
+member list still groups by level. Any other role found among them or the level
+roles (like the map ping roles) is moved under the level roles; a role placed above
+the whole block stays there. The bot makes them on start and takes them
 from anyone it doesn't find in the group or with an active tag. `Global
 Moderation Team` also carries moderation permissions (kick, ban, timeout,
 manage messages/threads/nicknames, voice mute/deafen/move, audit log) but not
-*Manage Roles*, so moderators can't hand out levels or Supporter.
+*Manage Roles*, so moderators can't hand out levels or Supporter. A supporter who ticks the
+option under *Link Discord account* gets `Supporter (level colour)` instead, a role with no
+colour, so their level's colour shows.
 
 It also sets each linked member's server nickname to their current character's
-name (not the owner's, or anyone ranked above the bot: Discord forbids it).
+name (not the owner's, or anyone ranked above the bot: Discord forbids it), followed by ` ♥`
+for a supporter when it fits Discord's 32 characters. Role icons would need more server boosts.
 
 - **Live:** it listens to the server's socket hub on Redis, so a play, a rebirth
   or a fresh link moves the roles at once. A full pass every 15 minutes and on

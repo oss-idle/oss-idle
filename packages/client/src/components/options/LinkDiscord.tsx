@@ -9,6 +9,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 import Auth from '../../online/auth';
 import { rpc } from '../../online/client';
 import Button from './controls/Button';
+import DiscordLevelColour from './DiscordLevelColour';
 
 const discordLink = async () => {
 	const res = await rpc.v1.auth.discord.$get();
@@ -18,13 +19,14 @@ const discordLink = async () => {
 /** Links the account's Discord, for the level role on the oss!idle server. */
 export default function LinkDiscord() {
 	const [user] = useSynced(Auth.user);
-	const [linked, setLinked] = useState<boolean>();
+	const [state, setState] = useState<Awaited<ReturnType<typeof discordLink>>>();
 
 	useEffect(() => {
-		if (user) void discordLink().then(link => setLinked(link?.linked));
+		if (user) void discordLink().then(setState);
 	}, [user]);
 
-	if (!user || linked === undefined) return <></>;
+	if (!user || !state) return <></>;
+	const { linked, levelColour } = state;
 
 	// A fresh URL per click: its state is single-use and short-lived.
 	const open = async () => {
@@ -33,10 +35,13 @@ export default function LinkDiscord() {
 	};
 
 	return (
-		<Button
-			label={linked ? <Trans>Relink Discord account</Trans> : <Trans>Link Discord account</Trans>}
-			accent="#5865f2"
-			onClick={() => void open()}
-		/>
+		<>
+			<Button
+				label={linked ? <Trans>Relink Discord account</Trans> : <Trans>Link Discord account</Trans>}
+				accent="#5865f2"
+				onClick={() => void open()}
+			/>
+			{linked && user.supporter && <DiscordLevelColour initial={levelColour} />}
+		</>
 	);
 }

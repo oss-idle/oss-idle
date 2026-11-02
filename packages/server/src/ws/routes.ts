@@ -4,7 +4,6 @@ import {
 	createNodeWebSocket,
 	type NodeWebSocket,
 } from '@hono/node-ws';
-import { eq } from 'drizzle-orm';
 import type { Hono } from 'hono';
 import type { Context } from 'hono';
 import { getCookie } from 'hono/cookie';
@@ -20,17 +19,15 @@ import { VERSION } from '@oss-idle/shared/version';
 import { verifySession } from '../auth/jwt';
 import { SESSION_COOKIE } from '../auth/middleware';
 import { characterDTOOf } from '../character/dto';
-import { db } from '../db/client';
 import {
 	type CharacterRow,
-	characters,
 	currentCharacterOf,
+	getCharacterById,
 } from '../db/schema/character';
 import type { UserRow } from '../db/schema/user';
 import {
 	clientUrl,
 	isProd,
-	redisKeyPrefix,
 } from '../env';
 import {
 	clientIp,
@@ -52,6 +49,12 @@ import {
 } from '../queue';
 import { redis } from '../redis';
 import { selectedRuleset } from '../rulesets/registry';
+import {
+	characterOfSlot,
+	parseSlot,
+	type Slot,
+	watchedSlot,
+} from '../slot';
 import { touchActive } from '../social';
 import {
 	chatHistory,
@@ -71,8 +74,10 @@ import {
 } from './play';
 import { handlePm } from './pm';
 import {
-	areOnline,
+	isListed,
 	join,
+	NEWEST_TTL_S,
+	newestKey,
 	presenceSnapshot,
 	recordAdoption,
 	touch,
@@ -83,10 +88,6 @@ import { handleQueue } from './queue';
 /** How often a live connection refreshes its presence last-seen (well under the
  *  sweep TTL) so a clean session is never pruned. */
 const TOUCH_MS = 30 * 1000;
-
-/** The account's newest socket, on any worker. A reconnect can land on another
- *  worker before the old socket's close: that close must not take it offline. */
-const newestKey = (userId: number) => `${redisKeyPrefix}ws:newest:${userId}`;
 
 /** The newest socket's id, forgotten when it is this one. */
 const FORGET_NEWEST = `local v = redis.call('get', KEYS[1])
@@ -108,29 +109,32 @@ const wsToken = (c: Context): string | undefined => {
 	return cookie ?? c.req.query('token');
 };
 
-/** Put a character on the roster. join() resets status to idle, so a live play
- *  is restored as `playing`. */
-const enter = async (character: CharacterRow, user: UserRow, geo: GeoResult): Promise<void> => {
+/** Put the slot a socket watches on the roster. join() resets status to idle, so a
+ *  live play is restored as `playing`. */
+const enter = async (
+	slot: Slot, character: CharacterRow, user: UserRow, geo: GeoResult,
+): Promise<void> => {
 	await join({
-		character, user, geo,
+		slot, character, user, geo,
 	});
-	const live = await livePlayPresence(character.id);
-	if (live) await update(character.id, live);
+	const live = await livePlayPresence(slot);
+	if (live) await update(slot, live);
 };
 
-/** Refresh a connection's last-seen. The roster entry is per character, so
- *  another of its sockets closing - elsewhere in the cluster too - takes it away
- *  from this one; put it back. */
-const heartbeat = async (characterId: number, userId: number, geo: GeoResult): Promise<void> => {
+/** Refresh a connection's last-seen. The roster entry is per slot, so another of
+ *  its sockets closing - elsewhere in the cluster too - takes it away from this
+ *  one; put it back. */
+const heartbeat = async (slot: Slot, userId: number, geo: GeoResult): Promise<void> => {
 	void touchActive(userId);
-	void comeBack(characterId);
-	const [listed] = await areOnline([characterId]);
-	if (listed) {
-		await touch(characterId);
+	void redis.expire(newestKey(userId), NEWEST_TTL_S);
+	void comeBack(slot);
+	if (await isListed(slot)) {
+		await touch(slot);
 		return;
 	}
 	const now = await currentCharacterOf(userId);
-	if (now && !now.user.restrictedAt) await enter(now.character, now.user, geo);
+	if (!now || now.user.restrictedAt) return;
+	await enter(watchedSlot(now.character), now.character, now.user, geo);
 };
 
 /**
@@ -173,10 +177,10 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 		let scores: MatchFeed | undefined;
 		const conn = randomUUID();
 
-		// The account's character can change under a live socket - a rebirth parked
-		// during a play applies when it ends - and the hub is what knows where the
-		// socket belongs now, so everything addressed by id reads that.
-		const bound = (ws: WSContext) => hub.ownerOf(ws) ?? character.id;
+		// The socket watches the slot it connected as; a switch of character or
+		// ruleset reconnects. The hub is what knows where it belongs.
+		const slot = watchedSlot(character);
+		const bound = (ws: WSContext) => hub.ownerOf(ws) ?? slot;
 		// Anything about the character itself - its name - is read when it is
 		// needed. The row captured at connect stops being true the moment the
 		// account rebirths or renames, and holding it against any one of those
@@ -187,13 +191,13 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 		return {
 			onOpen: async (_e, ws) => {
 				count('activity', 'sockets');
-				hub.add(character.id, ws);
-				await redis.set(newestKey(userId), conn, 'EX', 86_400);
-				await comeBack(character.id);
+				hub.add(slot, ws);
+				await redis.set(newestKey(userId), conn, 'EX', NEWEST_TTL_S);
+				await comeBack(slot);
 				feed = new PlayFeed(() => bound(ws), ws);
-				scores = new MatchFeed(() => bound(ws), ws);
+				scores = new MatchFeed(() => characterOfSlot(bound(ws)), ws);
 				// join() broadcasts our entry; the snapshot below already includes it.
-				await enter(character, user, geo);
+				await enter(slot, character, user, geo);
 				hub.sendLocal(ws, {
 					type: 'presence:init', entries: await presenceSnapshot(),
 				});
@@ -212,9 +216,9 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 				});
 				// what (if anything) the character is playing, for resume/spectate
 				hub.sendLocal(ws, {
-					type: 'play:state', state: await playState(character.id),
+					type: 'play:state', state: await playState(slot),
 				});
-				const queue = await queueState(character.id);
+				const queue = await queueState(slot);
 				if (queue) {
 					hub.sendLocal(ws, {
 						type: 'queue:state', state: queue,
@@ -244,15 +248,15 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 				const features: [string, () => Promise<boolean>][] = [
 					['play', async () => !!feed && handlePlay(msg, {
 						character,
-						characterId: bound(ws),
+						slot: bound(ws),
 						ws,
 						feed,
 						// the row *is* the simulation's input: levels, upgrades and
 						// overdrive as they are now, not as they were at connect
-						freshCharacter: async () => (await currentCharacterOf(userId))?.character,
+						freshCharacter: () => getCharacterById(characterOfSlot(bound(ws))),
 					})],
 					['queue', () => handleQueue(msg, bound(ws), ws)],
-					['mp', () => handleMultiplayer(msg, bound(ws), ws, scores)],
+					['mp', () => handleMultiplayer(msg, characterOfSlot(bound(ws)), ws, scores)],
 					['react', async () => {
 						if (msg.type !== 'chat:react') return false;
 						await handleReact((await currentRow()).id, user.id, msg.channel, msg.id, msg.emoji, msg.on);
@@ -263,7 +267,7 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 					try {
 						if (await handle()) return;
 					} catch (e) {
-						console.error(`[${tag}]`, msg.type, 'failed for', character.id, e);
+						console.error(`[${tag}]`, msg.type, 'failed for', slot, e);
 						return;
 					}
 				}
@@ -289,13 +293,11 @@ export const registerWs = (app: Hono): Pick<NodeWebSocket, 'injectWebSocket'> =>
 					const id = bound(ws);
 					if (!(await isPlaying(id))) await update(id, { status: msg.status });
 				} else if (msg.type === 'medals:check') {
-					const id = bound(ws);
-					const [row] = await db.select({ ruleset: characters.ruleset })
-						.from(characters).where(eq(characters.id, id)).limit(1);
-					if (row) await pushMedals(selectedRuleset(row), id);
+					const { characterId, ruleset } = parseSlot(bound(ws));
+					await pushMedals(selectedRuleset({ ruleset }), characterId);
 				} else if (msg.type === 'version') {
 					hub.noteVersion(ws, msg.version);
-					await recordAdoption(bound(ws), msg.version, msg.platform);
+					await recordAdoption(characterOfSlot(bound(ws)), msg.version, msg.platform);
 				}
 			},
 			onClose: (_e, ws) => {

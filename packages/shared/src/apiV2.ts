@@ -113,6 +113,7 @@ export type ApiBeatmapset = {
 	status: ApiBeatmapStatus,
 	ranked_date?: string,
 	submitted_date?: string,
+	favourite_count: number,
 	covers: { cover?: string },
 	url: string,
 	beatmaps?: ApiBeatmap[],

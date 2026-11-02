@@ -7,7 +7,10 @@ import {
 } from 'drizzle-orm';
 
 import { db } from '../db/client';
-import { profilePage } from '../db/profilePage';
+import {
+	MAP_PAGE,
+	profilePage,
+} from '../db/profilePage';
 import { beatmaps } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
 import type { ServerRuleset } from '../rulesets/ruleset';
@@ -55,4 +58,4 @@ export const getMapped = (r: ServerRuleset, userId: number, status: MappedStatus
 		.groupBy(beatmapset.id)
 		.orderBy(desc(listedAt(r)), desc(beatmapset.id))
 		.offset(offset)
-		.limit(limit));
+		.limit(limit), MAP_PAGE);

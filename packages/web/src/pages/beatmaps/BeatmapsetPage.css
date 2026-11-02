@@ -123,6 +123,11 @@
 	font-size: 12px;
 }
 
+.mapset__counts {
+	display: flex;
+	gap: 12px;
+}
+
 .mapset__plays {
 	color: hsl(var(--hsl-c2));
 	font-size: 13px;
@@ -157,6 +162,21 @@
 	background-color: var(--pink);
 	color: hsl(var(--hsl-c1));
 	font-weight: 700;
+}
+
+.mapset__button--square {
+	padding: 8px 12px;
+}
+
+/* osu!web's heart: outlined, filled once favourited */
+.mapset__button--square svg path {
+	fill: transparent;
+	stroke: currentColor;
+	stroke-width: 48px;
+}
+
+.mapset__button--square.is-favourited svg path {
+	fill: currentColor;
 }
 
 .mapset__side {

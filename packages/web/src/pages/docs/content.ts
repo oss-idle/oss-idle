@@ -1,12 +1,15 @@
 import { STRAIN_CAP } from '@oss-idle/shared/fatigue';
-import { Mods } from '@oss-idle/shared/mods';
+import {
+	Mods,
+	modsFor,
+} from '@oss-idle/shared/mods';
 import { MATCH_EVENT } from '@oss-idle/shared/multiplayer';
 import type { Scope } from '@oss-idle/shared/oauth';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 
 import { rulesetDef } from '../../rulesets';
 
-/** The API reference, in English only like osu!'s: not sent to Crowdin. */
+/** The API reference, in English only like osu!'s: not sent for translation. */
 
 export type Param = {
 	name: string;
@@ -120,6 +123,7 @@ const BEATMAPSET = {
 	status: 'ranked',
 	ranked_date: '2026-06-16T16:01:42.000Z',
 	submitted_date: '2026-06-22T10:05:56.000Z',
+	favourite_count: 12,
 	covers: { cover: 'https://assets.ppy.sh/beatmaps/1300539/covers/cover.jpg' },
 	url: 'https://oss.idle.rhythmgamers.net/web/maps/1300539',
 };
@@ -459,7 +463,7 @@ export const ENDPOINTS: EndpointSection[] = [
 					},
 					{
 						name: 'mods', type: 'string[]', optional: true,
-						about: `Any of ${Mods.join(', ')}. NF plays earn no pp and no xp.`,
+						about: `Any of ${modsFor(Mods, 'mania4k').join(', ')}. NF plays earn no pp and no xp.`,
 					},
 					{
 						name: 'generation', type: 'integer', optional: true,
@@ -658,6 +662,7 @@ export const OBJECTS: ObjectDoc[] = [
 			['status', 'string', 'ranked or loved (a loved map gives no pp).'],
 			['ranked_date', 'Timestamp', ''],
 			['submitted_date', 'Timestamp', ''],
+			['favourite_count', 'integer', 'Players who favourited it.'],
 			['covers', 'object', 'cover: the cover image.'],
 			['url', 'string', 'Its page on oss!idle.'],
 			['beatmaps', 'Beatmap[]', 'On Get Beatmapset.'],

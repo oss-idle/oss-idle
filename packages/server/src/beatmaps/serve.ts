@@ -39,7 +39,8 @@ export const oszResponse = async (
 			'Content-Type': 'application/octet-stream',
 			'Content-Length': String(buf.length),
 			'Content-Disposition': `attachment; filename="${setId}.osz"`,
-			'Cache-Control': IMMUTABLE,
+			// a re-upload replaces it under the same URL
+			'Cache-Control': 'no-store',
 			...headers,
 		},
 	});

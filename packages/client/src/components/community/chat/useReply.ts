@@ -1,5 +1,6 @@
 import {
 	type RefObject,
+	useCallback,
 	useState,
 } from 'react';
 
@@ -18,13 +19,13 @@ export default function useReply(
 ) {
 	const [target, setTarget] = useState<ReplyTarget>();
 
-	const start = (line: Line) => {
+	const start = useCallback((line: Line) => {
 		if (!line.name) return;
 		setTarget({
 			id: line.id, name: line.name, color: line.fromColor, text: line.text,
 		});
 		inputRef.current?.focus();
-	};
+	}, [inputRef]);
 	const cancel = () => setTarget(undefined);
 
 	/** What to send and the line it answers; a /command goes as it is. */
@@ -48,7 +49,7 @@ export default function useReply(
 	const inLog = (id: string) => lines.some(l => l.id === id);
 
 	/** The answered line, brought into view and lit for a moment. */
-	const jump = (id: string) => {
+	const jump = useCallback((id: string) => {
 		const row = logRef.current?.querySelector<HTMLElement>(`[data-line="${CSS.escape(id)}"]`);
 		if (!row) return;
 		row.scrollIntoView({
@@ -57,7 +58,7 @@ export default function useReply(
 		row.classList.remove('is-flash');
 		void row.offsetWidth;
 		row.classList.add('is-flash');
-	};
+	}, [logRef]);
 
 	return {
 		target, start, cancel, send, onKeyDown, inLog, jump,

@@ -1,4 +1,5 @@
 import type { Group } from '@oss-idle/shared/groups';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	rpc,
@@ -15,6 +16,12 @@ export const addToGroup = (group: Group, userId: number) =>
 		param: {
 			group, userId: String(userId),
 		},
+	}));
+
+/** Admin: the rulesets a Beatmap Nominator ranks maps in. */
+export const setNominates = (userId: number, rulesets: RulesetId[]) =>
+	unwrap(rpc.v1.team.bn[':userId'].rulesets.$put({
+		param: { userId: String(userId) }, json: { rulesets },
 	}));
 
 export const removeFromGroup = (group: Group, userId: number) =>

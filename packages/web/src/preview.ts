@@ -11,6 +11,17 @@ export type Preview = {
 
 export const preview = new Synced<Preview | undefined>(undefined);
 
+/** Tells the game around the in-game browser, which mutes its music meanwhile. */
+export type PreviewMessage = { type: 'oss-idle:preview', playing: boolean };
+
+void preview.sync(p => {
+	if (window.parent === window) return;
+	const message: PreviewMessage = {
+		type: 'oss-idle:preview', playing: !!p && p.state !== 'paused',
+	};
+	window.parent.postMessage(message, location.origin);
+});
+
 export type Volume = { level: number, muted: boolean };
 
 const VOLUME_KEY = 'oss-idle:audio-volume';

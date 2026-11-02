@@ -8,6 +8,7 @@ import {
 	SortOption,
 	SortOptions,
 } from '../../db/settings';
+import { type ItemStatus } from '../../osu/beatmap/grouping';
 import LightBeatmap from '../../osu/beatmap/LightBeatmap';
 import Dropdown from '../dropdown/Dropdown';
 import BeatmapInfo from './BeatmapInfo';
@@ -47,12 +48,14 @@ const SORT_OPTIONS = SortOptions.map((v) => ({
  *  sort/group dropdowns. Empty (just the shape) until something is selected. */
 export default function TopBar({ 
 	version, 
+	status,
 	scrollSpeed,
 	scoreView, 
 	setScoreView, 
 	compact = false,
 }: {
 	version: LightBeatmap | undefined;
+	status: ItemStatus | undefined;
 	scrollSpeed: number;
 	scoreView: boolean;
 	setScoreView: (v: boolean) => void;
@@ -109,6 +112,7 @@ export default function TopBar({
 			{version && (<>
 				<BeatmapInfo
 					version={version}
+					status={status}
 					scoreView={scoreView}
 					setScoreView={setScoreView}
 				/>

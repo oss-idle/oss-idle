@@ -3,6 +3,7 @@ import type { ZodError } from 'zod';
 import {
 	type ClientStatus,
 	type PresenceEntry,
+	presenceKey,
 } from '@oss-idle/shared/community/presence';
 import {
 	type ChatLine,
@@ -75,10 +76,20 @@ export default class Socket {
 		if (this.started) return;
 		this.started = true;
 
-		// Connect only once the session is resolved to a real account character.
+		// Connect only once the session is resolved to a real account character. The
+		// server binds the socket to the character and ruleset it connects as, so
+		// watching another one reconnects.
+		let watched: string | undefined;
 		void Synced.all([Account.character, Account.resolved], ([character, resolved]) => {
-			if (resolved && character) this.open();
-			else this.close();
+			if (!resolved || !character) {
+				watched = undefined;
+				this.close();
+				return;
+			}
+			const slot = `${character.id}:${character.ruleset}`;
+			if (watched !== undefined && watched !== slot) this.drop();
+			watched = slot;
+			this.open();
 		});
 
 		this.watchActivity();
@@ -203,6 +214,16 @@ export default class Socket {
 		ws.onerror = () => ws.close();
 	}
 
+	/** Close the socket to open another straight away. */
+	private static drop(): void {
+		const ws = this.ws;
+		this.ws = undefined;
+		if (!ws) return;
+		ws.onclose = null;
+		ws.close();
+		this.connected.set(false);
+	}
+
 	private static close(): void {
 		this.wanted = false;
 		clearTimeout(this.reconnectTimer);
@@ -244,14 +265,12 @@ export default class Socket {
 				break;
 			case 'presence:add':
 			case 'presence:update': {
-				const rest = this.presence.get().filter(p => p.characterId !== msg.entry.characterId);
+				const rest = this.presence.get().filter(p => presenceKey(p) !== presenceKey(msg.entry));
 				void this.presence.set([...rest, msg.entry]);
 				break;
 			}
 			case 'presence:remove':
-				void this.presence.set(
-					this.presence.get().filter(p => p.characterId !== msg.characterId),
-				);
+				void this.presence.set(this.presence.get().filter(p => presenceKey(p) !== presenceKey(msg)));
 				break;
 			case 'online':
 				void this.online.set(msg.count);

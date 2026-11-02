@@ -37,6 +37,12 @@ export type SimPlay<S extends string> = {
 	warm: number,
 	/** the character's plays of the map, for memory */
 	plays: number,
+	/** the genes the character holds, each at its tier times its tree's strength */
+	genes?: Readonly<Record<string, number>>,
+	/** `plays` with the genes counted in: `plays` is what XP reads */
+	recall?: number,
+	/** every time the map was played, nothing faded */
+	tries?: number,
 };
 
 /** What a whole play is simulated from ({@link ManiaSim.play}). */

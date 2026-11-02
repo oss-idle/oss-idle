@@ -14,14 +14,15 @@ export type Recipient = {
 };
 
 /** Who the tag is for: yourself, or a player you gift it to. */
-export default function RecipientPicker({ self, recipient, onChange }: {
+export default function RecipientPicker({ self, recipient, onChange, name, onNameChange }: {
 	self: Recipient;
 	recipient: Recipient | undefined;
 	onChange: (recipient: Recipient | undefined) => void;
+	name: string;
+	onNameChange: (name: string) => void;
 }) {
 	const { t } = useLingui();
 	const [searching, setSearching] = useState(false);
-	const [name, setName] = useState('');
 	const [error, setError] = useState<string>();
 	const shown = recipient ?? self;
 
@@ -29,6 +30,7 @@ export default function RecipientPicker({ self, recipient, onChange }: {
 		setError(undefined);
 		try {
 			onChange(await findRecipient(name.trim()));
+			onNameChange('');
 			setSearching(false);
 		} catch {
 			setError(t`No player goes by that name.`);
@@ -45,7 +47,7 @@ export default function RecipientPicker({ self, recipient, onChange }: {
 			? <form className='store__recipient-search' onSubmit={e => { e.preventDefault(); void search(); }}>
 				<input
 					value={name}
-					onChange={e => setName(e.target.value)}
+					onChange={e => onNameChange(e.target.value)}
 					placeholder={t`player name`}
 					autoFocus
 				/>

@@ -8,6 +8,7 @@ import { Grades } from '@oss-idle/shared/grade';
 
 import { CarouselItem } from '../../components/BeatmapCarousel';
 import type { PlaylistMembership } from '../../db/schema/playlist';
+import { SETTINGS } from '../../db/settings';
 import { selectedRate } from '../../gameplay/playRate';
 import { starsOf } from '../../gameplay/rateStars';
 import type LightBeatmap from './LightBeatmap';
@@ -17,18 +18,22 @@ import type LightBeatmap from './LightBeatmap';
  *  modes (rank / recency) read from it. */
 export interface PlayHistory {
 	bestRank: Map<string, number>;   // rankKey -> Grades index of the top score at that rate
+	bestRankAnyRate: Map<number, number>; // beatmapId -> Grades index of the top score at any rate
 	lastPlayed: Map<number, number>; // beatmapId -> most recent playedAt (ms epoch)
 }
 
 export const rankKey = (beatmapId: number, rate: number): string =>
 	`${beatmapId}@${rate.toFixed(2)}`;
 
-/** Best Grades index at the difficulty's locked rate, else the picked one. */
+/** Best Grades index at the difficulty's locked rate, else the picked one; at any rate with bestGradeAnyRate. */
 export const bestRankOf = (history: PlayHistory, beatmap: LightBeatmap): number | undefined =>
-	history.bestRank.get(rankKey(beatmap.metadata.id, beatmap.lockedRate ?? selectedRate.get()));
+	SETTINGS.bestGradeAnyRate.get()
+		? history.bestRankAnyRate.get(beatmap.metadata.id)
+		: history.bestRank.get(rankKey(beatmap.metadata.id, beatmap.lockedRate ?? selectedRate.get()));
 
 export const EMPTY_HISTORY: PlayHistory = { 
 	bestRank: new Map(), 
+	bestRankAnyRate: new Map(),
 	lastPlayed: new Map(), 
 };
 

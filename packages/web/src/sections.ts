@@ -9,6 +9,7 @@ import { faHouse } from '@fortawesome/free-solid-svg-icons/faHouse';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
 import { faMusic } from '@fortawesome/free-solid-svg-icons/faMusic';
 import { faNewspaper } from '@fortawesome/free-solid-svg-icons/faNewspaper';
+import { faRobot } from '@fortawesome/free-solid-svg-icons/faRobot';
 import { faScaleBalanced } from '@fortawesome/free-solid-svg-icons/faScaleBalanced';
 import { faShieldHalved } from '@fortawesome/free-solid-svg-icons/faShieldHalved';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
@@ -22,6 +23,7 @@ const BRAND = 274;
 const SECTIONS: Record<string, [hue: number, icon: IconDefinition]> = {
 	'': [BRAND, faHouse],
 	c: [BRAND, faUser],
+	bot: [BRAND, faRobot],
 	friends: [BRAND, faUserGroup],
 	groups: [BRAND, faUsers],
 	settings: [BRAND, faGear],

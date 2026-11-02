@@ -13,10 +13,10 @@ import { rulesetDef } from '../../rulesets';
 import Flag from '../Flag';
 import Link from '../Link';
 import Pager from './Pager';
+import { useBoardRuleset } from './useBoardRuleset';
 
 /** 'overall', or one of the ruleset's skills. */
 export type SkillSort = string;
-const skillSorts = (): SkillSort[] => ['overall', ...rulesetDef().skills];
 
 type Players = Awaited<ReturnType<typeof getSkillRanking>>;
 type Player = Players[number];
@@ -64,10 +64,12 @@ export default function PlayerSkillLeaderboard({
 	board?: Board,
 }) {
 	const self = useCurrentCharacter();
+	const def = rulesetDef(useBoardRuleset());
+	const sorts: SkillSort[] = ['overall', ...def.skills];
 	return (<div className='player__lb'>
 		<div className='player__lb_sort'>
 			<span><Trans>Sort by</Trans></span>
-			{skillSorts().map(type => <Link
+			{sorts.map(type => <Link
 				key={type}
 				to={BOARDS[board]}
 				params={{ skill: type }}
@@ -75,7 +77,7 @@ export default function PlayerSkillLeaderboard({
 					...prev, page: 1, country,
 				})}
 				className={`${sort === type ? 'current' : ''}`}>
-				{rulesetDef().skillName(type)}
+				{def.skillName(type)}
 			</Link>)}
 		</div>
 
@@ -85,8 +87,8 @@ export default function PlayerSkillLeaderboard({
 					<tr>
 						<th></th>
 						<th></th>
-						{skillSorts().map(s => <th key={s} className={sort === s ? 'current' : ''}>
-							{rulesetDef().skillName(s)}
+						{sorts.map(s => <th key={s} className={sort === s ? 'current' : ''}>
+							{def.skillName(s)}
 						</th>)}
 					</tr>
 				</thead>
@@ -100,7 +102,7 @@ export default function PlayerSkillLeaderboard({
 							<Flag country={player.user.country} />
 							<Link to='/c/$id' params={{ id: String(player.character.id) }}>{player.character.name}</Link>
 						</div></td>
-						{skillSorts().map(s => <td key={s} className={sort === s ? 'current' : 'dimmed'}>
+						{sorts.map(s => <td key={s} className={sort === s ? 'current' : 'dimmed'}>
 							{cell(board, player, s)}
 						</td>)}
 					</tr>)}

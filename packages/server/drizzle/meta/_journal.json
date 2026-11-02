@@ -736,6 +736,83 @@
       "when": 1797206400000,
       "tag": "0113_score_version",
       "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "5",
+      "when": 1797292800000,
+      "tag": "0114_osu_cover",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "5",
+      "when": 1797379200000,
+      "tag": "0115_favourites",
+      "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "5",
+      "when": 1797465600000,
+      "tag": "0116_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "5",
+      "when": 1797552000000,
+      "tag": "0117_drop_beatmap_claim",
+      "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "5",
+      "when": 1797638400000,
+      "tag": "0118_play_prefs_per_ruleset",
+      "breakpoints": true
+    },
+    {
+      "idx": 119,
+      "version": "5",
+      "when": 1797724800000,
+      "tag": "0119_discord_level_colour",
+      "breakpoints": true
+    },
+    {
+      "idx": 120,
+      "version": "5",
+      "when": 1797811200000,
+      "tag": "0120_mania7k_jacks",
+      "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "5",
+      "when": 1797897600000,
+      "tag": "0121_beatmap_nominators",
+      "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "5",
+      "when": 1797984000000,
+      "tag": "0122_genetics",
+      "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "5",
+      "when": 1798070400000,
+      "tag": "0123_recall",
+      "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "5",
+      "when": 1798156800000,
+      "tag": "0124_bot_match",
+      "breakpoints": true
     }
   ]
 }

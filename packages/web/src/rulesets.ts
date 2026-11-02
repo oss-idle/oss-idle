@@ -5,6 +5,7 @@ import {
 } from '@oss-idle/shared/achievements/catalogue';
 import {
 	DEV_RULESETS,
+	NOMINATED_RULESETS,
 	PROD_RULESETS,
 	type RulesetId,
 	RULESETS,
@@ -18,6 +19,9 @@ import type { RulesetDef } from '@oss-idle/shared/rulesets/ruleset';
 export const ENABLED_RULESETS = import.meta.env.DEV || import.meta.env.MODE === 'staging'
 	? DEV_RULESETS
 	: PROD_RULESETS;
+
+/** The rulesets with a nomination queue here, played yet or not. */
+export const QUEUED_RULESETS = [...new Set([...ENABLED_RULESETS, ...NOMINATED_RULESETS])];
 
 /** The enabled rulesets as osu! lists its modes beside each other: standard first. */
 export const RULESET_TABS = [...ENABLED_RULESETS].sort((a, b) =>

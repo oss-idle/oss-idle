@@ -195,6 +195,7 @@ export const serverMessage = z.discriminatedUnion('type', [
 	z.object({
 		type: z.literal('presence:remove'),
 		characterId: z.number().int().positive(),
+		ruleset: presenceEntryDTO.shape.ruleset,
 	}),
 	z.object({
 		type: z.literal('chat'),

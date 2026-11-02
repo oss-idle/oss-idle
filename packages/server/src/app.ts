@@ -27,12 +27,14 @@ import {
 import { i18nMiddleware } from './i18n';
 import { httpMetrics } from './metrics';
 import { tokenRoutes } from './oauth';
+import { pbeRoutes } from './pbe/routes';
 import { rateLimit } from './rateLimit';
 import { redis } from './redis';
 import { accountsRoutes } from './routes/accounts';
 import { addonsRoutes } from './routes/addons';
 import { authRoutes } from './routes/auth';
 import { beatmapsRoutes } from './routes/beatmap';
+import { botMatchRoutes } from './routes/botMatch';
 import { bugsRoutes } from './routes/bugs';
 import { charactersRoutes } from './routes/characters';
 import { chatRoutes } from './routes/chat';
@@ -120,8 +122,10 @@ const v1 = new Hono()
 	.route('/groups', groupsRoutes)
 	.route('/accounts', accountsRoutes)
 	.route('/bugs', bugsRoutes)
+	.route('/bot-match', botMatchRoutes)
 	.route('/oauth', oauthRoutes)
 	.route('/proxy', proxyRoutes)
+	.route('/pbe', pbeRoutes)
 ;
 
 // Built as one chained expression so the route schema is captured in the type

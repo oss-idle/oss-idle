@@ -1,6 +1,9 @@
 import './MapRequests.css';
 
-import { ph } from '@lingui/core/macro';
+import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
 import {
 	Trans,
 	useLingui,
@@ -13,6 +16,8 @@ import {
 } from 'react';
 
 import { useAction } from '@oss-idle/shared/hooks/useAction';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	deleteMapRequest,
@@ -23,12 +28,14 @@ import {
 	toggleMapSupport,
 } from '../../api/mapRequests';
 import Link from '../../components/Link';
-import { useAdmin } from '../../hooks/useAdmin';
+import { useNominator } from '../../hooks/useAdmin';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import MapsNav from './MapsNav';
 import RequestBulkBar, { type BulkProgress } from './RequestBulkBar';
 import RequestForm from './RequestForm';
+import RequestModeTabs from './RequestModeTabs';
 import RequestRow from './RequestRow';
+import { useRequestRulesets } from './useRequestRulesets';
 
 export type RequestFilter = 'open' | 'accepted' | 'rejected' | 'mine' | 'all';
 export type RequestSort = 'support' | 'date';
@@ -44,14 +51,15 @@ const matches = (row: MapRequest, filter: RequestFilter, userId?: number): boole
 	return row.status === filter;
 };
 
-export default function MapRequests({ filter, sort, page }: {
+export default function MapRequests({ ruleset: asked, filter, sort, page }: {
+	/** the server's first when left out */
+	ruleset?: RulesetId,
 	filter: RequestFilter,
 	sort: RequestSort,
 	page: number,
 }) {
 	const { t } = useLingui();
 	const user = useCurrentUser();
-	const admin = useAdmin();
 
 	const [list, setList] = useState<MapRequest[]>();
 	const {
@@ -60,9 +68,13 @@ export default function MapRequests({ filter, sort, page }: {
 	const [selected, setSelected] = useState(new Set<number>());
 	const [progress, setProgress] = useState<BulkProgress>();
 
-	const refresh = useCallback(() => listMapRequests()
+	const { tabs, ruleset, shownRuleset } = useRequestRulesets(asked);
+	const admin = useNominator(shownRuleset);
+	const label = rulesetLabel(shownRuleset);
+
+	const refresh = useCallback(() => listMapRequests(ruleset)
 		.then(setList)
-		.catch(e => setError(String((e as Error).message ?? e))), []);
+		.catch(e => setError(String((e as Error).message ?? e))), [ruleset]);
 
 	useEffect(() => { void refresh(); }, [refresh]);
 
@@ -132,14 +144,20 @@ export default function MapRequests({ filter, sort, page }: {
 			<div className='page-contents'>
 				<p className='requests__intro'>
 					<Trans>
-						Anyone can propose a map for ranking in oss!idle - osu!mania 4K only.
+						Anyone can propose a map for ranking in oss!idle - osu!mania {ph({ label })} only.
 						Support the ones you want to play so it shows what people are after.
 						Accepted maps join the nomination queue and are ranked from there.
 					</Trans>
 				</p>
 
 				{user
-					? <RequestForm pending={pending} supporter={user.supporter} onSubmitted={refresh} />
+					? <RequestForm
+						ruleset={ruleset}
+						label={label}
+						pending={pending}
+						supporter={user.supporter}
+						onSubmitted={refresh}
+					/>
 					: <p className='requests__signed-out'>
 						<Trans>
 							<Link to='/login'>Sign in</Link> to propose a map or support someone else's.
@@ -149,13 +167,19 @@ export default function MapRequests({ filter, sort, page }: {
 				{error && <p className='requests__error'>{error}</p>}
 
 				<div className='requests__toolbar'>
+					<RequestModeTabs
+						tabs={tabs}
+						shown={shownRuleset}
+						filter={filter}
+						sort={sort}
+					/>
 					<div className='requests__tabs'>
 						{filters.map(([id, label]) => (
 							<Link
 								key={id}
 								to='/maps/requests'
 								search={{
-									filter: id, sort, page: 1,
+									ruleset, filter: id, sort, page: 1,
 								}}
 								className={`requests__tab ${id === filter ? 'current' : ''}`}
 							>
@@ -170,7 +194,7 @@ export default function MapRequests({ filter, sort, page }: {
 								key={id}
 								to='/maps/requests'
 								search={{
-									filter, sort: id, page: 1,
+									ruleset, filter, sort: id, page: 1,
 								}}
 								className={`requests__tab ${id === sort ? 'current' : ''}`}
 							>
@@ -192,11 +216,13 @@ export default function MapRequests({ filter, sort, page }: {
 							.filter(row => row.status === 'pending')
 							.map(row => row.setId)))}
 						onClear={() => setSelected(new Set())}
-						onIngest={() => void bulk(ingestMapRequest)}
-						onAccept={() => void bulk(setId => resolveMapRequest(setId, 'accepted'))}
-						onReject={() => void bulk(setId => resolveMapRequest(setId, 'rejected'))}
-						onDelete={() => confirm(t`Drop ${ph({ count: selected.size })} requests?`)
-							&& void bulk(deleteMapRequest)}
+						onIngest={() => void bulk(setId => ingestMapRequest(setId, ruleset))}
+						onAccept={() => void bulk(setId => resolveMapRequest(setId, 'accepted', undefined, ruleset))}
+						onReject={() => void bulk(setId => resolveMapRequest(setId, 'rejected', undefined, ruleset))}
+						onDelete={() => confirm(t`Drop ${plural(ph({ count: selected.size }), {
+							one: '# request', other: '# requests', 
+						})}?`)
+							&& void bulk(setId => deleteMapRequest(setId, ruleset))}
 					/>
 				)}
 
@@ -210,11 +236,11 @@ export default function MapRequests({ filter, sort, page }: {
 							busy={busy}
 							selected={selected.has(row.setId)}
 							onSelect={toggleSelect}
-							onSupport={setId => void run(() => toggleMapSupport(setId))}
-							onResolve={(setId, status, note) => void run(() => resolveMapRequest(setId, status, note))}
-							onIngest={setId => void run(() => ingestMapRequest(setId))}
+							onSupport={setId => void run(() => toggleMapSupport(setId, ruleset))}
+							onResolve={(setId, status, note) => void run(() => resolveMapRequest(setId, status, note, ruleset))}
+							onIngest={setId => void run(() => ingestMapRequest(setId, ruleset))}
 							onDelete={setId => confirm(t`Drop this request?`)
-								&& void run(() => deleteMapRequest(setId))}
+								&& void run(() => deleteMapRequest(setId, ruleset))}
 						/>
 					))}
 				</div>
@@ -226,7 +252,7 @@ export default function MapRequests({ filter, sort, page }: {
 								key={n}
 								to='/maps/requests'
 								search={{
-									filter, sort, page: n,
+									ruleset, filter, sort, page: n,
 								}}
 								className={`requests__tab ${n === current ? 'current' : ''}`}
 							>

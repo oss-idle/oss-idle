@@ -23,6 +23,7 @@ import {
 	DESKTOP_SCHEME,
 	iconPath,
 	IS_DEV,
+	OTHER_INSTALL,
 	RENDERER_URL,
 	STAGING,
 } from './config';
@@ -63,10 +64,9 @@ import {
 
 // The data folder was named after the package before the rename to oss!idle. It
 // holds the save and the session, so it moves over once, before anything opens it.
-// A staging build keeps its own, beside the real game's.
-const USER_DATA = path.join(app.getPath('appData'), STAGING ? 'oss!idle staging' : 'oss!idle');
+const USER_DATA = path.join(app.getPath('appData'), OTHER_INSTALL || 'oss!idle');
 const LEGACY_USER_DATA = path.join(app.getPath('appData'), '@osu-idle', 'desktop');
-if (!STAGING && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA)) {
+if (!OTHER_INSTALL && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA)) {
 	try {
 		fs.renameSync(LEGACY_USER_DATA, USER_DATA);
 		fs.rmdirSync(path.dirname(LEGACY_USER_DATA));
@@ -74,7 +74,7 @@ if (!STAGING && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA)) {
 		console.error('[userData] move from the old folder failed', e);
 	}
 }
-const stillLegacy = !STAGING && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA);
+const stillLegacy = !OTHER_INSTALL && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA);
 app.setPath('userData', stillLegacy ? LEGACY_USER_DATA : USER_DATA);
 
 // Privileges must be declared before the app is ready.
@@ -134,6 +134,11 @@ function createWindow(): void {
 	void mainWindow.loadURL(RENDERER_URL);
 	if (IS_DEV) mainWindow.webContents.openDevTools({ mode: 'detach' });
 	mainWindow.on('closed', () => { mainWindow = null; });
+	mainWindow.on('close', saveBeforeClosing);
+	// a dead renderer (GPU reset, out of memory) leaves a black window that takes no input
+	mainWindow.webContents.on('render-process-gone', (_event, { reason }) => {
+		if (reason !== 'clean-exit') mainWindow?.webContents.reload();
+	});
 	mainWindow.webContents.on('did-finish-load', () => {
 		if (!pendingDeepLink) return;
 		mainWindow?.webContents.send('oss-idle:deep-link', pendingDeepLink);
@@ -147,6 +152,29 @@ function createWindow(): void {
 	mainWindow.on('leave-full-screen', 
 		() => mainWindow?.webContents.send('oss-idle:fullscreen', false),
 	);
+}
+
+/** the longest a closing window waits for the game's save */
+const SAVE_WAIT_MS = 3000;
+/** whether the loaded game asked to save before the window closes */
+let savesOnClose = false;
+let saved = false;
+
+/** The game saves its database a moment after a write: a window that closes now asks it
+ *  to save first, and closes once it did or SAVE_WAIT_MS passed. */
+function saveBeforeClosing(event: Electron.Event): void {
+	if (!savesOnClose || saved) return;
+	event.preventDefault();
+	let done = false;
+	const close = () => {
+		if (done) return;
+		done = true;
+		saved = true;
+		mainWindow?.close();
+	};
+	ipcMain.once('oss-idle:saved', close);
+	setTimeout(close, SAVE_WAIT_MS);
+	mainWindow?.webContents.send('oss-idle:save');
 }
 
 /** A link that came before the game could take it (cold start), sent once it loads. */
@@ -205,7 +233,7 @@ if (!app.requestSingleInstanceLock()) {
 		loadToken();
 		authorizeApiRequests();
 		// the oss-idle:// links stay the real game's
-		if (!STAGING) registerProtocolClient();
+		if (!OTHER_INSTALL) registerProtocolClient();
 		registerAppProtocol();
 
 		// Bridge IPC. `bootstrap` is synchronous so the preload can seed the token
@@ -221,6 +249,7 @@ if (!app.requestSingleInstanceLock()) {
 		ipcMain.handle('oss-idle:logout', () => { logout(); });
 		ipcMain.on('oss-idle:set-fullscreen', (_event, on: boolean) => mainWindow?.setFullScreen(!!on));
 		ipcMain.on('oss-idle:quit', () => app.quit());
+		ipcMain.on('oss-idle:save-before-close', () => { savesOnClose = true; });
 		ipcMain.handle('oss-idle:move-install',
 			(_event, title: string) => moveInstall(mainWindow ?? undefined, String(title)),
 		);

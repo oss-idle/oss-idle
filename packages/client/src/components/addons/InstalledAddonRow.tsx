@@ -32,9 +32,13 @@ export default function InstalledAddonRow({
 			<ListingIcon url={addonIconUrl(addon.icon)} name={addon.name} />
 			<div className='listing__main'>
 				<div className='listing__name'>
-					{addon.name}<span className='listing__ver'>v{addon.version}</span>
+					{addon.name}{!addon.local && <span className='listing__ver'>v{addon.version}</span>}
 				</div>
-				<div className='listing__by'><Trans>by {ph({ author: addon.authorName })}</Trans></div>
+				<div className='listing__by'>
+					{addon.local
+						? <span className='listing__badge'><Trans>Imported</Trans></span>
+						: <Trans>by {ph({ author: addon.authorName })}</Trans>}
+				</div>
 			</div>
 			<div className='listing__actions'>
 				<label className='listing-toggle'>
@@ -48,7 +52,7 @@ export default function InstalledAddonRow({
 						<Trans>Enabled</Trans>
 					</span>
 				</label>
-				<label className='listing-toggle'>
+				{!addon.local && <label className='listing-toggle'>
 					<input
 						type='checkbox'
 						checked={addon.autoUpdate}
@@ -58,7 +62,7 @@ export default function InstalledAddonRow({
 					<span>
 						<Trans>Auto-update</Trans>
 					</span>
-				</label>
+				</label>}
 				<button 
 					className='listing-btn' 
 					disabled={busy} 

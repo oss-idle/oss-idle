@@ -22,6 +22,7 @@ export default function SkillRow({
 	const parts = [
 		['is-upgrades', s.upgradeBoost],
 		['is-prestige', s.prestigeBoost],
+		['is-genetics', s.genetics ?? 1],
 		['is-medals', s.medals?.multiplier ?? 1],
 	] as const;
 

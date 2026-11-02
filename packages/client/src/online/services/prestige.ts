@@ -1,4 +1,4 @@
-import Log from '@oss-idle/shared/helpers/log';
+import { convert } from '@oss-idle/shared/genetics';
 import {
 	applyPrestige,
 	canRebirth,
@@ -40,12 +40,19 @@ const prestigeLocally = async (
 	const skill = character.skills.find(s => s.name === skillName);
 	if (!skill) return false;
 	let spent = 0;
+	const overdrive = skill.overdrive.get();
 	try {
 		const next = applyPrestige(skill.state());
 		skill.apply(next);
 		spent = next.spent;
 	} catch {
 		return false;
+	}
+	// what overdrive is left becomes climaxx instead of being lost
+	if (selectedDef().genetics) {
+		const genetics = convert(character.genetics.get(), skillName, overdrive);
+		if (character.isGuest()) await character.saveGenetics(genetics);
+		else await character.genetics.set(genetics);
 	}
 	selectedProgression()?.afterPrestige(character, skillName);
 	// and the levels it reset stop counting toward the overall level, the
@@ -57,7 +64,8 @@ const prestigeLocally = async (
 /** Whether the live character has reached the overall level rebirth needs. */
 export const rebirthAvailable = (): boolean => {
 	const character = Entities.character.get();
-	return !!selectedDef().rebirth && character.id !== 0 && canRebirth(character.overallLevel);
+	return !!selectedDef().rebirth && character.id !== 0
+		&& canRebirth(character.overallLifetimeLevel(), character.generation);
 };
 
 /** Start a fresh character one generation up. The previous one stays playable
@@ -67,7 +75,7 @@ export const rebirth = async (name: string): Promise<boolean> => {
 	if (character.id === 0) return false;
 
 	if (character.isGuest()) {
-		if (!canRebirth(character.overallLevel)) return false;
+		if (!canRebirth(character.overallLifetimeLevel(), character.generation)) return false;
 		const locals = await Character.locals();
 		if (locals.some(c => c.generation > character.generation)) return false;
 
@@ -79,14 +87,6 @@ export const rebirth = async (name: string): Promise<boolean> => {
 		return true;
 	}
 
-	// a rebirth parked behind a play makes a character that does not exist yet -
-	// there is nothing honest to show until the play ends and the server makes it
-	return sendCharacterAction(
-		'Rebirth',
-		rpc.v1.me.rebirth.$post({ json: { name } }),
-		() => {
-			Log.popup('Rebirth will happen when this play ends');
-			return true;
-		},
-	);
+	// never parked: a running play carries on, on the character it started on
+	return sendCharacterAction('Rebirth', rpc.v1.me.rebirth.$post({ json: { name } }), () => false);
 };

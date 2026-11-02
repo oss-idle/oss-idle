@@ -17,6 +17,7 @@ import {
 	lineValue,
 } from './medalLine';
 import MedalLineIcon from './MedalLineIcon';
+import { useBoardRuleset } from './useBoardRuleset';
 
 type Row = { id: number, name: string, country: string, value: number, current: number };
 
@@ -28,11 +29,14 @@ export default function MedalProgressCard({ line, goals, rows }: {
 	rows: Row[],
 }) {
 	const { i18n, t } = useLingui();
+	const ruleset = useBoardRuleset();
 	return <div className='medal-progress__card'>
 		<Link
 			to='/rankings/medals/progress/$line'
 			params={{ line }}
-			search={{ page: 1 }}
+			search={{
+				page: 1, ruleset,
+			}}
 			className='medal-progress__title'>
 			{i18n._(LINE_NAMES[line])}
 			<FontAwesomeIcon icon={faChevronRight} />

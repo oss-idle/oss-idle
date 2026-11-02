@@ -280,7 +280,9 @@ header:has(.shrunk) {
 
 	transform: translate(-50%, calc(100% + 20px));
 
-	width: 150px;
+	width: max-content;
+	min-width: 150px;
+	max-width: 240px;
 }
 
 .usermenu_profile {
@@ -296,6 +298,54 @@ header:has(.shrunk) {
 	padding: 10px 5px;
 	display: flex;
 	flex-direction: column;
+}
+
+.usermenu_characters {
+	padding: 10px 5px;
+	display: flex;
+	flex-direction: column;
+	border-bottom: 1px solid hsl(var(--hsl-b4));
+}
+
+.usermenu__character {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding-left: 20px;
+	padding-right: 10px;
+}
+
+.usermenu__character-avatar {
+	width: 20px;
+	height: 20px;
+	border-radius: 4px;
+	flex: none;
+	object-fit: cover;
+}
+
+.usermenu__character-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.usermenu__character-level {
+	flex: none;
+	margin-left: 4px;
+	color: hsl(var(--hsl-l1));
+	font-weight: 700;
+}
+
+button.usermenu__link {
+	background: none;
+	border: none;
+	font: inherit;
+}
+
+.usermenu__link.is-current {
+	color: hsl(var(--hsl-h1));
+	cursor: default;
 }
 
 .usermenu__link {

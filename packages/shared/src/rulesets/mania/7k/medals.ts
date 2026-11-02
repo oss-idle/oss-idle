@@ -21,7 +21,7 @@ const SKILL_GLYPHS: Record<SkillName7k, GlyphName> = {
 	accuracy: 'target',
 	speed: 'lightning',
 	stamina: 'heartbeat',
-	chords: 'keyboard',
+	jacks: 'keyboard',
 	independence: 'handFist',
 	ln: 'wind',
 	technical: 'eye',

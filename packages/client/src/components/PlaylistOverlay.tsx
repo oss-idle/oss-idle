@@ -2,6 +2,7 @@ import './PlaylistOverlay.css';
 
 import { ph } from '@lingui/core/macro';
 import {
+	Plural,
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
@@ -148,7 +149,7 @@ export default function PlaylistOverlay({ beatmap, onClose }: Props) {
 								) : (
 									<span className="plmgr__name">
 										{p.name}
-										<span className="plmgr__count"><Trans>{nbMaps} maps</Trans></span>
+										<span className="plmgr__count"><Plural value={nbMaps} one='# map' other='# maps' /></span>
 									</span>
 								)}
 								<span className="plmgr__actions">

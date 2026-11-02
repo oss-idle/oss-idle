@@ -4,6 +4,8 @@ import {
 } from '@oss-idle/shared/desktop';
 import Synced from '@oss-idle/shared/helpers/synced';
 
+import { DB } from '../db/dao';
+
 /**
  * In-game self-update state for the desktop app. We check the update feed on
  * launch, which drives the {@link DesktopUpdate} UI: the player
@@ -54,7 +56,9 @@ export const downloadDesktopUpdate = async () => {
 	// installing after a failed download only buries its error under electron-updater's
 	// "No update filepath provided"
 	const status = await app.update.download();
-	if (status.state !== 'error') app.update.install();
+	if (status.state === 'error') return;
+	await DB.saved();
+	app.update.install();
 };
 
 // Check once on launch, independent of the server/client version poll - the app

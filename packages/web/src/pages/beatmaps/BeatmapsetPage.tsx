@@ -13,7 +13,7 @@ export default function BeatmapsetPage({ mapset, diffId, board }: {
 	// like osu!, the hardest difficulty unless one is picked
 	const diff = mapset.diffs.find(d => d.id === diffId) ?? mapset.diffs[mapset.diffs.length - 1];
 	return <main className='mapset'>
-		<BeatmapsetHeader mapset={mapset} diff={diff} />
+		<BeatmapsetHeader key={mapset.set.id} mapset={mapset} diff={diff} />
 		<MapScoreboard
 			setId={mapset.set.id} beatmapId={diff.id} board={board} loved={mapset.set.status === 'loved'}
 		/>

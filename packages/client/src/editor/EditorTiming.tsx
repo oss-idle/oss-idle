@@ -1,5 +1,8 @@
 import { ph } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import {
+	Plural,
+	Trans,
+} from '@lingui/react/macro';
 import {
 	useEffect,
 	useRef,
@@ -72,7 +75,7 @@ export default function EditorTiming({ session }: { session: EditorSession }) {
 			</div>
 			{shown.length < session.timing.length && (
 				<span className="editor__hint">
-					<Trans>{ph({ shown: shown.length })} of {ph({ total: session.timing.length })} points</Trans>
+					<Trans>{ph({ shown: shown.length })} of <Plural value={ph({ total: session.timing.length })} one='# point' other='# points' /></Trans>
 				</span>
 			)}
 		</div>

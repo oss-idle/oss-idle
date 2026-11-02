@@ -4,6 +4,18 @@ import lerp from './math/lerp.js';
 /** The character's fatigue in strained minutes, as of `at` (ms). */
 export type Fatigue = { at: number, minutes: number };
 
+/** What the character's genes change: shares, and minutes for `warmHold`. */
+export type FatigueGenes = {
+	/** hard maps tire this much less */
+	strainRate?: number,
+	/** past the warm-up peak, rests this much faster */
+	restRate?: number,
+	/** until the warm-up peak, warms up this much faster */
+	warmRate?: number,
+	/** minutes the peak and what follows come later */
+	warmHold?: number,
+};
+
 // A play strained for at most LIGHT_SHARE of its length rests a minute per minute,
 // like idle (the gaps between queued maps included); past it, the play eases up to
 // tiring STRAIN_RATE minutes per minute fully strained: a fully strained map takes 3
@@ -36,9 +48,20 @@ const COLD_MINUTES = 6 * 60;
 const COLD_FLOOR = 0.5;
 const COLD_LEVEL = 100;
 
-/** The fatigue left at `now`, rested since the last play. */
-export const restedFatigue = (fatigue: Fatigue | undefined, now: number): number =>
-	Math.max(0, (fatigue?.minutes ?? 0) - Math.max(0, now - (fatigue?.at ?? now)) / 60_000);
+/** The fatigue left at `now`, rested since the last play: faster down to the peak's end with the genes. */
+export const restedFatigue = (
+	fatigue: Fatigue | undefined,
+	now: number,
+	genes: FatigueGenes = {},
+	upgrades = 0,
+): number => {
+	const minutes = fatigue?.minutes ?? 0;
+	const rested = Math.max(0, now - (fatigue?.at ?? now)) / 60_000;
+	const fast = 1 + (genes.restRate ?? 0);
+	const above = Math.max(0, minutes - warmupCurve(upgrades, genes).peakEnd);
+	if (rested * fast <= above) return minutes - rested * fast;
+	return Math.max(0, minutes - above - (rested - above / fast));
+};
 
 /** How far `minutes` are from `from` to `to`, eased: 0 before, 1 from `to` on. */
 const ease = (minutes: number, from: number, to: number): number =>
@@ -57,22 +80,26 @@ const warmGear = (upgrades: number): number => {
 };
 
 /** The strained minutes where warm-up peaks, starts cooling, is half and is cold, with `upgrades` stamina gear. */
-export const warmupCurve = (upgrades = 0) => {
+export const warmupCurve = (upgrades = 0, genes: FatigueGenes = {}) => {
 	const gear = warmGear(upgrades);
-	const cold = Math.min(COLD_MINUTES + gear * GEAR_HOLD, STRAIN_CAP);
-	const half = Math.min(HALF_WARM_MINUTES + gear * GEAR_HOLD, cold);
-	const peakEnd = Math.min(WARM_MINUTES + gear * GEAR_HOLD, half);
-	const warm = Math.min(WARM_MINUTES / (1 + gear * GEAR_SPEED) - WARM_EARLY, peakEnd);
+	const hold = gear * GEAR_HOLD + (genes.warmHold ?? 0);
+	const cold = Math.min(COLD_MINUTES + hold, STRAIN_CAP);
+	const half = Math.min(HALF_WARM_MINUTES + hold, cold);
+	const peakEnd = Math.min(WARM_MINUTES + hold, half);
+	const warm = Math.min(
+		(WARM_MINUTES / (1 + gear * GEAR_SPEED) - WARM_EARLY) / (1 + (genes.warmRate ?? 0)),
+		peakEnd,
+	);
 	return {
 		warm, peakEnd, half, cold,
 	};
 };
 
 /** How warmed up `minutes` of fatigue leave a character with `upgrades` stamina gear: 0 cold, 1 warm. */
-export const warmup = (minutes: number, upgrades = 0): number => {
+export const warmup = (minutes: number, upgrades = 0, genes: FatigueGenes = {}): number => {
 	const {
 		warm, peakEnd, half, cold,
-	} = warmupCurve(upgrades);
+	} = warmupCurve(upgrades, genes);
 	if (minutes < warm) return ease(minutes, 0, warm);
 	if (minutes < half) return lerp(1, 0.5, ease(minutes, peakEnd, half));
 	return lerp(0.5, 0, ease(minutes, half, cold));
@@ -96,13 +123,13 @@ const crossing = (turned: (m: number) => boolean, lo: number, hi: number): numbe
 };
 
 /** Where `minutes` of fatigue sit on the warm-up bar, 0 to 1, with `upgrades` stamina gear. */
-export const warmupBar = (minutes: number, upgrades = 0): number => {
-	const { warm, peakEnd, cold } = warmupCurve(upgrades);
+export const warmupBar = (minutes: number, upgrades = 0, genes: FatigueGenes = {}): number => {
+	const { warm, peakEnd, cold } = warmupCurve(upgrades, genes);
 	const onset = Math.min(ONSET_MINUTES, FULL_MINUTES, STRAIN_CAP);
-	const sweetEnd = crossing(m => warmup(m, upgrades) < SWEET_SPOT, peakEnd, cold);
+	const sweetEnd = crossing(m => warmup(m, upgrades, genes) < SWEET_SPOT, peakEnd, cold);
 	const knots = [
 		0,
-		crossing(m => warmup(m, upgrades) >= SWEET_SPOT, 0, warm),
+		crossing(m => warmup(m, upgrades, genes) >= SWEET_SPOT, 0, warm),
 		Math.min(sweetEnd, onset),
 		onset,
 		STRAIN_CAP,
@@ -116,8 +143,10 @@ export const warmupBar = (minutes: number, upgrades = 0): number => {
 };
 
 /** The fatigue minutes a play `minutes` long, `strained` of them, adds: less than 0 rests. */
-const playedStrain = (minutes: number, strained: number): number =>
-	(minutes > 0 ? minutes * lerp(-1, STRAIN_RATE, ease(strained / minutes, LIGHT_SHARE, 1)) : 0);
+const playedStrain = (minutes: number, strained: number, genes: FatigueGenes = {}): number => {
+	const rate = STRAIN_RATE * (1 - (genes.strainRate ?? 0));
+	return minutes > 0 ? minutes * lerp(-1, rate, ease(strained / minutes, LIGHT_SHARE, 1)) : 0;
+};
 
 /** Which way and how hard a play `minutes` long, `strained` of them, moves the
  *  warm-up bar: 1 to 3 right (warming), -1 to -3 left (cooling), 0 neither. */
@@ -139,9 +168,11 @@ export const afterPlay = (
 	minutes: number,
 	strained: number,
 	now: number,
+	genes: FatigueGenes = {},
+	upgrades = 0,
 ): Fatigue => {
-	const rested = restedFatigue(before, now - minutes * 60_000);
-	const next = rested + playedStrain(minutes, strained);
+	const rested = restedFatigue(before, now - minutes * 60_000, genes, upgrades);
+	const next = rested + playedStrain(minutes, strained, genes);
 	return {
 		at: now, minutes: Math.min(STRAIN_CAP, Math.max(0, next)),
 	};

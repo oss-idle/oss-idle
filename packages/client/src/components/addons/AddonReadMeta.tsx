@@ -18,9 +18,9 @@ export default function AddonReadMeta({ detail }: { detail: AddonDetail }) {
 					<div className='listing-view__name'>
 						{detail.name}<span className='listing__ver'>v{detail.version}</span>
 					</div>
-					<div className='listing__by'>
+					{detail.authorName && <div className='listing__by'>
 						<Trans>by {ph({ author: detail.authorName })} for game version {ph({ version: detail.gameVersion })}</Trans>
-					</div>
+					</div>}
 				</div>
 			</div>
 			{detail.tags.length > 0 && <div className='listing__tags'>

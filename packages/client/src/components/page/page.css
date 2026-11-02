@@ -13,6 +13,13 @@
 	font-weight: 300;
 }
 
+.page__backdrop {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
 /* ---- skewed osu! tabs ---- */
 .page__tabs {
 	flex: none;
@@ -46,6 +53,7 @@
 
 /* ---- header: large thin title + dim subtitle ---- */
 .page__header {
+	position: relative;
 	flex: none;
 	display: flex;
 	align-items: baseline;

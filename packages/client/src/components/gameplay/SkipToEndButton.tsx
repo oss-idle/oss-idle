@@ -1,5 +1,7 @@
+import { PBE } from '../../pbe/pbe';
+
 /**
- * Debug-only: end the play now and go to the result screen.
+ * Debug and PBE only: end the play now and go to the result screen.
  *
  * A local play resolves its remaining notes in place. A ranked one cannot - its
  * offsets stream in a few seconds at a time and the client is deliberately not
@@ -7,13 +9,15 @@
  * back the authoritative result. See `skipToEnd`.
  */
 export default function SkipToEndButton({
-	shown,
+	debug,
+	done,
 	onSkip,
 }: {
-	shown: boolean,
+	debug: boolean,
+	done: boolean,
 	onSkip: () => void,
 }) {
-	if (!shown) return null;
+	if (done || !(debug || PBE)) return null;
 
 	return (
 		<button className="play__skip" onClick={onSkip}>

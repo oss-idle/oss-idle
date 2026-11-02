@@ -8,6 +8,8 @@ import {
 import Synced from '@oss-idle/shared/helpers/synced';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { uiSound } from '../../audio/uiSounds';
+
 export type Tab<Id extends string = string> = {
 	id: Id,
 	label: ReactNode,
@@ -40,6 +42,7 @@ export default function Tabs<Id extends string>({
 	}, [active, tabs, activeId, initialTab]);
 
 	const select = (id: Id) => {
+		if (id !== activeId) uiSound('ui/tabselect-select');
 		void active.set(id);
 		onSelect?.(id);
 	};
@@ -49,6 +52,7 @@ export default function Tabs<Id extends string>({
 			<button
 				key={tab.id}
 				className={`tab ${tab.id === activeId ? 'is-active' : ''} ${tab.className}`}
+				data-sound="hover"
 				onClick={() => { tab.onClick?.(); select(tab.id); }}
 			>
 				<span>{tab.label}</span>

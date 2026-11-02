@@ -6,6 +6,7 @@ import useAsync from '@oss-idle/shared/hooks/useAsync';
 import { getCountries } from '../../api/rankings';
 import { i18n } from '../../i18n';
 import LeaderboardFilters from './LeaderboardFilters';
+import { useBoardRuleset } from './useBoardRuleset';
 import { useFriendsFilter } from './useFriendsFilter';
 
 /** The shared "select a country" filter for the public leaderboards, with the
@@ -16,7 +17,8 @@ export default function CountryFilter({ selected, onSelect }: {
 	onSelect: (country: string) => void,
 }) {
 	const { t } = useLingui();
-	const countries = useAsync(() => getCountries(), []);
+	const ruleset = useBoardRuleset();
+	const countries = useAsync(() => getCountries(ruleset), [ruleset]);
 
 	const items = [
 		{

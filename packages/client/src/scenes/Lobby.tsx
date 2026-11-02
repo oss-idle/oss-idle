@@ -2,6 +2,7 @@ import '../components/multiplayer/Multiplayer.css';
 
 import { ph } from '@lingui/core/macro';
 import {
+	Plural,
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
@@ -18,6 +19,7 @@ import {
 	matchPlayers,
 } from '@oss-idle/shared/multiplayer';
 
+import { uiSound } from '../audio/uiSounds';
 import MusicControls from '../components/community/MusicControls';
 import CreateMatch from '../components/multiplayer/CreateMatch';
 import MatchRow from '../components/multiplayer/MatchRow';
@@ -75,7 +77,10 @@ export default function Lobby() {
 	const back = () => {
 		if (asking) setAsking(undefined);
 		else if (creating) setCreating(false);
-		else toMenu();
+		else {
+			uiSound('ui/screen-back');
+			toMenu();
+		}
 	};
 	Controls.back.usePress(back);
 
@@ -123,7 +128,7 @@ export default function Lobby() {
 				<div className="mp__title">
 					<Trans>Multiplayer Lobby</Trans>
 					<span className="mp__subtitle">
-						<Trans>Showing {ph({ shown: shown.length })} of {ph({ total: matches.length })} matches</Trans>
+						<Trans>Showing {ph({ shown: shown.length })} of <Plural value={ph({ total: matches.length })} one='# match' other='# matches' /></Trans>
 					</span>
 				</div>
 				<MusicControls />

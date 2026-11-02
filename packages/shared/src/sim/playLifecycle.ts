@@ -58,7 +58,9 @@ export type PlayEvent =
 	/** the owner could not answer; `retryable` is false once its result is gone */
 	| { type: 'owner-error', retryable: boolean }
 	/** the player quit */
-	| { type: 'abort' };
+	| { type: 'abort' }
+	/** the next play is taking this scene over: this one ends, with nothing to show */
+	| { type: 'replaced' };
 
 export type PlayEffect =
 	/** advance the simulation to the end so every remaining note is judged */
@@ -219,6 +221,7 @@ export const playReducer = (state: PlayState, event: PlayEvent): PlayStep => {
 	if (event.type === 'abort') {
 		return step(state, [{ type: 'release-audio' }, { type: 'exit' }], { phase: 'exited' });
 	}
+	if (event.type === 'replaced') return step(state, [], { phase: 'exited' });
 
 	const handler = PHASES[state.phase as keyof typeof PHASES];
 	return handler ? handler(state, event) : step(state, []);

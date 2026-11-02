@@ -5,6 +5,7 @@ import { type RESTPostAPIWebhookWithTokenJSONBody } from 'discord-api-types/rest
 export const publish = async (
 	webhook: string, message: RESTPostAPIWebhookWithTokenJSONBody,
 ): Promise<boolean> => {
+	if (!webhook) return false;
 	try {
 		const res = await fetch(webhook, {
 			method: 'POST',

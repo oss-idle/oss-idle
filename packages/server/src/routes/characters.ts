@@ -22,6 +22,10 @@ import {
 	getCurated,
 } from '../beatmaps/curated';
 import {
+	countFavourites,
+	getFavourites,
+} from '../beatmaps/favourites';
+import {
 	countMapped,
 	getMapped,
 } from '../beatmaps/mapped';
@@ -56,6 +60,7 @@ import {
 	supporterActive,
 	users,
 } from '../db/schema/user';
+import { characterEvents } from '../events';
 import {
 	groupsByUser,
 	groupsOf,
@@ -77,6 +82,7 @@ import {
 	rulesetParam,
 	rulesetQuery,
 } from '../rulesets/request';
+import { slotOf } from '../slot';
 import { userPageOf } from '../userPage';
 import {
 	idParam,
@@ -303,13 +309,28 @@ export const charactersRoutes = new Hono()
 		const page = idParam.parse(c.req.param('page'));
 		return c.json(await getMapped(rulesetQuery(c, character), character.userId, status, page));
 	})
+	.get('/:id/countfavourites', rulesetParam, async c => {
+		const character = c.get('character');
+		return c.json(await countFavourites(rulesetQuery(c, character), character.userId));
+	})
+	.get('/:id/favourites/:page', rulesetParam, async c => {
+		const character = c.get('character');
+		const page = idParam.parse(c.req.param('page'));
+		return c.json(await getFavourites(rulesetQuery(c, character), character.userId, page));
+	})
+	// osu!web's recent activity
+	.get('/:id/events/:page', async c => {
+		const page = idParam.parse(c.req.param('page'));
+		return c.json(await characterEvents(c.get('character'), page));
+	})
 	// Admin: undo a skill's last upgrade - a misclick that bought one too many.
 	.post('/:id/upgrade/rollback', requireAdmin, valid('json', rollbackBody), async c => {
 		const character = c.get('character');
 		const { id } = character;
-		if (await isPlaying(id)) throw new HTTPException(409, { message: 'A play is in progress' });
+		const r = rulesetQuery(c, character);
+		if (await isPlaying(slotOf(id, r.def.id))) throw new HTTPException(409, { message: 'A play is in progress' });
 		const { skill, anchor } = c.req.valid('json');
-		await performUpgradeRevert(rulesetQuery(c, character), id, skill, anchor);
+		await performUpgradeRevert(r, id, skill, anchor);
 		await pushCharacter(id);
 		return c.json({ ok: true });
 	})

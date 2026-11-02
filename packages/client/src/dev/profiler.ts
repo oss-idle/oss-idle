@@ -250,7 +250,11 @@ graph.width = GRAPH;
 graph.height = 60;
 const info = document.createElement('pre');
 info.style.margin = '4px 0 0';
-overlay.append(graph, info);
+const send = document.createElement('button');
+send.textContent = 'send report';
+send.style.cssText = 'pointer-events:auto;display:block;margin-top:4px;font:inherit';
+send.addEventListener('click', () => void report());
+overlay.append(graph, info, send);
 
 /** One bar per frame: full height is 50ms, green is rAF work, red a dropped gap. */
 const draw = () => {
@@ -320,6 +324,16 @@ const droppedFrames = (n: number, samples: Sample[]) => {
 };
 
 const samplerReport = async (n: number) => {
+	try {
+		return await sampledReport(n);
+	} catch (e) {
+		return {
+			sampler: `the JS sampler failed: ${e}`, drops: droppedFrames(n, []),
+		};
+	}
+};
+
+const sampledReport = async (n: number) => {
 	const trace = await takeSamples();
 	if (typeof trace === 'string') {
 		return {
@@ -366,12 +380,13 @@ const snapshot = async () => {
 };
 
 const report = async () => {
-	const body = await snapshot();
-	console.log(body.text);
-	console.table(body.callbacks);
-	console.table(body.drops);
-	// a plain text POST needs no CORS preflight; the reply can't be read, only the send
+	flash('Sending the profiler report...');
 	try {
+		const body = await snapshot();
+		console.log(body.text);
+		console.table(body.callbacks);
+		console.table(body.drops);
+		// a plain text POST needs no CORS preflight; the reply can't be read, only the send
 		await fetch(`${SITE_URL}/__profile`, {
 			method: 'POST', mode: 'no-cors', body: JSON.stringify(body),
 		});

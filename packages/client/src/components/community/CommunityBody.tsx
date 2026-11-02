@@ -2,6 +2,7 @@ import './CommunityBody.css';
 
 import { useLingui } from '@lingui/react/macro';
 
+import { MAKISEBOT_ID } from '@oss-idle/shared/groups';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import Account from '../../online/account';
@@ -12,6 +13,7 @@ import PlayerGrid from './PlayerGrid';
 import {
 	activeFilter,
 	activeTab,
+	rosterRuleset,
 	searchQuery,
 } from './state';
 import {
@@ -30,9 +32,12 @@ export default function CommunityBody() {
 	const [search = ''] = useSynced(searchQuery);
 	const [account] = useSynced(Account.character);
 	const [friendIds = new Set<number>()] = useSynced(friends);
+	const [ruleset] = useSynced(rosterRuleset);
 
 	const query = search.trim().toLowerCase();
 	const filtered = characters.filter(c => {
+		// the bot is online in every ruleset
+		if (c.characterId !== MAKISEBOT_ID && (c.ruleset ?? 'mania4k') !== ruleset) return false;
 		if (filter === 'country' && account?.country && c.country !== account.country) return false;
 		if (filter === 'friends' && !friendIds.has(c.userId)) return false;
 		return !query || c.name.toLowerCase().includes(query);

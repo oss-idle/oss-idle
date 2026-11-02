@@ -14,6 +14,7 @@ import { basename } from 'node:path';
 import { createInterface } from 'node:readline';
 
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
+import { Skills7k } from '@oss-idle/shared/rulesets/mania/7k/skills';
 import { xpToLevel } from '@oss-idle/shared/xp';
 
 type Row = (string | undefined)[];
@@ -97,9 +98,16 @@ const inserts = (table: string, columns: string, values: string[]) => {
 	}
 };
 
-const SCORES = ['score', 'mania4k_score'];
-const PROFILES = ['character', 'mania4k_character'];
-const PLAYED = ['beatmaps_played', 'mania4k_beatmaps_played'];
+const RULESET = process.argv.includes('--ruleset')
+	? process.argv[process.argv.indexOf('--ruleset') + 1] as 'mania4k' | 'mania7k'
+	: 'mania4k';
+const SKILLS: readonly string[] = RULESET === 'mania7k' ? Skills7k : Skills;
+// 4K's tables had these names until the rulesets split
+const tablesOf = (name: string, before: string) =>
+	RULESET === 'mania4k' ? [before, `${RULESET}_${name}`] : [`${RULESET}_${name}`];
+const SCORES = tablesOf('score', 'score');
+const PROFILES = tablesOf('character', 'character');
+const PLAYED = tablesOf('beatmaps_played', 'beatmaps_played');
 
 const reader = (file: string) => {
 	const tool = file.endsWith('.gz') ? 'zcat' : file.endsWith('.zst') ? 'zstdcat' : 'cat';
@@ -116,7 +124,7 @@ const reader = (file: string) => {
 
 type Profile = { id: number, skills: Record<string, number[]>, fatigue?: string };
 
-/** What one dump holds: its highest 4K score id, its profiles, and its memory plays by `character:beatmap`. */
+/** What one dump holds: the ruleset's highest score id, its profiles, and its memory plays by `character:beatmap`. */
 class Dump {
 	maxScoreId = 0;
 	readonly profiles: Profile[] = [];
@@ -144,7 +152,7 @@ class Dump {
 		this.hasFatigue = columns.includes('fatigue');
 		for (const row of tuples(line, from)) this.profiles.push({
 			id: Number(field(row, 'id')),
-			skills: Object.fromEntries(Skills.map(skill => [skill, skillOf(row, field, skill)])),
+			skills: Object.fromEntries(SKILLS.map(skill => [skill, skillOf(row, field, skill)])),
 			fatigue: field(row, 'fatigue'),
 		});
 	}
@@ -206,6 +214,7 @@ const main = async () => {
 	out('DROP TABLE IF EXISTS reprocess_snapshot, reprocess_profile, reprocess_memory;');
 	TABLES.forEach(out);
 	const args = process.argv.slice(2);
+	if (args.includes('--ruleset')) args.splice(args.indexOf('--ruleset'), 2);
 	const at = args.indexOf('--fatigue-from');
 	const fatigueFrom = at === -1 ? undefined : args.splice(at, 2)[1];
 	let tired = fatigueFrom === undefined;

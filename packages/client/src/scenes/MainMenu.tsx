@@ -2,7 +2,10 @@ import './MainMenu.css';
 
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ph } from '@lingui/core/macro';
+import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import {
 	useCallback,
@@ -28,6 +31,10 @@ import {
 	music,
 	PLAYER_MODE,
 } from '../audio/MusicPlayer';
+import {
+	type UiSound,
+	uiSound,
+} from '../audio/uiSounds';
 import Announce from '../components/Announce';
 import Changelog from '../components/Changelog';
 import ConfirmMenu from '../components/ConfirmMenu';
@@ -37,6 +44,7 @@ import DirectTab from '../components/direct/DirectTab';
 import IdleLogo from '../components/IdleLogo';
 import LogoVisualizer from '../components/LogoVisualizer';
 import SupporterHeart from '../components/SupporterHeart';
+import { DB } from '../db/dao';
 import { SETTINGS } from '../db/settings';
 import Entities from '../entity/entities';
 import {
@@ -104,6 +112,7 @@ type OptionDisplay = {
 	flip: boolean,
 	order: number,
 	disabled?: true,
+	sound: UiSound,
 	onSelect: () => void,
 };
 
@@ -135,6 +144,11 @@ export default function MainMenu({ flash = false }: Props) {
 	useEffect(() => {
 		if (connected && user) checkAwayMedals();
 	}, [connected, user]);
+
+	// back from another screen; arriving from the intro has its own drop
+	useEffect(() => {
+		if (!flash) uiSound('menu/reappear-swoosh');
+	}, []);
 
 	useEffect(() => {
 		const arm = () => {
@@ -222,6 +236,7 @@ export default function MainMenu({ flash = false }: Props) {
 			sleep(EXIT_FADE_MS),
 			voice ? sleep(voice.duration * 1000 + SEEYA_TAIL_MS) : undefined,
 		]);
+		await DB.saved();
 		desktop()?.quit();
 	};
 	const [webOpen] = useSynced(isWebOpen);
@@ -237,10 +252,12 @@ export default function MainMenu({ flash = false }: Props) {
 				else setExitConfirm(true);
 				break;
 			case MENU.OPEN:
+				uiSound('menu/back-to-logo');
 				setMenu(MENU.CLOSED);
 				break;
 			case MENU.PLAY:
 			case MENU.EDIT:
+				uiSound('menu/back-to-top');
 				setMenu(MENU.OPEN);
 				break;
 		}
@@ -251,6 +268,7 @@ export default function MainMenu({ flash = false }: Props) {
 	const OPTION_DISPLAY: Record<Option, OptionDisplay> = {
 	// Main menu
 		[OPTION.PLAY]: {
+			sound: 'menu/button-play-select',
 			menu: MENU.OPEN,
 			title: t`Play`,
 			band: 'out',
@@ -259,6 +277,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: openPlay,
 		},
 		[OPTION.EDITOR]: {
+			sound: 'menu/button-play-select',
 			menu: MENU.OPEN,
 			title: t`Editor`,
 			band: 'mid',
@@ -268,6 +287,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: () => { if (!noCharacter) setMenu(MENU.EDIT); },
 		},
 		[OPTION.OPTIONS]: {
+			sound: 'ui/button-select',
 			menu: MENU.OPEN,
 			title: t`Options`,
 			band: 'mid',
@@ -276,6 +296,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: () => { isOptionsOpen.set(!isOptionsOpen.get()); },
 		},
 		[OPTION.EXIT]: {
+			sound: 'ui/button-select',
 			menu: MENU.OPEN,
 			title: t`Exit`,
 			band: 'out',
@@ -287,6 +308,7 @@ export default function MainMenu({ flash = false }: Props) {
 
 		// Play menu
 		[OPTION.SOLO]: {
+			sound: 'menu/button-default-select',
 			menu: MENU.PLAY,
 			title: t`Solo`,
 			band: 'out',
@@ -295,6 +317,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: toSongSelect,
 		},
 		[OPTION.MULTI]: {
+			sound: 'menu/button-default-select',
 			menu: MENU.PLAY,
 			title: t`Multi`,
 			band: 'mid',
@@ -309,6 +332,7 @@ export default function MainMenu({ flash = false }: Props) {
 			},
 		},
 		[OPTION.BACK]: {
+			sound: 'menu/back-to-top',
 			menu: MENU.PLAY,
 			title: t`Back`,
 			band: 'out',
@@ -319,6 +343,7 @@ export default function MainMenu({ flash = false }: Props) {
 
 		// Editor menu
 		[OPTION.EDIT_SELECT]: {
+			sound: 'menu/button-default-select',
 			menu: MENU.EDIT,
 			title: t`Select`,
 			band: 'out',
@@ -327,6 +352,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: toEditSelect,
 		},
 		[OPTION.EDIT_IMPORT]: {
+			sound: 'menu/button-default-select',
 			menu: MENU.EDIT,
 			title: t`Import`,
 			band: 'mid',
@@ -335,6 +361,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: () => void importToEdit(),
 		},
 		[OPTION.EDIT_NEW]: {
+			sound: 'menu/button-default-select',
 			menu: MENU.EDIT,
 			title: t`New`,
 			band: 'mid',
@@ -343,6 +370,7 @@ export default function MainMenu({ flash = false }: Props) {
 			onSelect: () => void newMap(),
 		},
 		[OPTION.EDIT_BACK]: {
+			sound: 'menu/back-to-top',
 			menu: MENU.EDIT,
 			title: t`Back`,
 			band: 'out',
@@ -410,7 +438,12 @@ export default function MainMenu({ flash = false }: Props) {
 									className={
 										`menu__option ${option.band} ${menu === option.menu ? 'visible' : ''} ${option.flip ? 'flip' : ''} ${option.disabled ? 'disabled' : ''}`
 									}
-									onClick={option.onSelect}
+									data-sound="none"
+									onMouseEnter={() => { if (!option.disabled) uiSound('menu/button-hover'); }}
+									onClick={() => {
+										if (!option.disabled) uiSound(option.sound);
+										option.onSelect();
+									}}
 								>
 									<div className='menu__option_bg_safe'>
 										<div 
@@ -443,7 +476,13 @@ export default function MainMenu({ flash = false }: Props) {
 				>
 					<div className="menu__logo-enter">
 						<LogoVisualizer size={logoSize} />
-						<IdleLogo size={logoSize} onClick={mainClick} />
+						<IdleLogo
+							size={logoSize}
+							onClick={() => {
+								uiSound('menu/osu-logo-select');
+								mainClick();
+							}}
+						/>
 					</div>
 				</div>
 			</div>
@@ -456,7 +495,9 @@ export default function MainMenu({ flash = false }: Props) {
 					title={t`Exit oss!idle`}
 					sub={awayHours === undefined
 						? t`Are you sure you want to quit?`
-						: t`Your character keeps playing its queue for ${ph({ hours: awayHours })} hours after you quit.`}
+						: t`Your character keeps playing its queue for ${plural(ph({ hours: awayHours }), {
+							one: '# hour', other: '# hours', 
+						})} after you quit.`}
 					onClose={() => setExitConfirm(false)}
 					options={[
 						{

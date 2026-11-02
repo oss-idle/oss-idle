@@ -23,7 +23,7 @@ import { selectedDef } from '../../rulesets/registry';
 import type { Confirm } from '../ConfirmMenu';
 
 /** Everything an upgrade row shows and does. */
-export const useUpgrade = (skill: SkillState, locked: boolean) => {
+export const useUpgrade = (skill: SkillState, locked: boolean, overdriveBonus = 0) => {
 	const { t } = useLingui();
 	const [level] = useSynced(skill.level);
 	const [xp] = useSynced(skill.xp);
@@ -41,7 +41,7 @@ export const useUpgrade = (skill: SkillState, locked: boolean) => {
 	const max = maxUpgrades(prestige);
 	const maxed = upgrades >= max;
 	const minLevel = upgradeMinLevel(upgrades);
-	const preview = !locked && canUpgrade(state) ? applyUpgrade(state) : undefined;
+	const preview = !locked && canUpgrade(state) ? applyUpgrade(state, overdriveBonus) : undefined;
 	const multiplier = upgradeXPMultiplier(upgrades, overdrive);
 
 	const buy = async () => {

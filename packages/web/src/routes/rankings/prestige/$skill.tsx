@@ -14,8 +14,8 @@ export const Route = createFileRoute('/rankings/prestige/$skill')({
 	validateSearch: zodValidator(pageCountrySearch),
 	loaderDeps: ({ search }) => search,
 	loader: ({ params, deps }) => deps.country
-		? getCountryPrestigeRanking(params.skill as SkillSort, deps.country, deps.page, deps.friends)
-		: getPrestigeRanking(params.skill as SkillSort, deps.page, deps.friends),
+		? getCountryPrestigeRanking(params.skill as SkillSort, deps.country, deps.page, deps)
+		: getPrestigeRanking(params.skill as SkillSort, deps.page, deps),
 	component: PrestigeRoute,
 	staticData: { title: msg`rankings` },
 });

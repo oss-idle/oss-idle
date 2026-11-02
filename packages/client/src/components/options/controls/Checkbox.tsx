@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import Synced from '@oss-idle/shared/helpers/synced';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { uiSound } from '../../../audio/uiSounds';
 import { isChanged } from '../../../db/settings';
 
 interface Props {
@@ -33,6 +34,7 @@ export default function Checkbox({ value, label, onChange, disabled }: Props) {
 	const toggle = () => {
 		const next = !checked;
 		onChange?.(next);
+		uiSound(next ? 'ui/check-on' : 'ui/check-off');
 		void value.set(next);
 	};
 
@@ -42,6 +44,7 @@ export default function Checkbox({ value, label, onChange, disabled }: Props) {
 			className={`opt-checkbox ${checked ? 'is-on' : ''} ${changed}`}
 			onClick={toggle}
 			disabled={disabled}
+			data-sound="hover"
 		>
 			<span className="opt-checkbox__box" aria-hidden>
 				<span className="opt-checkbox__tick" />

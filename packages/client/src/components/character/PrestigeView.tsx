@@ -2,14 +2,20 @@ import '../upgrades/ladder.css';
 
 import { Trans } from '@lingui/react/macro';
 
+import { climaxxOf } from '@oss-idle/shared/genetics';
+import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { PRESTIGE_MIN_LEVEL } from '@oss-idle/shared/upgrades';
 
 import type Character from '../../db/schema/character';
+import { playLevels } from '../../online/services/genetics';
+import { selectedDef } from '../../rulesets/registry';
 import PrestigeRow from './PrestigeRow';
 import PrestigeSummary from './PrestigeSummary';
 
 export default function PrestigeView({ character }: { character: Character }) {
 	const locked = character.id === 0;
+	const [held] = useSynced(character.genetics);
+	const genetics = selectedDef().genetics;
 
 	return (
 		<div className="ladder">
@@ -20,6 +26,10 @@ export default function PrestigeView({ character }: { character: Character }) {
 						key={`${character.id}:${skill.name}`}
 						skill={skill}
 						locked={locked}
+						converted={genetics ? held.converted[skill.name] ?? 0 : undefined}
+						climaxxNow={genetics && (() => climaxxOf(
+							genetics, character.genetics.get(), skill.name, playLevels(character)[skill.name] ?? 0,
+						))}
 						lifetimeXp={character.lifetimeXp(skill.name)}
 					/>
 				))}

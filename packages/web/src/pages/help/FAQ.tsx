@@ -1,23 +1,33 @@
 import './FAQ.css';
 
+import { i18n } from '@lingui/core';
+import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
+import { RULESETS } from '@oss-idle/shared/rulesets/ids';
 import {
 	BASE_MAX_UPGRADES,
 	MEDAL_XP_BONUS,
 	PRESTIGE_MIN_LEVEL,
 	PRESTIGE_XP_BONUS,
+	REBIRTH_LEVEL_STEP,
 	REBIRTH_MIN_OVERALL_LEVEL,
 	UPGRADE_LEVELS,
 	UPGRADE_XP_BONUS,
 } from '@oss-idle/shared/upgrades';
 
 import Link from '../../components/Link';
+import { ENABLED_RULESETS } from '../../rulesets';
 
 const upgradeBonus = UPGRADE_XP_BONUS * 100;
 const prestigeBonus = PRESTIGE_XP_BONUS * 100;
 const bronzeBonus = MEDAL_XP_BONUS.bronze * 100;
 const divineBonus = MEDAL_XP_BONUS.divine * 100;
+
+/** The mania rulesets this build plays, as a player reads them: "4K", or "4K and 7K". */
+const modes = (type: Intl.ListFormatType) => new Intl.ListFormat(i18n.locale, { type })
+	.format(ENABLED_RULESETS.filter(id => RULESETS[id].mode === 'mania').map(rulesetLabel));
 
 export default function FAQ() {
 	return (<main className='page-contents faq'>
@@ -25,7 +35,8 @@ export default function FAQ() {
 		<details>
 			<summary><Trans>What is oss!idle?</Trans></summary>
 			<p><Trans>
-				An idle game built on osu!mania 4K. You don't press the keys: your character plays the maps
+				An idle game built on osu!mania {ph({ modes: modes('conjunction') })}. You don't press the
+				keys: your character plays the maps
 				for you. Every play earns experience in its skills, better skills mean better plays, and
 				better plays climb the rankings.
 			</Trans></p>
@@ -82,9 +93,10 @@ export default function FAQ() {
 			<summary><Trans>What is rebirth?</Trans></summary>
 			<p><Trans>
 				At overall level {REBIRTH_MIN_OVERALL_LEVEL}, you can start a brand new character one
-				generation up. Each generation unlocks something new; the first is the Divine judgement. Your
-				old character is not deleted: it stays playable, ranked and keeps all its progress. If the
-				new one takes its name, the old one is renamed with _old, like on osu!.
+				generation up. Each rebirth needs {REBIRTH_LEVEL_STEP} more levels than the last. Each
+				generation unlocks something new; the first is the Divine judgement. Your old character is
+				not deleted: it stays playable, ranked and keeps all its progress. If the new one takes its
+				name, the old one is renamed with _old, like on osu!.
 			</Trans></p>
 		</details>
 		<details>
@@ -144,7 +156,8 @@ export default function FAQ() {
 		<details>
 			<summary><Trans>Which maps can be ranked?</Trans></summary>
 			<p><Trans>
-				osu!mania 4K difficulties only. Ranking is decided per difficulty, so a set can have some of
+				osu!mania {ph({ modes: modes('conjunction') })} difficulties only. Ranking is decided per
+				difficulty, so a set can have some of
 				its difficulties ranked and others not.
 			</Trans></p>
 		</details>
@@ -159,7 +172,8 @@ export default function FAQ() {
 		<details>
 			<summary><Trans>How do I get a map ranked?</Trans></summary>
 			<p><Trans>
-				Propose it on the <Link to='/maps/requests'>map requests</Link> page. Any 4K map from osu! can
+				Propose it on the <Link to='/maps/requests'>map requests</Link> page.
+				Any {ph({ modes: modes('disjunction') })} map from osu! can
 				be proposed, even a graveyarded one. Other players can back your request, and the team
 				reviews the queue: an accepted map goes through nomination before it is ranked.
 			</Trans></p>

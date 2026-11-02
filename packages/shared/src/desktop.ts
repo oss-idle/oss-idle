@@ -117,6 +117,9 @@ export interface OssIdleDesktop {
 	/** Staging: record ten seconds of Chromium's frame pipeline and send it to the
 	 *  staging server; resolves to how that went. */
 	trace?(): Promise<string>;
+	/** Have the window wait, a few seconds at most, for `save` before it closes: the game
+	 *  saves its database a moment after a write. Absent on builds older than it. */
+	saveBeforeClose?(save: () => Promise<void>): void;
 	/** Quit the desktop app immediately. The browser `window.close()` lingers in
 	 *  Electron, so the renderer calls this for a snappy exit. No-op in a browser. */
 	quit(): void;

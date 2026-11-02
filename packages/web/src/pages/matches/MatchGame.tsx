@@ -20,7 +20,7 @@ export default function MatchGame({ game }: { game: HistoryGame }) {
 				className='match__game-header'
 				style={{
 					backgroundImage: coverBackground({
-						id: beatmap.setId, osuId: beatmap.osuSetId, background: beatmap.background,
+						id: beatmap.setId, osuId: beatmap.osuSetId, osuCover: beatmap.osuCover, background: beatmap.background,
 					}, 'cover'), 
 				}}
 			>

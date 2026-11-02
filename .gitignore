@@ -85,6 +85,7 @@ packages/desktop/electron-builder.staging.yml
 /packages/server/beatmaps
 /packages/server/previews
 /packages/server/skins
+/packages/server/osu-charts
 # local design dumps, never committed
 spec/
 

@@ -1,0 +1,26 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-11 10:10+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: de\n"
+"Project-Id-Version: osu-idle\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-10-30 16:12\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/userPage.ts
+msgid "{name} wrote:"
+msgstr ""
+
+#: src/app.ts
+msgid "Not found"
+msgstr ""
+
+#: src/userPage.ts
+msgid "SPOILER"
+msgstr ""

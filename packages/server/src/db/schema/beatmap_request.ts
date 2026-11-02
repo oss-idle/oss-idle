@@ -39,10 +39,3 @@ export const votesTable = (name: string) => mysqlTable(name as 'beatmap_request_
 	userId: int().notNull(),
 	createdAt: timestamp().notNull().defaultNow(),
 }, table => [primaryKey({ columns: [table.setId, table.userId] })]);
-
-/** Temporary: a player saying they proposed a ranked map (on Discord) before the queue existed. */
-export const beatmapClaims = mysqlTable('beatmap_claim', {
-	setId: int().notNull(),
-	userId: int().notNull(),
-	createdAt: timestamp().notNull().defaultNow(),
-}, table => [primaryKey({ columns: [table.setId, table.userId] })]);

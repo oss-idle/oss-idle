@@ -1,7 +1,11 @@
 import './ContextMenu.css';
 
-import type { RefObject } from 'react';
+import {
+	type RefObject,
+	useEffect,
+} from 'react';
 
+import { uiSound } from '../audio/uiSounds';
 import useKeyboardOwner from '../input/keyboardOwner';
 
 export interface ContextMenuOption {
@@ -36,6 +40,10 @@ export default function ContextMenu({
 	title, sub, header, options, onClose, numbered, children, focus,
 }: Props) {
 	useKeyboardOwner(focus, { close: onClose });
+	useEffect(() => {
+		uiSound('ui/menu-open-select');
+		return () => { uiSound('ui/menu-close'); };
+	}, []);
 	return (
 		<div className="ctxmenu" onClick={onClose}>
 			<div className="ctxmenu__header">

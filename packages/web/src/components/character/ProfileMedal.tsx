@@ -1,5 +1,8 @@
 import { ph } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import {
+	Plural,
+	Trans,
+} from '@lingui/react/macro';
 
 import {
 	type MedalDef,
@@ -35,7 +38,7 @@ export default function ProfileMedal({ medal, unlockedAt, progress, holders, pla
 		<MedalTip medal={medal} icon={icon} hidden={hidden}>
 			<div className='profile-medal__foot'>
 				<div className='profile-medal__rarity'>
-					<Trans>{ph({ holders: holders.toLocaleString() })} players ({ph({ share: share.format(players ? holders / players : 0) })})</Trans>
+					<Trans><Plural value={ph({ holders })} one='# player' other='# players' /> ({ph({ share: share.format(players ? holders / players : 0) })})</Trans>
 				</div>
 				{locked && progress && <MedalProgressBar {...progress} />}
 				{!locked && <div className='profile-medal__date'>

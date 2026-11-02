@@ -50,6 +50,7 @@ import {
 	PLAYER_MODE,
 } from '../audio/MusicPlayer';
 import { SampleSchedule } from '../audio/SampleSchedule';
+import { uiSound } from '../audio/uiSounds';
 import ContextMenu from '../components/ContextMenu';
 import PlayLeaderboard, { type LivePlay } from '../components/gameplay/PlayLeaderboard';
 import SkipToEndButton from '../components/gameplay/SkipToEndButton';
@@ -105,6 +106,10 @@ import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import { loadStoryboardAssets } from '../osu/beatmap/storyboard';
 import calculatePP from '../osu/pp';
 import { currentSkin } from '../osu/skin/Skin';
+import {
+	autoSkip,
+	PBE,
+} from '../pbe/pbe';
 import { maniaOffsets } from '../rulesets/mania/wire';
 import { chartDef } from '../rulesets/registry';
 import type {
@@ -160,6 +165,9 @@ const HITSOUND_TICK_MS = 250;
 /** How long a ranked skip waits for the server to release the rest of the replay
  *  before finishing with whatever arrived. */
 const SKIP_WAIT_MS = 5000;
+
+/** How long a play dropped by the dock's next stays up for the next play to take over. */
+const NEXT_PLAY_WAIT_MS = 10000;
 
 /** How long to wait between asking the server for a result it is still storing.
  *  How many times is the machine's business (RESULT_ATTEMPTS). */
@@ -273,6 +281,7 @@ export default function Gameplay({
 
 	// stop the play and leave (reached through the confirm menu)
 	const abortPlay = () => {
+		uiSound('ui/screen-back');
 		if (play.mode === 'ranked') void abortPlaySession(play.token);
 		else if (owned) abortLocalPlay(play.token);
 		dispatch({ type: 'abort' });
@@ -523,7 +532,7 @@ export default function Gameplay({
 			return;
 		}
 		if (failed && owned && !playOn && retriesOnFail(mods)) {
-			PlayManager.playAgain(beatmapInfo);
+			PlayManager.playAgain(beatmapInfo.at(rate, mods));
 			return;
 		}
 		const game = gameRef.current;
@@ -678,11 +687,23 @@ export default function Gameplay({
 	// socket - stop spectating and leave.
 	useEffect(() => {
 		if (play.mode !== 'ranked') return;
-		return Socket.on('play:aborted', msg => {
+		let waiting: number | undefined;
+		const off = Socket.on('play:aborted', msg => {
+			if (msg.token !== play.token) return;
+			// the dock's next: the next play replaces this scene, if it comes
+			if (PlayManager.skippingFrom(play.token)) {
+				dispatch({ type: 'replaced' });
+				waiting = window.setTimeout(onExit, NEXT_PLAY_WAIT_MS);
+				return;
+			}
 			// through the machine: a play that already reached its result swallows
 			// this instead of leaving the scene out from under the result screen
-			if (msg.token === play.token) dispatch({ type: 'abort' });
+			dispatch({ type: 'abort' });
 		});
+		return () => {
+			off();
+			window.clearTimeout(waiting);
+		};
 	}, []);
 
 	// Stream the rest of the replay in. The server only revealed the first few
@@ -871,6 +892,7 @@ export default function Gameplay({
 						// starts on its own when the clock crosses 0 (see songTime)
 						c0.leadStart = performance.now() - LEAD_IN_MS - t;
 					}
+					if (PBE && autoSkip.get() && !playOn) skipToEnd();
 					void transition.reveal();
 				} else if (test) {
 					// a test play starts where the editor was
@@ -1164,13 +1186,13 @@ export default function Gameplay({
 						<Trans>quit</Trans>
 					</button>
 				)}
+				<SkipToEndButton debug={debug} done={done} onSkip={skipToEnd} />
 			</div>
 			<div className="play__title">
 				{beatmap.metadata.artist} - {beatmap.metadata.title}
 				<RatedVersion version={beatmap.metadata.version} rate={rate} />
 			</div>
 
-			<SkipToEndButton shown={debug && !done} onSkip={skipToEnd} />
 			<MatchScoreboard beatmapId={beatmapInfo.metadata.id} />
 			{!playOn && <PlayLeaderboard rows={board} live={live} />}
 			{waitingRound && <RoundWaiting />}

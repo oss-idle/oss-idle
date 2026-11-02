@@ -10,6 +10,7 @@ import { alias } from 'drizzle-orm/mysql-core';
 import type Stripe from 'stripe';
 
 import { isModerator } from '@oss-idle/shared/groups';
+import { RULESET_IDS } from '@oss-idle/shared/rulesets/ids';
 import type {
 	Sanction,
 	Standing,
@@ -32,6 +33,7 @@ import {
 } from './rankings';
 import { enabledRulesets } from './rulesets/registry';
 import { recomputeFirstPlace } from './scores';
+import { slotOf } from './slot';
 import {
 	cancelSubscriptions,
 	idOf,
@@ -78,10 +80,13 @@ export const characterIds = async (userId: number) => (await db
  *  they held #1 on, for the caller to recompute. */
 export const takeOffline = async (ids: number[]): Promise<number[]> => {
 	for (const id of ids) {
-		await logOff(id);
-		const state = await playState(id);
-		if (state.phase === 'active') await abortPlay(id, state.token);
-		await leave(id);
+		for (const ruleset of RULESET_IDS) {
+			const slot = slotOf(id, ruleset);
+			await logOff(slot);
+			const state = await playState(slot);
+			if (state.phase === 'active') await abortPlay(slot, state.token);
+			await leave(slot);
+		}
 		await unindexCharacter(id);
 	}
 	if (!ids.length) return [];

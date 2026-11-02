@@ -1,142 +1,105 @@
-import gaussian from '../../../../math/gaussian.js';
 import type { Mod } from '../../../../mods.js';
 import type { SkillGain } from '../../../../play.js';
-import type SkillState from '../../../skillState.js';
+import SkillState from '../../../skillState.js';
+import CharacterBot, { type ScoreLike } from '../../4k/bots/character.js';
+import type { SkillName } from '../../4k/skills.js';
+import { makeOrderedSkills } from '../../4k/skills/factory.js';
+import Memory from '../../4k/skills/memory.js';
+import { tireSkill } from '../../4k/tiring.js';
 import {
 	Bot,
 	type BotContext,
 } from '../../bot.js';
 import type RuntimeNote from '../../runtimeNote.js';
+import type { SimPlay } from '../../sim.js';
 import { modXpMultipliers7k } from '../modXp.js';
 import {
-	SKILL_7K,
 	type SkillName7k,
+	Skills7k,
 } from '../skills.js';
-import {
-	DEMANDS,
-	readMap,
-} from './demand.js';
 
-/** Placeholder tuning: the 4K rebalance shapes 7K's real numbers. */
-const CAP_LEVEL = 110;
-const BASE_SIGMA_MS = 45;
-const STRAIN_SIGMA = 3;
-const MISS_CHANCE = 0.25;
-const XP_PER_MINUTE = 1000;
-/** every skill's floor share of a play's xp; the rest goes by strain */
-const FLOOR_SHARE = 0.4;
-/** plays of a map memory needs to learn its SV */
-const MEMORY_PLAYS = 12;
+/** The 7K skill each 4K skill plays at and earns for. */
+const STANDS_FOR: Record<SkillName, SkillName7k> = {
+	accuracy: 'accuracy',
+	speed: 'speed',
+	stamina: 'stamina',
+	jackspeed: 'jacks',
+	coordination: 'independence',
+	release: 'ln',
+	reading: 'technical',
+	consistency: 'focus',
+	concentration: 'focus',
+	speedjam: 'sv',
+	memory: 'memory',
+};
 
-type Strains = Record<SkillName7k, number>;
+export type ScoreLike7k = ScoreLike;
 
-const NO_STRAIN: Readonly<Record<string, number>> = Object.freeze({});
+const skillsAt = ({
+	progress, fatigue, warm, plays,
+}: SimPlay<SkillName7k>) => makeOrderedSkills().map(skill => {
+	const p = progress(STANDS_FOR[skill.name]);
+	skill.apply(p);
+	skill.lifetimeXp.set(p.lifetimeXp);
+	tireSkill(skill, fatigue, warm);
+	if (skill instanceof Memory) skill.timesPlayed.set(plays);
+	return skill;
+});
 
-/** What a play's xp is read off: its accuracy, 0 to 1. */
-export type ScoreLike7k = { accuracy: number };
-
-/**
- * 7K's bot: each note's demand per skill, less what the character's level handles, is its
- * strain; the hardest one widens that note's timing. Placeholder models (bots/demand.ts).
- */
+/** 7K's public bot: 4K's bot on the 7K chart, its skills at their 7K counterparts' levels. */
 export default class Bot7k extends Bot {
 
-	private readonly strains = new Map<RuntimeNote, Strains>();
-	private readonly blamed = new Map<RuntimeNote, SkillName7k>();
-	private notes: RuntimeNote[] = [];
+	private readonly bot: CharacterBot;
+	private readonly skills: SkillState<SkillName7k>[];
 
-	constructor(
-		protected readonly skills: SkillState<SkillName7k>[],
-		/** this character's plays of the map: what memory has learned */
-		private readonly timesPlayed = 0,
-	) {
+	constructor(play: SimPlay<SkillName7k>) {
 		super();
+		this.bot = new CharacterBot(skillsAt(play));
+		this.skills = Skills7k.map(name => {
+			const skill = new SkillState(name);
+			const p = play.progress(name);
+			skill.apply(p);
+			void skill.lifetimeXp.set(p.lifetimeXp);
+			return skill;
+		});
 	}
 
 	generateEvents(ctx: BotContext) {
-		this.analyze(ctx);
-		return super.generateEvents(ctx);
-	}
-
-	private analyze(ctx: BotContext) {
-		const map = readMap(ctx);
-		this.notes = ctx.notes;
-		for (const note of ctx.notes) {
-			const strains = {} as Strains;
-			for (const skill of this.skills) {
-				const handled = Math.min(1, skill.playLevel() / CAP_LEVEL) * 0.8;
-				strains[skill.name] = Math.max(0, DEMANDS[skill.name](note, map) - handled);
-			}
-			this.strains.set(note, strains);
-		}
-	}
-
-	/** The note's hardest skill on `side`: LN strains the release, the rest the press. */
-	private hardest(note: RuntimeNote, side: 'press' | 'release'): [SkillName7k, number] {
-		const strains = this.strains.get(note);
-		if (!strains) return [SKILL_7K.accuracy, 0];
-		if (side === 'release') return [SKILL_7K.ln, strains.ln];
-		let worst: [SkillName7k, number] = [SKILL_7K.accuracy, strains.accuracy];
-		for (const [name, strain] of Object.entries(strains) as [SkillName7k, number][]) {
-			if (name !== SKILL_7K.memory && strain > worst[1]) worst = [name, strain];
-		}
-		return worst;
-	}
-
-	private offset(note: RuntimeNote, side: 'press' | 'release'): number {
-		const [skill, strain] = this.hardest(note, side);
-		if (side === 'press') this.blamed.set(note, skill);
-		if (Math.random() < strain ** 3 * MISS_CHANCE) return Infinity;
-		const accuracy = this.skills.find(s => s.name === SKILL_7K.accuracy);
-		const steady = 1 - 0.7 * Math.min(1, (accuracy?.playLevel() ?? 0) / CAP_LEVEL);
-		return gaussian(BASE_SIGMA_MS * steady * (1 + STRAIN_SIGMA * strain));
+		return this.bot.generateEvents(ctx);
 	}
 
 	pressOffset(note: RuntimeNote) {
-		return this.offset(note, 'press');
+		return this.bot.pressOffset(note);
 	}
 
 	releaseOffset(note: RuntimeNote) {
-		return this.offset(note, 'release');
+		return this.bot.releaseOffset(note);
 	}
 
-	/** Each skill's strain at song time `t`, 0 to 1: the last note at or before it. */
 	strainsAt(t: number): Readonly<Record<string, number>> {
-		let lo = 0;
-		let hi = this.notes.length;
-		while (lo < hi) {
-			const mid = (lo + hi) >> 1;
-			if (this.notes[mid].time <= t) lo = mid + 1;
-			else hi = mid;
+		const strains: Partial<Record<SkillName7k, number>> = {};
+		for (const [skill, strain] of Object.entries(this.bot.strainsAt(t)) as [SkillName, number][]) {
+			const name = STANDS_FOR[skill];
+			strains[name] = Math.max(strains[name] ?? 0, strain);
 		}
-		return (lo > 0 && this.strains.get(this.notes[lo - 1])) || NO_STRAIN;
+		return strains;
 	}
 
-	/** The share of the play's notes on which any skill in `thresholds` strained past its threshold. */
-	strainedShare(thresholds: Readonly<Record<string, number>>): number {
-		if (!this.notes.length) return 0;
-		const limits = Object.entries(thresholds) as [SkillName7k, number][];
-		const strained = this.notes.filter(note => {
-			const strains = this.strains.get(note);
-			return strains && limits.some(([skill, limit]) => (strains[skill] ?? 0) > limit);
-		});
-		return strained.length / this.notes.length;
+	strainedShare(thresholds: Partial<Record<SkillName7k, number>>): number {
+		return this.bot.strainedShare(Object.fromEntries(
+			(Object.keys(STANDS_FOR) as SkillName[])
+				.filter(skill => thresholds[STANDS_FOR[skill]] !== undefined)
+				.map(skill => [skill, thresholds[STANDS_FOR[skill]]]),
+		));
 	}
 
-	/** Each skill's xp for the play, its gear and prestige multiplier applied. */
 	getSkillsXP(length: number, score: ScoreLike7k): Record<SkillName7k, number> {
-		const total = XP_PER_MINUTE * (length / 60_000) * score.accuracy ** 2;
-		const counts = new Map<SkillName7k, number>();
-		for (const skill of this.blamed.values()) counts.set(skill, (counts.get(skill) ?? 0) + 1);
-		// memory learns the SV a map throws at the character
-		const learned = Math.min(1, this.timesPlayed / MEMORY_PLAYS);
-		counts.set(SKILL_7K.memory, (counts.get(SKILL_7K.sv) ?? 0) * learned);
-		const blamed = Math.max(1, this.blamed.size);
-		return Object.fromEntries(this.skills.map(skill => {
-			const share = FLOOR_SHARE / this.skills.length
-				+ (1 - FLOOR_SHARE) * (counts.get(skill.name) ?? 0) / blamed;
-			return [skill.name, Math.floor(total * share * skill.xpMultiplier())];
-		})) as Record<SkillName7k, number>;
+		const xp = Object.fromEntries(Skills7k.map(s => [s, 0])) as Record<SkillName7k, number>;
+		const gains = Object.entries(this.bot.getSkillsXP(length, score)) as [SkillName, number][];
+		for (const [skill, gained] of gains) {
+			xp[STANDS_FOR[skill]] += gained;
+		}
+		return xp;
 	}
 
 	private progression?: SkillGain[];

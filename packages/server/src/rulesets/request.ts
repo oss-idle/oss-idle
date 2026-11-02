@@ -12,11 +12,12 @@ import { valid } from '../validate';
 import { ENABLED_RULESETS } from './enabled';
 import {
 	enabledRulesets,
+	queuedRuleset,
 	rulesetFor,
 } from './registry';
 import type { ServerRuleset } from './ruleset';
 
-const rulesetId = z.enum(RULESET_IDS);
+export const rulesetId = z.enum(RULESET_IDS);
 
 /** Declares `?ruleset=` on a route, so typed clients can pass it; {@link rulesetQuery} reads it. */
 export const rulesetParam = valid('query', z.object({ ruleset: rulesetId.optional() }));
@@ -35,6 +36,17 @@ export const rulesetQuery = (c: Context, character?: { ruleset: RulesetId }): Se
 		throw new HTTPException(404, { message: 'No such ruleset' });
 	}
 	return rulesetFor(id.data);
+};
+
+/** The ruleset a nomination request asks about (`?ruleset=`): any with a queue here, this
+ *  server's first by default. Who may reach one players don't have yet is the route's. */
+export const queueQuery = (c: Context): ServerRuleset => {
+	const asked = c.req.query('ruleset');
+	if (asked === undefined) return enabledRulesets()[0];
+	const id = rulesetId.safeParse(asked);
+	const r = id.success ? queuedRuleset(id.data) : undefined;
+	if (!r) throw new HTTPException(404, { message: 'No such ruleset' });
+	return r;
 };
 
 /** The ruleset an osu!-style API call asks about: osu!'s `mode` (in the path, or the

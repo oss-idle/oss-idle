@@ -30,6 +30,14 @@ export const getCharacterStats = (id: number | string, ruleset?: RulesetId) =>
 export const getMyCharacter = () =>
 	unwrap(rpc.v1.me.character.$get());
 
+/** Every character the signed-in account owns, oldest first. */
+export const getMyCharacters = () =>
+	unwrap(rpc.v1.me.characters.$get());
+
+/** Make one of the account's characters live. */
+export const selectMyCharacter = (characterId: number) =>
+	unwrap(rpc.v1.me.character.select.$post({ json: { characterId } }));
+
 export const getCharacterMostPlayed = (id: Id, page: Id, ruleset?: RulesetId) =>
 	unwrap(rpc.v1.characters[':id'].mostplayed[':page'].$get({
 		param: {
@@ -80,6 +88,28 @@ export const getCharacterRankedMaps = (id: Id, page: Id, ruleset?: RulesetId) =>
 		},
 		query: { ruleset },
 	}));
+
+/** The account's favourite sets with difficulties in `ruleset`. */
+export const getCharacterNbFavourites = (id: Id, ruleset?: RulesetId) =>
+	unwrap(rpc.v1.characters[':id'].countfavourites.$get({
+		param: { id: String(id) }, query: { ruleset },
+	}));
+export const getCharacterFavourites = (id: Id, page: number, ruleset?: RulesetId) =>
+	unwrap(rpc.v1.characters[':id'].favourites[':page'].$get({
+		param: {
+			id: String(id), page: String(page),
+		},
+		query: { ruleset },
+	}));
+
+/** osu!web's recent activity. */
+export const getCharacterEvents = (id: Id, page: number) =>
+	unwrap(rpc.v1.characters[':id'].events[':page'].$get({
+		param: {
+			id: String(id), page: String(page),
+		},
+	}));
+export type ProfileEvent = Awaited<ReturnType<typeof getCharacterEvents>>['items'][number];
 
 /** The account's own maps: the ranked or loved ones they mapped, or their unranked uploads. */
 export type MappedStatus = 'ranked' | 'loved' | 'unranked';

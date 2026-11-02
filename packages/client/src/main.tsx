@@ -13,6 +13,7 @@ import { desktop } from '@oss-idle/shared/desktop';
 import { startAutoUpdates } from './addons/autoUpdate';
 import { bootAddons } from './addons/runtime';
 import App from './App.tsx';
+import { DB } from './db/dao';
 import { SETTINGS } from './db/settings';
 import {
 	DEV_TOOLS,
@@ -37,6 +38,8 @@ void watchMapFolders();
 void watchSkinFolders();
 startGuestBeat();
 SETTINGS.uiScale.forceSync(scale => desktop()?.setZoomFactor?.(scale));
+// the database is saved a moment after a write: a closing window waits for it
+desktop()?.saveBeforeClose?.(() => DB.saved());
 
 // dev tools; the static DEV_TOOLS drops them from a release build. The profiler
 // loads after the frame limiter so it times every rAF.

@@ -67,19 +67,22 @@ export const getPopularMaps = (dir?: 'asc' | 'desc', filter: MapFilter = {}, pag
 		}, 
 	}));
 
-// --- Beatmap nomination (admin) ---
+// --- Beatmap nomination ---
 
-/** Admin: the full nomination queue (pending + ranked + rejected). */
-export const listNominations = () => unwrap(rpc.v1.beatmap.nomination.$get());
+const rulesetSuffix = (ruleset?: RulesetId) => ruleset ? `?ruleset=${ruleset}` : '';
+
+/** The ruleset's full nomination queue (pending + ranked + rejected). */
+export const listNominations = (ruleset?: RulesetId) =>
+	unwrap(rpc.v1.beatmap.nomination.$get({ query: { ruleset } }));
 
 /** One row of the nomination queue, inferred from the route. */
 export type Nomination = Awaited<ReturnType<typeof listNominations>>[number];
 
 /** Admin: ingest an uploaded .osz into the queue as a pending set. */
-export const uploadBeatmap = async (file: File) => {
+export const uploadBeatmap = async (file: File, ruleset?: RulesetId) => {
 	const form = new FormData();
 	form.append('file', file);
-	const res = await fetch(apiUrl('/v1/beatmap/nomination'), withAuth({
+	const res = await fetch(apiUrl(`/v1/beatmap/nomination${rulesetSuffix(ruleset)}`), withAuth({
 		method: 'POST', body: form, 
 	}));
 	return json<{ setId: number; difficulties: number }>(res);
@@ -98,9 +101,10 @@ export type NominationPatch = {
 export const updateNomination = (
 	setId: number, 
 	body: NominationPatch,
+	ruleset?: RulesetId,
 ) =>
 	unwrap(rpc.v1.beatmap.nomination[':setId'].$patch({
-		param: { setId: String(setId) }, json: body, 
+		param: { setId: String(setId) }, query: { ruleset }, json: body, 
 	}));
 
 /** Admin: toggle one difficulty in/out of the set's ranked lineup. */
@@ -133,6 +137,12 @@ export const getMapset = (id: number | string, ruleset?: RulesetId) =>
 	}));
 
 export type Mapset = Awaited<ReturnType<typeof getMapset>>;
+
+/** Favourite or unfavourite a set as the signed-in player: its favourite count after. */
+export const favouriteMapset = (id: number, favourite: boolean) =>
+	unwrap(rpc.v1.beatmap.set[':id'].favourite.$put({
+		param: { id: String(id) }, json: { favourite },
+	}));
 export type MapDiff = Mapset['diffs'][number];
 
 /** Public: a difficulty's leaderboard, worldwide, in one country, or among the viewer's friends. */
@@ -147,12 +157,13 @@ export const getMapBoard = (beatmapId: number, filter: { country?: string; frien
 export type BoardRow = Awaited<ReturnType<typeof getMapBoard>>[number];
 
 /** A queued set's audio preview, public or not (admin). */
-export const nominationPreviewUrl = (setId: number, file: string) =>
-	apiUrl(`/v1/beatmap/nomination/${setId}/preview/${encodeURIComponent(file)}`);
+export const nominationPreviewUrl = (setId: number, file: string, ruleset?: RulesetId) =>
+	apiUrl(`/v1/beatmap/nomination/${setId}/preview/${encodeURIComponent(file)}`
+		+ rulesetSuffix(ruleset));
 
 /** A queued set's .osz, public or not (admin). */
-export const nominationOszUrl = (setId: number) =>
-	apiUrl(`/v1/beatmap/nomination/${setId}/osz`);
+export const nominationOszUrl = (setId: number, ruleset?: RulesetId) =>
+	apiUrl(`/v1/beatmap/nomination/${setId}/osz${rulesetSuffix(ruleset)}`);
 
 /** A set's audio preview. */
 export const previewUrl = (setId: number, file: string) =>

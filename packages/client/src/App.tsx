@@ -14,6 +14,10 @@ import {
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { installInterfaceSounds } from './audio/interfaceSounds';
+import { installOverlaySounds } from './audio/overlaySounds';
+import { installTypingSounds } from './audio/typingSounds';
+import { prepareUiSounds } from './audio/uiSounds';
 import CommunityOverlay from './components/community/CommunityOverlay';
 import ConfirmPrompt from './components/ConfirmPrompt';
 import Cursor from './components/Cursor';
@@ -21,6 +25,7 @@ import DirectLinkPanel from './components/direct/DirectLinkPanel';
 import PlayDock from './components/dock/PlayDock';
 import FloatingDeltas from './components/FloatingDeltas';
 import FpsCounter from './components/FpsCounter';
+import GeneticChoice from './components/genetic-choice/GeneticChoice';
 import ShownMedals from './components/medals/ShownMedals';
 import Message from './components/Message';
 import OldHostPrompt from './components/OldHostPrompt';
@@ -44,7 +49,7 @@ import Socket from './online/socket';
 import { prefetchRulesets } from './rulesets/registry';
 import { prefetchScenes } from './scenes/lazy';
 import Options from './scenes/Options';
-import SceneManager from './scenes/SceneManager';
+import SceneManager, { SCENE } from './scenes/SceneManager';
 import TransitionOverlay from './scenes/Transition';
 import MenuWarmup from './warmup/MenuWarmup';
 
@@ -68,6 +73,18 @@ export default function App() {
 		prefetchScenes();
 		prefetchRulesets();
 	}, []);
+	useEffect(() => {
+		const stops = [
+			installInterfaceSounds(() => SceneManager.current.get() !== SCENE.GAME),
+			installTypingSounds(),
+			installOverlaySounds(),
+		];
+		const preparing = setTimeout(() => void prepareUiSounds(), 2000);
+		return () => {
+			clearTimeout(preparing);
+			stops.forEach(stop => stop());
+		};
+	}, []);
 
 	if (playground) return <Suspense fallback={null}><Playground /></Suspense>;
 
@@ -83,6 +100,7 @@ export default function App() {
 			<TransitionOverlay />
 			<PlayChoice />
 			<Onboarding />
+			<GeneticChoice />
 			<Tutorial />
 			<OldHostPrompt />
 			<Message />

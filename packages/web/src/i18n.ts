@@ -16,6 +16,7 @@ export async function activateLocale(locale: Locale): Promise<void> {
 		import(`./locales/${locale}.po`),
 	]);
 	loadAndActivate(i18n, locale, shared, app);
+	document.documentElement.lang = locale;
 }
 
 export { i18n };

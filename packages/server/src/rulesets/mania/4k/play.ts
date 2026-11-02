@@ -8,6 +8,7 @@ import { type Mod } from '@oss-idle/shared/mods';
 import { allowedRate } from '@oss-idle/shared/rate';
 import { hasUnlock } from '@oss-idle/shared/rebirth';
 import type { ScoreLike } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
+import { GENETICS_4K } from '@oss-idle/shared/rulesets/mania/4k/genes';
 import { modXpMultipliers } from '@oss-idle/shared/rulesets/mania/4k/modXp';
 import {
 	MINDBLOCK_SKILLS,
@@ -18,6 +19,10 @@ import type { ScoreState } from '@oss-idle/shared/rulesets/mania/scoring';
 import type { SimBot } from '@oss-idle/shared/rulesets/mania/sim';
 import { xpScore } from '@oss-idle/shared/rulesets/mania/xpScore';
 
+import {
+	geneInput,
+	geneticsXp,
+} from '../../../character/genetics';
 import { getPlays } from '../../../db/schema/beatmaps_played';
 import {
 	type ProfileRow,
@@ -71,6 +76,7 @@ export const getServerXP = async (
 	stars: number,
 	mods: readonly Mod[] = [],
 	fatigue = 0,
+	genetics?: Readonly<Record<string, number>>,
 ) => {
 	// the play's real duration: a rate shortens or stretches it
 	const skillXp = bot.getSkillsXP(chart.totalLength / rate, score);
@@ -80,11 +86,12 @@ export const getServerXP = async (
 		grade: score.grade,
 		stars,
 		fatigue,
+		genetics,
 	});
 };
 
 export const play: RulesetPlay = {
-	tiredness: tiredness(SKILL.stamina),
+	tiredness: tiredness(SKILL.stamina, GENETICS_4K),
 	allowedRate: (profile, rate) => allowedRate(rate, skillOf(profile, 'speed').upgrades),
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
@@ -103,6 +110,7 @@ export const play: RulesetPlay = {
 					fatigue,
 					warm,
 					plays: await getPlays(r, profile.id, beatmapId),
+					...await geneInput(r, profile, beatmapId),
 				},
 				rate, mods, divine, round, strained: STRAINED_4K, gauged: r.def.gauged as SkillName[],
 			});
@@ -118,6 +126,7 @@ export const play: RulesetPlay = {
 					grade: score.grade,
 					stars: sr,
 					fatigue,
+					genetics: await geneticsXp(r, profile, beatmapId),
 				}),
 				rawXp,
 				strain: {
@@ -144,6 +153,7 @@ export const play: RulesetPlay = {
 			...played,
 			skillXp: await getServerXP(
 				r, profile.id, beatmapId, bot, chart, score, rate, sr, mods, fatigue,
+				await geneticsXp(r, profile, beatmapId),
 			),
 			rawXp: bot.getRawXP?.(length, score),
 			strain: {

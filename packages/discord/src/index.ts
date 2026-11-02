@@ -80,13 +80,19 @@ const BADGES = [
 		key: group, ...GROUP_BADGE[group], 
 	})),
 	{
-		key: 'supporter', name: 'Supporter', colour: '#ff66aa', 
+		key: 'supporter', name: 'Supporter', colour: '#ff66aa',
+	},
+	// no colour, so the level role's shows
+	{
+		key: 'supporterLevelColour', name: 'Supporter (level colour)', colour: '#000000',
 	},
 ];
 /** Moderation without Manage Roles, so they can't hand out Supporter or levels. Unlisted badges
  *  carry none: Discord's defaults include apps in every channel. */
 const PERMISSIONS: Partial<Record<string, bigint[]>> = {
+	admin: [PermissionFlagsBits.ManageChannels],
 	gmt: [
+		PermissionFlagsBits.ManageChannels,
 		PermissionFlagsBits.KickMembers,
 		PermissionFlagsBits.BanMembers,
 		PermissionFlagsBits.ModerateMembers,
@@ -102,6 +108,14 @@ const PERMISSIONS: Partial<Record<string, bigint[]>> = {
 	],
 };
 const isBadge = (role: Role) => BADGES.some(badge => badge.name === role.name);
+const isManaged = (role: Role) => tierOfRole(role) !== undefined || isBadge(role);
+
+// Discord's nickname limit
+const NICKNAME_MAX = 32;
+const SUPPORTER_MARK = ' ♥';
+/** The mark, unless only cutting the name would make it fit. */
+const nicknameOf = (name: string, supporter: boolean) =>
+	supporter && name.length + SUPPORTER_MARK.length <= NICKNAME_MAX ? name + SUPPORTER_MARK : name;
 
 const FULL_SYNC_MS = 15 * 60 * 1000;
 
@@ -114,7 +128,7 @@ const db = mysql.createPool({
 	connectionLimit: 2,
 });
 
-type Linked = { name?: string; level?: number; badges: string[] };
+type Linked = { nickname?: string; level?: number; badges: string[] };
 
 /** The current character's lifetime xp, from its ruleset's own table. */
 const LIFETIME_XP = `COALESCE(${RULESET_IDS.map(id => `(SELECT p.overall_lifetime_xp FROM \`${id}_character\` p
@@ -125,7 +139,7 @@ const LIFETIME_XP = `COALESCE(${RULESET_IDS.map(id => `(SELECT p.overall_lifetim
 const linkedMembers = async (filter = '', args: unknown[] = []) => {
 	const [rows] = await db.query<RowDataPacket[]>(
 		`SELECT u.id, u.discord_id AS discordId, c.name, ${LIFETIME_XP} AS lifetimeXp,
-			u.supporter_until > UTC_TIMESTAMP() AS supporter,
+			u.supporter_until > UTC_TIMESTAMP() AS supporter, u.discord_level_colour AS levelColour,
 			(SELECT GROUP_CONCAT(g.\`group\`) FROM user_group g WHERE g.user_id = u.id) AS \`groups\`
 		FROM user u LEFT JOIN \`character\` c ON c.id = u.current_character
 		WHERE u.discord_id IS NOT NULL AND u.restricted_at IS NULL ${filter}`,
@@ -134,9 +148,9 @@ const linkedMembers = async (filter = '', args: unknown[] = []) => {
 	return new Map(rows.map(row => {
 		const keys = new Set<string>(row.groups?.split(',') ?? []);
 		if (row.id === OWNER_ID) keys.add('admin');
-		if (row.supporter) keys.add('supporter');
+		if (row.supporter) keys.add(row.levelColour ? 'supporterLevelColour' : 'supporter');
 		const linked: Linked = {
-			name: row.name ?? undefined,
+			nickname: row.name === null ? undefined : nicknameOf(row.name, Boolean(row.supporter)),
 			level: row.lifetimeXp === null ? undefined : xpGivesLevel(Number(row.lifetimeXp)).level,
 			badges: BADGES.filter(badge => keys.has(badge.key)).map(badge => badge.name),
 		};
@@ -145,7 +159,7 @@ const linkedMembers = async (filter = '', args: unknown[] = []) => {
 };
 
 /** Keep the level roles together, highest on top, so the member list reads as a ladder, and
- *  the badges right over it. */
+ *  the badges right over it. Any other role caught in the block goes under it. */
 const orderRoles = async (guild: Guild) => {
 	// New roles share position 1 without lifting the rest, so the block can outgrow the bot's
 	// own position. Any reorder makes Discord renumber every role.
@@ -161,9 +175,12 @@ const orderRoles = async (guild: Guild) => {
 		.map(badge => guild.roles.cache.find(role => role.name === badge.name))
 		.filter(role => role !== undefined);
 	const managed = [...ladder, ...badges];
-	const base = Math.min(...managed.map(role => role.position));
-	await guild.roles.setPositions(managed.map((role, i) => ({
-		role, position: base + i, 
+	const top = Math.max(...managed.map(role => role.position));
+	const under = [...guild.roles.cache.values()]
+		.filter(role => role.id !== guild.id && role.position <= top && !isManaged(role))
+		.sort((a, b) => a.position - b.position);
+	await guild.roles.setPositions([...under, ...managed].map((role, i) => ({
+		role, position: i + 1,
 	})));
 };
 
@@ -175,17 +192,11 @@ const roleFor = (guild: Guild, tier: number): Promise<Role> => {
 	if (existing) return Promise.resolve(existing);
 	let made = creating.get(tier);
 	if (!made) {
-		// At the foot of the block, or orderRoles would rebuild it from position 1, over any role
-		// kept under the ladder.
-		const position = Math.min(...guild.roles.cache
-			.filter(role => tierOfRole(role) !== undefined || isBadge(role))
-			.map(role => role.position));
 		made = guild.roles.create({
 			name: roleName(tier),
 			colors: { primaryColor: colourOf(tier) },
 			hoist: true,
 			permissions: [],
-			position,
 		}).then(async role => {
 			await orderRoles(guild);
 			return role;
@@ -224,26 +235,49 @@ const dropEmpty = async (roles: Role[]) => {
 	}
 };
 
-const syncMember = async (member: GuildMember, linked: Linked | undefined) => {
+/** Discord takes a member's roles as one whole list, and the cached ones lag behind it: read them
+ *  afresh and send the change in one go, or a list built on an older one brings its roles back. */
+const setManagedRoles = async (member: GuildMember, wanted: Role[]) => {
+	const { roles } = await member.fetch();
+	const held = roles.cache.filter(isManaged);
+	if (held.size === wanted.length && wanted.every(role => held.has(role.id))) return;
+	await roles.set([...roles.cache.filter(role => !isManaged(role)).values(), ...wanted]);
+	await dropEmpty([...held.values()]);
+};
+
+const syncOneMember = async (member: GuildMember, linked: Linked | undefined) => {
 	if (member.user.bot) return;
 	const tier = linked?.level === undefined ? undefined : tierOf(linked.level);
 	const want = tier === undefined ? undefined : await roleFor(member.guild, tier);
 	const badges = member.guild.roles.cache.filter(role => !!linked?.badges.includes(role.name));
-	const add = [want, ...badges.values()]
-		.filter((role): role is Role => role !== undefined && !member.roles.cache.has(role.id));
-	const stale = member.roles.cache.filter(role => tierOfRole(role) !== undefined
-		? role !== want
-		: isBadge(role) && !badges.has(role.id));
+	const wanted = [want, ...badges.values()].filter(role => role !== undefined);
+	const held = member.roles.cache.filter(isManaged);
+	// a restricted or deleted account is no longer linked, and loses the mark with its role
+	const nickname = linked?.nickname ?? (member.nickname?.endsWith(SUPPORTER_MARK)
+		? member.nickname.slice(0, -SUPPORTER_MARK.length)
+		: undefined);
 	// Discord never lets a bot rename the server owner or anyone ranked above it
-	if (linked?.name && member.nickname !== linked.name && member.manageable) {
-		await member.setNickname(linked.name)
+	if (nickname && member.nickname !== nickname && member.manageable) {
+		await member.setNickname(nickname)
 			.catch(err => console.error(`[discord] nickname of ${member.id}:`, err.message));
 	}
-	if (add.length) await member.roles.add(add);
-	if (stale.size) {
-		await member.roles.remove(stale);
-		await dropEmpty([...stale.values()]);
+	if (held.size !== wanted.length || wanted.some(role => !held.has(role.id))) {
+		await setManagedRoles(member, wanted);
 	}
+};
+
+const turns = new Map<string, Promise<void>>();
+
+/** One at a time per member: a player's character pushes come faster than Discord answers. */
+const syncMember = (member: GuildMember, linked: Linked | undefined) => {
+	const work = () => syncOneMember(member, linked);
+	const turn = (turns.get(member.id) ?? Promise.resolve()).then(work, work);
+	turns.set(member.id, turn);
+	const done = () => {
+		if (turns.get(member.id) === turn) turns.delete(member.id);
+	};
+	turn.then(done, done);
+	return turn;
 };
 
 const syncLinked = async (guild: Guild, linked: Map<string, Linked>) => {

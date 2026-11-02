@@ -10,7 +10,7 @@ export const Route = createFileRoute('/rankings/medals/progress/$line')({
 	validateSearch: zodValidator(pageCountrySearch),
 	loaderDeps: ({ search }) => search,
 	loader: ({ params, deps }) =>
-		getProgressRanking(params.line, deps.page, deps.country, deps.friends),
+		getProgressRanking(params.line, deps.page, deps.country, deps),
 	component: LineRoute,
 	staticData: { title: msg`rankings` },
 });

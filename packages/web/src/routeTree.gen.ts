@@ -24,6 +24,7 @@ import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as MapsIndexRouteImport } from './routes/maps/index'
 import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
 import { Route as BugsIndexRouteImport } from './routes/bugs/index'
+import { Route as BotIndexRouteImport } from './routes/bot/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as ScoresIdRouteImport } from './routes/scores/$id'
 import { Route as RankingsScoreRouteImport } from './routes/rankings/score'
@@ -36,7 +37,6 @@ import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as MatchesIdRouteImport } from './routes/matches/$id'
 import { Route as MapsRequestsRouteImport } from './routes/maps/requests'
 import { Route as MapsLevelsRouteImport } from './routes/maps/levels'
-import { Route as MapsClaimRouteImport } from './routes/maps/claim'
 import { Route as MapsIdRouteImport } from './routes/maps/$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalRulesRouteImport } from './routes/legal/rules'
@@ -51,6 +51,7 @@ import { Route as ChangelogVersionRouteImport } from './routes/changelog/$versio
 import { Route as CIdRouteImport } from './routes/c/$id'
 import { Route as BugsNewRouteImport } from './routes/bugs/new'
 import { Route as BugsIdRouteImport } from './routes/bugs/$id'
+import { Route as BotUserIdRouteImport } from './routes/bot/$userId'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthDiscordRouteImport } from './routes/auth/discord'
 import { Route as AuthDesktopRouteImport } from './routes/auth/desktop'
@@ -64,7 +65,6 @@ import { Route as AdminOrdersRouteImport } from './routes/admin/orders'
 import { Route as AdminNominationRouteImport } from './routes/admin/nomination'
 import { Route as AdminMedalsRouteImport } from './routes/admin/medals'
 import { Route as AdminEmojiRouteImport } from './routes/admin/emoji'
-import { Route as AdminClaimsRouteImport } from './routes/admin/claims'
 import { Route as AdminChatRouteImport } from './routes/admin/chat'
 import { Route as AdminBugsRouteImport } from './routes/admin/bugs'
 import { Route as AdminAddonsRouteImport } from './routes/admin/addons'
@@ -151,6 +151,11 @@ const BugsIndexRoute = BugsIndexRouteImport.update({
   path: '/bugs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BotIndexRoute = BotIndexRouteImport.update({
+  id: '/bot/',
+  path: '/bot/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -209,11 +214,6 @@ const MapsRequestsRoute = MapsRequestsRouteImport.update({
 const MapsLevelsRoute = MapsLevelsRouteImport.update({
   id: '/maps/levels',
   path: '/maps/levels',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MapsClaimRoute = MapsClaimRouteImport.update({
-  id: '/maps/claim',
-  path: '/maps/claim',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapsIdRoute = MapsIdRouteImport.update({
@@ -286,6 +286,11 @@ const BugsIdRoute = BugsIdRouteImport.update({
   path: '/bugs/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BotUserIdRoute = BotUserIdRouteImport.update({
+  id: '/bot/$userId',
+  path: '/bot/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
   path: '/auth/error',
@@ -349,11 +354,6 @@ const AdminMedalsRoute = AdminMedalsRouteImport.update({
 const AdminEmojiRoute = AdminEmojiRouteImport.update({
   id: '/emoji',
   path: '/emoji',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminClaimsRoute = AdminClaimsRouteImport.update({
-  id: '/claims',
-  path: '/claims',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminChatRoute = AdminChatRouteImport.update({
@@ -424,7 +424,6 @@ export interface FileRoutesByFullPath {
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
-  '/admin/claims': typeof AdminClaimsRoute
   '/admin/emoji': typeof AdminEmojiRoute
   '/admin/medals': typeof AdminMedalsRoute
   '/admin/nomination': typeof AdminNominationRoute
@@ -438,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
   '/c/$id': typeof CIdRoute
@@ -452,7 +452,6 @@ export interface FileRoutesByFullPath {
   '/legal/rules': typeof LegalRulesRoute
   '/legal/terms': typeof LegalTermsRoute
   '/maps/$id': typeof MapsIdRoute
-  '/maps/claim': typeof MapsClaimRoute
   '/maps/levels': typeof MapsLevelsRoute
   '/maps/requests': typeof MapsRequestsRoute
   '/matches/$id': typeof MatchesIdRoute
@@ -465,6 +464,7 @@ export interface FileRoutesByFullPath {
   '/rankings/score': typeof RankingsScoreRoute
   '/scores/$id': typeof ScoresIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/bot/': typeof BotIndexRoute
   '/bugs/': typeof BugsIndexRoute
   '/changelog/': typeof ChangelogIndexRoute
   '/maps/': typeof MapsIndexRoute
@@ -491,7 +491,6 @@ export interface FileRoutesByTo {
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
-  '/admin/claims': typeof AdminClaimsRoute
   '/admin/emoji': typeof AdminEmojiRoute
   '/admin/medals': typeof AdminMedalsRoute
   '/admin/nomination': typeof AdminNominationRoute
@@ -505,6 +504,7 @@ export interface FileRoutesByTo {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
   '/c/$id': typeof CIdRoute
@@ -519,7 +519,6 @@ export interface FileRoutesByTo {
   '/legal/rules': typeof LegalRulesRoute
   '/legal/terms': typeof LegalTermsRoute
   '/maps/$id': typeof MapsIdRoute
-  '/maps/claim': typeof MapsClaimRoute
   '/maps/levels': typeof MapsLevelsRoute
   '/maps/requests': typeof MapsRequestsRoute
   '/matches/$id': typeof MatchesIdRoute
@@ -532,6 +531,7 @@ export interface FileRoutesByTo {
   '/rankings/score': typeof RankingsScoreRoute
   '/scores/$id': typeof ScoresIdRoute
   '/admin': typeof AdminIndexRoute
+  '/bot': typeof BotIndexRoute
   '/bugs': typeof BugsIndexRoute
   '/changelog': typeof ChangelogIndexRoute
   '/maps': typeof MapsIndexRoute
@@ -560,7 +560,6 @@ export interface FileRoutesById {
   '/admin/addons': typeof AdminAddonsRoute
   '/admin/bugs': typeof AdminBugsRoute
   '/admin/chat': typeof AdminChatRoute
-  '/admin/claims': typeof AdminClaimsRoute
   '/admin/emoji': typeof AdminEmojiRoute
   '/admin/medals': typeof AdminMedalsRoute
   '/admin/nomination': typeof AdminNominationRoute
@@ -574,6 +573,7 @@ export interface FileRoutesById {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
   '/c/$id': typeof CIdRoute
@@ -588,7 +588,6 @@ export interface FileRoutesById {
   '/legal/rules': typeof LegalRulesRoute
   '/legal/terms': typeof LegalTermsRoute
   '/maps/$id': typeof MapsIdRoute
-  '/maps/claim': typeof MapsClaimRoute
   '/maps/levels': typeof MapsLevelsRoute
   '/maps/requests': typeof MapsRequestsRoute
   '/matches/$id': typeof MatchesIdRoute
@@ -601,6 +600,7 @@ export interface FileRoutesById {
   '/rankings/score': typeof RankingsScoreRoute
   '/scores/$id': typeof ScoresIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/bot/': typeof BotIndexRoute
   '/bugs/': typeof BugsIndexRoute
   '/changelog/': typeof ChangelogIndexRoute
   '/maps/': typeof MapsIndexRoute
@@ -630,7 +630,6 @@ export interface FileRouteTypes {
     | '/admin/addons'
     | '/admin/bugs'
     | '/admin/chat'
-    | '/admin/claims'
     | '/admin/emoji'
     | '/admin/medals'
     | '/admin/nomination'
@@ -644,6 +643,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
     | '/c/$id'
@@ -658,7 +658,6 @@ export interface FileRouteTypes {
     | '/legal/rules'
     | '/legal/terms'
     | '/maps/$id'
-    | '/maps/claim'
     | '/maps/levels'
     | '/maps/requests'
     | '/matches/$id'
@@ -671,6 +670,7 @@ export interface FileRouteTypes {
     | '/rankings/score'
     | '/scores/$id'
     | '/admin/'
+    | '/bot/'
     | '/bugs/'
     | '/changelog/'
     | '/maps/'
@@ -697,7 +697,6 @@ export interface FileRouteTypes {
     | '/admin/addons'
     | '/admin/bugs'
     | '/admin/chat'
-    | '/admin/claims'
     | '/admin/emoji'
     | '/admin/medals'
     | '/admin/nomination'
@@ -711,6 +710,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
     | '/c/$id'
@@ -725,7 +725,6 @@ export interface FileRouteTypes {
     | '/legal/rules'
     | '/legal/terms'
     | '/maps/$id'
-    | '/maps/claim'
     | '/maps/levels'
     | '/maps/requests'
     | '/matches/$id'
@@ -738,6 +737,7 @@ export interface FileRouteTypes {
     | '/rankings/score'
     | '/scores/$id'
     | '/admin'
+    | '/bot'
     | '/bugs'
     | '/changelog'
     | '/maps'
@@ -765,7 +765,6 @@ export interface FileRouteTypes {
     | '/admin/addons'
     | '/admin/bugs'
     | '/admin/chat'
-    | '/admin/claims'
     | '/admin/emoji'
     | '/admin/medals'
     | '/admin/nomination'
@@ -779,6 +778,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
     | '/c/$id'
@@ -793,7 +793,6 @@ export interface FileRouteTypes {
     | '/legal/rules'
     | '/legal/terms'
     | '/maps/$id'
-    | '/maps/claim'
     | '/maps/levels'
     | '/maps/requests'
     | '/matches/$id'
@@ -806,6 +805,7 @@ export interface FileRouteTypes {
     | '/rankings/score'
     | '/scores/$id'
     | '/admin/'
+    | '/bot/'
     | '/bugs/'
     | '/changelog/'
     | '/maps/'
@@ -835,6 +835,7 @@ export interface RootRouteChildren {
   AuthDesktopRoute: typeof AuthDesktopRoute
   AuthDiscordRoute: typeof AuthDiscordRoute
   AuthErrorRoute: typeof AuthErrorRoute
+  BotUserIdRoute: typeof BotUserIdRoute
   BugsIdRoute: typeof BugsIdRoute
   BugsNewRoute: typeof BugsNewRoute
   CIdRoute: typeof CIdRoute
@@ -849,7 +850,6 @@ export interface RootRouteChildren {
   LegalRulesRoute: typeof LegalRulesRoute
   LegalTermsRoute: typeof LegalTermsRoute
   MapsIdRoute: typeof MapsIdRoute
-  MapsClaimRoute: typeof MapsClaimRoute
   MapsLevelsRoute: typeof MapsLevelsRoute
   MapsRequestsRoute: typeof MapsRequestsRoute
   MatchesIdRoute: typeof MatchesIdRoute
@@ -861,6 +861,7 @@ export interface RootRouteChildren {
   RankingsPlaysRoute: typeof RankingsPlaysRoute
   RankingsScoreRoute: typeof RankingsScoreRoute
   ScoresIdRoute: typeof ScoresIdRoute
+  BotIndexRoute: typeof BotIndexRoute
   BugsIndexRoute: typeof BugsIndexRoute
   ChangelogIndexRoute: typeof ChangelogIndexRoute
   MapsIndexRoute: typeof MapsIndexRoute
@@ -981,6 +982,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BugsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bot/': {
+      id: '/bot/'
+      path: '/bot'
+      fullPath: '/bot/'
+      preLoaderRoute: typeof BotIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -1063,13 +1071,6 @@ declare module '@tanstack/react-router' {
       path: '/maps/levels'
       fullPath: '/maps/levels'
       preLoaderRoute: typeof MapsLevelsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/maps/claim': {
-      id: '/maps/claim'
-      path: '/maps/claim'
-      fullPath: '/maps/claim'
-      preLoaderRoute: typeof MapsClaimRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/maps/$id': {
@@ -1170,6 +1171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BugsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bot/$userId': {
+      id: '/bot/$userId'
+      path: '/bot/$userId'
+      fullPath: '/bot/$userId'
+      preLoaderRoute: typeof BotUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/error': {
       id: '/auth/error'
       path: '/auth/error'
@@ -1261,13 +1269,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmojiRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/claims': {
-      id: '/admin/claims'
-      path: '/claims'
-      fullPath: '/admin/claims'
-      preLoaderRoute: typeof AdminClaimsRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
     '/admin/chat': {
       id: '/admin/chat'
       path: '/chat'
@@ -1345,7 +1346,6 @@ interface AdminRouteRouteChildren {
   AdminAddonsRoute: typeof AdminAddonsRoute
   AdminBugsRoute: typeof AdminBugsRoute
   AdminChatRoute: typeof AdminChatRoute
-  AdminClaimsRoute: typeof AdminClaimsRoute
   AdminEmojiRoute: typeof AdminEmojiRoute
   AdminMedalsRoute: typeof AdminMedalsRoute
   AdminNominationRoute: typeof AdminNominationRoute
@@ -1362,7 +1362,6 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAddonsRoute: AdminAddonsRoute,
   AdminBugsRoute: AdminBugsRoute,
   AdminChatRoute: AdminChatRoute,
-  AdminClaimsRoute: AdminClaimsRoute,
   AdminEmojiRoute: AdminEmojiRoute,
   AdminMedalsRoute: AdminMedalsRoute,
   AdminNominationRoute: AdminNominationRoute,
@@ -1395,6 +1394,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthDesktopRoute: AuthDesktopRoute,
   AuthDiscordRoute: AuthDiscordRoute,
   AuthErrorRoute: AuthErrorRoute,
+  BotUserIdRoute: BotUserIdRoute,
   BugsIdRoute: BugsIdRoute,
   BugsNewRoute: BugsNewRoute,
   CIdRoute: CIdRoute,
@@ -1409,7 +1409,6 @@ const rootRouteChildren: RootRouteChildren = {
   LegalRulesRoute: LegalRulesRoute,
   LegalTermsRoute: LegalTermsRoute,
   MapsIdRoute: MapsIdRoute,
-  MapsClaimRoute: MapsClaimRoute,
   MapsLevelsRoute: MapsLevelsRoute,
   MapsRequestsRoute: MapsRequestsRoute,
   MatchesIdRoute: MatchesIdRoute,
@@ -1421,6 +1420,7 @@ const rootRouteChildren: RootRouteChildren = {
   RankingsPlaysRoute: RankingsPlaysRoute,
   RankingsScoreRoute: RankingsScoreRoute,
   ScoresIdRoute: ScoresIdRoute,
+  BotIndexRoute: BotIndexRoute,
   BugsIndexRoute: BugsIndexRoute,
   ChangelogIndexRoute: ChangelogIndexRoute,
   MapsIndexRoute: MapsIndexRoute,

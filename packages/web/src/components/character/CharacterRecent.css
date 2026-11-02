@@ -1,0 +1,41 @@
+/* osu!web's recent activity: badge, line, time */
+.profile-events {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.profile-events__item {
+	display: grid;
+	grid-template-columns: 40px 1fr auto;
+	align-items: center;
+	gap: 10px;
+	min-height: 28px;
+	font-size: 13px;
+}
+
+.profile-events__badge {
+	display: flex;
+	justify-content: center;
+	height: 24px;
+}
+
+.profile-events__badge .grade__container,
+.profile-events__badge .medal-icon {
+	width: 100%;
+	height: 100%;
+}
+
+.profile-events__link {
+	font-weight: 700;
+	color: hsl(var(--hsl-l1));
+}
+
+.profile-events__date {
+	color: hsl(var(--hsl-c2));
+	font-size: 12px;
+	white-space: nowrap;
+}

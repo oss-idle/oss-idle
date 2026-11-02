@@ -2,6 +2,7 @@ import type { PrivateMessage as Message } from '@oss-idle/shared/community/wire'
 import Log, { POPUP_TYPE } from '@oss-idle/shared/helpers/log';
 import Synced from '@oss-idle/shared/helpers/synced';
 
+import { uiSound } from '../audio/uiSounds';
 import { plainText } from '../components/community/chat/links';
 import {
 	activeChatTab,
@@ -104,7 +105,9 @@ Socket.on('pm', async ({ message }) => {
 
 	if (!incoming) return;
 	addTab(contact);
-	if (!isShowing(contact)) Log.popup(
+	if (isShowing(contact)) return;
+	uiSound('ui/notification-mention');
+	Log.popup(
 		`${message.from.name}: ${plainText(message.text)}`,
 		POPUP_TYPE.chat,
 		false,

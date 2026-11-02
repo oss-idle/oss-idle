@@ -33,6 +33,11 @@ const touch = () => addonsVersion.set(addonsVersion.get() + 1);
 
 export class Addon extends DAO(addon) {
 
+	/** From a folder the player added, not the catalog: it has no updates. */
+	get local(): boolean {
+		return this.id < 0;
+	}
+
 	async setEnabled(enabled: boolean): Promise<void> {
 		await this.update({ enabled });
 		touch();

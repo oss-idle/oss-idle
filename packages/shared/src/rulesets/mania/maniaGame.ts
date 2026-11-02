@@ -234,6 +234,7 @@ export class ManiaGame {
 			notes: this.notes,
 			inputs: [],
 			keyCount: this.keyCount,
+			mods,
 			// the windows without EZ/HR: what the bot blames is mod-independent
 			windows: maniaWindows(beatmap.difficulty.overallDifficulty, options.divine),
 			scroll: this.scroll,

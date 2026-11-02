@@ -23,12 +23,21 @@ import { message } from '../globals';
 import { logPlayFinished } from '../logs';
 import BeatmapStore from '../osu/beatmap/beatmap_store';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
-import { launchPlay } from '../scenes/launchPlay';
+import {
+	autoSkip,
+	PBE,
+} from '../pbe/pbe';
+import { selectedRuleset } from '../rulesets/registry';
+import {
+	launchInFlight,
+	launchPlay,
+} from '../scenes/launchPlay';
 import SceneManager, { SCENE } from '../scenes/SceneManager';
 import Account from './account';
 import {
 	abortLocalPlay,
 	currentLocalPlay,
+	finishLocalPlay,
 	type LocalPlayState,
 	localPlayState,
 	pollLocalPlay,
@@ -95,8 +104,9 @@ export type LivePlay = {
  * hands over. A guest's queue is chained here.
  *
  * It never drags the player onto the playfield - only a player still on the
- * result screen follows the queue into its next play. Anything that re-enters
- * on its own from elsewhere makes quitting look broken, because it is.
+ * result screen, or who pressed next on the play on screen, follows the queue
+ * into its next play. Anything that re-enters on its own from elsewhere makes
+ * quitting look broken, because it is.
  */
 export default class PlayManager {
 
@@ -134,7 +144,8 @@ export default class PlayManager {
 	}
 	public static holdForResult(): void {
 		this.onWatchedResult = true;
-		const ms = Math.max(SETTINGS.autopilotDelay.get() * 1000, RESULT_SETTLE_MS + 2000);
+		const delay = SETTINGS.autopilotDelay.get() * 1000;
+		const ms = PBE ? delay : Math.max(delay, RESULT_SETTLE_MS + 2000);
 		if (online()) {
 			Socket.send({
 				type: 'queue:hold', ms,
@@ -228,7 +239,7 @@ export default class PlayManager {
 		const live = this.live.get();
 		if (state.phase !== 'finished' || !state.failed || scene === SCENE.GAME) return;
 		if (!live || !retriesOnFail(live.mods) || Multiplayer.current.get()) return;
-		this.again = live.beatmap;
+		this.again = live.beatmap.at(live.rate, live.mods);
 		this.immediate = true;
 	}
 
@@ -330,14 +341,36 @@ export default class PlayManager {
 			: await this.startInBackground(beatmap);
 	}
 
-	/** A player still on the result screen follows the queue into its next play. */
+	/** The play on screen that next was pressed on: its scene waits for the next play. */
+	private static skipping: string | undefined;
+	public static skippingFrom(token: string): boolean {
+		return this.skipping === token;
+	}
+
+	/** A player still on the result screen, or who pressed next on the play on
+	 *  screen, follows the queue into its next play. */
 	private static followed: string | undefined;
 	private static async follow(state: ActivePlayState): Promise<void> {
-		if (!this.onWatchedResult) return;
 		if (this.followed === state.token || this.known.has(state.token)) return;
 		this.followed = state.token;
+		this.skipping = undefined;
 		const beatmap = await this.findDownloaded(state.beatmapId);
-		if (beatmap && SceneManager.current.get() === SCENE.RESULT) launchPlay(beatmap);
+		const scene = SceneManager.current.get();
+		if (beatmap && (scene === SCENE.RESULT || scene === SCENE.GAME)) launchPlay(beatmap);
+	}
+
+	/** PBE: a play nobody is watching ends at once. Gameplay skips the one on screen itself. */
+	private static autoSkipped: string | undefined;
+	private static autoSkip(token: string, scene: string, finish: () => void): void {
+		if (!PBE || !autoSkip.get() || this.autoSkipped === token) return;
+		if (scene === SCENE.GAME || launchInFlight() || Multiplayer.current.get()) return;
+		this.autoSkipped = token;
+		finish();
+	}
+
+	private static follows(state: ActivePlayState, scene: string): boolean {
+		if (scene === SCENE.RESULT) return this.onWatchedResult;
+		return scene === SCENE.GAME && !!this.skipping && this.skipping !== state.token;
 	}
 
 	private static async evaluate(): Promise<void> {
@@ -401,7 +434,11 @@ export default class PlayManager {
 		this.ranToken = state.token;
 		if (scene === SCENE.GAME) this.unwatch();
 		else this.watch(state.token);
-		if (scene === SCENE.RESULT && online()) void this.follow(state);
+		if (online() && this.follows(state, scene)) void this.follow(state);
+		else this.autoSkip(state.token, scene, () => Socket.send({
+			type: 'play:finish', token: state.token, next: 0, away: true,
+		}));
+		if (scene !== SCENE.GAME) this.skipping = undefined;
 		await this.trackLive(state);
 	}
 
@@ -460,6 +497,7 @@ export default class PlayManager {
 					grade: state.grade,
 				});
 			}
+			this.autoSkip(state.token, scene, () => finishLocalPlay(state.token));
 			return;
 		}
 
@@ -538,13 +576,17 @@ export default class PlayManager {
 		this.setSpan(undefined);
 	}
 
-	/** Signing in or out swaps whose queue this is: nothing of the other one's
-	 *  countdown, pause or timers carries over. */
-	private static wasOnline: boolean | undefined;
+	/** Signing in or out, or watching another character or ruleset, swaps whose
+	 *  queue this is: nothing of the other one's countdown, pause or timers carries
+	 *  over. The one left behind keeps playing on the server; its play is not this
+	 *  screen's any more. */
+	private static watched: string | undefined;
 	private static identityChanged(): void {
-		const now = online();
-		if (now === this.wasOnline) return;
-		this.wasOnline = now;
+		const now = online() ? `${Entities.character.get()?.id}:${selectedRuleset.get()}` : 'local';
+		if (now === this.watched) return;
+		const switched = this.watched !== undefined && this.watched !== 'local' && now !== 'local';
+		this.watched = now;
+		if (switched) this.leavePlay();
 		window.clearInterval(this.serverTick);
 		this.serverTick = undefined;
 		this.cancelChain();
@@ -684,6 +726,7 @@ export default class PlayManager {
 					type: 'queue:localEnd', skip: true,
 				});
 			} else {
+				if (SceneManager.current.get() === SCENE.GAME) this.skipping = live?.token;
 				Socket.send({ type: 'queue:skip' });
 			}
 			return;
@@ -732,6 +775,16 @@ export default class PlayManager {
 
 	private static clearLive(): void {
 		if (this.live.get()) void this.live.set(undefined);
+	}
+
+	/** Stop following the play on show: the socket reconnects onto the new slot and
+	 *  says what runs there. */
+	private static leavePlay(): void {
+		this.unwatch();
+		this.known.clear();
+		this.ranToken = undefined;
+		this.clearLive();
+		if (SceneManager.current.get() === SCENE.GAME) SceneManager.set(SCENE.SELECT);
 	}
 
 	/** Keep the dock's view of the running play in sync. */

@@ -19,6 +19,7 @@ export const LAYER = {
 	TUTORIAL: 7,
 	PLAY_CHOICE: 8,
 	ONBOARDING: 9,
+	GENETIC_CHOICE: 10,
 } as const;
 
 /** The layer the surfaces inside a host belong to (a page, the community
@@ -62,6 +63,9 @@ const top = () => {
 	}
 	return best;
 };
+
+/** The topmost surface's layer, if one is open. */
+export const topLayer = (): number | undefined => top()?.layer;
 
 /** Whether a surface holds the keyboard: a scene's own keys wait while one is open. */
 export const keyboardClaimed = (): boolean => owners.size > 0;

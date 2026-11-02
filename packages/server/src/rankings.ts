@@ -65,6 +65,8 @@ type CountryMetric = GlobalMetric;
 
 // Every ruleset has its own boards: nothing ranks across rulesets.
 const ROOT = `${redisKeyPrefix}ranking:`;
+// Where a rebuild lays the boards out before it swaps them in.
+const NEXT_ROOT = `${redisKeyPrefix}rankingnext:`;
 // Meta keys live outside PREFIX so the rebuild's `${PREFIX}*` wipe can't delete
 // the build lock out from under itself (which would let a second worker rebuild
 // in parallel).
@@ -73,12 +75,16 @@ const META = `${redisKeyPrefix}rankmeta:`;
 const SCHEMA = 14;  // skill boards on the shown level, overall on lifetime xp
 const builtKey = (r: ServerRuleset) => `${META}built:v${SCHEMA}:${r.def.id}`;
 const lockKey = (r: ServerRuleset) => `${META}lock:v${SCHEMA}:${r.def.id}`;
+// The characters and beatmaps whose boards changed lately: a rebuild re-indexes
+// the ones that moved while it read MySQL, once its boards are in.
+const dirtyKey = (r: ServerRuleset) => `${META}dirty:${r.def.id}`;
+const DIRTY_S = 3600;
 
 const suffix = (country?: string) => country === undefined ? '' : `:c:${country || '__'}`;
 
-/** A ruleset's board keys. */
-const keysOf = (r: ServerRuleset) => {
-	const PREFIX = `${ROOT}${r.def.id}:`;
+/** A ruleset's board keys (under the staging root while a rebuild lays them out). */
+const keysOf = (r: ServerRuleset, root = ROOT) => {
+	const PREFIX = `${root}${r.def.id}:`;
 	return {
 		PREFIX,
 		globalKey: (m: GlobalMetric) => `${PREFIX}${m}`,
@@ -123,9 +129,10 @@ function index(
 	pipeline: Indexer,
 	data: Awaited<ReturnType<typeof getCharacterFields>>,
 	medals: string[],
+	keys: ReturnType<typeof keysOf>,
 ) {
 	if (!data) return;
-	const { globalKey, countryKey } = keysOf(r);
+	const { globalKey, countryKey } = keys;
 
 	const member = String(data.character.id);
 	const weight = medalWeight(r.def.medals, medals);
@@ -198,14 +205,21 @@ const getCharacterFields = async ({ profile, totals }: ServerRuleset, id: number
 /** A restricted account is in no ranking and no leaderboard, nor is MakiseBot, like osu!'s BanchoBot. */
 const visible = and(isNull(users.restrictedAt), ne(characters.id, MAKISEBOT_ID));
 
+/** Note a board change before making it, so a rebuild running meanwhile
+ *  re-indexes it once its own boards are in. */
+const markDirty = async (r: ServerRuleset, member: string) => {
+	await redis.pipeline().sadd(dirtyKey(r), member).expire(dirtyKey(r), DIRTY_S).exec();
+};
+
 /** Re-index one character after its metrics change. Called once per finalized
  *  play and on character creation. */
 export const reindexCharacter = async (r: ServerRuleset, id: number) => {
+	await markDirty(r, `c:${id}`);
 	const character = await getCharacterFields(r, id);
 	if (!character || character.user.restrictedAt || id === MAKISEBOT_ID) return;
 	await recordProgress(r, id);
 	const pipeline = redis.pipeline();
-	index(r, pipeline, character, (await getMedals(r, id)).map(m => m.medalId));
+	index(r, pipeline, character, (await getMedals(r, id)).map(m => m.medalId), keysOf(r));
 	await pipeline.exec();
 	await refreshTodayRank(r, character.profile, character.user.country);
 };
@@ -299,6 +313,10 @@ const rankIn = async (key: string, id: number): Promise<number | undefined> => {
 
 export const globalRank = (r: ServerRuleset, m: GlobalMetric, id: number) =>
 	rankIn(keysOf(r).globalKey(m), id);
+
+/** The rank a value would take on a global board: just behind whoever has more. */
+export const wouldBeRank = async (r: ServerRuleset, m: GlobalMetric, value: number) =>
+	1 + await redis.zcount(keysOf(r).globalKey(m), `(${value}`, '+inf');
 
 /** The share of players with pp that rank at or above this character, in percent. */
 export const ppTopPercent = async (r: ServerRuleset, id: number): Promise<number | undefined> => {
@@ -521,6 +539,24 @@ export async function beatmapRank(
 }
 
 /** Re-index a character's best on one beatmap after a play improves it. */
+/** Off a map's boards: a character with no best on it any more. */
+const unindexFromBeatmap = async (
+	r: ServerRuleset, characterId: number, beatmapId: number, scoreId: bigint,
+) => {
+	const { beatmapKey, beatmapIds } = keysOf(r);
+	const [user] = await db.select({ country: users.country })
+		.from(characters)
+		.innerJoin(users, eq(users.id, characters.userId))
+		.where(eq(characters.id, characterId))
+		.limit(1);
+	const stale = beatmapMember(characterId, scoreId);
+	const pipeline = redis.pipeline()
+		.zrem(beatmapKey(beatmapId), stale)
+		.hdel(beatmapIds(beatmapId), String(characterId));
+	if (user) pipeline.zrem(beatmapKey(beatmapId, user.country), stale);
+	await pipeline.exec();
+};
+
 export async function reindexBeatmap(
 	r: ServerRuleset,
 	characterId: number,
@@ -528,6 +564,7 @@ export async function reindexBeatmap(
 ): Promise<void> {
 	const { best } = r;
 	const { beatmapKey, beatmapIds } = keysOf(r);
+	await markDirty(r, `m:${characterId}:${beatmapId}`);
 	const [row] = await db
 		.select({
 			id: best.id, score: best.score, accuracy: best.accuracy, country: users.country, 
@@ -537,9 +574,12 @@ export async function reindexBeatmap(
 		.innerJoin(users, eq(users.id, characters.userId))
 		.where(and(eq(best.beatmapId, beatmapId), eq(best.characterId, characterId), visible))
 		.limit(1);
-	if (!row) return;
-	const member = beatmapMember(characterId, row.id);
 	const prev = await redis.hget(beatmapIds(beatmapId), String(characterId));
+	if (!row) {
+		if (prev !== null) await unindexFromBeatmap(r, characterId, beatmapId, BigInt(prev));
+		return;
+	}
+	const member = beatmapMember(characterId, row.id);
 	const pipeline = redis.pipeline();
 	if (prev !== null && prev !== String(row.id)) {
 		const stale = beatmapMember(characterId, BigInt(prev));
@@ -561,10 +601,11 @@ export const unindexCharacter = async (id: number): Promise<void> => {
 const unindexCharacterIn = async (r: ServerRuleset, id: number): Promise<void> => {
 	const { best } = r;
 	const { beatmapKey, beatmapIds } = keysOf(r);
+	await markDirty(r, `u:${id}`);
 	const character = await getCharacterFields(r, id);
 	if (!character) return;
 	const pipeline = redis.pipeline();
-	index(r, { zadd: (key, _score, member) => pipeline.zrem(key, member) }, character, []);
+	index(r, { zadd: (key, _score, member) => pipeline.zrem(key, member) }, character, [], keysOf(r));
 	const bests = await db
 		.select({
 			id: best.id, beatmapId: best.beatmapId,
@@ -596,17 +637,22 @@ export const reindexCharacterEverywhere = async (id: number): Promise<void> => {
  *  index). For unranking: the map's scores are gone, so the index must go too. */
 export async function unindexBeatmap(r: ServerRuleset, beatmapId: number): Promise<void> {
 	const { PREFIX, beatmapKey } = keysOf(r);
+	await markDirty(r, `b:${beatmapId}`);
 	await redis.del(beatmapKey(beatmapId));
 	for await (const key of scanKeys(`${PREFIX}bm:${beatmapId}:*`)) await redis.del(key);
 }
 
-/** Rebuild every set of a ruleset from MySQL. One DB pass, pipelined in chunks. */
+/** Rebuild every set of a ruleset from MySQL. One DB pass, pipelined in chunks,
+ *  into staging keys swapped in at once: the boards readers see stay whole the
+ *  whole time. What moved while it read MySQL is re-indexed after the swap. */
 export async function rebuildAll(r: ServerRuleset): Promise<void> {
 	const {
 		profile, totals, medals, best,
 	} = r;
-	const { PREFIX, beatmapKey, beatmapIds } = keysOf(r);
+	const next = keysOf(r, NEXT_ROOT);
+	const { PREFIX, beatmapKey, beatmapIds } = next;
 	for await (const key of scanKeys(`${PREFIX}*`)) await redis.del(key);
+	await redis.del(dirtyKey(r));
 
 	const rows = await db
 		.select({
@@ -627,7 +673,7 @@ export async function rebuildAll(r: ServerRuleset): Promise<void> {
 
 	let pipeline = redis.pipeline();
 	for (let i = 0; i < rows.length; i++) {
-		index(r, pipeline, rows[i], held.get(rows[i].character.id) ?? []);
+		index(r, pipeline, rows[i], held.get(rows[i].character.id) ?? [], next);
 		if (i % 200 === 199) {
 			await pipeline.exec();
 			pipeline = redis.pipeline();
@@ -659,7 +705,43 @@ export async function rebuildAll(r: ServerRuleset): Promise<void> {
 		}
 	}
 	await pipeline.exec();
+
+	await swapIn(r);
+	await reindexDirty(r);
 }
+
+/** The staging boards in place of the live ones, in one transaction: every
+ *  staging key renamed over its live name, every live key it has no copy of gone. */
+const swapIn = async (r: ServerRuleset): Promise<void> => {
+	const live = keysOf(r).PREFIX;
+	const staged = keysOf(r, NEXT_ROOT).PREFIX;
+	const names = new Set<string>();
+	for await (const key of scanKeys(`${staged}*`)) names.add(key.slice(staged.length));
+	const multi = redis.multi();
+	for await (const key of scanKeys(`${live}*`)) {
+		if (!names.has(key.slice(live.length))) multi.del(key);
+	}
+	for (const name of names) multi.rename(`${staged}${name}`, `${live}${name}`);
+	await multi.exec();
+};
+
+/** Re-index what changed while a rebuild read MySQL (marked before the change):
+ *  a character's boards (`c:`), its entry on a beatmap (`m:`), a character taken
+ *  off (`u:`), a beatmap dropped (`b:`). */
+const reindexDirty = async (r: ServerRuleset): Promise<void> => {
+	for (const member of await redis.smembers(dirtyKey(r))) {
+		const [kind, a, b] = member.split(':');
+		if (kind === 'c') await reindexCharacter(r, Number(a));
+		else if (kind === 'm') await reindexBeatmap(r, Number(a), Number(b));
+		else if (kind === 'u') {
+			// taken off, unless put back since (a restriction lifted)
+			const character = await getCharacterFields(r, Number(a));
+			const off = character?.user.restrictedAt || Number(a) === MAKISEBOT_ID;
+			if (off) await unindexCharacterIn(r, Number(a));
+		}
+		else if (kind === 'b') await unindexBeatmap(r, Number(a));
+	}
+};
 
 /** Every member's 1-based rank on one board. */
 const boardRanks = async (key: string) =>
@@ -763,6 +845,8 @@ export async function ensureRankings(): Promise<void> {
 			await rebuildAll(r);
 			await redis.set(builtKey(r), '1');
 			console.log(`Rankings index built for ${r.def.id}.`);
+			// presence imports this module: loaded when needed, not at start
+			await (await import('./ws/presence')).refreshAll();
 		} finally {
 			await redis.del(lockKey(r));
 		}

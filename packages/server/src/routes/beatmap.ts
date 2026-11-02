@@ -29,7 +29,13 @@ import {
 } from '@oss-idle/shared/rate';
 import { RULESET_IDS } from '@oss-idle/shared/rulesets/ids';
 
-import { requireAdmin } from '../auth/admin';
+import { requireActive } from '../auth/active';
+import {
+	requireAdmin,
+	requireDiffNominator,
+	requireNominator,
+} from '../auth/admin';
+import { sessionUserId } from '../auth/middleware';
 import {
 	deferCatalogInvalidate,
 	diffsOf,
@@ -52,6 +58,10 @@ import {
 	withStatus,
 } from '../beatmaps/catalog';
 import { fullSpeed } from '../beatmaps/fastDownloads';
+import {
+	isFavourite,
+	setFavourite,
+} from '../beatmaps/favourites';
 import { ingestOsz } from '../beatmaps/ingest';
 import {
 	checkPreviewName,
@@ -77,12 +87,17 @@ import {
 } from '../db/schema/beatmapset';
 import { users } from '../db/schema/user';
 import { env } from '../env';
-import { playable } from '../rulesets/enabled';
+import {
+	ENABLED_RULESETS,
+	rankable,
+} from '../rulesets/enabled';
 import {
 	enabledRulesets,
+	queuedRulesets,
 	rulesetOfBeatmap,
 } from '../rulesets/registry';
 import {
+	queueQuery,
 	rulesetParam,
 	rulesetQuery,
 } from '../rulesets/request';
@@ -92,7 +107,6 @@ import {
 	idParam,
 	valid,
 } from '../validate';
-import { beatmapClaimRoutes } from './beatmapClaim';
 import {
 	acceptRequestsForSet,
 	beatmapRequestRoutes,
@@ -125,6 +139,8 @@ const setDiffs = (r: ServerRuleset, id: number) => db
 	.innerJoin(...withStatus(r))
 	.where(and(eq(beatmapset.id, id), shownDiffCondition(r)))
 	.orderBy(asc(beatmaps.sr));
+
+const favouriteBody = z.object({ favourite: z.boolean() });
 
 const nominationPatch = z.object({
 	rankedAt: z.string().datetime().nullable().optional(),
@@ -277,8 +293,8 @@ export const beatmapsRoutes = new Hono()
 	})
 
 	// --- Beatmap nomination (admin): manage the queue + ranked dates. ---
-	.get('/nomination', requireAdmin, async c => {
-		const r = rulesetQuery(c);
+	.get('/nomination', rulesetParam, requireNominator, async c => {
+		const r = queueQuery(c);
 		const sets = await db
 			.select({
 				...setColumns(r),
@@ -340,7 +356,7 @@ export const beatmapsRoutes = new Hono()
 			requestedBy: set.osuId ? requesters.get(set.osuId) : undefined,
 		})));
 	})
-	.post('/nomination', requireAdmin, async c => {
+	.post('/nomination', rulesetParam, requireNominator, async c => {
 		const body = await c.req.parseBody();
 		const file = body['file'];
 		if (!(file instanceof File)) throw new HTTPException(400, { message: 'No .osz file provided' });
@@ -363,41 +379,43 @@ export const beatmapsRoutes = new Hono()
 		await next();
 	})
 	// The preview route only serves public sets; the queue hears them before they are.
-	.get('/nomination/:setId/preview/:file', requireAdmin, async c => {
+	.get('/nomination/:setId/preview/:file', rulesetParam, requireNominator, async c => {
 		const id = idParam.parse(c.req.param('setId'));
 		const file = c.req.param('file');
 		checkPreviewName(id, file);
 		return previewResponse(file);
 	})
 	// A queued set's .osz, public or not, to try it before ranking it.
-	.get('/nomination/:setId/osz', requireAdmin, async c => {
-		const res = await oszResponse(idParam.parse(c.req.param('setId')));
-		res.headers.set('Cache-Control', 'no-store');
-		return res;
-	})
-	.patch('/nomination/:setId', requireAdmin, valid('json', nominationPatch), async c => {
-		const id = idParam.parse(c.req.param('setId'));
-		const body = c.req.valid('json');
+	.get('/nomination/:setId/osz', rulesetParam, requireNominator, c =>
+		oszResponse(idParam.parse(c.req.param('setId'))))
+	.patch('/nomination/:setId', rulesetParam, requireNominator, valid('json', nominationPatch),
+		async c => {
+			const id = idParam.parse(c.req.param('setId'));
+			const body = c.req.valid('json');
 
-		const r = rulesetQuery(c);
-		const existing = await getBeatmapsetById(id);
-		if (!existing) throw new HTTPException(404, { message: 'Beatmap set not found' });
-		const was = (await statusIn(r, id))?.status ?? 'pending';
-		const wasLive = await isSetLive(id);
+			const r = queueQuery(c);
+			const existing = await getBeatmapsetById(id);
+			if (!existing) throw new HTTPException(404, { message: 'Beatmap set not found' });
+			const was = (await statusIn(r, id))?.status ?? 'pending';
+			const wasLive = await isSetLive(id);
 
-		const updates = nominationUpdates(existing, was, body);
-		if (Object.keys(updates.set).length) {
-			await db.update(beatmapset).set(updates.set).where(eq(beatmapset.id, id));
-		}
-		if (Object.keys(updates.status).length) await writeStatus(r, id, updates.status);
-		if (body.status !== undefined) await clearForStatus(r, id, was, body.status);
+			const updates = nominationUpdates(existing, was, body);
+			// players don't have this ruleset yet: its maps aren't announced, all at once, the day they do
+			if (updates.status.announced === false && !ENABLED_RULESETS.includes(r.def.id)) {
+				updates.status.announced = true;
+			}
+			if (Object.keys(updates.set).length) {
+				await db.update(beatmapset).set(updates.set).where(eq(beatmapset.id, id));
+			}
+			if (Object.keys(updates.status).length) await writeStatus(r, id, updates.status);
+			if (body.status !== undefined) await clearForStatus(r, id, was, body.status);
 
-		await setLiveChanged(wasLive, await isSetLive(id));
-		return c.json({ ok: true });
-	})
+			await setLiveChanged(wasLive, await isSetLive(id));
+			return c.json({ ok: true });
+		})
 	// Toggle one difficulty in/out of the ranked set. Works before the set is
 	// live (choose which diffs go ranked) and after (unrank a single diff).
-	.patch('/nomination/:setId/beatmap/:beatmapId', requireAdmin,
+	.patch('/nomination/:setId/beatmap/:beatmapId', requireDiffNominator,
 		valid('json', z.object({ ranked: z.boolean() })), async c => {
 			const setId = idParam.parse(c.req.param('setId'));
 			const beatmapId = idParam.parse(c.req.param('beatmapId'));
@@ -413,7 +431,7 @@ export const beatmapsRoutes = new Hono()
 					.where(and(eq(beatmaps.id, beatmapId), eq(beatmaps.setId, setId)))
 					.limit(1);
 				if (!diff) throw new HTTPException(404, { message: 'Beatmap not found' });
-				if (!playable(diff.mode, diff.keys)) {
+				if (!rankable(diff.mode, diff.keys)) {
 					throw new HTTPException(400, { message: 'Only a difficulty some ruleset here plays can be ranked' });
 				}
 			}
@@ -429,7 +447,7 @@ export const beatmapsRoutes = new Hono()
 			if (await isSetLive(setId)) await (ranked ? invalidateCatalog() : deferCatalogInvalidate());
 			return c.json({ ok: true });
 		})
-	.put('/nomination/:setId/beatmap/:beatmapId/tags', requireAdmin,
+	.put('/nomination/:setId/beatmap/:beatmapId/tags', requireDiffNominator,
 		valid('json', z.object({ tags: z.array(z.enum(MAP_TAGS)) })), async c => {
 			const setId = idParam.parse(c.req.param('setId'));
 			const beatmapId = idParam.parse(c.req.param('beatmapId'));
@@ -456,7 +474,7 @@ export const beatmapsRoutes = new Hono()
 		// The rows stay, so the ids are never reused and a re-upload gets them back.
 		const [res] = await db.update(beatmapset).set({ deletedAt: new Date() })
 			.where(eq(beatmapset.id, id));
-		for (const r of enabledRulesets()) {
+		for (const r of queuedRulesets()) {
 			await writeStatus(r, id, {
 				status: 'pending', rankedAt: null, announced: false,
 			});
@@ -473,7 +491,6 @@ export const beatmapsRoutes = new Hono()
 	// `/request` isn't swallowed by it.
 	.route('/request', beatmapRequestRoutes)
 	.route('/upload', beatmapUploadRoutes)
-	.route('/claim', beatmapClaimRoutes)
 	.route('/levels', levelVoteRoutes)
 
 	// A set's page, osu!'s way: every ruleset it has live difficulties in (its tabs, each
@@ -487,7 +504,9 @@ export const beatmapsRoutes = new Hono()
 		if (!listed.length) throw new HTTPException(404, { message: 'Beatmap set not found' });
 		const asked = c.req.valid('query').ruleset;
 		const { r, rows } = listed.find(l => l.r.def.id === asked) ?? listed[0];
+		const userId = await sessionUserId(c);
 		return c.json({
+			favourited: userId !== undefined && await isFavourite(userId, id),
 			ruleset: r.def.id,
 			rulesets: listed.map(l => ({
 				ruleset: l.r.def.id, diffs: l.rows.length, status: l.rows[0].set.status,
@@ -496,6 +515,16 @@ export const beatmapsRoutes = new Hono()
 			diffs: rows.map(row => ({
 				...row.beatmap, sr: Number(row.beatmap.sr),
 			})),
+		});
+	})
+
+	// osu!web's favourite button: the set's favourite count after
+	.put('/set/:id/favourite', requireActive, valid('json', favouriteBody), async c => {
+		const id = idParam.parse(c.req.param('id'));
+		if (!await isSetPublic(id)) throw new HTTPException(404, { message: 'Beatmap set not found' });
+		const { favourite } = c.req.valid('json');
+		return c.json({
+			favourited: favourite, count: await setFavourite(c.get('userId'), id, favourite),
 		});
 	})
 

@@ -10,7 +10,10 @@ import {
 	toUserDTO,
 	users,
 } from '../db/schema/user';
-import { groupsOf } from '../groups';
+import {
+	groupsOf,
+	nominatesOf,
+} from '../groups';
 import {
 	standing,
 	visibleTo,
@@ -37,7 +40,7 @@ export const usersRoutes = new Hono()
 			throw new HTTPException(404, { message: 'User not found' });
 		}
 
-		return c.json(toUserDTO(row, await groupsOf(row.id)));
+		return c.json(toUserDTO(row, await groupsOf(row.id), await nominatesOf(row.id)));
 	})
 
 	// osu-web's Account Standing: for the player and the moderators.

@@ -196,6 +196,7 @@ export const apiBeatmapset = (s: RulesetSetRow, beatmaps: BeatmapInput[] = []): 
 	status: apiStatus(s),
 	ranked_date: iso(s.rankedAt),
 	submitted_date: iso(s.submittedAt),
+	favourite_count: s.favouriteCount,
 	covers: {
 		cover: mapCoverUrl({
 			...s, background: beatmaps.find(b => b.background)?.background,

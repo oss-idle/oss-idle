@@ -1,5 +1,8 @@
 import { msg } from '@lingui/core/macro';
-import { createFileRoute } from '@tanstack/react-router';
+import {
+	createFileRoute,
+	redirect,
+} from '@tanstack/react-router';
 import {
 	fallback,
 	zodValidator,
@@ -7,6 +10,7 @@ import {
 import { z } from 'zod';
 
 import Store from '../pages/store/Store';
+import { PBE } from '../pbe/pbe';
 
 const storeSearch = z.object({
 	tab: fallback(z.enum(['products', 'orders']), 'products').default('products'),
@@ -15,6 +19,9 @@ const storeSearch = z.object({
 
 export const Route = createFileRoute('/store')({
 	validateSearch: zodValidator(storeSearch),
+	beforeLoad: () => {
+		if (PBE) throw redirect({ to: '/settings' });
+	},
 	component: StoreRoute,
 	staticData: { title: msg`store` },
 });

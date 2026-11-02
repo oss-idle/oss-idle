@@ -19,6 +19,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 import AutopilotDelay from '../components/options/AutopilotDelay';
 import AutopilotMode from '../components/options/AutopilotMode';
 import BackgroundDim from '../components/options/BackgroundDim';
+import BestGradeAnyRate from '../components/options/BestGradeAnyRate';
 import BrowseAddons from '../components/options/BrowseAddons';
 import BrowseSkins from '../components/options/BrowseSkins';
 import CursorSize from '../components/options/CursorSize';
@@ -44,6 +45,7 @@ import OsuMusicTheme from '../components/options/OsuMusicTheme';
 import ParallaxMode from '../components/options/ParallaxMode';
 import PitchFollowsRate from '../components/options/PitchFollowsRate';
 import PmFromAnyone from '../components/options/PmFromAnyone';
+import RecreateDatabase from '../components/options/RecreateDatabase';
 import ReportBug from '../components/options/ReportBug';
 import RightClickHold from '../components/options/RightClickHold';
 import ShowFPS from '../components/options/ShowFPS';
@@ -54,6 +56,9 @@ import SignIn from '../components/options/SignIn';
 import UIScaling from '../components/options/UIScaling';
 import { isOptionsOpen } from '../globals';
 import useKeyboardOwner, { LAYER } from '../input/keyboardOwner';
+import AutoSkip from '../pbe/AutoSkip';
+import { PBE } from '../pbe/pbe';
+import ResetCharacter from '../pbe/ResetCharacter';
 
 /** A consumer component rendered inside a group. */
 type OptComponent = () => JSX.Element;
@@ -109,16 +114,30 @@ export default function Options() {
 							search: t`sign|in|login|connect|connexion`,
 							component: () => SignIn,
 						},
-						{
+						// no Discord bot on the PBE
+						...PBE ? [] : [{
 							search: t`discord|link|role`,
 							component: () => LinkDiscord,
-						},
+						}],
 						{
 							search: t`bug|report|issue|problem|crash|help`,
 							component: () => ReportBug,
 						},
 					],
 				},
+				...PBE ? [{
+					title: 'PBE',
+					components: [
+						{
+							search: 'pbe|skip|end|instant|auto',
+							component: () => AutoSkip,
+						},
+						{
+							search: 'pbe|reset|character|delete',
+							component: () => ResetCharacter,
+						},
+					],
+				}] : [],
 				{
 					title: t`Chat`,
 					components: [
@@ -191,6 +210,10 @@ export default function Options() {
 						{
 							search: t`thumb|thumbnail`,
 							component: () => ShowThumbnails,
+						},
+						{
+							search: t`grade|grades|rank|rate|best`,
+							component: () => BestGradeAnyRate,
 						},
 						{
 							search: t`download|downloaded|beatmap|beatmaps|hide`,
@@ -348,6 +371,10 @@ export default function Options() {
 						{
 							search: t`move|install|installation|folder|location|portable`,
 							component: () => MoveInstall,
+						},
+						{
+							search: t`database|local|reset|recreate|repair|fresh`,
+							component: () => RecreateDatabase,
 						},
 						{
 							search: t`bug|report|issue|problem|crash|help`,

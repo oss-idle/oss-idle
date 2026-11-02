@@ -13,5 +13,10 @@ import type { Locale } from './locales.js';
  */
 export const sharedCatalog: Record<Locale, () => Promise<Messages>> = {
 	en: () => import('../locales/en.js').then(m => m.messages),
+	de: () => import('../locales/de.js').then(m => m.messages),
+	es: () => import('../locales/es.js').then(m => m.messages),
+	fil: () => import('../locales/fil.js').then(m => m.messages),
 	fr: () => import('../locales/fr.js').then(m => m.messages),
+	ru: () => import('../locales/ru.js').then(m => m.messages),
+	vi: () => import('../locales/vi.js').then(m => m.messages),
 };

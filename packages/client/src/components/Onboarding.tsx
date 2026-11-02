@@ -14,9 +14,11 @@ import {
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 
+import { geneticChoice } from '../globals';
 import useKeyboardOwner, { LAYER } from '../input/keyboardOwner';
 import Account from '../online/account';
 import Auth from '../online/auth';
+import { selectedDef } from '../rulesets/registry';
 
 /**
  * First-login onboarding. Shown once when signed in but the account has no
@@ -61,6 +63,7 @@ export default function Onboarding() {
 		setError(null);
 		try {
 			await Account.complete({ name: name.trim() });
+			if (selectedDef().genetics) void geneticChoice.set('first');
 		} catch (e) {
 			setError(String(e));
 			setBusy(false);

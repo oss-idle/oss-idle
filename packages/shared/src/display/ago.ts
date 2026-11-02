@@ -30,16 +30,17 @@ export const recentTimeAgo = (ms: number): string | null => {
 export const timeAgo = (ms?: number | null): string => {
 	if (!ms) return '';
 	const s = Math.floor(ms / 1000);
-	if (s < 120) return __('{s} seconds ago', undefined, { s });
+	if (s < 120) return __('{s, plural, one {# second ago} other {# seconds ago}}', undefined, { s });
 	const m = Math.floor(s / 60);
-	if (m < 120) return __('{m} minutes ago', undefined, { m });
+	if (m < 120) return __('{m, plural, one {# minute ago} other {# minutes ago}}', undefined, { m });
 	const h = Math.floor(m / 60);
-	if (h < 48) return __('{h} hours ago', undefined, { h });
+	if (h < 48) return __('{h, plural, one {# hour ago} other {# hours ago}}', undefined, { h });
 	const d = Math.floor(h / 24);
-	if (d < 60) return __('{d} days ago', undefined, { d });
+	if (d < 60) return __('{d, plural, one {# day ago} other {# days ago}}', undefined, { d });
 	const mo = Math.floor(d / 30);
-	if (mo < 24) return __('{mo} months ago', undefined, { mo });
-	return __('{y} years ago', undefined, { y: Math.floor(mo / 12) });
+	if (mo < 24) return __('{mo, plural, one {# month ago} other {# months ago}}', undefined, { mo });
+	const y = Math.floor(mo / 12);
+	return __('{y, plural, one {# year ago} other {# years ago}}', undefined, { y });
 };
 
 export const dateAgo = (date?: string | number | null): string => {

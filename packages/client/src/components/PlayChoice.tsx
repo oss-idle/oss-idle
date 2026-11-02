@@ -7,10 +7,14 @@ import { useState } from 'react';
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
-import { isPlayChoiceOpen } from '../globals';
+import {
+	geneticChoice,
+	isPlayChoiceOpen,
+} from '../globals';
 import useKeyboardOwner, { LAYER } from '../input/keyboardOwner';
 import Account from '../online/account';
 import Auth from '../online/auth';
+import { selectedDef } from '../rulesets/registry';
 import SceneManager, { SCENE } from '../scenes/SceneManager';
 import PlayChoiceCard from './PlayChoiceCard';
 
@@ -36,7 +40,9 @@ export default function PlayChoice() {
 		try {
 			await Account.playLocally();
 			close();
-			if (SceneManager.current.get() === SCENE.MENU) SceneManager.set(SCENE.SELECT);
+			// a new character first picks what it was born good at, then plays
+			if (selectedDef().genetics) void geneticChoice.set('first');
+			else if (SceneManager.current.get() === SCENE.MENU) SceneManager.set(SCENE.SELECT);
 		} finally {
 			setBusy(false);
 		}

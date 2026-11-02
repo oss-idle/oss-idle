@@ -325,4 +325,10 @@ describe('invariants every path has to hold', () => {
 		expect(isTerminal(state)).toBe(true);
 		expect(count(effects, 'show-result')).toBe(1);
 	});
+
+	it('a play replaced by the next one shows no result when it ends behind it', () => {
+		const { state, types } = run('ranked', [{ type: 'replaced' }, { type: 'ended' }]);
+		expect(state.phase).toBe('exited');
+		expect(types).toEqual([]);
+	});
 });

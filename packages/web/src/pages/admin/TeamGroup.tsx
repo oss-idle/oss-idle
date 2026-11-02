@@ -2,6 +2,11 @@ import {
 	type Group,
 	GROUP_BADGE,
 } from '@oss-idle/shared/groups';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
+import {
+	NOMINATED_RULESETS,
+	type RulesetId,
+} from '@oss-idle/shared/rulesets/ids';
 
 import type { TeamMember } from '../../api/team';
 import GroupBadge from '../../components/character/GroupBadge';
@@ -9,11 +14,12 @@ import Link from '../../components/Link';
 import ProfilePicture from '../../components/ProfilePicture';
 
 /** One group of the team page and its members. */
-export default function TeamGroup({ group, members, busy, onRemove }: {
+export default function TeamGroup({ group, members, busy, onRemove, onNominates }: {
 	group: Group;
 	members: TeamMember[];
 	busy: boolean;
 	onRemove: (userId: number) => Promise<void>;
+	onNominates: (userId: number, rulesets: RulesetId[]) => Promise<void>;
 }) {
 	return <section>
 		<h3>
@@ -33,6 +39,19 @@ export default function TeamGroup({ group, members, busy, onRemove }: {
 				<span className='team-member__meta'>
 					{m.username} · since {new Date(m.since).toLocaleDateString()}
 				</span>
+				{group === 'bn' && <span className='team-member__rulesets'>
+					{NOMINATED_RULESETS.map(ruleset => <label key={ruleset}>
+						<input
+							type='checkbox'
+							disabled={busy}
+							checked={m.nominates.includes(ruleset)}
+							onChange={e => void onNominates(m.userId, e.target.checked
+								? [...m.nominates, ruleset]
+								: m.nominates.filter(r => r !== ruleset))}
+						/>
+						{rulesetLabel(ruleset)}
+					</label>)}
+				</span>}
 				<span className='team-member__actions'>
 					<button type='button' disabled={busy} onClick={() => void onRemove(m.userId)}>Remove</button>
 				</span>

@@ -7,6 +7,8 @@ import {
 	useState,
 } from 'react';
 
+import sleep from '@oss-idle/shared/helpers/sleep';
+
 import { music } from '../audio/MusicPlayer';
 import { SETTINGS } from '../db/settings';
 import {
@@ -22,6 +24,8 @@ import SceneManager, { SCENE } from './SceneManager';
 
 const INTRO_MS = 2500;
 const SONG_KICK = 2450;
+/** the longest the desktop intro waits for the menu's warm-up */
+const WARMUP_WAIT_MS = 4000;
 
 async function pickStartupBeatmap(): Promise<{ 
 	beatmap?: LightBeatmap; 
@@ -65,46 +69,58 @@ export default function IntroScreen() {
 		}, INTRO_MS);
 	};
 
+	/** The song the intro starts, loaded and placed on its first beat. */
+	const prepare = async () => {
+		const { beatmap, random } = await pickStartupBeatmap();
+		if (!beatmap) return;
+		await music.beatmap.set(beatmap);
+
+		if (random) {
+			const loaded = await beatmap.load();
+			const firstBeat = loaded.controlPoints.timingPoints[0]?.startTime ?? 0;
+			if (firstBeat > SONG_KICK) {
+				holdMs.current = 0;
+				startMs.current = firstBeat - SONG_KICK;
+			}
+			if (firstBeat < SONG_KICK) {
+				startMs.current = 0;
+				holdMs.current = SONG_KICK - firstBeat;
+			}
+		}
+		await music.preload(startMs.current);
+	};
+
 	useEffect(() => {
 		void (async () => {
 			if (preloaded.current) return;
-
 			preloaded.current = 1;
-
-			const { beatmap, random } = await pickStartupBeatmap();
-			if (!beatmap) return;
-			await music.beatmap.set(beatmap);
-
-			if (random) {
-				const loaded = await beatmap.load();
-				const firstBeat = loaded.controlPoints.timingPoints[0]?.startTime ?? 0;
-				if (firstBeat > SONG_KICK) {
-					holdMs.current = 0;
-					startMs.current = firstBeat - SONG_KICK;
-				}
-				if (firstBeat < SONG_KICK) {
-					startMs.current = 0;
-					holdMs.current = SONG_KICK - firstBeat;
-				}
+			try {
+				await prepare();
+			} catch (e) {
+				console.error('[intro] the startup song did not load', e);
 			}
-			await music.preload(startMs.current);
-
-			// desktop can start audio without a user gesture (autoplayPolicy), so
-			// skip the click gate and activate the intro straight away.
+			// desktop can start audio without a user gesture (autoplayPolicy): no click
+			// gate, and the intro starts whatever the song or the warm-up did
 			if (isStandalone.get()) {
-				await menuWarmed;
+				await Promise.race([menuWarmed, sleep(WARMUP_WAIT_MS)]);
 				begin();
 			}
 		})();
 	}, []);
 
+	// desktop starts on its own: nothing to click, and nothing shows until the welcome
+	const desktop = isStandalone.get();
+
 	return (
-		<div className={`intro ${started ? 'intro--started' : ''}`} onClick={begin}>
+		<div
+			className={`intro ${started ? 'intro--started' : desktop ? 'intro--waiting' : ''}`}
+			onClick={desktop ? undefined : begin}
+		>
 			<div className="intro__frame" />
 			<div className="intro__inner">
-				<p className="intro__cta">{isMobile ? 
+				{!desktop && <p className="intro__cta">{isMobile ? 
 					<Trans>tap to play...</Trans> 
-					: <Trans>click to play...</Trans>} </p>
+					: <Trans>click to play...</Trans>} </p>}
 				<h1 className="intro__welcome">
 					<span>welcome</span>
 				</h1>

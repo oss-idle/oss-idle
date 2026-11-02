@@ -41,6 +41,7 @@ import {
 	env,
 	redisKeyPrefix,
 } from './env';
+import { supporterEvent } from './events';
 import { fileSent } from './mailSent';
 import { redis } from './redis';
 import { onDispute } from './restrictions';
@@ -232,6 +233,7 @@ const grant = async (
 		return;
 	}
 	const { order } = landed;
+	if (order) await supporterEvent(recipientId, buyerId !== recipientId);
 	if (order && email && mailer) {
 		const thanks: PendingThanks = {
 			to: email, before: order.before, at: Date.now(),

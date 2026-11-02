@@ -16,6 +16,7 @@ import num from '@oss-idle/shared/display/num';
 import {
 	editsCharacter,
 	GROUP_BADGE,
+	renamesCharacter,
 } from '@oss-idle/shared/groups';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import type { ProfileSection as Section } from '@oss-idle/shared/profile';
@@ -39,6 +40,7 @@ import CharacterHistorical from '../../components/character/CharacterHistorical'
 import CharacterMedals from '../../components/character/CharacterMedals';
 import CharacterName from '../../components/character/CharacterName';
 import { CharacterRanks } from '../../components/character/CharacterRanks';
+import CharacterRecent from '../../components/character/CharacterRecent';
 import CharacterSkills from '../../components/character/CharacterSkills';
 import CharacterTitle from '../../components/character/CharacterTitle';
 import CharacterTopRanks from '../../components/character/CharacterTopRanks';
@@ -113,6 +115,7 @@ export default function CharacterPage({ id, character, stats }: {
 			isSelf={editable}
 			supporter={supporter}
 		/>,
+		recent: <CharacterRecent id={id} name={character.name} />,
 		skills: <CharacterSkills character={character} />,
 		ranks: <CharacterTopRanks id={id} ruleset={character.ruleset} countplayed={countplayed} />,
 		historical: <CharacterHistorical id={id} ruleset={character.ruleset} countplayed={countplayed} />,
@@ -147,7 +150,7 @@ export default function CharacterPage({ id, character, stats }: {
 								characterId={character.id}
 								name={character.name}
 								formerNames={character.formerNames}
-								editable={editable}
+								editable={!!me && renamesCharacter(me, character)}
 							/>
 							<SupporterBadge level={character.supportLevel} />
 							{character.groups.map(g => <GroupBadge key={g} group={g} />)}

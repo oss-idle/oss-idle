@@ -8,7 +8,6 @@ import { HTTPException } from 'hono/http-exception';
 
 import { db } from './db/client';
 import { addons } from './db/schema/addon';
-import { beatmapClaims } from './db/schema/beatmap_request';
 import { characters } from './db/schema/character';
 import { matchEvents } from './db/schema/match';
 import { skins } from './db/schema/skin';
@@ -56,11 +55,10 @@ const deleteCustomer = async (customer: string): Promise<void> => {
 };
 
 /** The rows that point at the account without a foreign key, so the delete can't reach them. */
-const forgetUnlinked = async (userId: number, characterIds: number[]): Promise<void> => {
+export const forgetUnlinked = async (userId: number, characterIds: number[]): Promise<void> => {
 	for (const { requestVotes } of enabledRulesets()) {
 		await db.delete(requestVotes).where(eq(requestVotes.userId, userId));
 	}
-	await db.delete(beatmapClaims).where(eq(beatmapClaims.userId, userId));
 	// the map proposal stays for the others who backed it, without its proposer
 	for (const { requests } of enabledRulesets()) {
 		await db.update(requests).set({ userId: 0 }).where(eq(requests.userId, userId));

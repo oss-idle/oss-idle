@@ -11,6 +11,7 @@ import { APPROVED_STATUSES } from '@oss-idle/shared/beatmap';
 import { db } from '../db/client';
 import { beatmaps } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
+import { mapperEvent } from '../events';
 import { recordCurators } from '../medals';
 import { enabledRulesets } from '../rulesets/registry';
 import type { ServerRuleset } from '../rulesets/ruleset';
@@ -60,7 +61,10 @@ const announceDue = async (r: ServerRuleset): Promise<boolean> => {
 			.where(and(eq(setStatus.setId, set.id), eq(setStatus.announced, false)));
 		if (!claim.affectedRows) continue;
 		wentLive = true;
-		await recordCurators(r, set.osuId);
+		await recordCurators(r, set);
+		await mapperEvent(set.ownerUserId, r.def.id, {
+			type: 'beatmapsetApprove', setId: set.id, status: status === 'loved' ? 'loved' : 'ranked',
+		});
 
 		const diffs = await db
 			.select({
@@ -75,6 +79,7 @@ const announceDue = async (r: ServerRuleset): Promise<boolean> => {
 			loved: status === 'loved',
 			id: set.id,
 			osuId: set.osuId,
+			osuCover: set.osuCover,
 			background: diffs.find(d => d.background)?.background,
 			artist: set.artist,
 			title: set.title,

@@ -36,6 +36,8 @@ export type Progress = {
 	memoryResetAt: number,
 	// JSON list of when memory upgrades were bought: each forgets plays on every map
 	memoryForgetAt: string,
+	// the genetic and genes in this ruleset, as JSON ('' until one is picked)
+	geneticsJson: string,
 	add(): Promise<unknown>,
 	update(): Promise<unknown>,
 };
@@ -48,6 +50,7 @@ const rulesetTable = (ruleset: RulesetId, skills: readonly string[]) =>
 		overallLevel:   integer().default(0),
 		memoryResetAt:  integer().default(0),
 		memoryForgetAt: text().default('[]'),
+		geneticsJson:   text().default(''),
 	});
 
 type Tables = Partial<Record<RulesetId, DaoStatic<ReturnType<typeof rulesetTable>['columns']>>>;

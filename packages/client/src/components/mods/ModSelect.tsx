@@ -41,6 +41,7 @@ import {
 } from '../../gameplay/playRate';
 import { inTextBox } from '../../input/Controls';
 import useKeyboardOwner from '../../input/keyboardOwner';
+import { selectedRuleset } from '../../rulesets/registry';
 import ModTile from './ModTile';
 import { rateShort } from './rateShort';
 import RateStepper from './RateStepper';
@@ -58,10 +59,11 @@ const sideSteps = (from: number, to: number): number[] => {
 const SLOWER = sideSteps(1 - RATE_STEP, MIN_RATE);
 const FASTER = sideSteps(1 + RATE_STEP, MAX_RATE);
 
-/** SD and PF share a tile, as in osu!: off → SD → PF → off. */
+/** SD, PF and JT share a tile: off → SD → PF → JT → off. */
+const DEATH: Mod[] = ['SD', 'PF', 'JT'];
 const cycleDeath = (mods: Mod[]) => {
-	if (mods.includes('PF')) pickMod('PF');
-	else pickMod(mods.includes('SD') ? 'PF' : 'SD');
+	const next = DEATH[DEATH.findIndex(m => mods.includes(m)) + 1];
+	pickMod(next ?? 'JT');
 };
 
 /** mod select over song select. */
@@ -70,6 +72,7 @@ export default function ModSelect({ onClose }: { onClose: () => void }) {
 	const { t } = useLingui();
 	const [rate] = useSynced(selectedRate);
 	const [mods] = useSynced(selectedMods);
+	const [ruleset] = useSynced(selectedRuleset);
 	const [character] = useSynced(Entities.character);
 	const unlocked = rateSteps(speedUpgrades(character));
 	const none = unlocked.length === 1;
@@ -155,7 +158,7 @@ export default function ModSelect({ onClose }: { onClose: () => void }) {
 					<div className="mod-select__heading is-increase"><Trans>Difficulty Increase</Trans></div>
 					<div className="mod-select__mods">
 						{tile('HR')}
-						{tile(on('PF') ? 'PF' : 'SD', () => cycleDeath(mods))}
+						{tile(DEATH.find(on) ?? 'SD', () => cycleDeath(mods))}
 						<div className="mod-select__mod" onWheel={wheel(FASTER)}>
 							<ModTile
 								glyph="clock" label={t`Double`} tint="#8c4fd0"
@@ -166,6 +169,15 @@ export default function ModSelect({ onClose }: { onClose: () => void }) {
 						</div>
 					</div>
 				</div>
+
+				{ruleset === 'mania7k' && (
+					<div className="mod-select__row">
+						<div className="mod-select__heading"><Trans>Layout</Trans></div>
+						<div className="mod-select__mods">
+							{tile('RT')}
+						</div>
+					</div>
+				)}
 
 				<div className="ctxmenu__options">
 					<button

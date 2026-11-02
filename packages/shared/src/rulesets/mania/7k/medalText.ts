@@ -10,7 +10,7 @@ const MEDAL_SKILL: Record<SkillName7k, () => string> = {
 	accuracy: () => __('Accuracy', 'skill in a medal name'),
 	speed: () => __('Speed', 'skill in a medal name'),
 	stamina: () => __('Stamina', 'skill in a medal name'),
-	chords: () => __('Chords', 'skill in a medal name'),
+	jacks: () => __('Jacks', 'skill in a medal name'),
 	independence: () => __('Independence', 'skill in a medal name'),
 	ln: () => __('LN', 'skill in a medal name'),
 	technical: () => __('Technical', 'skill in a medal name'),

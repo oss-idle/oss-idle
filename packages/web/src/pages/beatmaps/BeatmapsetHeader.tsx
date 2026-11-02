@@ -1,10 +1,14 @@
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
+import {
+	faHeart,
+	faPlayCircle,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ph } from '@lingui/core/macro';
 import {
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
+import { useState } from 'react';
 
 import { osuSetUrl } from '@oss-idle/shared/beatmap';
 import { dateAgo } from '@oss-idle/shared/display/ago';
@@ -22,15 +26,21 @@ import {
 } from '../../api/maps';
 import MapperLink from '../../components/MapperLink';
 import OutLink from '../../components/OutLink';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 import BeatmapsetStats from './BeatmapsetStats';
 import DifficultyPicker from './DifficultyPicker';
 import DownloadButton from './DownloadButton';
+import FavouriteButton from './FavouriteButton';
 import MapsetRulesetTabs from './MapsetRulesetTabs';
 
 /** osu!'s beatmap header: the cover, the difficulties, who made it, then its stats. */
 export default function BeatmapsetHeader({ mapset, diff }: { mapset: Mapset; diff: MapDiff }) {
 	const { t } = useLingui();
 	const { set } = mapset;
+	const me = useCurrentUser();
+	const [favourite, setFavourite] = useState({
+		favourited: mapset.favourited, count: set.favouriteCount,
+	});
 	const osu = osuSetUrl(set.osuId);
 	const cover = coverBackground({
 		...set, background: diff.background,
@@ -48,8 +58,13 @@ export default function BeatmapsetHeader({ mapset, diff }: { mapset: Mapset; dif
 					★ {starsText(diff.sr)}
 				</span>
 			</div>
-			<div className='mapset__plays' title={t`plays`}>
-				<FontAwesomeIcon icon={faPlayCircle} /> {bignum(diff.plays)}
+			<div className='mapset__counts'>
+				<span className='mapset__plays' title={t`plays`}>
+					<FontAwesomeIcon icon={faPlayCircle} /> {bignum(diff.plays)}
+				</span>
+				<span className='mapset__plays'>
+					<FontAwesomeIcon icon={faHeart} /> {bignum(favourite.count)}
+				</span>
 			</div>
 			<div className='mapset__title'>{set.title}</div>
 			<div className='mapset__artist'>{set.artist}</div>
@@ -57,6 +72,13 @@ export default function BeatmapsetHeader({ mapset, diff }: { mapset: Mapset; dif
 				<Trans>mapped by <MapperLink userId={set.ownerUserId} className='mapper-link'>{ph({ creator: set.creator })}</MapperLink></Trans>
 			</div>
 			<div className='mapset__buttons'>
+				{me && <FavouriteButton
+					setId={set.id}
+					favourited={favourite.favourited}
+					onChange={(favourited, count) => setFavourite({
+						favourited, count,
+					})}
+				/>}
 				<DownloadButton setId={set.id} />
 				{osu && <OutLink href={osu} target='_blank' className='mapset__button'>
 					<Trans>osu! page</Trans>

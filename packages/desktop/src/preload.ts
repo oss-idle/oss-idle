@@ -74,6 +74,13 @@ ipcRenderer.on('oss-idle:library-changed', (_event, change: LibraryChange) => {
 	}
 });
 
+let saveBeforeClose: (() => Promise<void>) | undefined;
+ipcRenderer.on('oss-idle:save', () => {
+	void (saveBeforeClose?.() ?? Promise.resolve())
+		.catch(e => console.error('[desktop] the save before closing failed', e))
+		.finally(() => ipcRenderer.send('oss-idle:saved'));
+});
+
 const bridge: OssIdleDesktop = {
 	isDesktop: true,
 	version: boot.version,
@@ -88,6 +95,10 @@ const bridge: OssIdleDesktop = {
 	setZoomFactor: factor => webFrame.setZoomFactor(factor),
 	setPresence: (presence: DesktopPresence | null) => ipcRenderer.send('oss-idle:presence', presence),
 	quit: () => ipcRenderer.send('oss-idle:quit'),
+	saveBeforeClose: save => {
+		saveBeforeClose = save;
+		ipcRenderer.send('oss-idle:save-before-close');
+	},
 	trace: () => ipcRenderer.invoke('oss-idle:trace'),
 	onDeepLink: cb => {
 		deepLinkListeners.add(cb);

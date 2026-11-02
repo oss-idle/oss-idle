@@ -15,7 +15,8 @@ const APPROVED_LABEL: Record<number, string> = {
 	[-2]: 'graveyard',
 };
 
-export default function RequestSearchHit({ hit, disabled, onPick }: {
+export default function RequestSearchHit({ label, hit, disabled, onPick }: {
+	label: string,
 	hit: MapSearchHit,
 	disabled: boolean,
 	onPick: (setId: number) => void,
@@ -45,7 +46,7 @@ export default function RequestSearchHit({ hit, disabled, onPick }: {
 				<span className='request-hit__capsule'>{APPROVED_LABEL[hit.approved] ?? 'unknown'}</span>
 				<span className='request-hit__sr'>{sr}☆</span>
 				<span className='request-hit__diffs'>
-					<Trans>{ph({ diffs: hit.diffs })} × 4K</Trans>
+					<Trans>{ph({ diffs: hit.diffs })} × {ph({ label })}</Trans>
 				</span>
 			</span>
 		</button>

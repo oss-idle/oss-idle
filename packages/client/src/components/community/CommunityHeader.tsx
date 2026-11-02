@@ -1,6 +1,10 @@
 import './CommunityHeader.css';
 
 import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
+import {
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
@@ -12,6 +16,7 @@ import Account from '../../online/account';
 import Socket from '../../online/socket';
 import Dropdown from '../dropdown/Dropdown';
 import MusicControls from './MusicControls';
+import RosterRulesets from './RosterRulesets';
 import {
 	activeFilter,
 	FILTER,
@@ -43,7 +48,10 @@ export default function CommunityHeader() {
 		<header className="community-header">
 			<div className="community-header__title">
 				<span className="community-header__brand">oss!idle</span>
-				<span className="community-header__online">{t`${online} users connected`}</span>
+				<span className="community-header__online">{t`${plural(ph({ online }), {
+					one: '# user connected',
+					other: '# users connected',
+				})}`}</span>
 			</div>
 
 			<div className="community-header__filters">
@@ -66,6 +74,8 @@ export default function CommunityHeader() {
 					/>
 				</div>
 			</div>
+
+			<RosterRulesets />
 
 			<MusicControls />
 		</header>

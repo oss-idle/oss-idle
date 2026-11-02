@@ -1,0 +1,5896 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-11 09:53+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Weblate 2026.10.1\n"
+"Language: es\n"
+"Project-Id-Version: osu-idle\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-10-30 19:22+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
+"Language-Team: Spanish <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/es/>\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#: src/components/upgrades/useUpgrade.ts
+msgid " · Overdrive {odText}"
+msgstr " · Overdrive {odText}"
+
+#: src/components/upgrades/useUpgrade.ts
+msgid " · Overdrive {odText} → {nextOd}"
+msgstr " · Overdrive {odText} → {nextOd}"
+
+#: src/components/multiplayer/MatchRow.tsx
+msgid "(In Progress)"
+msgstr "(En curso)"
+
+#: src/components/options/RightClickHold.tsx
+msgid "(mobile) Tap duration to right click"
+msgstr "(Móvil/Celular) Duración de la pulsación para hacer clic derecho"
+
+#: src/components/multiplayer/SlotLabel.tsx
+msgid "[no map]"
+msgstr "[sin mapa]"
+
+#: src/components/multiplayer/SlotLabel.tsx
+msgid "[playing]"
+msgstr "[jugando]"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{chords, plural, one {you settle into a steady rhythm # chord sooner} other {you settle into a steady rhythm # chords sooner}}"
+msgstr ""
+
+#: src/components/genetics/GeneCardActions.tsx
+msgid "{CLIMAXX_SYMBOL}{SELL_FEE} fee"
+msgstr ""
+
+#: src/components/skins/SkinContents.tsx
+msgid "{count, plural, one {# file} other {# files}}"
+msgstr "{count, plural, one {# archivo} other {# archivos}}"
+
+#: src/components/BeatmapCarousel.tsx
+msgid "{count, plural, one {# map} other {# maps}}"
+msgstr "{count, plural, one {# mapa} other {# mapas}}"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "{count, plural, one {# note uses this file. It will play the default sound instead.} other {# notes use this file. They will play the default sounds instead.}}"
+msgstr "{count, plural, one {# nota usa este archivo. Se utilizará el sonido por defecto en su lugar.} other {# notas usan este archivo. Se utilizará el sonido por defecto en su lugar.}}"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "{count, plural, one {# note} other {# notes}}"
+msgstr "{count, plural, one {# nota} other {# notas}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{count, plural, one {Checks: # to look at} other {Checks: # to look at}}"
+msgstr "{count, plural, one {Comprobaciones: # para revisar} other {Comprobaciones: # para revisar}}"
+
+#: src/editor/builtinActions.ts
+msgid "{count, plural, one {Resnapped # note} other {Resnapped # notes}}"
+msgstr "{count, plural, one {Reajustada # nota} other {Reajustadas # notas}}"
+
+#: src/components/community/WorldMap.tsx
+msgid "{count} here"
+msgstr "{count} aquí"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "{downloads, plural, one {# download} other {# downloads}}"
+msgstr "{downloads, plural, one {# descarga} other {# descargas}}"
+
+#: src/osu/beatmap/grouping.ts
+#: src/osu/beatmap/grouping.ts
+msgid "{from}-{to} min"
+msgstr "{from}-{to} min"
+
+#: src/osu/beatmap/grouping.ts
+msgid "{from}+ min"
+msgstr "{from}+ min"
+
+#: src/components/character/RebirthView.tsx
+msgid "{handover}, stays playable and ranked · The new character starts from zero and unlocks: {unlocks}"
+msgstr "{handover}, se quedará jugable y clasificado · El nuevo personaje comienza desde cero y desbloquea: {unlocks}"
+
+#: src/components/skills/SkillEquation.tsx
+msgid "{held, plural, one {# medal} other {# medals}}"
+msgstr "{held, plural, one {# medalla} other {# medallas}}"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "{index} · no files"
+msgstr "{index} · sin archivos"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{levels, plural, one {a map you know by heart is played with # more accuracy level} other {a map you know by heart is played with # more accuracy levels}}"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{levels, plural, one {inverse sections are played with # more release level} other {inverse sections are played with # more release levels}}"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{maps, plural, one {your most played map never fades} other {your # most played maps never fade}}"
+msgstr ""
+
+#: src/components/direct/DirectFilters.tsx
+msgid "{matches, plural, one {# match found} other {# matches found}}"
+msgstr "{matches, plural, one {# coincidencia encontrada} other {# coincidencias encontradas}}"
+
+#: src/osu/beatmap/grouping.ts
+msgid "{months, plural, one {# month ago} other {# months ago}}"
+msgstr "{months, plural, one {hace # mes} other {hace # meses}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# LN shorter than 1/8 of a beat} other {# LN shorter than 1/8 of a beat}}"
+msgstr "{n, plural, one {# LN más corta que el 1/8 de un pulso} other {# LN más cortas que el 1/8 de un pulso}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# note after the song ends} other {# notes after the song ends}}"
+msgstr "{n, plural, one {# nota después de que la canción termine} other {# notas después de que la canción termine}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# note before the song starts} other {# notes before the song starts}}"
+msgstr "{n, plural, one {# nota antes de que la canción empiece} other {# notas antes de que la canción empiece}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# note in a chord across every column} other {# notes in chords across every column}}"
+msgstr "{n, plural, one {# nota en acordes a lo largo de cada columna} other {# notas en acordes a lo largo de cada columna}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# note off the 1/16 and 1/12 beat lines} other {# notes off the 1/16 and 1/12 beat lines}}"
+msgstr "{n, plural, one {# nota por fuera de los ritmos 1/16 y 1/12} other {# notas por fuera de los ritmos 1/16 y 1/12}}"
+
+#: src/editor/EditorChecks.tsx
+msgid "{n, plural, one {# note overlaps another in its column} other {# notes overlap another in their column}}"
+msgstr "{n, plural, one {# nota se superpone con otra en su columna} other {# notas se superponen con otras en sus columnas}}"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "{n, plural, one {# player} other {# players}}"
+msgstr "{n, plural, one {# jugador} other {# jugadores}}"
+
+#: src/components/character/PrestigeClimaxxPop.tsx
+msgid "{name} · Prestige"
+msgstr ""
+
+#: src/components/character/RebirthView.tsx
+msgid "{name} becomes {name}_old"
+msgstr "{name} pasa a ser {name}_old"
+
+#: src/scenes/Editor.tsx
+msgid "{name} becomes this difficulty's background"
+msgstr "{name} pasa a ser el fondo de la dificultad"
+
+#: src/components/character/PrestigeClimaxxPop.tsx
+msgid "{name} climaxx"
+msgstr ""
+
+#: src/components/character/RebirthView.tsx
+msgid "{name} keeps its name"
+msgstr "{name} conserva su nombre"
+
+#: src/components/community/chat/mentions.ts
+msgid "{name} mentioned you"
+msgstr "{name} te ha mencionado"
+
+#: src/logs.ts
+msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
+msgstr "{name} ha jugado {map} y ha conseguido {accuracy} {grade}. {gains}"
+
+#: src/components/upgrades/useUpgrade.ts
+msgid "{name} XP Lv{level} → XP Lv{nextLevel} · Costs {spent}xp{odSegment} · XP boost x{boost}"
+msgstr "{name} Nv XP {level} → Nv XP {nextLevel} · Cuesta {spent}xp{odSegment} · aumento XP x{boost}"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "{name}'s game"
+msgstr "Sala de {name}"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "{nbMaps, plural, one {# map} other {# maps}}"
+msgstr "{nbMaps, plural, one {# mapa} other {# mapas}}"
+
+#: src/components/community/CommunityHeader.tsx
+msgid "{online, plural, one {# user connected} other {# users connected}}"
+msgstr "{online, plural, one {# usuario conectado} other {# usuarios conectados}}"
+
+#: src/components/community/chat/Reactions.tsx
+msgid "{others} more"
+msgstr "{others} más"
+
+#: src/components/genetic-choice/StrengthBreakdown.tsx
+msgid "{percent}% as your genetic"
+msgstr ""
+
+#: src/components/genetic-choice/StrengthBreakdown.tsx
+msgid "{percent}% from {name}"
+msgstr ""
+
+#: src/online/presence.ts
+msgid "{result} on {map}"
+msgstr "{result} en {map}"
+
+#: src/scenes/SongSelect.tsx
+msgid "{results, plural, one {# result} other {# results}}"
+msgstr "{results, plural, one {# resultado} other {# resultados}}"
+
+#: src/components/dock/DockCountdown.tsx
+msgid "{seconds}s"
+msgstr "{seconds}s"
+
+#: src/editor/builtinActions.ts
+msgid "{seek}, selecting on the way"
+msgstr "{seek}, seleccionando sobre la marcha"
+
+#: src/editor/EditorSummary.tsx
+msgid "{selected, plural, one {# selected} other {# selected}}"
+msgstr "{selected, plural, one {# en la selección} other {# en la selección}}"
+
+#: src/editor/EditorTiming.tsx
+msgid "{shown} of {total, plural, one {# point} other {# points}}"
+msgstr "{shown} de {total, plural, one {# punto} other {# puntos}}"
+
+#: src/editor/EditorScroll.tsx
+msgid "{shown} of {total, plural, one {# point} other {# points}}, around the current time"
+msgstr "{shown} de {total, plural, one {# punto} other {# puntos}}, alrededor del tiempo actual"
+
+#: src/scenes/SongSelect.tsx
+msgid "{shown} of {total, plural, one {# result} other {# results}}"
+msgstr "{shown} de {total, plural, one {# resultado} other {# resultados}}"
+
+#: src/components/genetics/ClimaxxBalance.tsx
+msgid "{skill} climaxx"
+msgstr ""
+
+#: src/components/genetics/GeneCard.tsx
+msgid "{skill} gene"
+msgstr ""
+
+#: src/components/genetics/GeneCard.tsx
+msgid "{skill} gene · tier {tier} of {max}"
+msgstr ""
+
+#: src/logs.ts
+msgid "{skill} reached level {level}!"
+msgstr "¡{skill} ha alcanzado el nivel {level}!"
+
+#: src/components/genetics/GeneticsXpRows.tsx
+msgid "{tiers, plural, one {# tier bought} other {# tiers bought}}"
+msgstr ""
+
+#: src/online/mapLinks.ts
+msgid "{title} is already downloaded"
+msgstr "{title} ya está descargado"
+
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "{toGo, plural, one {# level} other {# levels}}"
+msgstr "{toGo, plural, one {# nivel} other {# niveles}}"
+
+#: src/components/BeatmapCarousel.tsx
+msgid "{totalCount, plural, one {that's all # difficulty} other {that's all # difficulties}}"
+msgstr "{totalCount, plural, one {esa es la única dificultad} other {esas son todas las # dificultades}}"
+
+#: src/components/skills/SkillEquation.tsx
+msgid "{upgrades}/{max} upgrades"
+msgstr "{upgrades}/{max} mejoras"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% {skill} XP bonus"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer chokes"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer misses on patterns past your limit"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer misses when you're exhausted"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer misses when your hands are past their limit"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer sloppy releases"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer stray hits"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% fewer tangles when your hands are overloaded"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% less chance to hold a short LN too long"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% of the time, a chord pressed while holding an LN is no harder than one note"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% of the time, pressing with the hand that holds an LN is no harder than with the other"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% of the time, the notes of a chord are judged together"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% of the time, you recognise an SV pattern from further back in the song"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "{value}% overdrive bonus"
+msgstr ""
+
+#: src/editor/EditorView.tsx
+msgid "{version} (copy)"
+msgstr "{version} (copia)"
+
+#: src/components/character/PrestigeRow.tsx
+msgid "+{bonus} Lv · +{slots} gear slot · x{multiplier} XP"
+msgstr "+{bonus} Nv · +{slots} casilla de equipamiento · x{multiplier} XP"
+
+#: src/components/medals/MedalFocus.tsx
+#: src/components/medals/MedalShowcase.tsx
+#: src/components/medals/MedalTile.tsx
+msgid "+{percent}% XP"
+msgstr "+{percent}% XP"
+
+#: src/components/character/PrestigeRow.tsx
+msgid "+{prestige} Lv"
+msgstr "+{prestige} Nv"
+
+#: src/components/genetics/SkillCardBalance.tsx
+msgid "<0>{CLIMAXX_SYMBOL}{amount}</0> climaxx"
+msgstr ""
+
+#: src/editor/EditorSummary.tsx
+msgid "<0>{rice}</0> rice, <1>{longNotes}</1> LN"
+msgstr "<0>{rice}</0> rice, <1>{longNotes}</1> LN"
+
+#: src/components/genetic-choice/GeneticHubTag.tsx
+msgid "★ Your genetic"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticHubTag.tsx
+msgid "★ Your genetic · change in {hours}h"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticHubTag.tsx
+msgid "★ Your pick"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
+msgstr ""
+
+#: src/components/mods/ModSelect.tsx
+msgid "1. Reset All Mods"
+msgstr "1. Desactivar los Mods"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "1/1 and 1/2 notes are played with {levels} more accuracy levels"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "1/1 notes are played with {levels} more accuracy levels"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "1/1, 1/2 and 1/4 notes are played with {levels} more accuracy levels"
+msgstr ""
+
+#: src/components/mods/ModSelect.tsx
+msgid "2. Close"
+msgstr "2. Cerrar"
+
+#: src/editor/EditorChecks.tsx
+msgid "A break longer than 30 seconds"
+msgstr "Un descanso más largo de 30 segundos"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a choke never spoils an LN's release"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a choke throws your timing off {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a failed play teaches you as much as {value}% of a pass"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A free afternoon. What sounds best?"
+msgstr ""
+
+#: src/scenes/bootPlay.ts
+msgid "A game is already in progress. Play locally instead? It won't be submitted."
+msgstr "Ya hay un mapa en progreso. ¿Quieres jugar de manera local? No se publicará."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a key hit twice in a row gets {value}% more slack"
+msgstr ""
+
+#: src/components/genetics/GeneticsFooter.tsx
+#: src/components/genetics/GeneticsPreview.tsx
+msgid "A local character only gets the XP and overdrive genes."
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A long film or book…"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A long hike"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "A millisecond back"
+msgstr "Un milisegundo atrás"
+
+#: src/editor/builtinActions.ts
+msgid "A millisecond on"
+msgstr "Un milisegundo adelante"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A new board game. You…"
+msgstr ""
+
+#: src/components/DesktopUpdate.tsx
+msgid "A new update is available. Click here to download it !"
+msgstr "Hay una nueva actualización disponible. ¡Haz clic aquí para descargarla!"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a pause of 15 s or more gives your focus back in full"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a pause of 5 s or more in the song gives you back {seconds} s of focus"
+msgstr ""
+
+#: src/scenes/MainMenu.tsx
+msgid "A play is running"
+msgstr "Un mapa se está jugando actualmente"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "A point on every beat line of the current snap"
+msgstr "Un punto en cada línea de pulso del ajuste actual"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A quick arcade game, beating your best"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a repeated SV pattern is {value}% easier still"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a section has to be {value}% harder before it rattles you"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a slight edge: {value}% fewer misses in SV past your limit"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a slight edge: how notes move far up the screen throws you off {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a slight edge: notes that rush in are {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "a slight edge: you recover from an SV section {value}% faster"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "A snap or a range, like 7 or 5-9"
+msgstr "Un ajuste o rango, como 7 o 5-9"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "A tricky puzzle"
+msgstr ""
+
+#: src/scenes/Gameplay.tsx
+msgid "abort"
+msgstr "abortar"
+
+#: src/scenes/Gameplay.tsx
+#: src/scenes/Gameplay.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Abort"
+msgstr "Abortar"
+
+#: src/scenes/bootPlay.ts
+msgid "Abort it"
+msgstr "Abortarlo"
+
+#: src/scenes/MainMenu.tsx
+msgid "Abort it to play multiplayer?"
+msgstr "¿Quieres abortar el mapa para ir a multijugador?"
+
+#: src/scenes/Gameplay.tsx
+msgid "Abort the play?"
+msgstr "¿Abortar el mapa?"
+
+#: src/online/multiplayer.ts
+#: src/online/multiplayer.ts
+msgid "Abort your running play to join a game."
+msgstr "Aborta tu mapa actual para unirte a una sala."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "accuracy"
+msgstr ""
+
+#: src/components/result/scoreCard.ts
+#: src/scenes/Result.tsx
+msgid "Accuracy"
+msgstr "Precisión"
+
+#: src/components/community/PlayerCard.tsx
+#: src/components/leaderboard/ScoreTooltip.tsx
+#: src/components/songselect/UserCard.tsx
+msgid "Accuracy: {accuracy}"
+msgstr "Precisión: {accuracy}"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Accurate memory"
+msgstr ""
+
+#: src/components/leaderboard/ScoreTooltip.tsx
+msgid "Achieved on {date} ({ago})"
+msgstr "Conseguido el {date} ({ago})"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "adapt when plans change"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Add a bookmark, or remove the one here"
+msgstr "Añade un marcador, o remueve el que está aquí"
+
+#: src/editor/builtinActions.ts
+msgid "Add a copy of this difficulty"
+msgstr "Crea una copia de esta dificultad"
+
+#: src/editor/builtinActions.ts
+msgid "Add a new difficulty"
+msgstr "Crea una nueva dificultad"
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Add as Friend"
+msgstr "Añadir como Amigo"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Add at {offset} ms"
+msgstr "Añadir en {offset} ms"
+
+#: src/editor/EditorBpmTools.tsx
+#: src/editor/EditorScroll.tsx
+#: src/editor/EditorTiming.tsx
+msgid "Add at the current time"
+msgstr "Añadir en el tiempo actual"
+
+#: src/components/community/chat/NameCardFriends.tsx
+msgid "Add friend"
+msgstr "Añadir amigo"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "Add sound files..."
+msgstr "Añadir archivos de audio..."
+
+#: src/components/addons/AddonRepoPane.tsx
+msgid "Add this address as a push webhook of your repository, on any git host. Each new version tag (v1.2.3) is built by oss!idle from the repository, with npm ci and npm run build; addon.config.json names the built file. Once the add-on is published, players get each new build."
+msgstr "Añade esta dirección como un push webhook de tu repositorio, en cualquier host de git. Cada nueva tag de versión (v1.2.3) está construida por oss!idle desde el repositorio, con npm ci y npm run build; addon.config.json nombra el archivo compilado. Una vez el add-on esté publicado, los jugadores obtienen cada nueva build."
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Add this difficulty"
+msgstr "Añadir esta dificultad"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Add this difficulty locked at {rate}"
+msgstr "Añadir esta dificultad bloqueada en {rate}"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Add to queue"
+msgstr "Añadir a la cola"
+
+#: src/editor/actions.ts
+#: src/scenes/Addons.tsx
+#: src/scenes/Options.tsx
+msgid "Add-ons"
+msgstr "Add-ons"
+
+#: src/scenes/Options.tsx
+msgid "ADD-ONS"
+msgstr "ADD-ONS"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Add-ons are not reviewed: you are responsible for what yours does on players' games. Your published code must be licensed under the AGPLv3 (or a compatible licence). This does not necessarily affect its source's license. Publish \"{addon}\"?"
+msgstr "Los Add-ons no se revisan: eres el responsable de lo que los tuyos hagan en las partidas de los jugadores. Tu código publicado debe de estar licenciado bajo AGPLv3 (o una licencia compatible). Esto no afecta necesariamente a su licencia de la fuente/recurso. ¿Publicar \"{addon}\"?"
+
+#: src/components/addons/BrowseAddonsView.tsx
+msgid "Add-ons run with full access to the game. Only install add-ons you trust. Install \"{addon}\"?"
+msgstr "Los Add-ons funcionan con el acceso completo al juego. Debes instalar únicamente los Add-ons en los que confíes. ¿Instalar \"{addon}\"?"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Add..."
+msgstr "Añadir..."
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Additions"
+msgstr "Añadidos"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Additions' set"
+msgstr "Conjunto de añadidos"
+
+#: src/scenes/Options.tsx
+msgid "addon|addons|add-on|mod|mods|browse|catalog|install"
+msgstr "addon|addons|add-on|mod|mods|browse|catalog|install|buscar|catálogo|instalar"
+
+#: src/scenes/Options.tsx
+msgid "addon|addons|add-on|mod|mods|manage|installed"
+msgstr "addon|addons|add-on|mod|mods|manage|installed|administrar|instalados"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Adrenaline"
+msgstr ""
+
+#: src/components/genetics/GeneCard.tsx
+msgid "after {parent}"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "after a miss, {value}% fewer chokes for {seconds} seconds"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "after prestige you still remember {value}% of what you'd learned"
+msgstr ""
+
+#: src/components/character/RebirthView.tsx
+msgid "After reaching overall Lv{required} you can start over with a new character one generation up, which permanently unlocks a new feature. Everything you have now stays available: the old character remains playable, keeps its levels, and stays on the leaderboards. Pick a new name, or keep your current one and the old character gets _old appended to its name."
+msgstr ""
+
+#: src/components/dock/DockCountdown.tsx
+msgid "after this map"
+msgstr "después de este mapa"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/community/CommunityHeader.tsx
+#: src/components/direct/DirectFilters.tsx
+msgid "All"
+msgstr "Todos"
+
+#: src/components/options/DeleteAllBeatmaps.tsx
+msgid "All beatmaps deleted."
+msgstr "Todos los beatmaps eliminados."
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "All bundled beatmaps downloaded."
+msgstr "Se han descargado todos los beatmaps incluidos."
+
+#: src/editor/EditorMetadata.tsx
+msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
+msgstr "Todo, a excepción del nombre de la dificultad, está en común por el conjunto: al guardarlo se aplica a cada una de las dificultades."
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "All ranked beatmaps downloaded."
+msgstr "Se han descargado todos los beatmaps rankeados."
+
+#: src/components/character/RebirthView.tsx
+msgid "Already reborn with this character"
+msgstr "Ya renacido con este personaje"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Ambidextrous"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "an LN you hold too long is let go up to {ms} ms sooner"
+msgstr ""
+
+#: src/components/upgrades/UpgradesView.tsx
+msgid "An upgrade costs {UPGRADE_LEVELS} raw levels of the skill and boosts its XP gains by {bonus}%. Buying above the required level spends more XP and feeds Overdrive, which multiplies the gains further."
+msgstr "Una mejora consume {UPGRADE_LEVELS} niveles en crudo de la habilidad, y aumenta las ganancias de XP por {bonus}%. Comprar mejoras por encima del nivel requerido gasta más XP y alimenta el Overdrive, lo que multiplica aún más las ganancias."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Anchor"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Anchored"
+msgstr ""
+
+#: src/editor/EditorChecks.tsx
+msgid "Another difficulty has the same name"
+msgstr "Ya hay otra dificultad con el mismo nombre"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Anvil"
+msgstr ""
+
+#: src/editor/EditorScrollTools.tsx
+#: src/editor/EditorScrollTools.tsx
+#: src/editor/EditorScrollTools.tsx
+msgid "Apply"
+msgstr "Aplicar"
+
+#: src/scenes/MainMenu.tsx
+msgid "Are you sure you want to quit?"
+msgstr "¿Seguro que quieres salir?"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Artist"
+msgstr "Artista"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Artist (original)"
+msgstr "Artista (original)"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Attention span"
+msgstr ""
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Auto"
+msgstr "Auto"
+
+#: src/components/community/CommunityControls.tsx
+msgid "Auto-hide"
+msgstr "Auto-ocultar"
+
+#: src/components/addons/InstalledAddonRow.tsx
+msgid "Auto-update"
+msgstr "Auto-actualizar"
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Automated announcements of stuff going on in oss!idle."
+msgstr "Anuncios automáticos sobre lo que ocurre en oss!idle."
+
+#: src/components/options/AutopilotDelay.tsx
+msgid "Autopilot delay"
+msgstr "Espera del piloto automático"
+
+#: src/components/options/AutopilotMode.tsx
+msgid "Autopilot mode"
+msgstr "Modo de piloto automático"
+
+#: src/scenes/Options.tsx
+msgid "autopilot|delay|restart"
+msgstr "piloto automático|espera|reiniciar"
+
+#: src/scenes/Options.tsx
+msgid "autopilot|mode|playlist|loop|next|song|disabled"
+msgstr "autopilot|mode|playlist|loop|next|song|disabled|piloto automático|modo|colección|bucle|siguiente|canción|desactivado"
+
+#: src/scenes/Options.tsx
+msgid "autopilot|queue|offline|closed|keep|playing"
+msgstr "autopilot|queue|offline|closed|keep|playing|piloto automático|cola|desconectado|cerrado|seguir|jugando"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Available"
+msgstr "Disponible"
+
+#: src/components/character/PrestigeSummary.tsx
+#: src/components/upgrades/UpgradesSummary.tsx
+msgid "Average XP boost"
+msgstr "Aumento de XP promedio"
+
+#: src/components/OsuBackButton.tsx
+msgid "back"
+msgstr ""
+
+#: src/components/page/pageBar.tsx
+#: src/components/PlayChoice.tsx
+#: src/components/songselect/BeatmapInfo.tsx
+#: src/components/Tutorial.tsx
+#: src/components/WebBrowser.tsx
+#: src/editor/builtinActions.ts
+#: src/editor/EditorActions.tsx
+#: src/scenes/MainMenu.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Back"
+msgstr "Volver"
+
+#: src/scenes/Result.tsx
+#: src/scenes/SongSelect.tsx
+msgid "BACK"
+msgstr "VOLVER"
+
+#: src/components/dock/DockTransport.tsx
+msgid "Back to gameplay"
+msgstr "Volver al juego"
+
+#: src/scenes/Lobby.tsx
+msgid "Back to Menu"
+msgstr "Volver al menú"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Background"
+msgstr "Fondo"
+
+#: src/editor/EditorViewOptions.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "Background brightness"
+msgstr "Brillo del fondo"
+
+#: src/components/options/BackgroundDim.tsx
+msgid "Background dim"
+msgstr "Oscuridad del fondo"
+
+#: src/scenes/Options.tsx
+msgid "background|dim|opacity"
+msgstr "background|dim|opacity|fondo|oscuridad|opacidad"
+
+#: src/editor/EditorTiming.tsx
+msgid "Bar"
+msgstr "Barra"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Beat lines"
+msgstr "Líneas de ritmo"
+
+#: src/editor/EditorCompose.tsx
+#: src/editor/EditorTimingPoint.tsx
+msgid "Beat snap"
+msgstr "Ajuste de ritmo"
+
+#: src/editor/builtinActions.ts
+msgid "Beat snap 1/{n}"
+msgstr "Ajuste del ritmo 1/{n}"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Beatmap"
+msgstr "Beatmap"
+
+#: src/components/result/ResultMeta.tsx
+#: src/components/result/scoreCard.ts
+msgid "Beatmap by {creator}"
+msgstr "Beatmap por {creator}"
+
+#: src/scenes/SongSelect.tsx
+msgid "Beatmap deleted"
+msgstr "Beatmap eliminado"
+
+#: src/components/songselect/SongSelectFooter.tsx
+msgid "Beatmap Options"
+msgstr "Opciones del Beatmap"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Beatmap study"
+msgstr ""
+
+#: src/components/leaderboard/UpdateButton.tsx
+msgid "Beatmap updated"
+msgstr "Beatmap actualizado"
+
+#: src/editor/EditorCompose.tsx
+msgid "Beats"
+msgstr "Pulsos"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Beats per bar"
+msgstr "Pulsos por barra"
+
+#: src/editor/EditorPlacingOptions.tsx
+msgid "Before"
+msgstr "Antes"
+
+#: src/components/genetic-choice/GeneticPickScreen.tsx
+msgid "Begin with {name}"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticHubTag.tsx
+msgid "Being replaced"
+msgstr ""
+
+#: src/components/character/PrestigeSummary.tsx
+#: src/components/upgrades/UpgradesSummary.tsx
+msgid "Best XP boost"
+msgstr "Mejor aumento de XP"
+
+#: src/editor/EditorClock.tsx
+msgid "Bookmark at {time}"
+msgstr "Marcador en {time}"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Bookmarks"
+msgstr "Marcadores"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Bounce"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Bounce back"
+msgstr ""
+
+#: src/components/direct/DirectPanel.tsx
+#: src/editor/EditorTiming.tsx
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPM"
+msgstr "BPM"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Brake"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Brightness"
+msgstr "Brillo"
+
+#: src/scenes/Addons.tsx
+#: src/scenes/Skins.tsx
+msgid "Browse"
+msgstr "Buscar"
+
+#: src/components/options/BrowseAddons.tsx
+msgid "Browse add-ons"
+msgstr "Buscar add-ons"
+
+#: src/components/options/BrowseSkins.tsx
+msgid "Browse skins"
+msgstr "Buscar skins"
+
+#: src/scenes/Addons.tsx
+#: src/scenes/Skins.tsx
+msgid "Browse the community catalogue"
+msgstr "Buscar en el catálogo de la comunidad"
+
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+msgid "bug|report|issue|problem|crash|help"
+msgstr "bug|report|issue|problem|crash|help|reportar|fallo|problema|crasheo|ayuda"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Build"
+msgstr "Build"
+
+#: src/components/addons/AddonRepoBuild.tsx
+#: src/components/addons/MyAddonRow.tsx
+msgid "Build failed"
+msgstr "La Build ha fallado"
+
+#: src/components/addons/MyAddonRow.tsx
+msgid "Building"
+msgstr "Creando Build"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Building…"
+msgstr "Creando Build…"
+
+#: src/components/addons/AddonReadMeta.tsx
+msgid "Built from"
+msgstr "Creado desde"
+
+#: src/components/addons/AddonEditMeta.tsx
+msgid "Built from a git repository"
+msgstr "Creado desde un repositorio de git"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Bundled"
+msgstr "Incluidos"
+
+#: src/components/Tutorial.tsx
+msgid "Bundled maps are listed in <0>song select</0>:<1> double-click</1> a map to download it, then <2>single-click</2> to start playing."
+msgstr "Los mapas incluidos están listados en el <0>selector de mapas</0>:<1> haz doble clic</1> en un mapa para descargarlo, después <2>un solo clic</2> para empezar a jugar."
+
+#: src/components/Tutorial.tsx
+msgid "Bundled maps are listed in <0>song select</0>:<1> double-tap</1> a map to download it, then <2>single-tap</2> to start playing."
+msgstr "Los mapas incluidos están listados en el <0>selector de mapas</0>:<1> toca dos veces</1> un mapa para descargarlo, después <2>un solo toque</2> para empezar a jugar."
+
+#: src/components/upgrades/UpgradeAction.tsx
+#: src/components/upgrades/useUpgrade.ts
+msgid "Buy"
+msgstr "Comprar"
+
+#: src/components/upgrades/useUpgrade.ts
+msgid "Buy {nextGear}?"
+msgstr "¿Comprar {nextGear}?"
+
+#: src/components/upgrades/UpgradeAction.tsx
+msgid "Buy now"
+msgstr "Comprar ahora"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/DefaultSkinRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+#: src/components/skins/SkinReadMeta.tsx
+msgid "by {author}"
+msgstr "Por {author}"
+
+#: src/components/addons/AddonReadMeta.tsx
+msgid "by {author} for game version {version}"
+msgstr "Por {author} para la versión del juego {version}"
+
+#: src/components/community/chat/ChatEmoji.tsx
+msgid "by {name}"
+msgstr "Por {name}"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Artist"
+msgstr "Por Artista"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By BPM"
+msgstr "Por BPM"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Creator"
+msgstr "Por Creador"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Difficulty"
+msgstr "Por Dificultad"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Download Status"
+msgstr "Por Estado de Descarga"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Length"
+msgstr "Por Duración"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Playlist"
+msgstr "Por Colección"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Rank Achieved"
+msgstr "Por Rango Obtenido"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "By snap"
+msgstr "Por Ajuste"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Status"
+msgstr "Por Estado"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Tag"
+msgstr "Por Etiqueta"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Title"
+msgstr "Por Título"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Calibrated"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Calm hands"
+msgstr ""
+
+#: src/components/community/chat/ReportMessageDialog.tsx
+#: src/components/community/LinkMenu.tsx
+#: src/components/ConfirmMenu.tsx
+#: src/components/dock/SaveQueuePrompt.tsx
+#: src/components/multiplayer/CreateMatch.tsx
+#: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/page/pageBar.tsx
+#: src/components/songselect/CardContextMenu.tsx
+#: src/components/songselect/CardContextMenu.tsx
+#: src/scenes/Gameplay.tsx
+#: src/scenes/Gameplay.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/components/community/chat/ReplyBar.tsx
+msgid "Cancel the reply"
+msgstr "Cancelar la respuesta"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Catch your breath"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Catnap"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Ceiling"
+msgstr ""
+
+#: src/components/Onboarding.tsx
+msgid "Change"
+msgstr "Modificar"
+
+#: src/components/genetics/GeneticsChangeLabel.tsx
+msgid "Change genetic"
+msgstr ""
+
+#: src/components/genetics/GeneticsChangeLabel.tsx
+msgid "Change genetic in {hours}h"
+msgstr ""
+
+#: src/components/genetics/GeneticsChangeLabel.tsx
+msgid "Change genetics"
+msgstr ""
+
+#: src/components/genetics/GeneticsChangeLabel.tsx
+msgid "Change genetics in {hours}h"
+msgstr ""
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Change Password"
+msgstr "Cambiar la contraseña"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Change Password..."
+msgstr "Cambiar la contraseña..."
+
+#: src/scenes/Options.tsx
+msgid "Change the way oss!idle behaves"
+msgstr "Cambia el comportamiento de oss!idle"
+
+#: src/components/genetic-choice/GeneticChoiceTitle.tsx
+msgid "Change what you were born good at"
+msgstr ""
+
+#: src/components/multiplayer/MatchSettings.tsx
+#: src/components/multiplayer/MatchSettings.tsx
+#: src/editor/EditorMetadata.tsx
+msgid "Change..."
+msgstr "Cambiar..."
+
+#: src/components/Changelog.tsx
+msgid "Changelog"
+msgstr "Changelog"
+
+#: src/components/multiplayer/MatchRow.tsx
+msgid "Changing beatmap..."
+msgstr "Cambiando beatmap..."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "changing chord shapes are {value}% easier"
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Character"
+msgstr "Personaje"
+
+#: src/components/Onboarding.tsx
+msgid "Character name"
+msgstr "Nombre del personaje"
+
+#: src/scenes/Options.tsx
+msgid "Chat"
+msgstr "Chat"
+
+#: src/scenes/Options.tsx
+msgid "chat|mention|ping|notification|sound|@"
+msgstr "chat|mention|ping|notification|sound|chat|mención|ping|notificación|sonido|@"
+
+#: src/scenes/Options.tsx
+msgid "chat|message|private|pm|friends"
+msgstr "chat|message|private|pm|friends|chat|mensaje|privado|mp|amigos"
+
+#: src/components/addons/AddonRepoPane.tsx
+msgid "Check now"
+msgstr "Comprobar ahora"
+
+#: src/editor/EditorChecks.tsx
+msgid "Checks: nothing to fix"
+msgstr "Comprobado: ¡nada que arreglar!"
+
+#: src/components/options/MoveInstall.tsx
+msgid "Choose where to move oss!idle (the game will restart)"
+msgstr "Elige dónde quieres mover oss!idle (el juego se reiniciará)"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Chord cohesion"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Chord grip"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "chord jacks strain you {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Chordjack"
+msgstr ""
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "clap"
+msgstr "aplauso"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Clap"
+msgstr "Aplauso"
+
+#: src/editor/builtinActions.ts
+msgid "Clap on the selection"
+msgstr "Aplauso en la selección"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Clean releases"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Clean start"
+msgstr ""
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Clear local scores"
+msgstr "Borrar puntuaciones locales"
+
+#: src/scenes/Lobby.tsx
+msgid "Click 'New Game' to start a new game!"
+msgstr "¡Haz clic en \"Crear una Sala\" para abrir una nueva sala!"
+
+#: src/components/medals/MedalUnlockOverlay.tsx
+msgid "Click a medal to look at it · click elsewhere to continue"
+msgstr "Haz clic en una medalla para observarla · haz clic en otra parte para continuar"
+
+#: src/components/options/DeleteAllBeatmaps.tsx
+#: src/components/options/RecreateDatabase.tsx
+msgid "Click again to confirm"
+msgstr "Clic de nuevo para confirmar"
+
+#: src/components/songselect/UserCard.tsx
+msgid "Click here to login!"
+msgstr "¡Haz clic para iniciar sesión!"
+
+#: src/components/genetic-choice/GeneticHub.tsx
+msgid "Click one of your genetics to replace it"
+msgstr ""
+
+#: src/components/medals/MedalUnlockOverlay.tsx
+msgid "Click to go back"
+msgstr "Haz clic para volver atrás"
+
+#: src/scenes/IntroScreen.tsx
+msgid "click to play..."
+msgstr "haz clic para jugar..."
+
+#: src/components/medals/MedalUnlockOverlay.tsx
+msgid "Click to skip"
+msgstr "Haz clic para omitir"
+
+#: src/components/character/PrestigeRow.tsx
+msgid "Climaxx"
+msgstr ""
+
+#: src/components/character/PrestigeAction.tsx
+msgid "Climaxx +{CLIMAXX_SYMBOL}{climaxx}"
+msgstr ""
+
+#: src/components/community/chat/ChannelPicker.tsx
+#: src/components/community/PlayerMenu.tsx
+#: src/components/direct/DirectLinkPanel.tsx
+#: src/components/options/DownloadAllWarning.tsx
+#: src/components/page/Page.tsx
+#: src/components/PlaylistOverlay.tsx
+#: src/editor/EditorAddonWindow.tsx
+msgid "Close"
+msgstr "Cerrar"
+
+#: src/components/WebBrowser.tsx
+msgid "Close (Esc)"
+msgstr "Cerrar (esc)"
+
+#: src/components/community/chat/Chat.tsx
+msgid "Close channel"
+msgstr "Cerrar canal"
+
+#: src/components/dock/DockQueueButton.tsx
+msgid "Close the queue"
+msgstr "Cerrar la cola"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Clutch"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Coarser beat snap"
+msgstr "Ajustar el ritmo menos preciso"
+
+#: src/components/addons/AddonCodePane.tsx
+msgid "Code"
+msgstr "Código"
+
+#: src/components/addons/AddonEditMeta.tsx
+msgid "Code written here"
+msgstr "Código escrito aquí"
+
+#: src/scenes/Gameplay.tsx
+msgid "Cold"
+msgstr "Frío"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Cold blood"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Colour"
+msgstr "Color"
+
+#: src/components/result/scoreCard.ts
+#: src/scenes/Result.tsx
+msgid "Combo"
+msgstr "Combo"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Comfort zone"
+msgstr ""
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/skins/SkinView.tsx
+msgid "comma, separated, tags"
+msgstr "etiquetas, separadas, por, coma"
+
+#: src/editor/EditorSummary.tsx
+msgid "Compose"
+msgstr "Componer"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Composure"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "concentration"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "consistency"
+msgstr ""
+
+#: src/components/skins/SkinView.tsx
+msgid "Contents"
+msgstr "Contenidos"
+
+#: src/scenes/Options.tsx
+msgid "CONTROLS"
+msgstr "CONTROLES"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "coordination"
+msgstr ""
+
+#: src/components/result/ShareScoreButton.tsx
+msgid "Copied to clipboard"
+msgstr "Copiado al portapapeles"
+
+#: src/components/WebBrowser.tsx
+#: src/editor/builtinActions.ts
+msgid "Copy"
+msgstr "Copiar"
+
+#: src/editor/EditorDifficulty.tsx
+msgid "Copy difficulty"
+msgstr "Copiar dificultad"
+
+#: src/components/community/LinkMenu.tsx
+#: src/components/WebBrowser.tsx
+msgid "Copy link"
+msgstr "Copiar link"
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Costs {price} climaxx"
+msgstr ""
+
+#: src/editor/EditorView.tsx
+msgid "Could not add a difficulty"
+msgstr "No se ha podido crear una nueva dificultad"
+
+#: src/components/direct/directState.ts
+#: src/online/mapLinks.ts
+msgid "Could not download {title}"
+msgstr "No se ha podido descargar {title}"
+
+#: src/osu/beatmap/oszImport.ts
+msgid "Could not import {name}"
+msgstr "No se ha podido importar {name}"
+
+#: src/scenes/Editor.tsx
+#: src/scenes/Editor.tsx
+msgid "Could not open this map in the editor"
+msgstr "No se ha podido abrir este mapa en el editor"
+
+#: src/editor/EditorView.tsx
+msgid "Could not save"
+msgstr "No se ha podido guardar"
+
+#: src/editor/newMap.ts
+msgid "Could not start a map on {name}"
+msgstr "No se ha podido iniciar un mapa en {name}"
+
+#: src/online/playManager.ts
+#: src/online/playManager.ts
+msgid "Could not start the next map - the queue is paused"
+msgstr "No se pudo iniciar el siguiente mapa - la cola está en pausa"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Could not submit it for rank"
+msgstr "No se ha podido enviar para rankear"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Could not unrank it"
+msgstr "No se ha podido desrankear"
+
+#: src/editor/EditorView.tsx
+msgid "Could not upload: {error}"
+msgstr "No se ha podido publicar: {error}"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Could not withdraw it"
+msgstr "No se ha podido retirar"
+
+#: src/scenes/SongSelect.tsx
+msgid "Couldn't load beatmaps: {error}"
+msgstr "No se han podido cargar los beatmaps: {error}"
+
+#: src/scenes/bootPlay.ts
+msgid "Couldn't take over the running play."
+msgstr "No se ha podido tomar el control de la jugada actual."
+
+#: src/components/Onboarding.tsx
+msgid "Create character"
+msgstr "Crear personaje"
+
+#: src/components/addons/ManageAddonsActions.tsx
+msgid "Create new add-on"
+msgstr "Crear nuevo add-on"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Create New Game..."
+msgstr "Crear una Nueva Sala..."
+
+#: src/components/Onboarding.tsx
+msgid "Create your first character to finish setting up your account."
+msgstr "Crea tu primer personaje para terminar de configurar tu cuenta."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Cross-hand"
+msgstr ""
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Ctrl + wheel"
+msgstr "Ctrl + rueda"
+
+#: src/scenes/MatchSetup.tsx
+msgid "Current Players ({players}/{size})"
+msgstr "Jugadores en la Sala: ({players}/{size})"
+
+#: src/components/options/GameplaySkin.tsx
+msgid "Current skin"
+msgstr "Skin actual"
+
+#: src/components/options/CursorSize.tsx
+msgid "Cursor size"
+msgstr "Tamaño del cursor"
+
+#: src/scenes/Options.tsx
+msgid "cursor|size|scale"
+msgstr "cursor|size|scale|tamaño|escala"
+
+#: src/editor/EditorCompose.tsx
+msgid "Custom"
+msgstr "Personalizar"
+
+#: src/editor/builtinActions.ts
+msgid "Custom beat snap"
+msgstr "Ajuste de ritmo personalizado"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorHitsounds.tsx
+msgid "Custom index"
+msgstr "Índice Custom"
+
+#: src/editor/builtinActions.ts
+msgid "Cut"
+msgstr "Cortar"
+
+#: src/scenes/Options.tsx
+msgid "database|local|reset|recreate|repair|fresh"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Deep focus"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Deep lungs"
+msgstr ""
+
+#: src/components/options/EditorSkin.tsx
+#: src/components/options/GameplaySkin.tsx
+#: src/components/skins/DefaultSkinRow.tsx
+msgid "Default skin"
+msgstr "Skin por defecto"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Default sounds"
+msgstr "Sonidos por defecto"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Déjà vu"
+msgstr ""
+
+#: src/components/addons/ManageAddonsView.tsx
+#: src/components/addons/MyAddonRow.tsx
+#: src/components/skins/MySkinRow.tsx
+#: src/editor/EditorSoundFiles.tsx
+msgid "Delete"
+msgstr "Eliminar"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "Delete {file}"
+msgstr "Eliminar {file}"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "Delete {file}?"
+msgstr "¿Eliminar {file}?"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Delete add-on"
+msgstr "Eliminar add-on"
+
+#: src/components/options/DeleteAllBeatmaps.tsx
+msgid "Delete all beatmaps"
+msgstr "Eliminar todos los beatmaps"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Delete all difficulties"
+msgstr "Eliminar todas las dificultades"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Delete only {version}"
+msgstr "Eliminar solo {version}"
+
+#: src/components/OldHostPrompt.tsx
+msgid "Delete the old data"
+msgstr "Eliminar los datos antiguos"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Delete the playlist"
+msgstr "Eliminar la colección"
+
+#: src/editor/builtinActions.ts
+msgid "Delete the selection"
+msgstr "Eliminar la selección"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Delete..."
+msgstr "Eliminar..."
+
+#: src/scenes/Options.tsx
+msgid "delete|beatmap|beatmaps"
+msgstr "delete|beatmap|beatmaps|borrar|eliminar"
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/skins/SkinView.tsx
+msgid "Description"
+msgstr "Descripción"
+
+#: src/components/options/MentionPings.tsx
+msgid "Desktop notification for mentions while the game is in the background"
+msgstr "Notificación de escritorio para las menciones mientras el juego esté en segundo plano"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Detail"
+msgstr "Detalle"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Details"
+msgstr "Detalles"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Detect BPM"
+msgstr "Detectar BPM"
+
+#: src/scenes/SongSelect.tsx
+msgid "Difficulty deleted"
+msgstr "Dificultad eliminada"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Difficulty Increase"
+msgstr "Aumentar Dificultad"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Difficulty name"
+msgstr "Nombre de dificultad"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Difficulty Reduction"
+msgstr "Reducir Dificultad"
+
+#: src/gameplay/playQueue.ts
+msgid "Disabled"
+msgstr "Desactivado"
+
+#: src/scenes/Editor.tsx
+msgid "Discard"
+msgstr "Descartar"
+
+#: src/scenes/Options.tsx
+msgid "discord|link|role"
+msgstr "discord|link|role|enlace|rol"
+
+#: src/components/Announce.tsx
+msgid "Dismiss"
+msgstr "Descartar"
+
+#: src/components/direct/DirectFilters.tsx
+msgid "Display"
+msgstr "Mostrar"
+
+#: src/components/options/ShowUnbundled.tsx
+msgid "Display non-bundled approved beatmaps as downloadable in song select"
+msgstr "Mostrar mapas aprobados no incluidos como descargables en el selector de canciones"
+
+#: src/components/mods/ModSelect.tsx
+#: src/components/result/ResultMods.tsx
+msgid "Double"
+msgstr "Double"
+
+#: src/components/BeatmapCard.tsx
+msgid "Double click to download"
+msgstr "Doble clic para descargar"
+
+#: src/components/direct/directState.ts
+msgid "Download"
+msgstr "Descargar"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "Download all"
+msgstr "Descargar todo"
+
+#: src/components/options/DownloadAllBeatmaps.tsx
+msgid "Download all bundled beatmaps"
+msgstr "Descargar todos los mapas incluidos"
+
+#: src/components/options/DownloadAllBeatmaps.tsx
+msgid "Download all ranked beatmaps"
+msgstr "Descargar todos los mapas rankeados"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "Download every bundled beatmap?"
+msgstr "¿Quieres descargar todos los mapas incluidos?"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "Download every ranked beatmap?"
+msgstr "¿Quieres descargar todos los mapas rankeados?"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "Download stopped."
+msgstr "Descarga detenida."
+
+#: src/scenes/SongSelect.tsx
+msgid "Download the beatmap first"
+msgstr "Descarga el beatmap primero"
+
+#: src/scenes/Options.tsx
+msgid "download|beatmap|beatmaps|bundled|supporter"
+msgstr "download|beatmap|beatmaps|bundled|supporter"
+
+#: src/scenes/Options.tsx
+msgid "download|beatmap|beatmaps|ranked|supporter"
+msgstr "download|beatmap|beatmaps|ranked|supporter"
+
+#: src/scenes/Options.tsx
+msgid "download|downloaded|beatmap|beatmaps|bundled|ranked|loved"
+msgstr "download|downloaded|beatmap|beatmaps|bundled|ranked|loved"
+
+#: src/scenes/Options.tsx
+msgid "download|downloaded|beatmap|beatmaps|hide"
+msgstr "download|downloaded|beatmap|beatmaps|hide"
+
+#: src/components/direct/directState.ts
+#: src/osu/beatmap/grouping.ts
+msgid "Downloaded"
+msgstr "Descargado"
+
+#: src/online/mapLinks.ts
+msgid "Downloaded {title}"
+msgstr "Se ha descargado {title}"
+
+#: src/components/direct/directState.ts
+msgid "Downloading {percent}%"
+msgstr "Descargando {percent}%"
+
+#: src/online/mapLinks.ts
+msgid "Downloading {title}..."
+msgstr "Descargando {title}…"
+
+#: src/components/options/DownloadAllBeatmaps.tsx
+msgid "Downloading beatmaps: {done}/{total} (click to stop)"
+msgstr "Descargando beatmaps: {done}/{total} (haz clic para detener)"
+
+#: src/components/DesktopUpdate.tsx
+msgid "Downloading update… {percent}%"
+msgstr "Descargando actualización… {percent}%"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorSoundFiles.tsx
+msgid "Drum"
+msgstr "Tambor"
+
+#: src/components/dock/DockQueue.tsx
+msgid "Duplicate"
+msgstr "Duplicar"
+
+#: src/components/Tutorial.tsx
+msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> across various skillsets, making it perform better on future plays."
+msgstr "Cada jugada completa otorga a tu personaje <0>XP</0> y <1>niveles</1> a través de varios conjuntos de habilidades, lo que le permitirá mejorar en jugadas futuras."
+
+#: src/components/mods/RateStepper.tsx
+msgid "Each Speed upgrade unlocks one more step"
+msgstr "Cada mejora de Velocidad desbloquea un step más"
+
+#: src/components/genetics/SkillCard.tsx
+msgid "Each tier you buy adds {perTier}% {name} XP"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Easy jacks"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "easy sections give you {value}% more stamina back"
+msgstr ""
+
+#: src/components/addons/MyAddonRow.tsx
+#: src/components/skins/MySkinRow.tsx
+#: src/components/songselect/CardContextMenu.tsx
+#: src/editor/actions.ts
+msgid "Edit"
+msgstr "Editar"
+
+#: src/components/dock/DockQueueButton.tsx
+msgid "Edit the queue"
+msgstr "Editar la cola"
+
+#: src/components/skins/DefaultSkinRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Editor"
+msgstr "Editor"
+
+#: src/scenes/Options.tsx
+msgid "EDITOR"
+msgstr "EDITOR"
+
+#: src/components/options/EditorSkin.tsx
+msgid "Editor skin"
+msgstr "Skin del editor"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Educated guess"
+msgstr ""
+
+#: src/components/options/EffectVolume.tsx
+msgid "Effect"
+msgstr "Efectos"
+
+#: src/components/community/chat/ChatTabContents.tsx
+msgid "Emoji matching <0>:{query}</0>"
+msgstr "Emoji que coincide con <0>:{query}</0>"
+
+#: src/editor/EditorChecks.tsx
+msgid "Empty metadata: {fields}"
+msgstr "Metadatos vacíos: {fields}"
+
+#: src/components/dock/DockTransport.tsx
+msgid "Empty the queue"
+msgstr "Vaciar la cola"
+
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/skins/DefaultSkinRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Enabled"
+msgstr "Activado"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Enter a password before attempting to start the game..."
+msgstr "Escribe una contraseña antes de intentar iniciar el juego..."
+
+#: src/components/options/DownloadAllBeatmaps.tsx
+msgid "Every bundled beatmap is already downloaded."
+msgstr "Ya tienes todos los mapas incluidos descargados."
+
+#: src/components/options/DownloadAllBeatmaps.tsx
+msgid "Every ranked beatmap is already downloaded."
+msgstr "Ya tienes todos los mapas rankeados descargados."
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Every score and all the progression players earned on it are deleted for good, and only the team can rank it again."
+msgstr "Cada score y todo el progreso que los jugadores han ganado en él son eliminados definitivamente, y únicamente el equipo puede rankearlo de nuevo."
+
+#: src/editor/builtinActions.ts
+msgid "Every shortcut is back to its default"
+msgstr "Cada acceso directo ha vuelto a su valor predeterminado"
+
+#: src/scenes/MainMenu.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Exit"
+msgstr "Salir"
+
+#: src/scenes/MainMenu.tsx
+msgid "Exit oss!idle"
+msgstr "Salir de oss!idle"
+
+#: src/components/skins/DefaultSkinRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Export"
+msgstr "Exportar"
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorActions.tsx
+msgid "Export .osz"
+msgstr "Exportar .osz"
+
+#: src/components/result/scoreCard.ts
+#: src/components/result/scoreCard.ts
+#: src/scenes/Result.tsx
+msgid "FAILED"
+msgstr "FALLADO"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Familiar shapes"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Fast"
+msgstr "Rápido"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Fast fingers for quick, busy songs."
+msgstr ""
+
+#: src/editor/EditorSpeed.tsx
+msgid "Faster"
+msgstr "Más rápido"
+
+#: src/editor/builtinActions.ts
+msgid "Faster playback"
+msgstr "Reproducción más rápida"
+
+#: src/scenes/Gameplay.tsx
+msgid "Fatigued"
+msgstr "Fatigado"
+
+#: src/components/gameplay/WarmupHint.tsx
+msgid "Fatigued: you earn less XP. Play easier maps to rest."
+msgstr "Fatigado: estás ganando menos XP. Juega mapas más fáciles para descansar."
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Field"
+msgstr "Campo"
+
+#: src/editor/actions.ts
+msgid "File"
+msgstr "Archivo"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Filter"
+msgstr "Filtro"
+
+#: src/components/community/CommunityHeader.tsx
+msgid "Filter:"
+msgstr "Filtro:"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Final stretch"
+msgstr ""
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Find an action or a key"
+msgstr "Encontrar una acción o una tecla"
+
+#: src/components/dock/DockWatchButton.tsx
+msgid "Find the next map"
+msgstr "Encontrar siguiente mapa"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Find the tempo"
+msgstr "Encontrar el tempo"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Fine"
+msgstr "Fino"
+
+#: src/editor/builtinActions.ts
+msgid "Finer beat snap"
+msgstr "Ajuste de ritmo más fino"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Finest"
+msgstr "Más fino"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "finish"
+msgstr "final"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Finish"
+msgstr "Final"
+
+#: src/editor/builtinActions.ts
+msgid "Finish on the selection"
+msgstr "Final en la selección"
+
+#: src/components/direct/directState.ts
+msgid "Finished downloading {title}"
+msgstr "Se ha descargado {title}"
+
+#: src/editor/EditorView.tsx
+msgid "Fix the errors the map checks found first"
+msgstr "Primero arregla los errores que han encontrado las comprobaciones del mapa"
+
+#: src/editor/builtinActions.ts
+msgid "Flip the selection"
+msgstr "Invertir selección"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Flow state"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "follows the recipe to the gram"
+msgstr ""
+
+#: src/components/WebBrowser.tsx
+msgid "Forward"
+msgstr "Adelante"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Found {bpm} BPM, {confidence}% sure"
+msgstr "Se ha detectado {bpm} BPM, {confidence}% preciso"
+
+#: src/scenes/Options.tsx
+msgid "fps|frame|rate|refresh|hz"
+msgstr "fps|frame|rate|refresh|hz"
+
+#: src/scenes/Options.tsx
+msgid "fps|frame|rate|refresh|hz|limit|vsync"
+msgstr "fps|frame|rate|refresh|hz|limit|vsync"
+
+#: src/components/options/FrameLimiter.tsx
+msgid "Frame limiter"
+msgstr "Fps máximos"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Free Mods"
+msgstr "Mods libres"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Frequencies"
+msgstr "Frecuencias"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Fresh fingers"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Fresh start"
+msgstr ""
+
+#: src/components/community/chat/NameCardFriends.tsx
+msgid "Friend"
+msgstr "Amigo"
+
+#: src/components/community/CommunityHeader.tsx
+msgid "Friends"
+msgstr "Amigos"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "From (Hz)"
+msgstr "Desde (Hz)"
+
+#: src/components/upgrades/OverdriveGainTip.tsx
+msgid "From overspending"
+msgstr ""
+
+#: src/editor/EditorScrollTools.tsx
+msgid "From speed"
+msgstr "Desde velocidad"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "From the line"
+msgstr "Desde la línea"
+
+#: src/components/upgrades/OverdriveGainTip.tsx
+msgid "From your genes"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Full hands"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "fullscreen"
+msgstr "pantalla completa"
+
+#: src/components/options/Fullscreen.tsx
+msgid "Fullscreen mode"
+msgstr "En pantalla completa"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Game Name"
+msgstr "Nombre de la Sala"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Game Name:"
+msgstr "Nombre de la Sala:"
+
+#: src/components/addons/AddonEditMeta.tsx
+msgid "Game version"
+msgstr "Versión del juego"
+
+#: src/scenes/Options.tsx
+msgid "GAMEPLAY"
+msgstr "GAMEPLAY"
+
+#: src/scenes/Lobby.tsx
+msgid "Games with Friends"
+msgstr "Salas con Amigos"
+
+#: src/components/character/LineageList.tsx
+msgid "Gen {generation}"
+msgstr "Gen {generation}"
+
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+msgid "General"
+msgstr "General"
+
+#: src/scenes/Options.tsx
+msgid "GENERAL"
+msgstr "GENERAL"
+
+#: src/components/character/RebirthView.tsx
+msgid "Generation {generation}"
+msgstr "Generación {generation}"
+
+#: src/components/genetic-choice/GeneticChoiceUnder.tsx
+msgid "Genes of the trees you lose come back as climaxx in full. You can change again in a week."
+msgstr ""
+
+#: src/components/skills/SkillEquation.tsx
+#: src/components/skills/SkillsView.tsx
+msgid "genetics"
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Genetics"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Gets better every time it replays a song."
+msgstr ""
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Give Host"
+msgstr "Hacer líder"
+
+#: src/editor/EditorScrollPoint.tsx
+#: src/editor/EditorTimingPoint.tsx
+msgid "Go there"
+msgstr "Ir ahí"
+
+#: src/components/direct/DirectLinkPanel.tsx
+#: src/components/direct/DirectView.tsx
+msgid "Go to map"
+msgstr "Ir al mapa"
+
+#: src/components/community/chat/ReplyRef.tsx
+msgid "Go to the message"
+msgstr "Ir al mensaje"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "go with the flow when it surprises you"
+msgstr ""
+
+#: src/components/Tutorial.tsx
+msgid "Got it!"
+msgstr "¡Entendido!"
+
+#: src/scenes/Options.tsx
+msgid "grade|grades|rank|rate|best"
+msgstr "grade|grades|rank|rate|best|rango|rangos|velocidad|mejor"
+
+#: src/scenes/Options.tsx
+msgid "GRAPHICS"
+msgstr "GRÁFICOS"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Grit"
+msgstr ""
+
+#: src/components/songselect/TopBar.tsx
+msgid "Group"
+msgstr "Grupo"
+
+#: src/logs.ts
+msgid "Guest"
+msgstr "Invitado"
+
+#: src/components/mods/ModSelect.tsx
+#: src/components/result/ResultMods.tsx
+msgid "Half"
+msgstr "Half"
+
+#: src/editor/EditorCompose.tsx
+msgid "Half beats"
+msgstr "Medios pulsos"
+
+#: src/components/character/LineageList.tsx
+msgid "Hall of fame"
+msgstr "Sala de Fama"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Hammer"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Hammers the same key again and again, fast."
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Hand split"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "hard maps tire your character {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "hard sections make a choke {value}% less likely to be a miss"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Hardened"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "have both hands do different things"
+msgstr ""
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Head-to-head"
+msgstr "Todos vs Todos"
+
+#: src/editor/builtinActions.ts
+msgid "Hear the hitsounds"
+msgstr "Escuchar los hitsounds"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "Here they are stored by your browser: the desktop app is better suited to keeping this many."
+msgstr "Aquí están almacenados por tu navegador: se recomienda la aplicación de escritorio para mantener tantos."
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Hide build log"
+msgstr "Ocultar registro de build"
+
+#: src/components/addons/AddonCodePane.tsx
+msgid "Hide changes"
+msgstr "Ocultar cambios"
+
+#: src/components/community/CommunityControls.tsx
+msgid "Hide chat"
+msgstr "Ocultar chat"
+
+#: src/components/addons/AddonCodePane.tsx
+msgid "Hide code"
+msgstr "Ocultar código"
+
+#: src/editor/EditorActions.tsx
+msgid "Hide shortcuts"
+msgstr "Ocultar shortcuts"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Highest frequency"
+msgstr "Frecuencia máxima"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Highs"
+msgstr "Altas"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "hit"
+msgstr "hit"
+
+#: src/components/result/scoreCard.ts
+msgid "Hit deviance"
+msgstr "Desvío de hit"
+
+#: src/scenes/Result.tsx
+msgid "Hit deviance · {ur} UR"
+msgstr "Desvío de hit · {ur} UR"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Hits every note right on time."
+msgstr ""
+
+#: src/editor/actions.ts
+#: src/editor/EditorCompose.tsx
+#: src/editor/EditorSummary.tsx
+msgid "Hitsounds"
+msgstr "Hitsounds"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Hold a key for an LN"
+msgstr "Mantén pulsada una tecla para una LN"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "hold a note and let go right on time"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Hold every note until the next (full LN)"
+msgstr "Mantener cada nota hasta la siguiente (full LN)"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "holding LNs makes you choke {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "holding two or more LNs while you press is {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Holdout"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "hooks you until the end"
+msgstr ""
+
+#: src/components/multiplayer/MatchBeatmap.tsx
+msgid "Host is changing map..."
+msgstr "El host está escogiendo el mapa..."
+
+#: src/components/genetic-choice/GeneticHub.tsx
+msgid "Hover a skill to see what it does"
+msgstr ""
+
+#: src/components/PlayChoice.tsx
+msgid "How do you want to play?"
+msgstr "¿Cómo quieres jugar?"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Ice veins"
+msgstr ""
+
+#: src/components/listing/IconField.tsx
+msgid "Icon"
+msgstr "Icono"
+
+#: src/components/genetics/GeneticsPreview.tsx
+msgid "If you were born good at {name}"
+msgstr ""
+
+#: src/scenes/MainMenu.tsx
+msgid "Import"
+msgstr "Importar"
+
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Import a skin folder"
+msgstr "Importar una carpeta de skin"
+
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Import an .osk"
+msgstr "Importar un .osk"
+
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Import an osu! skin, then publish it from the list above."
+msgstr "Importa una skin de osu!, después publícala desde la lista de arriba."
+
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Imported"
+msgstr "Importado"
+
+#: src/osu/beatmap/oszImport.ts
+msgid "Imported {title}"
+msgstr "Se ha importado {title}"
+
+#: src/osu/beatmap/oszImport.ts
+msgid "Imported {title}, but it has no {rulesets} difficulty to play"
+msgstr "Se ha importado {title}, pero no tiene dificultades {rulesets} para jugar"
+
+#: src/osu/beatmap/oszImport.ts
+msgid "Importing {name}..."
+msgstr "Importando {name}..."
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "improvises when something goes wrong"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "In the kitchen, you're the one who…"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "in the last {value}% of a song, a choke is {value}% less likely to be a miss"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "in the last 30 s of a song, your focus comes back {value}%"
+msgstr ""
+
+#: src/online/presence.ts
+msgid "In the menus"
+msgstr "En el menú"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "In the ranking queue"
+msgstr "En la cola de ranking"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "In the zone"
+msgstr ""
+
+#: src/scenes/Lobby.tsx
+msgid "Incorrect password."
+msgstr "Contraseña incorrecta."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Independence"
+msgstr ""
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/MyAddonRow.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/MySkinRow.tsx
+msgid "Install"
+msgstr "Instalar"
+
+#: src/components/addons/BrowseAddonsView.tsx
+msgid "Install add-on"
+msgstr "Instalar add-on"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/addons/ManageAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Installed"
+msgstr "Instalado"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Intensity"
+msgstr "Intensidad"
+
+#: src/components/skins/SkinContents.tsx
+msgid "Interface"
+msgstr "Interfaz"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Inverse"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Inverse the whole map"
+msgstr "Invertir todo el mapa"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Iron wrists"
+msgstr ""
+
+#: src/components/PlayChoice.tsx
+msgid "It can never be moved online."
+msgstr "Nunca se puede mover en línea."
+
+#: src/editor/EditorView.tsx
+msgid "It is in the ranking queue: withdraw it to update it"
+msgstr "Está en la cola de ranking: retíralo para actualizarlo"
+
+#: src/editor/EditorView.tsx
+msgid "It is loved: unrank it to change it"
+msgstr "Está en amados: elimina su rankeo para cambiarlo"
+
+#: src/editor/EditorView.tsx
+msgid "It is ranked: unrank it to change it"
+msgstr "Está rankeado: elimina su rankeo para cambiarlo"
+
+#: src/components/genetic-choice/GeneticHubReach.tsx
+msgid "Its genes at {percent}% strength"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticHub.tsx
+msgid "Its genes at full strength, {left} and {right}'s at half"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticHubReach.tsx
+msgid "Its genes would be out of reach"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Its tiers come back as climaxx, less a {fee} fee"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Jack ceiling"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "jack speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "jacks up to {value}% faster feel comfortable"
+msgstr ""
+
+#: src/components/community/chat/Chat.tsx
+msgid "Join a channel"
+msgstr "Entrar a un canal"
+
+#: src/scenes/Lobby.tsx
+msgid "Join Game"
+msgstr "Entrar a la Sala"
+
+#: src/scenes/Lobby.tsx
+msgid "Joining this game requires a password..."
+msgstr "Necesitas la contraseña para entrar en la sala..."
+
+#: src/components/options/DiscordLevelColour.tsx
+msgid "Keep my level colour on Discord instead of supporter pink"
+msgstr ""
+
+#: src/components/Tutorial.tsx
+msgid "Keep playing"
+msgstr "Seguir jugando"
+
+#: src/components/options/KeepPlaying.tsx
+msgid "Keep playing the queue when the game is closed"
+msgstr "Seguir jugando la cola cuando el juego está cerrado"
+
+#: src/editor/EditorCompose.tsx
+msgid "Keep the pitch"
+msgstr "Mantener el pitch"
+
+#: src/editor/builtinActions.ts
+msgid "Keep the pitch at other speeds"
+msgstr "Mantener el pitch con otras velocidades"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Keeps both hands busy without getting tangled."
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Keeps going through long, intense songs."
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "keeps three pans going at once"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Keeps up when the notes speed up and slow down."
+msgstr ""
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Keys ({keys}K)"
+msgstr "Teclas ({keys}K)"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "Keysound"
+msgstr "Keysound"
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Kick"
+msgstr "Expulsar"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "know exactly when to let go of a lead"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "land right on the beat, every time"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "Language"
+msgstr "Idioma"
+
+#: src/scenes/Options.tsx
+msgid "language|locale"
+msgstr "language|locale"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Last build:"
+msgstr "Última build:"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Last week"
+msgstr "Semana pasada"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Late look"
+msgstr ""
+
+#: src/components/mods/ModSelect.tsx
+#: src/scenes/Options.tsx
+msgid "Layout"
+msgstr "Diseño"
+
+#: src/components/PlayChoice.tsx
+msgid "Leaderboards, multiplayer, one character on every device."
+msgstr "Leaderboards, multijugador, un personaje en cada dispositivo."
+
+#: src/components/genetics/GeneCardActions.tsx
+#: src/components/genetics/useGeneActions.ts
+msgid "Learn"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Learn {name}?"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Learn from failure"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "learn maps {value}% faster"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Learner"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Learning a song by heart"
+msgstr ""
+
+#: src/scenes/Gameplay.tsx
+msgid "Leave - your character keeps playing"
+msgstr "Salir - tu personaje sigue jugando"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Leave empty to remove the password."
+msgstr "Déjalo en blanco para eliminar la contraseña."
+
+#: src/scenes/MatchSetup.tsx
+msgid "Leave Match"
+msgstr "Abandonar la Sala"
+
+#: src/online/play.ts
+msgid "Leave the match to play on your own."
+msgstr "Abandona la Sala para jugar solo."
+
+#: src/components/direct/DirectPanel.tsx
+msgid "Length"
+msgstr "Duración"
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Length: {totalLength} BPM: {bpmText} Objects: {objects}"
+msgstr "Duración: {totalLength} BPM: {bpmText} Objetos: {objects}"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Lets go of long notes at just the right moment."
+msgstr ""
+
+#: src/components/Tutorial.tsx
+msgid "Level up"
+msgstr "Subir de nivel"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Light touch"
+msgstr ""
+
+#: src/editor/EditorTiming.tsx
+msgid "Line"
+msgstr "Línea"
+
+#: src/editor/EditorScrollTools.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "Linear"
+msgstr "Lineal"
+
+#: src/components/options/LinkDiscord.tsx
+msgid "Link Discord account"
+msgstr "Vincular cuenta de Discord"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Listening…"
+msgstr "Escuchando…"
+
+#: src/editor/actions.ts
+#: src/editor/EditorLiveMapping.tsx
+msgid "Live mapping"
+msgstr "Mapeo en tiempo real"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Live note offset"
+msgstr "Offset de notas en tiempo real"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Live note offset (ms)"
+msgstr "Offset de notas en tiempo real (ms)"
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorViewOptions.tsx
+msgid "Live preview"
+msgstr "Previsualización en tiempo real"
+
+#: src/editor/EditorShortcuts.tsx
+#: src/osu/beatmap/grouping.ts
+msgid "LN"
+msgstr "LN"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "LN flow"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "LN maps give {value}% more release XP"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "LN opacity"
+msgstr "Opacidad de LN"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "LN sections can be {value}% denser before your releases suffer"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "LN specialist"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "LNs held over a second are released {value}% more precisely"
+msgstr ""
+
+#: src/components/BeatmapCarousel.tsx
+msgid "loading library…"
+msgstr "cargando librería…"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/leaderboard/Leaderboard.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/components/skins/SkinView.tsx
+msgid "Loading…"
+msgstr "Cargando…"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Local"
+msgstr "Local"
+
+#: src/scenes/SongSelect.tsx
+msgid "Local scores cleared"
+msgstr "Puntuaciones locales borradas"
+
+#: src/components/community/CommunityBody.tsx
+msgid "Location"
+msgstr "Ubicación"
+
+#: src/components/multiplayer/SlotLabel.tsx
+msgid "Locked"
+msgstr "Bloqueado"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Long haul"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Long memory"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Long Tempo"
+msgstr ""
+
+#: src/gameplay/playQueue.ts
+msgid "Loop"
+msgstr "Bucle"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Loose match"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Lost in the music"
+msgstr ""
+
+#: src/components/direct/DirectFilters.tsx
+#: src/editor/EditorRulesetSubmission.tsx
+#: src/osu/beatmap/grouping.ts
+msgid "Loved"
+msgstr "Amado"
+
+#: src/components/direct/DirectRow.tsx
+msgid "Loved {ranked}"
+msgstr "Amado {ranked}"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Low gear"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Lowest frequency"
+msgstr "Frecuencia más baja"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Lows"
+msgstr "Bajas"
+
+#: src/components/songselect/UserCard.tsx
+msgid "Lv{level}"
+msgstr "Nv{level}"
+
+#: src/components/skills/SkillRow.tsx
+msgid "Lv<0/>"
+msgstr "Nv<0/>"
+
+#: src/components/community/chat/NameCard.tsx
+msgid "Lv<0>{level}</0>"
+msgstr "Nv<0>{level}</0>"
+
+#: src/scenes/Options.tsx
+msgid "Main menu"
+msgstr "Menú principal"
+
+#: src/scenes/Options.tsx
+msgid "MAINTENANCE"
+msgstr "MANTENIMIENTO"
+
+#: src/editor/builtinActions.ts
+msgid "Make every LN a note"
+msgstr "Convertir todas las LN a normales"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Make match history publicly viewable"
+msgstr "Hacer el historial de partidas visible públicamente"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "makes the same dish until it's perfect every time"
+msgstr ""
+
+#: src/scenes/Addons.tsx
+#: src/scenes/Skins.tsx
+msgid "Manage"
+msgstr "Gestionar"
+
+#: src/components/options/ManageAddons.tsx
+msgid "Manage add-ons"
+msgstr "Gestionar add-ons"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Manage Playlists"
+msgstr "Gestionar Colecciones"
+
+#: src/components/options/ManageSkins.tsx
+msgid "Manage skins"
+msgstr "Gestionar Skins"
+
+#: src/scenes/Addons.tsx
+msgid "Manage your installed and created add-ons"
+msgstr "Gestionar tus add-ons instalados y creados"
+
+#: src/scenes/Skins.tsx
+msgid "Manage your installed and created skins"
+msgstr "Gestionar tus skins instaladas y creadas"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Manip"
+msgstr ""
+
+#: src/components/BeatmapCard.tsx
+#: src/editor/EditorSummary.tsx
+msgid "mapped by {creator}"
+msgstr "creado por {creator}"
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Mapped by {creator}"
+msgstr "Creado por {creator}"
+
+#: src/components/direct/DirectPanel.tsx
+#: src/components/direct/DirectRow.tsx
+msgid "mapped by {mapper}"
+msgstr "mapeado por {mapper}"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Mapper"
+msgstr "Mapper"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Mapper advantage"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "maps by a mapper you know well are learned {value}% faster"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Marathoner"
+msgstr ""
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/skins/SkinView.tsx
+msgid "Markdown supported"
+msgstr "Markdown compatible"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Marvelous start"
+msgstr ""
+
+#: src/components/options/MasterVolume.tsx
+msgid "Master"
+msgstr "General"
+
+#: src/scenes/MatchSetup.tsx
+msgid "Match Setup"
+msgstr "Configuración de la Sala"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Max Players:"
+msgstr "Jugadores Máximos:"
+
+#: src/components/upgrades/UpgradeAction.tsx
+#: src/components/upgrades/UpgradesSummary.tsx
+msgid "Maxed"
+msgstr "Maxeado"
+
+#: src/components/medals/MedalShowcase.tsx
+msgid "Medal unlocked"
+msgstr "Medalla desbloqueada"
+
+#: src/components/skills/SkillsView.tsx
+msgid "medals"
+msgstr "medallas"
+
+#: src/components/medals/MedalShowcase.tsx
+msgid "Medals unlocked"
+msgstr "Medallas desbloqueadas"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "memory"
+msgstr ""
+
+#: src/components/community/chat/MentionSuggestions.tsx
+msgid "Mention a player"
+msgstr "Mencionar a un jugador"
+
+#: src/editor/EditorSummary.tsx
+msgid "Metadata"
+msgstr "Metadatos"
+
+#: src/editor/EditorCompose.tsx
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Metronome"
+msgstr "Metrónomo"
+
+#: src/editor/builtinActions.ts
+msgid "Metronome: off, beats, half beats"
+msgstr "Metrónomo: off, pulsos, medios"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Minijacks"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Mirror the whole map"
+msgstr "Reflejar todo el mapa"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Mixed"
+msgstr "Mezclado"
+
+#: src/components/songselect/SongSelectFooter.tsx
+msgid "Mode"
+msgstr "Modo"
+
+#: src/components/dock/DockModsButton.tsx
+msgid "mods"
+msgstr "mods"
+
+#: src/components/multiplayer/MatchSettings.tsx
+#: src/components/songselect/SongSelectFooter.tsx
+msgid "Mods"
+msgstr "Mods"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Mods change how a map plays. A faster rate usually makes the map harder, and a slower one easier."
+msgstr "Los Mods cambian la forma en la que se juega un mapa. Una velocidad alta normalmente hace el mapa más difícil, y una lenta, más fácil."
+
+#: src/editor/EditorActions.tsx
+msgid "More"
+msgstr "Más"
+
+#: src/components/community/chat/ReactPicker.tsx
+msgid "More emoji"
+msgstr "Más emojis"
+
+#: src/components/genetics/GeneticsXpRows.tsx
+msgid "More on LN maps"
+msgstr ""
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "Most downloaded"
+msgstr "Más descargados"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Most medals can't be earned with these mods"
+msgstr "La mayoría de las medallas no se pueden ganar con estos mods"
+
+#: src/scenes/Direct.tsx
+msgid "Most Played"
+msgstr "Más jugados"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Mouse"
+msgstr "Ratón"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Move along the beat lines"
+msgstr "Mover a lo largo de las líneas del beat"
+
+#: src/components/dock/DockQueue.tsx
+msgid "Move down"
+msgstr "Mover abajo"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Move four lines at a time"
+msgstr "Mover cuatro líneas a la vez"
+
+#: src/components/options/MoveInstall.tsx
+msgid "Move installation..."
+msgstr "Mover instalación..."
+
+#: src/editor/builtinActions.ts
+msgid "Move the selection a column left"
+msgstr "Mover la selección una columna a la izquierda"
+
+#: src/editor/builtinActions.ts
+msgid "Move the selection a column right"
+msgstr "Mover la selección una columna a la derecha"
+
+#: src/editor/builtinActions.ts
+msgid "Move the selection a line earlier"
+msgstr "Mover la selección una línea antes"
+
+#: src/editor/builtinActions.ts
+msgid "Move the selection a line later"
+msgstr "Mover la selección una línea más tarde"
+
+#: src/components/dock/DockQueue.tsx
+msgid "Move up"
+msgstr "Mover arriba"
+
+#: src/scenes/Options.tsx
+msgid "move|install|installation|folder|location|portable"
+msgstr "move|install|installation|folder|location|portable|mover|instalar|instalación|carpeta|ubicación|portátil"
+
+#: src/scenes/MainMenu.tsx
+msgid "Multi"
+msgstr "Multi"
+
+#: src/scenes/Lobby.tsx
+msgid "Multiplayer Lobby"
+msgstr "Sala Multijugador"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Muscle memory"
+msgstr ""
+
+#: src/components/options/MusicVolume.tsx
+msgid "Music"
+msgstr "Música"
+
+#: src/input/Controls.ts
+msgid "Music paused"
+msgstr "Música pausada"
+
+#: src/input/Controls.ts
+msgid "Music playing"
+msgstr "Reproduciendo música"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Musical"
+msgstr "Musical"
+
+#: src/components/community/chat/NameCardFriends.tsx
+msgid "Mutual friends"
+msgstr "Amigos en común"
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/community/CommunityBody.tsx
+#: src/components/skins/SkinView.tsx
+msgid "Name"
+msgstr "Nombre"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "name, author or tag"
+msgstr "nombre, autor o etiqueta"
+
+#: src/editor/EditorPlacingOptions.tsx
+msgid "Nearest"
+msgstr "Más cercano"
+
+#: src/components/genetics/GeneRefusalText.tsx
+msgid "Needs {parent} first"
+msgstr ""
+
+#: src/osu/beatmap/grouping.ts
+msgid "Never"
+msgstr "Nunca"
+
+#: src/scenes/MainMenu.tsx
+msgid "New"
+msgstr "Nuevo"
+
+#: src/components/character/RebirthView.tsx
+msgid "New character name"
+msgstr "Nombre del nuevo personaje"
+
+#: src/editor/EditorDifficulty.tsx
+#: src/editor/EditorView.tsx
+#: src/editor/newMap.ts
+msgid "New difficulty"
+msgstr "Nueva dificultad"
+
+#: src/scenes/Lobby.tsx
+msgid "New Game"
+msgstr "Crear una Sala"
+
+#: src/editor/EditorNewMap.tsx
+msgid "New map"
+msgstr "Crear un mapa"
+
+#: src/scenes/Direct.tsx
+msgid "New Releases"
+msgstr "Novedades"
+
+#: src/components/addons/AddonRepoPane.tsx
+msgid "New webhook address"
+msgstr "Nueva dirección de webhook"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "Newest"
+msgstr "Recientes"
+
+#: src/components/community/MusicControls.tsx
+#: src/components/Tutorial.tsx
+msgid "Next"
+msgstr "Siguiente"
+
+#: src/editor/builtinActions.ts
+msgid "Next beat line"
+msgstr "Siguiente línea de beat"
+
+#: src/components/genetics/SkillCardBalance.tsx
+msgid "Next free upgrade at level {next}"
+msgstr ""
+
+#: src/components/character/RebirthView.tsx
+msgid "Next rebirth unlocks: {next}"
+msgstr "El próximo renacimiento desbloquea: {next}"
+
+#: src/gameplay/playQueue.ts
+msgid "Next song"
+msgstr "Siguiente música"
+
+#: src/components/genetics/GeneCardEffect.tsx
+msgid "Next tier:"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Next tool"
+msgstr "Siguiente herramienta"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "No {ruleset} difficulty of it is online yet: upload one first"
+msgstr "Aún no hay ninguna dificultad {ruleset} en línea: sube una primero"
+
+#: src/components/PlayChoice.tsx
+msgid "No account. Your character stays on this device."
+msgstr "Sin cuenta. Tu personaje permanece en este dispositivo."
+
+#: src/components/addons/BrowseAddonsView.tsx
+msgid "No add-ons found."
+msgstr "No se han encontrado add-ons."
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "No add-ons installed. Browse the catalog to find some."
+msgstr "No tienes add-ons instalados. Pásate por el catálogo para encontrar alguno que te guste."
+
+#: src/editor/EditorChecks.tsx
+msgid "No background image"
+msgstr "Sin imagen de fondo"
+
+#: src/components/community/chat/ReactPicker.tsx
+msgid "No emoji found"
+msgstr "No se ha encontrado ningún emoji"
+
+#: src/components/songselect/TopBar.tsx
+msgid "No Grouping"
+msgstr "Sin Agrupar"
+
+#: src/components/community/WorldMap.tsx
+msgid "No locations to show"
+msgstr "No hay ubicaciones para mostrar"
+
+#: src/components/BeatmapCarousel.tsx
+msgid "no maps match your search"
+msgstr "no hay mapas que coincidan con tu búsqueda"
+
+#: src/scenes/Options.tsx
+msgid "No matching settings."
+msgstr "Sin resultados."
+
+#: src/editor/builtinActions.ts
+msgid "No notes resnapped"
+msgstr "No se han reasignado notas"
+
+#: src/editor/EditorChecks.tsx
+msgid "No notes yet"
+msgstr "Aún no hay notas"
+
+#: src/components/community/PlayerGrid.tsx
+msgid "No one online"
+msgstr "No hay nadie conectado"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "No playlists yet. Type a name above and press Enter."
+msgstr "No tienes colecciones. Escribe un nombre arriba y pulsa Enter."
+
+#: src/editor/EditorChecks.tsx
+msgid "No preview point (Metadata tab)"
+msgstr "No hay punto de preview (pestaña Metadatos)"
+
+#: src/scenes/Result.tsx
+#: src/scenes/Result.tsx
+msgid "No replay data"
+msgstr "Sin datos de repetición"
+
+#: src/components/leaderboard/Leaderboard.tsx
+msgid "No scores yet, be the first!"
+msgstr "Aún no hay puntuaciones, ¡puedes ser el primero!"
+
+#: src/components/result/SkillProgression.tsx
+msgid "No skill gains"
+msgstr "No se ha ganado skill"
+
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "No skins found."
+msgstr "No se han encontrado skins."
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "No sound files yet"
+msgstr "No hay archivos de sonido"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "No tempo found"
+msgstr "No se ha encontrado el tempo"
+
+#: src/editor/EditorChecks.tsx
+msgid "No timing point: the beat lines need one"
+msgstr "Sin un punto de timing: las líneas del beat necesitan uno"
+
+#: src/components/character/LineageList.tsx
+msgid "No unlocks"
+msgstr "Sin desbloqueos"
+
+#: src/components/character/RebirthView.tsx
+msgid "No unlocks yet"
+msgstr "Aún no hay desbloqueos"
+
+#: src/logs.ts
+msgid "No XP gained."
+msgstr "No se ha ganado XP."
+
+#: src/editor/EditorMetadata.tsx
+#: src/editor/EditorViewOptions.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "None"
+msgstr "Nada"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "None (the sample set's)"
+msgstr "Nada (el set del sample)"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorSoundFiles.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "Normal"
+msgstr "Normal"
+
+#: src/editor/builtinActions.ts
+msgid "Normal playback speed"
+msgstr "Velocidad de reproducción normal"
+
+#: src/components/addons/AddonCodeCheck.tsx
+msgid "Not allowed: add-ons may not run code players cannot read in them"
+msgstr "Prohibido: Los add-ons solo pueden ejecutar el código que los jugadores pueden leer"
+
+#: src/components/genetics/GeneRefusalText.tsx
+msgid "Not enough climaxx"
+msgstr ""
+
+#: src/components/multiplayer/ReadyButton.tsx
+msgid "Not everyone is ready. Start anyway?"
+msgstr "No todos están listos. ¿Iniciar la partida de todas formas?"
+
+#: src/components/multiplayer/ReadyButton.tsx
+msgid "Not Ready"
+msgstr "Esperando"
+
+#: src/components/genetic-choice/GeneticPickScreen.tsx
+msgid "Not sure? Take the quiz"
+msgstr ""
+
+#: src/editor/EditorModes.tsx
+msgid "Note"
+msgstr "Nota"
+
+#: src/editor/EditorModes.tsx
+msgid "Note + LN"
+msgstr "Nota + LN"
+
+#: src/editor/builtinActions.ts
+msgid "Note + LN tool"
+msgstr "Herramienta de nota + LN"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Note + LN: drag up"
+msgstr "Nota + LN: arrastrar arriba"
+
+#: src/editor/builtinActions.ts
+msgid "Note in column {column}"
+msgstr "Nota en la columna {column}"
+
+#: src/editor/builtinActions.ts
+msgid "Note tool"
+msgstr "Herramienta de notas"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Note: click"
+msgstr "Nota: clic"
+
+#: src/editor/actions.ts
+msgid "Notes"
+msgstr "Notas"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "notes that slow down are {value}% easier"
+msgstr ""
+
+#: src/editor/EditorCommandList.tsx
+msgid "Nothing matches"
+msgstr "No hay coincidencias"
+
+#: src/components/character/RebirthView.tsx
+msgid "nothing new"
+msgstr "nada nuevo"
+
+#: src/components/dock/DockUpNext.tsx
+msgid "Nothing queued"
+msgstr "No hay nada en la cola"
+
+#: src/components/dock/DockQueue.tsx
+msgid "Nothing queued. Click a map to add it."
+msgstr "La cola está vacía. Haz clic en un mapa para añadirlo."
+
+#: src/editor/EditorMetadata.tsx
+msgid "Now"
+msgstr "Ahora"
+
+#: src/components/community/MusicControls.tsx
+msgid "Now playing"
+msgstr "Reproduciendo"
+
+#: src/editor/EditorCompose.tsx
+msgid "Off"
+msgstr "Off"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Off-beat"
+msgstr ""
+
+#: src/components/community/chat/NameCard.tsx
+msgid "Offline"
+msgstr "Desconectado"
+
+#: src/editor/builtinActions.ts
+msgid "Offset in ms, like -15"
+msgstr "Offset en ms, como -15"
+
+#: src/editor/builtinActions.ts
+msgid "Offset the whole map"
+msgstr "Aplicar offset a todo el mapa"
+
+#: src/components/character/PrestigeClimaxxPop.tsx
+msgid "OK"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Old news"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "on a 100+ combo, {value}% fewer chokes"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "once your focus slips, your timing swings back and forth {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "once your focus slips, your timing wanders early or late {value}% less"
+msgstr ""
+
+#: src/components/Onboarding.tsx
+msgid "Online characters always start fresh: Guest progress stays local, so the leaderboards stay fair."
+msgstr "Los personajes en línea siempre comienzan desde cero: El progreso del invitado se queda en local, así los leaderboards son justos."
+
+#: src/components/community/CommunityControls.tsx
+msgid "Online users"
+msgstr "Usuarios conectados"
+
+#: src/components/genetics/GeneticsPreview.tsx
+msgid "Only a preview: you learn genes with climaxx once you've begun."
+msgstr ""
+
+#: src/components/genetics/GeneCardActions.tsx
+msgid "Only works for online characters"
+msgstr ""
+
+#: src/components/multiplayer/SlotLabel.tsx
+msgid "Open"
+msgstr "Abierto"
+
+#: src/components/skins/SkinDAORow.tsx
+msgid "Open folder"
+msgstr "Abrir carpeta"
+
+#: src/components/community/LinkMenu.tsx
+msgid "Open link"
+msgstr "Abrir link"
+
+#: src/components/songselect/UserCard.tsx
+msgid "Open oss! web"
+msgstr "Abrir oss! web"
+
+#: src/components/addons/ManageAddonsActions.tsx
+#: src/components/options/OpenLibraryFolders.tsx
+msgid "Open the add-ons folder"
+msgstr "Abrir la carpeta de add-ons"
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorSoundFiles.tsx
+msgid "Open the map's folder"
+msgstr "Abrir la carpeta del mapa"
+
+#: src/components/options/OpenLibraryFolders.tsx
+msgid "Open the maps folder"
+msgstr "Abrir la carpeta de mapas"
+
+#: src/components/options/OpenLibraryFolders.tsx
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Open the skins folder"
+msgstr "Abrir la carpeta de skins"
+
+#: src/components/community/LinkMenu.tsx
+msgid "Open this link?"
+msgstr "¿Abrir el enlace?"
+
+#: src/scenes/Options.tsx
+msgid "open|folder|beatmap|beatmaps|maps|skins|add-ons|addons|files"
+msgstr "open|folder|beatmap|beatmaps|maps|skins|add-ons|addons|files"
+
+#: src/scenes/MainMenu.tsx
+#: src/scenes/Options.tsx
+msgid "Options"
+msgstr "Opciones"
+
+#: src/scenes/Direct.tsx
+msgid "oss!direct"
+msgstr "oss!direct"
+
+#: src/components/direct/directState.ts
+#: src/components/direct/directState.ts
+msgid "oss!direct is an oss!supporter feature"
+msgstr "oss!direct es una función exclusiva de oss!supporter"
+
+#: src/components/options/MoveInstall.tsx
+msgid "oss!idle can't write to that folder."
+msgstr "oss!idle no puede escribir en esa carpeta."
+
+#: src/components/Tutorial.tsx
+msgid "oss!idle features <0>online leaderboards</0>, just like osu!. Sign in with your osu! account to compete and save your progression online."
+msgstr "oss!idle cuenta con <0>leaderboards en línea</0>, justo igual que en osu!. Inicia sesión con tu cuenta de osu! para competir y guardar tu progreso en línea."
+
+#: src/components/OldHostPrompt.tsx
+msgid "oss!idle moved here from {OLD_HOST}"
+msgstr "oss!idle se ha movido desde {OLD_HOST}"
+
+#: src/components/Changelog.tsx
+msgid "oss!idle updated to v{VERSION}, see what's new"
+msgstr "oss!idle se ha actualizado a la versión v{VERSION}, descubre las novedades"
+
+#: src/components/options/OsuMusicTheme.tsx
+msgid "osu! music at startup"
+msgstr "Música de osu! al iniciar el juego"
+
+#: src/components/multiplayer/MatchRow.tsx
+msgid "osu!mania (head-to-head)"
+msgstr "osu!mania (todos-vs-todos)"
+
+#: src/components/skins/SkinContents.tsx
+msgid "osu!mania layouts: {keys}"
+msgstr "Layouts de osu!mania: {keys}"
+
+#: src/scenes/Options.tsx
+msgid "osu|music|theme"
+msgstr "osu|music|theme"
+
+#: src/components/skins/SkinContents.tsx
+msgid "Other files"
+msgstr "Otros archivos"
+
+#: src/components/genetics/WheelLabel.tsx
+msgid "out of reach"
+msgstr ""
+
+#: src/components/genetics/GeneRefusalText.tsx
+msgid "Out of reach"
+msgstr ""
+
+#: src/osu/beatmap/grouping.ts
+msgid "Over 5 months ago"
+msgstr "Hace más de 5 meses"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Over the selection, {from} to {to}"
+msgstr "Sobre la selección, {from} a {to}"
+
+#: src/components/character/LineageList.tsx
+msgid "Overall Lv{level}"
+msgstr "Overall Nv{level}"
+
+#: src/components/character/RebirthView.tsx
+msgid "Overall Lv{level} / {required}"
+msgstr "Overall Nv{level} / {required}"
+
+#: src/components/character/PrestigeClimaxxPop.tsx
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "Overdrive"
+msgstr "Overdrive"
+
+#: src/components/skills/SkillEquation.tsx
+msgid "overdrive {od}"
+msgstr "overdrive {od}"
+
+#: src/components/upgrades/UpgradeAction.tsx
+msgid "Overdrive +{gainText}"
+msgstr ""
+
+#: src/components/character/PrestigeClimaxxPop.tsx
+msgid "Overdrive becomes climaxx"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Overview"
+msgstr ""
+
+#: src/scenes/Lobby.tsx
+msgid "Owned Beatmaps"
+msgstr "Mis Beatmaps"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Pacing"
+msgstr ""
+
+#: src/components/WebBrowser.tsx
+msgid "Page link"
+msgstr "Link de página"
+
+#: src/scenes/Options.tsx
+msgid "parallax"
+msgstr "paralaje"
+
+#: src/components/options/ParallaxMode.tsx
+msgid "Parallax"
+msgstr "Paralaje"
+
+#: src/components/multiplayer/CreateMatch.tsx
+#: src/components/multiplayer/PasswordPrompt.tsx
+msgid "Password:"
+msgstr "Contraseña:"
+
+#: src/components/gameplay/WarmupHint.tsx
+msgid "Past the sweet spot. Play easier maps to come back to it."
+msgstr "Por encima del punto dulce. Juega mapas más fáciles para volver a él."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "past your limit, misses build up {value}% more gradually"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "past your warm-up peak, your character rests {value}% faster between sessions"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Paste as copied"
+msgstr "Pegar como copiado"
+
+#: src/editor/builtinActions.ts
+msgid "Paste, snapped to 1/16 and 1/12"
+msgstr "Pegar, ajustado a 1/16 y 1/12"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Pattern sense"
+msgstr ""
+
+#: src/components/community/MusicControls.tsx
+msgid "Pause"
+msgstr "Pausar"
+
+#: src/components/dock/DockRunButton.tsx
+msgid "Pause after this map"
+msgstr "Pausar después de este mapa"
+
+#: src/components/dock/DockCountdown.tsx
+msgid "paused"
+msgstr "pausado"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "pauses as short as {seconds} s also give you focus back"
+msgstr ""
+
+#: src/scenes/Gameplay.tsx
+msgid "Peak"
+msgstr "Peak"
+
+#: src/components/upgrades/SkillPerk.tsx
+msgid "Peak until"
+msgstr "Peak hasta"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Perfect pitch"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Perfect start"
+msgstr ""
+
+#: src/components/result/scoreCard.ts
+#: src/scenes/Result.tsx
+msgid "Performance"
+msgstr "Rendimiento"
+
+#: src/components/community/PlayerCard.tsx
+#: src/components/songselect/UserCard.tsx
+msgid "Performance: {pp}pp"
+msgstr "Rendimiento: {pp}pp"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Permanently delete \"{addon}\"? This cannot be undone."
+msgstr "¿Eliminar permanentemente \"{addon}\"? Esta acción no se puede deshacer."
+
+#: src/components/leaderboard/PersonalBest.tsx
+msgid "Personal best"
+msgstr "Récord personal"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Personal favorites"
+msgstr ""
+
+#: src/components/gameplay/WarmupHint.tsx
+msgid "Physically demanding maps ({skills}) move the needle right, easier maps and time off move it left. Keep it in the middle."
+msgstr "Los mapas físicamente exigentes ({skills}) mueven el medidor a la derecha, los mapas más fáciles y el tiempo sin jugar lo mueven a la izquierda. Mantenlo en el medio."
+
+#: src/components/direct/DirectPanel.tsx
+msgid "Pick a beatmap to see it here."
+msgstr "Escoge un beatmap para verlo aquí."
+
+#: src/components/options/MoveInstall.tsx
+msgid "Pick a folder outside the current installation."
+msgstr "Escoge una carpeta fuera de la instalación actual."
+
+#: src/components/genetics/GeneticsPickPrompt.tsx
+msgid "Pick a genetic"
+msgstr ""
+
+#: src/components/Tutorial.tsx
+msgid "Pick a song"
+msgstr "Escoge una canción"
+
+#: src/components/genetics/GeneticsChangeLabel.tsx
+msgid "Pick another genetic"
+msgstr ""
+
+#: src/components/options/MentionPings.tsx
+msgid "Ping when someone mentions you"
+msgstr "Notificarme cuando alguien me mencione"
+
+#: src/components/options/PitchFollowsRate.tsx
+msgid "Pitch follows the rate (Double and Half mods)"
+msgstr "El tono sigue la velocidad (Mods Double y Half)"
+
+#: src/scenes/Options.tsx
+msgid "pitch|rate|speed|double|half|nightcore|mods"
+msgstr "pitch|rate|speed|double|half|nightcore|mods|tono|velocidad"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Place a note, or remove one"
+msgstr "Coloca una nota, o remueve una"
+
+#: src/editor/EditorPlacingOptions.tsx
+msgid "Placing"
+msgstr "Colocando"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Planned, not loved yet"
+msgstr "Planeado, aún no amado"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Planned, not ranked yet"
+msgstr "Planeado, aún no rankeado"
+
+#: src/components/character/LineageList.tsx
+#: src/components/community/MusicControls.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Play"
+msgstr "Jugar"
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "Play {file}"
+msgstr "Reproducir {file}"
+
+#: src/editor/builtinActions.ts
+msgid "Play / pause"
+msgstr "Reproducir / pausar"
+
+#: src/components/community/PlayerCard.tsx
+msgid "Play Count: {playCount} (Lv{level})"
+msgstr "Veces Jugado: {playCount} (Nv{level})"
+
+#: src/components/gameplay/WarmupHint.tsx
+#: src/components/gameplay/WarmupHint.tsx
+msgid "Play harder maps to reach the sweet spot."
+msgstr "Juega mapas más difíciles para alcanzar el punto dulce."
+
+#: src/components/dock/DockRepeatCount.tsx
+msgid "Play it one more time"
+msgstr "Jugar una vez más"
+
+#: src/components/dock/DockRepeatCount.tsx
+msgid "Play it one time fewer"
+msgstr "Jugar una vez menos"
+
+#: src/components/PlayChoice.tsx
+#: src/components/PlayChoice.tsx
+msgid "Play locally"
+msgstr "Jugar localmente"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "Play next"
+msgstr "Siguiente"
+
+#: src/components/PlayChoice.tsx
+#: src/components/Tutorial.tsx
+msgid "Play online"
+msgstr "Jugar en línea"
+
+#: src/scenes/bootPlay.ts
+msgid "Play unranked"
+msgstr "Jugar no rankeado"
+
+#: src/editor/actions.ts
+msgid "Playback"
+msgstr "Reproducción"
+
+#: src/editor/EditorSpeed.tsx
+msgid "Playback speed"
+msgstr "Vel. de reproducción"
+
+#: src/components/result/ResultMeta.tsx
+#: src/components/result/scoreCard.ts
+msgid "Played by {playerName} on {playedAt}"
+msgstr "Jugado por {playerName} el {playedAt}"
+
+#: src/components/community/chat/MentionSuggestions.tsx
+msgid "Players matching <0>@{query}</0>"
+msgstr "Jugadores que coinciden con <0>@{query}</0>"
+
+#: src/editor/EditorViewOptions.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "Playfield opacity"
+msgstr "Opacidad del Playfield"
+
+#: src/components/character/LineageList.tsx
+#: src/online/presence.ts
+msgid "Playing"
+msgstr "Jugando"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "playing a map teaches you {value}% of the other difficulties in its set with the same song"
+msgstr ""
+
+#: src/gameplay/playQueue.ts
+msgid "Playlist"
+msgstr "Colección"
+
+#: src/components/dock/DockRefresh.tsx
+msgid "Playlist changed: refresh the queue"
+msgstr "Colección cambiada: Actualiza la cola"
+
+#: src/components/dock/SaveQueuePrompt.tsx
+msgid "Playlist name"
+msgstr "Nombre de la colección"
+
+#: src/components/PlaylistOverlay.tsx
+#: src/components/Tutorial.tsx
+msgid "Playlists"
+msgstr "Colecciones"
+
+#: src/components/direct/DirectPanel.tsx
+msgid "Plays"
+msgstr "Jugadas"
+
+#: src/editor/EditorKeyRow.tsx
+#: src/editor/EditorKeyRow.tsx
+msgid "Press a key"
+msgstr "Pulsa una tecla"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "pressing while holding LNs is {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "pressure makes you faster"
+msgstr ""
+
+#: src/components/skills/SkillsView.tsx
+msgid "prestige"
+msgstr "prestigio"
+
+#: src/components/character/PrestigeAction.tsx
+#: src/components/character/PrestigeRow.tsx
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Prestige"
+msgstr "Prestigio"
+
+#: src/components/character/PrestigeRow.tsx
+msgid "Prestige {name}?"
+msgstr "¿Hacer un prestigio a {name}?"
+
+#: src/components/character/PrestigeSummary.tsx
+msgid "Prestiges taken"
+msgstr "Prestigios realizados"
+
+#: src/components/skins/SkinView.tsx
+msgid "Preview"
+msgstr "Previsualización"
+
+#: src/editor/EditorMetadata.tsx
+#: src/editor/EditorMetadata.tsx
+msgid "Preview time (ms)"
+msgstr "Tiempo de preview (ms)"
+
+#: src/components/community/MusicControls.tsx
+msgid "Previous"
+msgstr "Anterior"
+
+#: src/editor/builtinActions.ts
+msgid "Previous beat line"
+msgstr "Línea de beat anterior"
+
+#: src/components/community/chat/ChatEmoji.tsx
+msgid "private"
+msgstr "privado"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Prodigy"
+msgstr ""
+
+#: src/components/Onboarding.tsx
+msgid "Profile picture<0/>Defaults to your osu! avatar"
+msgstr "Imagen de perfil<0/>Se utiliza tu avatar de osu! por defecto"
+
+#: src/components/Tutorial.tsx
+msgid "Progress made as a Guest <0>stays on this device</0> and can never be moved to an online character, so the leaderboards stay fair."
+msgstr "El progreso realizado como Invitado <0>permanece en este dispositivo</0> y nunca se puede mover a un personaje en línea, para mantener los leaderboards justos."
+
+#: src/components/addons/ManageAddonsView.tsx
+#: src/components/addons/MyAddonRow.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Publish"
+msgstr "Publicar"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Publish add-on"
+msgstr "Publicar add-on"
+
+#: src/components/addons/AddonView.tsx
+msgid "Published add-on code must be licensed under the AGPLv3 (or a compatible licence), regardless of its source code's license."
+msgstr "El código de los add-ons publicados debe estar licenciado bajo AGPLv3 (o una licencia compatible), independientemente de la licencia de su código fuente."
+
+#: src/scenes/Gameplay.tsx
+msgid "Pushing"
+msgstr "Pusheando"
+
+#: src/components/genetic-choice/GeneticQuiz.tsx
+msgid "Question {number} of {total}"
+msgstr ""
+
+#: src/scenes/Lobby.tsx
+msgid "Quick Join"
+msgstr "Partida Rápida"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Quick let-go"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Quick warm-up"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Quiet cut-off"
+msgstr "Umbral de silencio"
+
+#: src/scenes/Gameplay.tsx
+msgid "quit"
+msgstr "salir"
+
+#: src/scenes/Gameplay.tsx
+msgid "Quit, keep playing"
+msgstr "Salir y seguir jugando"
+
+#: src/components/songselect/SongSelectFooter.tsx
+msgid "Random"
+msgstr "Aleatorio"
+
+#: src/components/community/CommunityBody.tsx
+msgid "Rank"
+msgstr "Rango"
+
+#: src/components/multiplayer/MatchRow.tsx
+msgid "rank: {best} - {worst}"
+msgstr "rango: {best} - {worst}"
+
+#: src/components/direct/DirectFilters.tsx
+#: src/editor/EditorRulesetSubmission.tsx
+#: src/osu/beatmap/grouping.ts
+msgid "Ranked"
+msgstr "Rankeado"
+
+#: src/components/direct/DirectRow.tsx
+msgid "Ranked {ranked}"
+msgstr "Rankeado {ranked}"
+
+#: src/components/upgrades/SkillPerk.tsx
+msgid "Rates"
+msgstr "Rates"
+
+#: src/components/character/PrestigeView.tsx
+msgid "Reaching XP Lv{PRESTIGE_MIN_LEVEL} on a skill lets you reset it. You lose its upgrades and Overdrive, and gain a bonus level, an extra gear slot and a multiplicative XP bonus. Each prestige asks for one more level than the last."
+msgstr "Al llegar al nivel de XP Nv{PRESTIGE_MIN_LEVEL} en una habilidad, podrás restablecerla. Perderás sus mejoras y Overdrive, y ganarás un nivel bonus, una casilla de equipamiento adicional y un multiplicador bonus de XP. Cada prestigio requiere un nivel más que el anterior."
+
+#: src/components/community/chat/ReactPicker.tsx
+msgid "React"
+msgstr "Reaccionar"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "read every rule and spot the patterns"
+msgstr ""
+
+#: src/components/Announce.tsx
+msgid "Read the full article"
+msgstr "Leer el artículo completo"
+
+#: src/components/upgrades/UpgradesSummary.tsx
+msgid "Ready to buy"
+msgstr "Listo para comprar"
+
+#: src/components/character/PrestigeSummary.tsx
+msgid "Ready to prestige"
+msgstr "Listo para prestigiar"
+
+#: src/components/multiplayer/ReadyButton.tsx
+msgid "Ready!"
+msgstr "¡Listo!"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Really delete \"{playlist}\"?"
+msgstr "¿Estás seguro de querer eliminar \"{playlist}\"?"
+
+#: src/components/character/RebirthView.tsx
+#: src/components/character/RebirthView.tsx
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Rebirth"
+msgstr "Renacimiento"
+
+#: src/components/character/RebirthView.tsx
+msgid "Rebirth as {wanted}?"
+msgstr "¿Renacer como {wanted}?"
+
+#: src/components/options/PmFromAnyone.tsx
+msgid "Receive messages from anyone"
+msgstr "Recibir mensajes de cualquiera"
+
+#: src/components/songselect/TopBar.tsx
+msgid "Recently Played"
+msgstr "Jugados Recientemente"
+
+#: src/components/options/RecreateDatabase.tsx
+msgid "Recreate local database"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Redo"
+msgstr "Rehacer"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Reference difficulty"
+msgstr "Dificultad de referencia"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Regroup"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "release"
+msgstr ""
+
+#: src/components/options/LinkDiscord.tsx
+msgid "Relink Discord account"
+msgstr "Volver a vincular mi Discord"
+
+#: src/components/WebBrowser.tsx
+msgid "Reload"
+msgstr "Recargar"
+
+#: src/editor/EditorScrollPoint.tsx
+#: src/editor/EditorTimingPoint.tsx
+msgid "Remove"
+msgstr "Eliminar"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Remove \"{addon}\" ?"
+msgstr "¿Eliminar \"{addon}\"?"
+
+#: src/editor/EditorKeyRow.tsx
+msgid "Remove {key}"
+msgstr "Quitar {key}"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Remove a note"
+msgstr "Quitar una nota"
+
+#: src/components/dock/DockQueue.tsx
+msgid "Remove from the queue"
+msgstr "Quitar de la cola"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Remove this difficulty"
+msgstr "Eliminar esta dificultad"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Remove this difficulty at {rate}"
+msgstr "Eliminar esta dificultad en {rate}"
+
+#: src/components/PlaylistOverlay.tsx
+#: src/components/PlaylistOverlay.tsx
+msgid "Rename"
+msgstr "Renombrar"
+
+#: src/scenes/Options.tsx
+msgid "Renderer"
+msgstr "Renderizado"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "repeat your best move, faster every time"
+msgstr ""
+
+#: src/editor/EditorSoundFiles.tsx
+#: src/scenes/Editor.tsx
+msgid "Replace"
+msgstr "Reemplazar"
+
+#: src/components/genetic-choice/GeneticPickScreen.tsx
+msgid "Replace {old} with {name}"
+msgstr ""
+
+#: src/components/skins/SkinView.tsx
+msgid "Replace from a folder"
+msgstr "Reemplazar desde una carpeta"
+
+#: src/components/skins/SkinView.tsx
+msgid "Replace from an .osk"
+msgstr "Reemplazar desde un .osk"
+
+#: src/scenes/Editor.tsx
+msgid "Replace the background?"
+msgstr "¿Deseas reemplazar el fondo?"
+
+#: src/components/community/chat/ChatLogLine.tsx
+msgid "Reply"
+msgstr "Responder"
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Report"
+msgstr "Reportar"
+
+#: src/components/community/chat/ReportMessageDialog.tsx
+msgid "Report {name}?"
+msgstr "¿Quieres reportar a {name}?"
+
+#: src/components/options/ReportBug.tsx
+msgid "Report a bug"
+msgstr "Reportar un bug"
+
+#: src/components/community/chat/ReportMessageDialog.tsx
+msgid "Report sent."
+msgstr "Reporte enviado."
+
+#: src/components/addons/AddonEditMeta.tsx
+msgid "Repository"
+msgstr "Repositorio"
+
+#: src/components/multiplayer/CreateMatch.tsx
+msgid "Require password to join"
+msgstr "Pedir una contraseña para unirse"
+
+#: src/components/character/RebirthView.tsx
+msgid "Requires overall Lv{required}"
+msgstr ""
+
+#: src/components/character/PrestigeAction.tsx
+#: src/components/upgrades/UpgradeAction.tsx
+msgid "Requires XP Lv{required}"
+msgstr "Requiere el nivel de XP Nv{required}"
+
+#: src/editor/EditorKeyRow.tsx
+#: src/editor/EditorSpeed.tsx
+msgid "Reset"
+msgstr "Restablecer"
+
+#: src/scenes/Character.tsx
+msgid "Reset a skill for a permanent level bonus"
+msgstr "Restablece una habilidad a cambio de un nivel bonus permanente"
+
+#: src/editor/builtinActions.ts
+msgid "Reset every shortcut to its default"
+msgstr "Restablecer todos los accesos directos a su valor por defecto"
+
+#: src/editor/builtinActions.ts
+msgid "Resnap the selection, or everything"
+msgstr "Reajusta la selección, o todo el conjunto"
+
+#: src/editor/builtinActions.ts
+msgid "Resnap the selection, or everything, to 1/16 and 1/12"
+msgstr "Reajusta la selección, o todo el conjunto, hasta 1/16 y 1/12"
+
+#: src/editor/builtinActions.ts
+msgid "Resnap the selection, or everything, to chosen snaps"
+msgstr "Reajusta la selección, o todo, a los puntos elegidos"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Rest stops"
+msgstr ""
+
+#: src/components/options/FrameLimiter.tsx
+msgid "Restart the game to apply"
+msgstr "Reinicia el juego para aplicar"
+
+#: src/components/result/ResultMeta.tsx
+#: src/components/result/scoreCard.ts
+msgid "Result"
+msgstr "Resultados"
+
+#: src/components/dock/DockRunButton.tsx
+msgid "Resume the queue"
+msgstr "Reanudar la cola"
+
+#: src/scenes/Result.tsx
+msgid "RETRY"
+msgstr "REINTENTAR"
+
+#: src/editor/builtinActions.ts
+msgid "Reverse the selection in time"
+msgstr "Invertir la selección en el tiempo"
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Revoke Friendship"
+msgstr "Eliminar de Amigos"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "rhythm changes are {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "rhythm changes that jump to the other hand are {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Rhythm sense"
+msgstr ""
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Rice: {rice} LN: {ln}"
+msgstr "Rice: {rice} LN: {ln}"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "right after a tangle, your hands are {value}% calmer"
+msgstr ""
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Right click"
+msgstr "Clic derecho"
+
+#: src/scenes/Options.tsx
+msgid "right|click|hold|time"
+msgstr "right|click|hold|time"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "running low on stamina starts to hurt {value}% later"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "running out of stamina makes you miss {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Rush"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Safe fumble"
+msgstr ""
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Sample file"
+msgstr "Archivo Sample"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorHitsounds.tsx
+msgid "Sample set"
+msgstr "Set de Sample"
+
+#: src/components/dock/SaveQueuePrompt.tsx
+#: src/components/page/pageBar.tsx
+#: src/editor/builtinActions.ts
+#: src/editor/EditorActions.tsx
+msgid "Save"
+msgstr "Guardar"
+
+#: src/components/addons/AddonRepoPane.tsx
+msgid "Save the add-on to get its webhook address. oss!idle builds every new version tag of the repository itself."
+msgstr "Guarda el add-on para obtener su dirección de webhook. oss!idle hace build de cada nueva etiqueta de versión del propio repositorio."
+
+#: src/components/dock/DockTransport.tsx
+#: src/components/dock/SaveQueuePrompt.tsx
+msgid "Save the queue as a playlist"
+msgstr "Guardar la cola como una colección"
+
+#: src/editor/EditorView.tsx
+msgid "Saved"
+msgstr "Guardado"
+
+#: src/components/result/ShareScoreButton.tsx
+msgid "Saved as an image"
+msgstr "Guardado como una imagen"
+
+#: src/components/page/pageBar.tsx
+msgid "Saving…"
+msgstr "Guardando…"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Scale by"
+msgstr "Escalar por"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Scale factor"
+msgstr "Factor de escala"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Score"
+msgstr "Por Score"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Score Multiplier: {multiplier}x"
+msgstr "Multiplicador de Score: {multiplier}x"
+
+#: src/components/dock/DockTransport.tsx
+msgid "Screensaver"
+msgstr "Salvapantallas"
+
+#: src/components/community/CommunityHeader.tsx
+msgid "Search"
+msgstr "Buscar"
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorCommandList.tsx
+msgid "Search actions and options"
+msgstr "Acciones y opciones de búsqueda"
+
+#: src/components/direct/DirectFilters.tsx
+msgid "Search by artist, title, mapper, stars>5..."
+msgstr "Buscar por artista, título, mapper, estrellas>5..."
+
+#: src/components/community/chat/ReactPicker.tsx
+msgid "Search emoji"
+msgstr "Buscar emoji"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/community/chat/ChannelPicker.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+#: src/scenes/Lobby.tsx
+#: src/scenes/SongSelect.tsx
+msgid "Search:"
+msgstr "Buscar:"
+
+#. to search (verb)
+#. js-lingui-explicit-id
+#: src/components/community/CommunityHeader.tsx
+msgid "search_verb"
+msgstr "Buscar:"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Second breath"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Second glance"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Second hand"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Second wind"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticPickScreen.tsx
+msgid "See the skill trees"
+msgstr ""
+
+#: src/editor/EditorModes.tsx
+#: src/scenes/MainMenu.tsx
+msgid "Select"
+msgstr "Seleccionar"
+
+#: src/components/leaderboard/Leaderboard.tsx
+msgid "Select a difficulty to see its scores."
+msgstr "Selecciona una dificultad para ver sus scores."
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Select a note and move the selection onto the snap (Shift keeps its offset), or a box (Ctrl adds)"
+msgstr "Selecciona una nota y desplaza la selección hasta la rejilla (con el Shift mantienes su offset), o puedes seleccionar una zona (Ctrl añade)"
+
+#: src/components/PlaylistOverlay.tsx
+msgid "Select a playlist or create a new one here..."
+msgstr "Selecciona una colección o crea una nueva aquí..."
+
+#: src/editor/builtinActions.ts
+msgid "Select all"
+msgstr "Seleccionar todo"
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Select any channel you wish to join!"
+msgstr "¡Selecciona un canal al que quieras unirte!"
+
+#: src/components/options/Language.tsx
+msgid "Select language"
+msgstr "Seleccionar idioma"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Select notes for the ramp, set and scale tools."
+msgstr "Selecciona notas para las herramientas ramp, set y scale."
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Select notes to set their hitsounds"
+msgstr "Selecciona las notas para establecer sus hitsounds"
+
+#: src/editor/builtinActions.ts
+msgid "Select the notes at the current time"
+msgstr "Selecciona las notas en el momento actual"
+
+#: src/editor/builtinActions.ts
+msgid "Select tool"
+msgstr "Seleccionar"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Select: click, drag"
+msgstr "Selecciona: clic, arrastrar"
+
+#: src/online/presence.ts
+msgid "Selecting a song"
+msgstr "Escogiendo un mapa"
+
+#: src/components/genetics/GeneCardActions.tsx
+#: src/components/genetics/useGeneActions.ts
+msgid "Sell"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Sell {name}?"
+msgstr ""
+
+#: src/components/genetics/GeneRefusalText.tsx
+msgid "Sell the genes after it first"
+msgstr ""
+
+#: src/components/community/chat/ReportMessageDialog.tsx
+msgid "Send Report"
+msgstr "Enviar reporte"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Sent back: {note}"
+msgstr "Se ha devuelto: {note}"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Set Password"
+msgstr "Establecer Contraseña"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Set to"
+msgstr "Establecer a"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Settle in"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Shake it off"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Shape reading"
+msgstr ""
+
+#: src/components/result/ShareScoreButton.tsx
+msgid "SHARE"
+msgstr "COMPARTIR"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Shift + wheel"
+msgstr "Shift + rueda mouse"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Short holds"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Short rest"
+msgstr ""
+
+#: src/editor/EditorActions.tsx
+msgid "Shortcuts"
+msgstr "Atajos"
+
+#: src/editor/EditorChecks.tsx
+msgid "Shorter than 30 seconds"
+msgstr "Menos de 30 segundos"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Shortest LN"
+msgstr "LN más corta"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Shortest LN (ms)"
+msgstr "LN más corta (ms)"
+
+#: src/editor/EditorViewOptions.tsx
+#: src/editor/EditorViewOptions.tsx
+msgid "Show"
+msgstr "Mostrar"
+
+#: src/components/direct/DirectFilters.tsx
+msgid "Show already downloaded maps"
+msgstr "Mostrar los mapas ya descargados"
+
+#: src/editor/builtinActions.ts
+msgid "Show another difficulty beside this one"
+msgstr "Mostrar otra dificultad además de esta"
+
+#: src/components/options/ShowUndownloaded.tsx
+msgid "Show beatmaps that aren't downloaded"
+msgstr "Mostrar beatmaps que no estén descargados"
+
+#: src/components/community/CommunityControls.tsx
+msgid "Show chat"
+msgstr "Mostrar chat"
+
+#: src/components/options/ShowFPS.tsx
+msgid "Show FPS counter"
+msgstr "Mostrar FPS"
+
+#: src/scenes/Lobby.tsx
+msgid "Show Full"
+msgstr "Mostrar Llenas"
+
+#: src/scenes/Lobby.tsx
+msgid "Show In-Progress"
+msgstr "Mostrar En-Progreso"
+
+#: src/scenes/Lobby.tsx
+msgid "Show Locked"
+msgstr "Mostrar Bloqueadas"
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Show scores"
+msgstr "Mostrar scores"
+
+#: src/components/options/BestGradeAnyRate.tsx
+msgid "Show the best grade at any rate"
+msgstr "Mostrar el mejor rango en cualquier rate"
+
+#: src/components/dock/DockPill.tsx
+msgid "Show the dock"
+msgstr "Mostrar el dock"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Show the first bar line"
+msgstr "Mostrar la primera línea divisora"
+
+#: src/components/options/ShowThumbnails.tsx
+msgid "Show thumbnails"
+msgstr "Mostrar miniaturas"
+
+#: src/components/community/CommunityControls.tsx
+msgid "Show ticker"
+msgstr "Mostrar ticker"
+
+#: src/scenes/Lobby.tsx
+msgid "Showing {shown} of {total, plural, one {# match} other {# matches}}"
+msgstr "Mostrando {shown} de {total, plural, one {# sala} other {# salas}}"
+
+#: src/gameplay/playQueue.ts
+msgid "Shuffle"
+msgstr "Mezclar"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "shut everything else out"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Sight reader"
+msgstr ""
+
+#: src/components/options/SignIn.tsx
+#: src/components/Tutorial.tsx
+#: src/scenes/Options.tsx
+msgid "Sign in"
+msgstr "Inicia Sesión"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Sign in to create and publish add-ons."
+msgstr "Inicia sesión para crear y publicar add-ons."
+
+#: src/editor/EditorView.tsx
+msgid "Sign in to upload your maps"
+msgstr "Inicia sesión para publicar tus mapas"
+
+#: src/components/PlayChoice.tsx
+msgid "Sign in with osu!"
+msgstr "Iniciar sesión con osu!"
+
+#: src/components/options/SignIn.tsx
+msgid "Sign out"
+msgstr "Cerrar sesión"
+
+#: src/scenes/Options.tsx
+msgid "sign|in|login|connect|connexion"
+msgstr "sign|in|login|connect|connexion"
+
+#: src/components/options/SignIn.tsx
+msgid "Signed in as {username}"
+msgstr "Sesión iniciada como {username}"
+
+#: src/components/Tutorial.tsx
+msgid "Signed in, your character <0>keeps playing its queue</0> after you close the game, so you don't have to leave it on overnight!"
+msgstr "Sesión iniciada, tu personaje <0>sigue avanzando en la cola</0> aunque cierres el juego, ¡así no hace falta que estés conectado durante toda la noche!"
+
+#: src/components/direct/DirectPanel.tsx
+msgid "Size"
+msgstr "Tamaño"
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Skills"
+msgstr "Habilidades"
+
+#: src/scenes/Options.tsx
+msgid "SKIN"
+msgstr "SKIN"
+
+#: src/components/skins/SkinView.tsx
+msgid "Skin files"
+msgstr "Archivos de la Skin"
+
+#: src/components/skins/SkinContents.tsx
+msgid "skin.ini version {version}"
+msgstr "skin.ini versión {version}"
+
+#: src/scenes/Options.tsx
+msgid "skin|skins|browse|catalog|install"
+msgstr "skin|skins|browse|catalog|install"
+
+#: src/scenes/Options.tsx
+msgid "skin|skins|current|select|gameplay"
+msgstr "skin|skins|current|select|gameplay"
+
+#: src/scenes/Options.tsx
+msgid "skin|skins|editor|select"
+msgstr "skin|skins|editor|select"
+
+#: src/scenes/Options.tsx
+msgid "skin|skins|manage|installed"
+msgstr "skin|skins|manage|installed"
+
+#: src/scenes/Options.tsx
+msgid "Skinning"
+msgstr "Skinning"
+
+#: src/scenes/Skins.tsx
+msgid "Skins"
+msgstr "Skins"
+
+#: src/components/Tutorial.tsx
+msgid "Skip"
+msgstr "Saltar"
+
+#: src/components/dock/DockTransport.tsx
+msgid "Skip to the next map"
+msgstr "Saltar al siguiente mapa"
+
+#: src/components/genetic-choice/GeneticQuizScreen.tsx
+msgid "Skip, show me the wheel"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Slow burn"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Slow fade"
+msgstr ""
+
+#: src/editor/EditorSpeed.tsx
+msgid "Slower"
+msgstr "Más lento"
+
+#: src/editor/builtinActions.ts
+msgid "Slower playback"
+msgstr "Reproducción más lenta"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Small chokes"
+msgstr ""
+
+#: src/editor/EditorTiming.tsx
+msgid "Snap"
+msgstr "Ajustar"
+
+#: src/editor/EditorLiveMapping.tsx
+msgid "Snap live notes while playing"
+msgstr "Ajustar notas en tiempo real mientras se reproduce"
+
+#: src/editor/EditorPlacingOptions.tsx
+msgid "Snap to"
+msgstr "Ajustar a"
+
+#: src/editor/builtinActions.ts
+msgid "Snaps, like 12 16"
+msgstr "Ajustar, como 12 16"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorSoundFiles.tsx
+msgid "Soft"
+msgstr "Suave"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Soft landing"
+msgstr ""
+
+#: src/scenes/MainMenu.tsx
+msgid "Solo"
+msgstr "Solo"
+
+#: src/online/libraryUpdates.ts
+msgid "Some of your add-ons have updates"
+msgstr "Algunos de tus add-ons tienen actualizaciones"
+
+#: src/online/libraryUpdates.ts
+msgid "Some of your skins have updates"
+msgstr "Algunas de tus skins tienen actualizaciones"
+
+#: src/scenes/Options.tsx
+msgid "Song select"
+msgstr "Selector de canción"
+
+#: src/components/songselect/TopBar.tsx
+msgid "Sort"
+msgstr "Ordenar"
+
+#: src/components/skins/SkinContents.tsx
+msgid "Sounds"
+msgstr "Sonidos"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Source"
+msgstr "Fuente"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Spectrogram"
+msgstr "Espectrograma"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Spectrogram cut-off"
+msgstr "Corte del espectrograma"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Spectrogram intensity"
+msgstr "Intensidad del espectrograma"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "speed"
+msgstr ""
+
+#: src/editor/EditorScroll.tsx
+#: src/editor/EditorScrollPoint.tsx
+msgid "Speed"
+msgstr "Velocidad"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "Speed for the stretch"
+msgstr "Velocidad del stretch"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "speed jam"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Speed reader"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "speed up"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "stamina"
+msgstr ""
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Star Rating: {stars}★"
+msgstr "Dificultad: {stars}★"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Start Burst"
+msgstr ""
+
+#: src/components/community/PlayerMenu.tsx
+msgid "Start Chat"
+msgstr "Abrir un Chat"
+
+#: src/components/multiplayer/CreateMatch.tsx
+#: src/components/multiplayer/ReadyButton.tsx
+msgid "Start Game"
+msgstr "Iniciar Partida"
+
+#: src/components/multiplayer/ReadyButton.tsx
+#: src/components/multiplayer/ReadyButton.tsx
+msgid "Start Game!"
+msgstr "¡Iniciar Partida!"
+
+#: src/editor/EditorNewMap.tsx
+msgid "Start mapping"
+msgstr "Empezar a mapear"
+
+#: src/scenes/Character.tsx
+msgid "Start over with a new character that unlocks new features"
+msgstr "Volver a empezar con un personaje nuevo que desbloquea nuevas funciones"
+
+#: src/components/dock/DockRunButton.tsx
+msgid "Start the queue"
+msgstr "Iniciar la cola"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "stay calm and steady"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Stay warm"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Stays calm and rarely slips up."
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Stays focused all the way through long songs."
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Steady"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Steady eyes"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Steady hands"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Still sharp"
+msgstr ""
+
+#: src/components/community/MusicControls.tsx
+msgid "Stop"
+msgstr "Detener"
+
+#: src/scenes/Gameplay.tsx
+msgid "Stop the play (Esc)"
+msgstr "Detener la partida (Esc)"
+
+#: src/components/songselect/SongSelectDebug.tsx
+msgid "Strain debug"
+msgstr "Debug de esfuerzo"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "streams up to {value}% faster feel comfortable"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticChoiceUnder.tsx
+msgid "Strengths add up: 100% for a genetic, 50% from each genetic beside it."
+msgstr ""
+
+#: src/components/skins/MySkinRow.tsx
+msgid "Submit"
+msgstr "Subir"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Submit for rank"
+msgstr "Enviar para rankear"
+
+#: src/components/direct/DirectRow.tsx
+msgid "Submitted {ranked}"
+msgstr "Enviado {ranked}"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Submitted for rank"
+msgstr "Enviado para rankear"
+
+#: src/scenes/Gameplay.tsx
+msgid "Submitting score…"
+msgstr "Enviando puntuación…"
+
+#: src/components/SupporterHeart.tsx
+msgid "Support the game to access cool features!"
+msgstr "¡Apoya el juego para poder acceder a funciones guays!"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "surprises don't throw you"
+msgstr ""
+
+#: src/editor/EditorSummary.tsx
+#: src/osu/beatmap/grouping.ts
+msgid "SV"
+msgstr "SV"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "SV patterns can differ {value}% more and still count as repeats"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "SV pushes your hits early or late {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "SV sections no longer rattle you"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "SV surfer"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Swap column {column} with the next one picked"
+msgstr "Intercambia la columna {column} con la siguiente elegida"
+
+#: src/editor/builtinActions.ts
+msgid "Swap two columns of the selection"
+msgstr "Intercambiar dos columnas de la selección"
+
+#: src/components/gameplay/WarmupHint.tsx
+msgid "Sweet spot: your physical skills are at their best."
+msgstr "Punto ideal: Tus habilidades físicas están en su máximo nivel."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "switching between snaps (1/3 or 1/6 among 1/4) is {value}% easier"
+msgstr ""
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/skins/SkinView.tsx
+#: src/editor/EditorMetadata.tsx
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Tail chaser"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Talented"
+msgstr ""
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Talk about multiplayer games."
+msgstr "Hablar sobre las salas multijugador."
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Tap"
+msgstr "Tocar"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "tap one finger as fast as you can"
+msgstr ""
+
+#: src/scenes/IntroScreen.tsx
+msgid "tap to play..."
+msgstr "Toca para jugar..."
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Tapped {bpm} BPM over {count, plural, one {# tap} other {# taps}}"
+msgstr "{bpm} BPM registrados mediante {count, plural, one {# pulsación} other {# pulsaciones}}"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Tapping along to music, you'd rather…"
+msgstr ""
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Team Mode:"
+msgstr "Modo de Equipos:"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "technical"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorActions.tsx
+msgid "Test play"
+msgstr "Test play"
+
+#: src/components/SupporterHeart.tsx
+msgid "Thanks for your generosity!"
+msgstr "¡Gracias por tu generosidad!"
+
+#: src/components/options/MoveInstall.tsx
+msgid "That folder already has an oss!idle folder with files in it."
+msgstr "Esa carpeta ya contiene una carpeta con oss!idle y sus archivos."
+
+#: src/osu/skin/importSkin.ts
+msgid "That is too many files for a skin"
+msgstr "Hay demasiados archivos para una skin"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "That's why downloading them all at once is an oss!supporter perk."
+msgstr "Por eso descargarlos todos a la vez es una ventaja de oss!supporter."
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "The Administrators' and Global Moderation Team's channel."
+msgstr "El canal de los Administradores y Equipo de Moderación Global."
+
+#: src/editor/EditorHitsounds.tsx
+msgid "The custom index picks the map's own hitsound files: 1 its unnumbered ones (soft-hitclap.wav), 2 and up those numbered so (soft-hitclap2.wav). A note without them plays the default sounds. A volume of 0 falls back to the line."
+msgstr "El index personalizado selecciona los archivos de hitsound propios del mapa: 1 son los archivos sin numerar (como \"soft-hitclap.wav\"), mientras que 2 para arriba utilizan los archivos numerados (\"soft-hitclap2.wav\"). Una nota sin ellos reproduce los sonidos por defecto. Un volumen de 0 hace que se aplique el valor definido en la línea correspondiente."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "the first {notes} notes cannot be worse than great"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "the first {notes} notes cannot be worse than marvelous"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "the first {notes} notes cannot be worse than perfect"
+msgstr ""
+
+#: src/scenes/Direct.tsx
+msgid "The latest beatmaps"
+msgstr "Los últimos beatmaps"
+
+#: src/scenes/Direct.tsx
+msgid "The latest loved beatmaps"
+msgstr "Los últimos beatmaps amados"
+
+#: src/scenes/Direct.tsx
+msgid "The latest ranked beatmaps"
+msgstr "Los últimos beatmaps rankeados"
+
+#: src/scenes/Direct.tsx
+msgid "The latest unranked beatmaps"
+msgstr "Los últimos beatmaps sin rankear"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "The line in effect here"
+msgstr "La línea en timing aquí"
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "The main oss!idle channel."
+msgstr "El canal principal de oss!idle."
+
+#: src/editor/EditorView.tsx
+msgid "The map checks found errors in {version}"
+msgstr "Las comprobaciones del mapa detectaron errores en {version}"
+
+#: src/editor/EditorView.tsx
+msgid "The map's Creator must be your osu! name"
+msgstr "El Creador del mapa debe coincidir con tu nombre de \"osu!\""
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "The map's sound files"
+msgstr "Los archivos de sonido del mapa"
+
+#: src/scenes/Direct.tsx
+msgid "The most played beatmaps"
+msgstr "Los beatmaps más jugados"
+
+#: src/scenes/Direct.tsx
+msgid "The most played loved beatmaps"
+msgstr "Los beatmaps amados más jugados"
+
+#: src/scenes/Direct.tsx
+msgid "The most played ranked beatmaps"
+msgstr "Los beatmaps rankeados más jugados"
+
+#: src/scenes/Direct.tsx
+msgid "The most played unranked beatmaps"
+msgstr "Los beatmaps sin rankear más jugados"
+
+#: src/components/community/chat/ReportMessageDialog.tsx
+msgid "The report could not be sent."
+msgstr "Hubo un problema al enviar el reporte."
+
+#: src/editor/EditorChecks.tsx
+msgid "The song is not an .mp3 or .ogg file"
+msgstr "La canción no es un archivo .mp3 ni .ogg"
+
+#: src/online/bugReports.ts
+msgid "The team answered your bug report: {title}"
+msgstr "El equipo ha respondido a tu reporte sobre un bug: {title}"
+
+#: src/scenes/Lobby.tsx
+msgid "There are no matches available."
+msgstr "No hay salas disponibles."
+
+#: src/osu/skin/importSkin.ts
+msgid "There are no skin files in there"
+msgstr "No se han encontrado archivos de skin"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Thick skin"
+msgstr ""
+
+#: src/scenes/bootPlay.ts
+msgid "This difficulty can't be played here."
+msgstr "Esta dificultad no se puede jugar aquí."
+
+#: src/scenes/bootPlay.ts
+msgid "This difficulty failed to load."
+msgstr "Hubo un problema al cargar esta dificultad."
+
+#: src/scenes/bootPlay.ts
+msgid "This difficulty has no notes to play."
+msgstr "Esta dificultad está vacía."
+
+#: src/scenes/IntroScreen.tsx
+msgid "This game is an unofficial, fanmade version of osu!stable and is not affiliated with osu.ppy.sh"
+msgstr "Este juego es una versión no oficial y fanmade de osu!stable y no está afiliado con osu.ppy.sh"
+
+#: src/components/options/DownloadAllWarning.tsx
+msgid "This is a very big download: {count, plural, one {# beatmap set} other {# beatmap sets}}, taking about {size} of disk space."
+msgstr "Esta es una descarga muy grande: {count, plural, one {# conjunto de beatmaps} other {# conjuntos de beatmaps}}, que ocupa aproximadamente {size} de espacio en el disco."
+
+#: src/components/Tutorial.tsx
+msgid "This is an <0>automated, idle</0> osu!mania stable client: your character plays the maps on its own and progresses with every play."
+msgstr "Este es un cliente de osu!mania stable <0>automatizado</0>: tu personaje juega los mapas por sí mismo y progresa con cada partida."
+
+#: src/editor/EditorView.tsx
+msgid "This map belongs to another mapper"
+msgstr "Este mapa pertenece a otro mapper"
+
+#: src/osu/skin/importSkin.ts
+msgid "This skin is too big"
+msgstr "Esta skin es demasiado grande"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Thorough learner"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "thumb|thumbnail"
+msgstr "thumb|thumbnail"
+
+#: src/editor/EditorClock.tsx
+msgid "Time"
+msgstr "Tiempo"
+
+#: src/editor/EditorScroll.tsx
+#: src/editor/EditorScrollPoint.tsx
+#: src/editor/EditorTiming.tsx
+#: src/editor/EditorTimingPoint.tsx
+msgid "Time (ms)"
+msgstr "Tiempo (ms)"
+
+#: src/components/community/CommunityBody.tsx
+msgid "Time Zone"
+msgstr "Zona horaria"
+
+#: src/components/dock/DockRepeatCount.tsx
+msgid "Times to play it"
+msgstr "Número de veces que lo jugará"
+
+#: src/editor/actions.ts
+#: src/editor/EditorSummary.tsx
+msgid "Timing"
+msgstr "Timing"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "tired hands lose {value}% less accuracy"
+msgstr ""
+
+#: src/editor/EditorMetadata.tsx
+msgid "Title"
+msgstr "Título"
+
+#: src/editor/EditorMetadata.tsx
+msgid "Title (original)"
+msgstr "Título (original)"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "To (Hz)"
+msgstr "A (Hz)"
+
+#: src/components/character/PrestigeRow.tsx
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "To go"
+msgstr "Restante"
+
+#: src/editor/EditorScrollTools.tsx
+msgid "To speed"
+msgstr "Hasta velocidad"
+
+#: src/editor/builtinActions.ts
+msgid "To the first note"
+msgstr "A la primera nota"
+
+#: src/editor/builtinActions.ts
+msgid "To the last note"
+msgstr "A la última nota"
+
+#: src/editor/builtinActions.ts
+msgid "To the next bookmark"
+msgstr "Al siguiente marcador"
+
+#: src/editor/builtinActions.ts
+msgid "To the previous bookmark"
+msgstr "Al anterior marcador"
+
+#: src/editor/builtinActions.ts
+msgid "To the selection's end"
+msgstr "Al final de la selección"
+
+#: src/editor/builtinActions.ts
+msgid "To the selection's start"
+msgstr "Al inicio de la selección"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Today"
+msgstr "Hoy"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Top speed"
+msgstr ""
+
+#: src/components/BeatmapCardXP.tsx
+msgid "Total {xp}xp"
+msgstr "Total {xp}xp"
+
+#: src/components/genetics/GeneticsXpRows.tsx
+msgid "Total XP bonus"
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Trade skill levels for XP boosts"
+msgstr "Intercambia niveles de habilidad por boosts de XP"
+
+#: src/components/songselect/BeatmapInfo.tsx
+msgid "Tries: {tries}"
+msgstr "Intentos: {tries}"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Trill hands"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "trills are {value}% easier"
+msgstr ""
+
+#: src/components/genetics/ClimaxxBalance.tsx
+msgid "Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}"
+msgstr ""
+
+#: src/components/genetics/SkillCardBalance.tsx
+msgid "Turn {OVERDRIVE_SYMBOL}{od} overdrive into {CLIMAXX_SYMBOL}{gain}"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Two columns, like 1 4"
+msgstr "Dos columnas, como 1 4"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Two minds"
+msgstr ""
+
+#: src/components/addons/AddonEditMeta.tsx
+msgid "Type"
+msgstr "Tipo"
+
+#: src/scenes/Options.tsx
+#: src/scenes/SongSelect.tsx
+msgid "Type to search!"
+msgstr "¡Escribe para buscar!"
+
+#: src/components/addons/BrowseAddonsView.tsx
+msgid "Type:"
+msgstr "Tipo:"
+
+#: src/components/options/UIScaling.tsx
+msgid "UI scaling"
+msgstr "Escala de UI"
+
+#: src/components/options/UIScaling.tsx
+msgid "UI scaling: use your browser's zoom (Ctrl + / Ctrl -)"
+msgstr "Escala de la interfaz: utiliza el zoom de tu navegador (Ctrl + / Ctrl -)"
+
+#: src/scenes/Options.tsx
+msgid "ui|scale|scaling|zoom|size"
+msgstr "ui|scale|scaling|zoom|size"
+
+#: src/db/schema/skin.ts
+msgid "Unable to load \"{skin}\""
+msgstr "Hubo un problema al cargar «{skin}»"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Unbothered"
+msgstr ""
+
+#: src/osu/beatmap/grouping.ts
+msgid "Uncategorized"
+msgstr "Sin categorizar"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Under pressure, you…"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Undertow"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Undo"
+msgstr "Deshacer"
+
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/addons/ManageAddonsView.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Uninstall"
+msgstr "Desinstalar"
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Uninstall add-on"
+msgstr "Desinstalar add-on"
+
+#: src/components/character/RebirthView.tsx
+msgid "Unlocked: {unlocks}"
+msgstr "Desbloqueado: {unlocks}"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Unplayed"
+msgstr "Sin jugar"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Unrank"
+msgstr "Desrankear"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Unrank it"
+msgstr "Desrankearlo"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Unrank your map?"
+msgstr "¿Quieres Desrankear tu mapa?"
+
+#: src/components/direct/DirectFilters.tsx
+#: src/osu/beatmap/grouping.ts
+msgid "Unranked"
+msgstr "No rankeado"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Unranked: it is yours to change or take down"
+msgstr "Sin rankear: puedes modificarlo o eliminarlo"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Unranked: no XP, and the score is not submitted"
+msgstr "Sin rankear: no se gana XP, y el score no será subido"
+
+#: src/scenes/Editor.tsx
+msgid "Unsaved changes"
+msgstr "Cambios sin guardar"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Unshakeable"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "Untangles tricky, unusual patterns."
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "until your warm-up peak, you warm up {value}% faster"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Unwind"
+msgstr ""
+
+#: src/components/dock/DockQueue.tsx
+msgid "Up next"
+msgstr "Siguiente"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Up to date"
+msgstr "Actualizado"
+
+#: src/components/addons/InstalledAddonRow.tsx
+#: src/components/addons/ManageAddonsView.tsx
+#: src/components/skins/SkinDAORow.tsx
+msgid "Update"
+msgstr "Actualizar"
+
+#: src/components/DesktopUpdate.tsx
+msgid "Update failed ({error}). Please restart the game."
+msgstr "Hubo un problema al actualizar ({error}). Por favor reinicia el juego."
+
+#: src/components/leaderboard/UpdateButton.tsx
+msgid "Update to latest version"
+msgstr "Actualizar a la última versión"
+
+#: src/components/addons/BrowseAddonsView.tsx
+#: src/components/skins/BrowseSkinsView.tsx
+msgid "Updated"
+msgstr "Actualizado"
+
+#: src/editor/EditorView.tsx
+msgid "Updated online"
+msgstr "Actualizado en línea"
+
+#: src/components/leaderboard/UpdateButton.tsx
+msgid "Updating…"
+msgstr "Actualizando…"
+
+#: src/components/genetics/GeneCardActions.tsx
+#: src/components/genetics/useGeneActions.ts
+msgid "Upgrade"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Upgrade {name} to tier {tier}?"
+msgstr ""
+
+#: src/components/skills/SkillEquation.tsx
+msgid "upgrade boost"
+msgstr "boost de mejora"
+
+#: src/components/mods/ModSelect.tsx
+msgid "Upgrade Speed to unlock rates"
+msgstr "Mejora Velocidad para desbloquear rates"
+
+#: src/components/dock/DockUpgradesButton.tsx
+#: src/components/skills/SkillsView.tsx
+msgid "upgrades"
+msgstr "mejoras"
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Upgrades"
+msgstr "Mejoras"
+
+#: src/components/upgrades/UpgradesSummary.tsx
+msgid "Upgrades owned"
+msgstr "Mejoras compradas"
+
+#: src/editor/builtinActions.ts
+#: src/editor/EditorActions.tsx
+msgid "Upload"
+msgstr "Subir"
+
+#: src/components/Onboarding.tsx
+msgid "Upload a profile picture"
+msgstr "Subir una imagen de perfil"
+
+#: src/components/listing/IconField.tsx
+msgid "Upload image"
+msgstr "Subir imagen"
+
+#: src/editor/EditorView.tsx
+msgid "Upload successful"
+msgstr "Subida completada"
+
+#: src/editor/EditorView.tsx
+msgid "Uploading..."
+msgstr "Subiendo..."
+
+#: src/components/Onboarding.tsx
+msgid "Uploading…"
+msgstr "Subiendo…"
+
+#: src/editor/EditorBpmTools.tsx
+msgid "Use it"
+msgstr "Usar"
+
+#: src/components/skins/SkinView.tsx
+msgid "Validation errors"
+msgstr "Errores de validación"
+
+#: src/components/addons/AddonEditMeta.tsx
+#: src/components/skins/SkinView.tsx
+msgid "Version"
+msgstr "Versión"
+
+#: src/online/versionWatch.ts
+msgid "Version {version} is available ! Refresh the page to update."
+msgstr "¡Una nueva versión {version} está disponible! Refresca la página para actualizar el juego."
+
+#: src/online/versionWatch.ts
+msgid "Version {version} is available ! Update in the main menu."
+msgstr "¡Una nueva versión {version} está disponible! Actualiza el juego en el menú principal."
+
+#: src/editor/actions.ts
+#: src/editor/EditorSummary.tsx
+msgid "View"
+msgstr "Ver"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "View build log"
+msgstr "Ver registro de build"
+
+#: src/components/addons/AddonCodePane.tsx
+msgid "View changes"
+msgstr "Ver cambios"
+
+#: src/components/addons/AddonCodePane.tsx
+msgid "View code"
+msgstr "Ver código"
+
+#: src/components/direct/DirectLinkPanel.tsx
+#: src/components/direct/DirectView.tsx
+msgid "View listing"
+msgstr "Ver listado"
+
+#: src/components/community/PlayerMenu.tsx
+msgid "View Profile"
+msgstr "Ver perfil"
+
+#: src/online/presence.ts
+#: src/online/presence.ts
+msgid "Viewing results"
+msgstr "Viendo resultados"
+
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+#: src/scenes/Options.tsx
+msgid "volume"
+msgstr "volumen"
+
+#: src/editor/EditorHitsounds.tsx
+#: src/editor/EditorHitsounds.tsx
+#: src/scenes/Options.tsx
+msgid "Volume"
+msgstr "Volumen"
+
+#: src/components/addons/AddonRepoBuild.tsx
+msgid "Waiting for the builder…"
+msgstr "Esperando al builder…"
+
+#: src/scenes/Screensaver.tsx
+msgid "Waiting for the next map"
+msgstr "Esperando al siguiente mapa"
+
+#: src/components/multiplayer/RoundWaiting.tsx
+msgid "Waiting for the other players to finish..."
+msgstr "Esperando a que todos los jugadores terminen..."
+
+#: src/components/upgrades/SkillPerk.tsx
+#: src/scenes/Gameplay.tsx
+msgid "Warm-up"
+msgstr "Warm-up"
+
+#: src/scenes/Gameplay.tsx
+msgid "Warming up"
+msgstr "Calentando"
+
+#: src/components/dock/DockWatchButton.tsx
+msgid "Watch"
+msgstr "Ver"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Wave rider"
+msgstr ""
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Waveform"
+msgstr "Waveform"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Waveform brightness"
+msgstr "Brillo de Waveform"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "Waveform colour"
+msgstr "Color de Waveform"
+
+#: src/components/addons/AddonRepoPane.tsx
+msgid "Webhook"
+msgstr "Webhook"
+
+#: src/components/Tutorial.tsx
+msgid "Welcome to oss!idle"
+msgstr "Te damos la bienvenida a oss!idle"
+
+#: src/components/Onboarding.tsx
+msgid "Welcome, {username}!"
+msgstr "¡Bienvenido, {username}!"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "Well rested"
+msgstr ""
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "What do you want to delete?"
+msgstr "¿Qué deseas borrar?"
+
+#: src/components/songselect/CardContextMenu.tsx
+msgid "What do you want to do with this beatmap?"
+msgstr "¿Qué quieres hacer con este beatmap?"
+
+#: src/scenes/Character.tsx
+msgid "What each skill does and what multiplies its XP"
+msgstr "Qué hace cada habilidad y qué multiplica su XP"
+
+#: src/components/genetic-choice/GeneticChoiceTitle.tsx
+msgid "What else were you born good at?"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticChoiceTitle.tsx
+msgid "What were you born good at?"
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "What your character was born good at, kept through prestige"
+msgstr ""
+
+#: src/components/Changelog.tsx
+msgid "What's new"
+msgstr "Qué hay de nuevo"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Wheel"
+msgstr "Rueda"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "when you fall behind on jacks, you catch up {value}% more often"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "when your focus slips, it fades {value}% more gradually"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
+msgstr ""
+
+#: src/editor/EditorSoundFiles.tsx
+msgid "whistle"
+msgstr "silbato"
+
+#: src/editor/EditorHitsounds.tsx
+msgid "Whistle"
+msgstr "Silbato"
+
+#: src/editor/builtinActions.ts
+msgid "Whistle on the selection"
+msgstr "Silbato en la selección"
+
+#: src/editor/EditorViewOptions.tsx
+msgid "White"
+msgstr "Blanco"
+
+#: src/components/multiplayer/MatchSettings.tsx
+msgid "Win Condition:"
+msgstr "Condición para Ganar:"
+
+#: src/components/multiplayer/MatchRanking.tsx
+msgid "WINNER"
+msgstr "GANADOR"
+
+#: src/editor/EditorRulesetSubmission.tsx
+msgid "Withdraw"
+msgstr "Retirar"
+
+#: src/components/community/CommunityBody.tsx
+msgid "World Map"
+msgstr "Mapa del Mundo"
+
+#: src/components/character/PrestigeRow.tsx
+#: src/components/upgrades/UpgradeRow.tsx
+msgid "x{factor} XP"
+msgstr "x{factor} XP"
+
+#: src/components/character/PrestigeRow.tsx
+#: src/components/skills/SkillEquation.tsx
+msgid "XP"
+msgstr "XP"
+
+#: src/components/upgrades/UpgradeTooltip.tsx
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "XP boost"
+msgstr "Boost de XP"
+
+#: src/components/BeatmapXPBreakdown.tsx
+msgid "XP gained"
+msgstr "XP ganada"
+
+#: src/components/genetics/GeneticsXpRows.tsx
+msgid "XP genes"
+msgstr ""
+
+#: src/components/upgrades/UpgradeTooltip.tsx
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "XP level"
+msgstr "Nivel de XP"
+
+#: src/components/character/PrestigeRow.tsx
+msgid "XP Lv{level} → XP Lv0 · Loses every upgrade and all Overdrive · Keeps +{bonus, plural, one {# bonus level} other {# bonus levels}}, {slots, plural, one {# gear slot} other {# gear slots}} and x{multiplier} XP"
+msgstr "Nivel de XP Nv{level} → Nivel de XP Nv0 · Se pierden todas las mejoras y todo el Overdrive · Conserva +{bonus, plural, one {# nivel de bonus} other {# niveles de bonus}}, {slots, plural, one {# casilla de equipamiento} other {# casillas de equipamiento}} y x{multiplier} XP"
+
+#: src/components/character/PrestigeRow.tsx
+#: src/components/upgrades/UpgradeRow.tsx
+msgid "XP Lv<0/>"
+msgstr "XP Nv<0/>"
+
+#: src/components/mods/XpMultipliers.tsx
+msgid "XP Multiplier: {xp}x"
+msgstr "Multiplicador de XP: {xp}x"
+
+#: src/components/upgrades/UpgradeTooltip.tsx
+msgid "XP spent"
+msgstr "XP gastada"
+
+#: src/osu/beatmap/grouping.ts
+msgid "Yesterday"
+msgstr "Ayer"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you adapt when things change"
+msgstr ""
+
+#: src/scenes/MatchSetup.tsx
+msgid "You are a player."
+msgstr "Eres un jugador."
+
+#: src/components/SupporterHeart.tsx
+msgid "You are a supporter."
+msgstr "Eres un supporter."
+
+#: src/scenes/MatchSetup.tsx
+msgid "You are the host!"
+msgstr "¡Ahora eres el host!"
+
+#: src/components/genetic-choice/GeneticChoiceUnder.tsx
+msgid "You can change it later."
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you can stay with something for a long time"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you could go for hours more"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you don't run out of steam"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you fall behind {value}% less in fast jacks"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you forget maps {value}% slower"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you have a sense of timing"
+msgstr ""
+
+#: src/online/multiplayer.ts
+msgid "You have become the host for this room!"
+msgstr "¡Te has convertido en el host de la sala!"
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you have quick fingers"
+msgstr ""
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "You haven't created any add-ons yet."
+msgstr "Aún no has creado ningún add-on."
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you keep your cool"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you know when to let go"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like being precise"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like doing it right every time"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like doing one thing really fast"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like doing two things at once"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like figuring things out"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like getting every detail exactly right"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like going the distance"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like knowing something inside out"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like learning things by heart"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you like things fast"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you notice every little detail"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you notice the details"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you recover {value}% faster after a dense LN section"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you recover from a tiring section {value}% faster"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you recover from hard patterns {value}% faster"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you remember {shapes} more of the song's recent chord shapes"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you roll with surprises"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you spot patterns"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you stay focused"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you stay sharp {seconds} s longer before your focus slips"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you stay sharp {value}% longer on songs you've played 10+ times"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you stay warmed up {minutes} minutes longer"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "you tire {value}% slower in dense sections"
+msgstr ""
+
+#: src/components/community/chat/mentions.ts
+msgid "You were mentioned in {channel}"
+msgstr "Has sido mencionado en {channel}"
+
+#: src/components/genetic-choice/GeneticChoiceTitle.tsx
+msgid "You'd make a great {skill} player"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "you'd rather watch it twice and know it by heart"
+msgstr ""
+
+#: src/components/genetic-choice/GeneticChoiceTitle.tsx
+msgid "You're between {a} and {b}"
+msgstr ""
+
+#: src/components/RestrictedNotice.tsx
+msgid "Your account has been <0>restricted</0>: you can't play or chat. If you think it's a mistake: <1>{email}</1>"
+msgstr "Tu cuenta ha sido <0>restringida</0>: no podrás jugar ni usar el chat. Si crees que se trata de un error, contacta a: <1>{email}</1>"
+
+#: src/online/play.ts
+msgid "Your account is restricted, so you can't play. Write to {email} if you think it's a mistake."
+msgstr "Tu cuenta está restringida, por lo que no puedes jugar. Si crees que se trata de un error, envía un mensaje a {email} para apelar la restricción."
+
+#: src/components/addons/ManageAddonsView.tsx
+msgid "Your add-ons"
+msgstr "Tus add-ons"
+
+#: src/components/options/MentionPings.tsx
+msgid "Your browser blocks notifications from oss!idle: allow them in its site settings."
+msgstr "Tu navegador está bloqueando las notificaciones de oss!idle: activa el permiso de notificaciones en su configuración."
+
+#: src/scenes/Editor.tsx
+msgid "Your changes since the last save will be lost."
+msgstr "Los cambios realizados desde la última vez guardada se perderán."
+
+#: src/components/Tutorial.tsx
+msgid "Your character can play <0>on-repeat</0>, automatically, on playlists you crafted.<1> Hold down</1> a beatmap to add it and <2>group by playlist</2>, then start a beatmap to enter playlist mode."
+msgstr "Tu personaje puede jugar <0>en bucle</0> y automáticamente las colecciones que has creado.<1> Mantén pulsado</1> un beatmap para añadirlo y después selecciona <2>agrupar por colección</2>; por último, inicia un beatmap para entrar en el modo de jugar la colección."
+
+#: src/components/Tutorial.tsx
+msgid "Your character can play <0>on-repeat</0>, automatically, on playlists you crafted.<1> Right-click</1> a beatmap to add it and <2>group by playlist</2>, then start a beatmap to enter playlist mode."
+msgstr "Tu personaje puede jugar <0>en bucle</0> y automáticamente las colecciones que has creado.<1> Haz clic derecho en</1> un beatmap para añadirlo y después selecciona <2>agrupar por colección</2>; por último, inicia un beatmap para entrar en el modo de jugar la colección."
+
+#: src/components/genetics/GeneticsPickPrompt.tsx
+msgid "Your character hasn't picked what it was born good at yet."
+msgstr ""
+
+#: src/scenes/bootPlay.ts
+msgid "Your character is still playing another map. Abort that play to start this one?"
+msgstr "Tu personaje está jugando otro mapa. ¿Quieres abortar el mapa para empezar este?"
+
+#: src/scenes/MainMenu.tsx
+msgid "Your character keeps playing its queue for {hours, plural, one {# hour} other {# hours}} after you quit."
+msgstr "Tu personaje seguirá jugando su cola durante {hours, plural, one {# hora} other {# horas}} después de que cierres el juego."
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your fingers get fresh again {value}% sooner after a jack section"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your fingers stay fresh {value}% longer in jacks"
+msgstr ""
+
+#: src/components/genetics/GeneticsXpRows.tsx
+msgid "Your genetics"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands can get {value}% less tired"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands keep recovering mid-stream, at {value}% of their resting rate"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands settle {value}% faster after a busy section"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands tire {value}% slower for the first 30 seconds of a song, fading out by 60 seconds"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands tire {value}% slower past their limit"
+msgstr ""
+
+#: src/rulesets/mania/4k/quiz.ts
+msgid "your hands work on their own"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your hands' limit is {value}% higher, about {bpm} BPM at 200 BPM"
+msgstr ""
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Your own plays and level-ups, seen only by you."
+msgstr "Tus propias jugadas y subidas de nivel, visibles solo para ti."
+
+#: src/components/skins/ManageSkinsView.tsx
+msgid "Your published skins"
+msgstr "Tus skins publicadas"
+
+#: src/components/OldHostPrompt.tsx
+msgid "Your save, settings and session came along. Delete everything the old address still keeps in this browser, downloaded beatmaps included?"
+msgstr "Tus datos guardados, configuración y sesión se han transferido. ¿Quieres eliminar todo lo que la dirección anterior aún conserva en este navegador, incluyendo los beatmaps descargados?"
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your stamina lasts {seconds} seconds longer in a song"
+msgstr ""
+
+#: src/rulesets/mania/4k/geneText.ts
+msgid "your top jack speed is {value}% higher"
+msgstr ""
+
+#: src/editor/builtinActions.ts
+msgid "Zoom in"
+msgstr "Acercar zoom"
+
+#: src/editor/builtinActions.ts
+msgid "Zoom out"
+msgstr "Alejar zoom"
+
+#: src/editor/EditorShortcuts.tsx
+msgid "Zoom over the columns, change the beat snap elsewhere"
+msgstr "Haz zoom sobre las columnas, cambia el ajuste de ritmo (beat snap) en el resto"

@@ -20,6 +20,7 @@ export default function PageBarButton({ action }: { action: PageAction }) {
 		</span>
 		: <button 
 			className={className}
+			data-sound="button"
 			style={{ order }}
 			disabled={disabled}
 			onClick={onClick}

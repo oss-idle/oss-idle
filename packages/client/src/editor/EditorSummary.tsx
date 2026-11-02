@@ -1,4 +1,8 @@
 import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
+import {
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
@@ -73,7 +77,10 @@ export default function EditorSummary({ session, onOpen, onAdd }: Props) {
 					</Trans>
 					{' · '}{session.chart.keys}K
 					{selected > 0 && <>
-						{' · '}<span className="editor__selected"><Trans>{selected} selected</Trans></span>
+						{' · '}<span className="editor__selected">{plural(ph({ selected }), {
+							one: '# selected',
+							other: '# selected',
+						})}</span>
 					</>}
 				</span>
 			</div>

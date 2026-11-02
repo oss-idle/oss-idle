@@ -1,0 +1,489 @@
+.genetics {
+	position: relative;
+	/* over the page body's padding: the sky reaches every edge */
+	margin: -10px -34px -28px;
+	height: calc(100% + 38px);
+	min-height: 520px;
+	overflow: hidden;
+	container-type: size;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	user-select: none;
+}
+.genetics__backdrop {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
+/* the sky's own shape, as large as the tab allows */
+.genetics__stage {
+	position: relative;
+	width: min(100cqw - 68px, (100cqh - 60px) * 1280 / 600);
+	aspect-ratio: 1280 / 600;
+}
+.genetics__sky {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+.genetics__sky text {
+	fill: var(--text);
+	font-family: inherit;
+}
+.genetics__sky .genetics__dim {
+	fill: var(--text-dim);
+}
+/* ---- depth: each layer drifts with the cursor ---- */
+.genetics__backdrop,
+.genetics__layer {
+	transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.genetics__backdrop {
+	transform: translate(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px))
+		scale(1.04);
+}
+.genetics__layer--far {
+	transform: translate(calc(var(--px, 0) * -5px), calc(var(--py, 0) * -4px));
+}
+.genetics__layer--mid {
+	transform: translate(calc(var(--px, 0) * -12px), calc(var(--py, 0) * -7px));
+}
+.genetics__layer--near {
+	transform: translate(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px));
+}
+.genetics__twinkle {
+	animation: genetics-twinkle 3.5s ease-in-out infinite;
+}
+
+@keyframes genetics-twinkle {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.2;
+	}
+}
+
+.genetics__nebula {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: genetics-breathe 9s ease-in-out infinite;
+}
+
+@keyframes genetics-breathe {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.06);
+	}
+}
+
+/* ---- the wheel: every tree rides its edge, turning brings one to the top ---- */
+.wheel-tree {
+	transform-box: view-box;
+	transform-origin: 640px 1340px;
+	transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.2, 1);
+}
+.wheel-tree:not(.is-top) {
+	cursor: pointer;
+}
+.wheel-tree.is-far .wheel-tree__lean {
+	opacity: 0.4;
+}
+.wheel-tree__lean {
+	transform-box: view-box;
+	transform-origin: 640px 1340px;
+	transition:
+		transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3),
+		opacity 0.3s;
+}
+.wheel-tree:not(.is-top):hover .wheel-tree__lean {
+	transform: scale(1.1);
+}
+.wheel-tree__hit {
+	fill: transparent;
+}
+.wheel-tree .gene text,
+.wheel-tree .gene__body rect {
+	transition: opacity 0.4s;
+}
+.wheel-tree:not(.is-top) .gene text {
+	opacity: 0;
+}
+.wheel-tree:not(.is-top) .gene__body {
+	animation: none;
+}
+.wheel-tree__label {
+	transition: opacity 0.4s;
+}
+.wheel-tree.is-top .wheel-tree__label {
+	opacity: 0;
+}
+.wheel-tree:not(.is-top):hover .wheel-tree__label {
+	opacity: 1;
+}
+.wheel-tree:not(.is-top) .wheel-tree__label {
+	opacity: 0.75;
+}
+
+/* ---- genes drift, lift under the cursor ---- */
+.gene {
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.gene__body {
+	animation: gene-float 4.5s ease-in-out infinite;
+	animation-delay: calc(var(--i) * -0.41s);
+}
+
+@keyframes gene-float {
+	0%,
+	100% {
+		transform: translateY(-2px);
+	}
+	50% {
+		transform: translateY(2.5px);
+	}
+}
+
+.gene--pickable {
+	cursor: pointer;
+}
+.gene--pickable:hover {
+	transform: scale(1.2);
+}
+.gene--pickable:active {
+	transform: scale(1.08);
+}
+.gene__hit {
+	fill: transparent;
+}
+.gene__ring {
+	fill: none;
+	stroke: #fff;
+	stroke-width: 2;
+	stroke-dasharray: 3 3;
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: gene-spin 7s linear infinite;
+}
+.gene__glow {
+	fill: none;
+	stroke: rgba(255, 102, 171, 0.4);
+	stroke-width: 6;
+	animation: gene-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes gene-spin {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes gene-glow {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.4;
+	}
+}
+
+.skill-star,
+.genetics__star {
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+.genetics__star {
+	cursor: pointer;
+}
+.genetics__star:hover {
+	transform: scale(1.1);
+}
+
+/* ---- the ring, small; it grows and names every skill under the cursor ---- */
+.ring-compass {
+	position: absolute;
+	left: 24px;
+	top: 6px;
+	width: 120px;
+	height: 120px;
+	transition:
+		width 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+		height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.ring-compass:hover {
+	width: 280px;
+	height: 280px;
+}
+.ring-compass svg {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+.ring-compass__plate {
+	fill: rgba(0, 0, 0, 0.55);
+	stroke: rgba(255, 255, 255, 0.12);
+}
+.ring-compass__skill {
+	cursor: pointer;
+}
+.ring-compass__hit {
+	fill: transparent;
+}
+.ring-compass__dot {
+	fill: rgba(255, 255, 255, 0.25);
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 0.2s;
+}
+.ring-compass__skill.is-near .ring-compass__dot {
+	fill: rgba(255, 138, 183, 0.6);
+}
+.ring-compass__skill.is-genetic .ring-compass__dot {
+	fill: #ff66ab;
+}
+.ring-compass__skill:hover .ring-compass__dot {
+	transform: scale(1.5);
+}
+.ring-compass__here {
+	fill: none;
+	stroke: #fff;
+	stroke-width: 2;
+}
+.ring-compass__name {
+	fill: var(--text);
+	font-size: 11px;
+	opacity: 0;
+	transition: opacity 0.2s;
+	pointer-events: none;
+}
+.ring-compass:hover .ring-compass__name {
+	opacity: 0.75;
+}
+.ring-compass__skill:hover .ring-compass__name {
+	opacity: 1;
+}
+
+/* ---- the gene card, beside the picked gene ---- */
+.genetics__card {
+	position: absolute;
+	animation: genetics-card-in 0.2s ease-out;
+	width: calc(330 / 1280 * 100%);
+	min-width: 280px;
+}
+.gene-card {
+	background: rgba(14, 11, 19, 0.97);
+	border-left: 3px solid var(--osu-pink-darkest);
+	padding: 14px 18px;
+	box-shadow:
+		0 0 0 1px rgba(255, 165, 200, 0.18),
+		0 12px 40px rgba(0, 0, 0, 0.85),
+		0 0 90px 30px rgba(7, 6, 10, 0.75);
+}
+.gene-card__kicker {
+	font-size: 0.7rem;
+	color: var(--text-dim);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	margin-bottom: 2px;
+}
+.gene-card__name {
+	font-size: 1.5rem;
+	font-weight: 300;
+	color: #fff;
+	margin: 0;
+}
+.gene-card__does {
+	font-size: 0.92rem;
+	color: rgba(255, 255, 255, 0.85);
+	line-height: 1.4;
+	margin: 6px 0 0;
+}
+.gene-card__next {
+	font-size: 0.85rem;
+	color: var(--text-dim);
+	margin-top: 4px;
+}
+.gene-card__xp {
+	display: flex;
+	flex-direction: column;
+}
+.gene-card__next b {
+	color: var(--osu-pink-light);
+	font-weight: 400;
+}
+.gene-card__pips {
+	display: flex;
+	gap: 5px;
+	margin-top: 10px;
+}
+.gene-card__pips i {
+	width: 22px;
+	height: 6px;
+	background: rgba(255, 255, 255, 0.12);
+	transform: skewX(-20deg);
+}
+.gene-card__pips i.is-on {
+	background: #ff66ab;
+}
+.gene-card__chip {
+	display: inline-block;
+	margin-top: 10px;
+	padding: 3px 10px;
+	background: rgba(255, 255, 255, 0.06);
+	transform: skewX(-8deg);
+	font-size: 0.8rem;
+}
+.gene-card__acts {
+	display: flex;
+	gap: 8px;
+	margin-top: 14px;
+	align-items: center;
+}
+.gene-card__learn,
+.gene-card__sell,
+.climaxx__convert,
+.genetics__cta {
+	min-height: 40px;
+	padding: 0 22px;
+	display: flex;
+	align-items: center;
+	transform: skewX(-12deg);
+	color: #fff;
+	font-weight: 400;
+	white-space: nowrap;
+	cursor: pointer;
+}
+.gene-card__learn > span,
+.gene-card__sell > span,
+.climaxx__convert > span,
+.genetics__cta > span {
+	transform: skewX(12deg);
+}
+.gene-card__learn,
+.genetics__cta {
+	background: var(--osu-pink-darkest);
+}
+.gene-card__sell,
+.climaxx__convert {
+	background: rgba(255, 255, 255, 0.08);
+	font-size: 0.9rem;
+}
+.gene-card__learn small,
+.gene-card__sell small {
+	margin-left: 8px;
+	font-size: 0.8rem;
+	opacity: 0.8;
+}
+.gene-card button:disabled,
+.climaxx__convert:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+.gene-card__why {
+	margin-top: 8px;
+	font-size: 0.8rem;
+	color: var(--text-dim);
+}
+
+@keyframes genetics-card-in {
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	100% {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.gene-card__learn,
+.gene-card__sell,
+.climaxx__convert {
+	transition:
+		transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.4),
+		background 0.18s;
+}
+.gene-card__learn:hover:not(:disabled) {
+	transform: skewX(-12deg) scale(1.06);
+	background: #ff5a9e;
+}
+.gene-card__sell:hover:not(:disabled),
+.climaxx__convert:hover:not(:disabled) {
+	transform: skewX(-12deg) scale(1.06);
+	background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---- the shown skill's climaxx, top right ---- */
+.climaxx {
+	position: absolute;
+	right: 34px;
+	top: 10px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	color: var(--text-dim);
+}
+.climaxx__amount b {
+	font-size: 2rem;
+	font-weight: 200;
+	color: var(--osu-pink-light);
+	margin-right: 6px;
+}
+
+/* ---- the keys, bottom left ---- */
+.genetics__keys {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
+	bottom: 20px;
+	font-size: 0.8rem;
+	color: var(--text-dim);
+}
+
+/* ---- before picking, under the choice's title ---- */
+.genetics--preview {
+	margin: 0;
+	flex: 1;
+	height: auto;
+	min-height: 0;
+	/* the trees' names stay clear of the back button */
+	padding-bottom: 66px;
+}
+.genetics--preview .genetics__keys {
+	left: auto;
+	transform: none;
+	right: 34px;
+	top: 6px;
+	bottom: auto;
+	text-align: right;
+}
+
+/* ---- no genetic yet ---- */
+.genetics--empty {
+	margin: 0;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 18px;
+}
+.genetics__empty-text {
+	font-size: 1.2rem;
+	font-weight: 300;
+	color: var(--text-dim);
+}

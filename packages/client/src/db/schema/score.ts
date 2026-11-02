@@ -60,6 +60,8 @@ const t = table('score', {
 		idx_score_online_id: 'onlineId',
 		idx_score_beatmap:   'beatmapId',
 		idx_score_character: 'characterId',
+		// a card's best on its map: with one character, the character index alone reads every play
+		idx_score_character_map: 'characterId, beatmapId',
 		idx_score_value:     'score DESC',
 		idx_score_pp:        'pp DESC',
 	},
@@ -68,7 +70,20 @@ const t = table('score', {
 /** Bumped on every score write so live views re-query
  *  instead of holding a stale best - e.g. a global leaderboard load that imports
  *  one of the live character's scores. */
-export const scoresVersion = new Synced(0);
+export const scoresVersion = new Synced<ScoresChange>({ n: 0 });
+
+/** A change to the stored scores: `beatmapId` when only that map's changed. */
+export type ScoresChange = { n: number, beatmapId?: number };
+
+const scoresChanged = (beatmapId?: number) =>
+	void scoresVersion.set({
+		n: scoresVersion.get().n + 1, beatmapId, 
+	});
+
+/** a map's top play at one rate: its grade, its order (rank value, then id), the last play */
+export type HistoryRow = [
+	beatmapId: number, rate: number, grade: Grade, value: number, id: number, lastPlayed: number,
+];
 
 export class Score extends DAO(t) {
 
@@ -87,7 +102,7 @@ export class Score extends DAO(t) {
 			await ScoreBestPP.fromScore(this).add();
 		}
 
-		void scoresVersion.set(scoresVersion.get() + 1);
+		scoresChanged(this.beatmapId);
 
 		return this;
 	}
@@ -170,7 +185,7 @@ export class Score extends DAO(t) {
 					) WHERE n = 1`);
 			}
 		});
-		void scoresVersion.set(scoresVersion.get() + 1);
+		scoresChanged();
 	}
 
 	/** Every character's local scores on this difficulty, with their bests, XP and fails. */
@@ -181,7 +196,7 @@ export class Score extends DAO(t) {
 			for (const table of tables)
 				db.run(`DELETE FROM ${table.name} WHERE beatmapId = ?`, [beatmapId]);
 		});
-		void scoresVersion.set(scoresVersion.get() + 1);
+		scoresChanged(beatmapId);
 		void xpGainsVersion.set(xpGainsVersion.get() + 1);
 	}
 
@@ -228,6 +243,22 @@ export class Score extends DAO(t) {
 				WHERE b.characterId = ? AND b.beatmapId = ?`,
 			[characterId, beatmapId],
 		);
+	}
+
+	/**
+	 * What song select's cards show of a character's plays, in one pass of SQLite over them:
+	 * per map and rate, the top play's grade and order (its rank value, then id) and when the
+	 * map was last played at that rate. No play is turned into a Score here.
+	 */
+	static history(characterId: number, beatmapId?: number): Promise<HistoryRow[]> {
+		const where = beatmapId === undefined ? '' : ' AND beatmapId = ?';
+		const params = beatmapId === undefined ? [characterId] : [characterId, beatmapId];
+		return DB.read(db => (db.exec(`SELECT beatmapId, rate, grade, value, id, lastPlayed FROM (
+			SELECT beatmapId, rate, grade, id, ${rankValueSQL()} AS value,
+				MAX(playedAt) OVER (PARTITION BY beatmapId, rate) AS lastPlayed,
+				ROW_NUMBER() OVER (PARTITION BY beatmapId, rate ORDER BY ${rankValueSQL()} DESC, id ASC) AS n
+			FROM score WHERE characterId = ?${where}
+		) WHERE n = 1`, params)[0]?.values ?? []) as unknown as HistoryRow[]);
 	}
 
 	static recent(characterId: number, limit = 50): Promise<Score[]> {

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /** The profile blocks a supporter can reorder, in their default order. */
 export const PROFILE_SECTIONS = [
-	'me', 'skills', 'ranks', 'historical', 'beatmaps', 'medals',
+	'me', 'recent', 'skills', 'ranks', 'historical', 'beatmaps', 'medals',
 ] as const;
 export type ProfileSection = (typeof PROFILE_SECTIONS)[number];
 

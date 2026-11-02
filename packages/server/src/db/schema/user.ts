@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/mysql-core';
 
 import type { Group } from '@oss-idle/shared/groups';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import type { UserDTO } from '@oss-idle/shared/user';
 
 import { db } from '../client';
@@ -27,6 +28,8 @@ export const users = mysqlTable('user', {
 	keepPlaying: boolean().notNull().default(true),
 	// linked from the options; the Discord bot gives this account's level role to it
 	discordId: varchar({ length: 32 }).unique(),
+	// ticked: a supporter's Discord name keeps its level colour instead of the Supporter pink
+	discordLevelColour: boolean().notNull().default(false),
 	// the supporter tag shows while this is in the future
 	supporterUntil: datetime(),
 	// every month of supporter ever received: the profile's hearts
@@ -49,7 +52,7 @@ export const supporterActive = (row: Pick<UserRow, 'supporterUntil'> | undefined
 
 /** Map a user row to the wire contract. `avatarUrl` is the account's osu! avatar;
  *  a per-character custom upload lives on the character and overrides it there. */
-export function toUserDTO(row: UserRow, groups: Group[]): UserDTO {
+export function toUserDTO(row: UserRow, groups: Group[], nominates: RulesetId[]): UserDTO {
 	return {
 		id: row.id,
 		username: row.username,
@@ -59,6 +62,7 @@ export function toUserDTO(row: UserRow, groups: Group[]): UserDTO {
 		supporter: supporterActive(row),
 		restricted: Boolean(row.restrictedAt),
 		groups,
+		nominates,
 	};
 }
 

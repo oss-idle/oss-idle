@@ -62,6 +62,7 @@ describe('mod rules', () => {
 		expect(toggleMod(['EZ', 'SD'], 'HR')).toEqual(['HR', 'SD']);
 		expect(toggleMod(['SD'], 'PF')).toEqual(['PF']);
 		expect(toggleMod(['PF'], 'NF')).toEqual(['NF']);
+		expect(toggleMod(['HR', 'PF'], 'JT')).toEqual(['HR', 'JT']);
 		expect(toggleMod(['HR', 'SD'], 'SD')).toEqual(['HR']);
 		expect(cleanMods(['SD', 'EZ', 'SD', 'HR', 'XX'])).toEqual(['EZ', 'SD']);
 	});
@@ -90,13 +91,16 @@ describe('mod rules', () => {
 		}
 	});
 
-	it('SD fails on a miss, PF on anything below marvelous', () => {
+	it('SD fails on a miss, PF below perfect, JT below marvelous', () => {
 		const sd = worstAllowed(['SD']);
 		expect(scored(sd, [JUDGEMENT.BAD, JUDGEMENT.GOOD]).failed).toBe(false);
 		expect(scored(sd, [JUDGEMENT.GREAT, JUDGEMENT.MISS]).failedIndex).toBe(2);
 		const pf = worstAllowed(['PF']);
-		expect(scored(pf, [JUDGEMENT.DIVINE, JUDGEMENT.MARVELOUS]).failed).toBe(false);
-		expect(scored(pf, [JUDGEMENT.MARVELOUS, JUDGEMENT.PERFECT]).failedIndex).toBe(2);
+		expect(scored(pf, [JUDGEMENT.MARVELOUS, JUDGEMENT.PERFECT]).failed).toBe(false);
+		expect(scored(pf, [JUDGEMENT.PERFECT, JUDGEMENT.GREAT]).failedIndex).toBe(2);
+		const jt = worstAllowed(['JT']);
+		expect(scored(jt, [JUDGEMENT.DIVINE, JUDGEMENT.MARVELOUS]).failed).toBe(false);
+		expect(scored(jt, [JUDGEMENT.MARVELOUS, JUDGEMENT.PERFECT]).failedIndex).toBe(2);
 	});
 
 	it('EZ halves every skill\'s xp, HR adds a tenth to accuracy', () => {

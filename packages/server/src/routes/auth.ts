@@ -56,8 +56,12 @@ import {
 	SESSION_COOKIE_DOMAIN,
 } from '../env';
 import { env } from '../env';
-import { groupsOf } from '../groups';
+import {
+	groupsOf,
+	nominatesOf,
+} from '../groups';
 import { count } from '../metrics';
+import { valid } from '../validate';
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days, seconds
 
@@ -83,6 +87,8 @@ const setSession = (c: Context, session: string) => {
 
 /** A move's code outlives a background tab's throttled timers. */
 const MOVE_TTL_MS = 10 * 60_000;
+
+const discordLevelColourBody = z.object({ levelColour: z.boolean() });
 
 const desktopReturn = z.object({
 	port: z.coerce.number().int().min(1024).max(65535),
@@ -203,7 +209,7 @@ export const authRoutes = new Hono()
 		// a session from before the edges moves onto the cookie they can read too
 		const cookie = getCookie(c, SESSION_COOKIE);
 		if (cookie && !c.req.header('Authorization') && cookieDomain(c)) setSession(c, cookie);
-		return c.json(toUserDTO(row, await groupsOf(row.id)));
+		return c.json(toUserDTO(row, await groupsOf(row.id), await nominatesOf(row.id)));
 	})
 
 	// Discord link: whether one is linked, and a fresh URL to link (or relink) one.
@@ -213,8 +219,21 @@ export const authRoutes = new Hono()
 		if (!user) throw new HTTPException(401, { message: 'User not found' });
 		return c.json({
 			linked: !!user.discordId,
+			levelColour: user.discordLevelColour,
 			url: discordAuthorizeUrl(await signLinkState(user.id)),
 		});
+	})
+
+	.put('/discord/level-colour', requireAuth, valid('json', discordLevelColourBody), async c => {
+		const uid = c.get('userId');
+		const { levelColour } = c.req.valid('json');
+		await db.update(users).set({ discordLevelColour: levelColour }).where(eq(users.id, uid));
+
+		// The bot listens for character pushes, so this swaps the role right away.
+		const user = await getUserById(uid);
+		if (user?.currentCharacter) await pushCharacter(user.currentCharacter);
+
+		return c.json({ levelColour });
 	})
 
 	.get('/discord/callback', async c => {

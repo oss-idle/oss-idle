@@ -9,7 +9,7 @@ import { pageSearch } from '../-rankingSearch';
 export const Route = createFileRoute('/rankings/plays')({
 	validateSearch: zodValidator(pageSearch),
 	loaderDeps: ({ search }) => search,
-	loader: ({ deps }) => getTopPlays(deps.page, deps.friends),
+	loader: ({ deps }) => getTopPlays(deps.page, deps),
 	component: PlaysRoute,
 	staticData: { title: msg`rankings` },
 });

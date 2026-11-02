@@ -6,12 +6,15 @@ import { overdriveText } from '@oss-idle/shared/display/overdrive';
 import useShiftHeld from '@oss-idle/shared/hooks/useShiftHeld';
 import type { UpgradePurchase } from '@oss-idle/shared/upgrades';
 
+import OverdriveGainTip from './OverdriveGainTip';
+
 /** Overdrive gain, then the buy button over its progress bar. Every slot keeps
  *  its size whatever it holds, so rows stay aligned.
  *  Shift buys without the confirm, and the button says so while it is held. */
 export default function UpgradeAction({
 	progress,
 	maxed,
+	overdrive,
 	preview,
 	busy,
 	minLevel,
@@ -22,6 +25,7 @@ export default function UpgradeAction({
 	/** 0..1 from the last upgrade's required level to the next one's */
 	progress: number,
 	maxed: boolean,
+	overdrive: number,
 	preview: UpgradePurchase | undefined,
 	busy: boolean,
 	minLevel: number,
@@ -31,8 +35,8 @@ export default function UpgradeAction({
 	tip: ReactNode,
 }) {
 	const instant = useShiftHeld();
-	const ratio = preview?.ratio ?? 0;
-	const ratioText = overdriveText(ratio);
+	const gain = preview ? preview.overdrive - overdrive : 0;
+	const gainText = overdriveText(gain);
 	const required = minLevel;
 
 	const button = () => {
@@ -61,9 +65,12 @@ export default function UpgradeAction({
 
 	return (
 		<div className="ladder-act">
-			<span className="ladder-act__od">
-				{ratio > 1 && <Trans>Overdrive +{ratioText}</Trans>}
-			</span>
+			<HoverCard
+				className="ladder-act__od"
+				card={preview && gain > 0 ? <OverdriveGainTip ratio={preview.ratio} gain={gain} /> : undefined}
+			>
+				{gain > 0 && <Trans>Overdrive +{gainText}</Trans>}
+			</HoverCard>
 			<div className="ladder-act__main">
 				<HoverCard className="ladder-act__hover" card={maxed ? undefined : tip}>
 					{button()}

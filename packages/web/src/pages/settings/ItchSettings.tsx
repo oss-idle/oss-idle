@@ -1,6 +1,6 @@
 import {
+	Plural,
 	Trans,
-	useLingui,
 } from '@lingui/react/macro';
 import { useState } from 'react';
 
@@ -11,7 +11,6 @@ export type ItchClaim = number | 'error';
 
 /** Claim the account's itch.io donations as supporter; `claim` is what the last one gave. */
 export default function ItchSettings({ claim }: { claim?: ItchClaim }) {
-	const { i18n } = useLingui();
 	const [busy, setBusy] = useState(false);
 
 	const start = async () => {
@@ -23,9 +22,7 @@ export default function ItchSettings({ claim }: { claim?: ItchClaim }) {
 		}
 	};
 
-	const days = typeof claim === 'number'
-		? i18n.number(claim / 86400, { maximumFractionDigits: 1 })
-		: '';
+	const days = typeof claim === 'number' ? Math.round(claim / 8640) / 10 : 0;
 
 	return <>
 		<div className='settings__hint'>
@@ -42,7 +39,7 @@ export default function ItchSettings({ claim }: { claim?: ItchClaim }) {
 			<Trans>No new donation on this itch.io account.</Trans>
 		</div>}
 		{typeof claim === 'number' && claim > 0 && <div className='settings__hint settings__hint--done'>
-			<Trans>Thank you! Your donations gave you {days} days of oss!supporter.</Trans>
+			<Trans>Thank you! Your donations gave you <Plural value={days} one='# day' other='# days' /> of oss!supporter.</Trans>
 		</div>}
 		<button type='button' className='settings__button' disabled={busy} onClick={() => void start()}>
 			<Trans>Claim itch.io donation</Trans>

@@ -10,9 +10,11 @@ import { app } from './app';
 import { backfillRateStars } from './beatmaps/rateStars';
 import { separateStagingMapIds } from './beatmaps/storage';
 import { sweepRankedMaps } from './beatmaps/sweep';
+import { sweepBotMatches } from './botMatchQueue';
 import { closeOnDrain } from './drain';
 import {
 	env,
+	isPbe,
 	isProd,
 	port,
 } from './env';
@@ -34,10 +36,13 @@ import {
 	redis,
 	versionKey,
 } from './redis';
-import { loadRulesets } from './rulesets/registry';
+import {
+	enabledRulesets,
+	loadRulesets,
+} from './rulesets/registry';
 import {
 	loadSim,
-	SCORE_VERSION,
+	SCORE_VERSIONS,
 } from './sim';
 import { sweepThanks } from './supporter';
 import { hub } from './ws/hub';
@@ -54,7 +59,9 @@ import { registerWs } from './ws/routes';
 activateServerI18n();
 await loadRulesets();
 await loadSim();
-await redis.set(versionKey, SCORE_VERSION);
+for (const { def } of enabledRulesets()) {
+	await redis.set(versionKey(def.id), SCORE_VERSIONS[def.id]);
+}
 
 // the sweeps and socket heartbeats are fire-and-forget: a database or Redis blip in
 // one must not end the worker, and every socket it holds with it
@@ -98,8 +105,12 @@ void backfillRateStars();
 const sweep = setInterval(() => void sweepDuePlays(), 3_000);
 sweep.unref();
 
+// Start the bot matches that fit, across every worker.
+const botMatchSweep = setInterval(() => void sweepBotMatches(), 5_000);
+botMatchSweep.unref();
+
 // Start the next map of every queue whose countdown is up, game open or not.
-const queueSweep = setInterval(() => void sweepQueues(), 1_000);
+const queueSweep = setInterval(() => void sweepQueues(), isPbe ? 100 : 1_000);
 queueSweep.unref();
 
 // End finished match rounds and free the seats of players who went offline.

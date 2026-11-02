@@ -1,4 +1,5 @@
 import type { MedalCatalogue } from '../achievements/catalogue.js';
+import type { GeneticsDef } from '../genetics.js';
 import type { Mod } from '../mods.js';
 import type { RulesetId } from './ids.js';
 
@@ -45,6 +46,8 @@ export type RulesetDef<J extends string = string, S extends string = string> = {
 	warmupSkill?: S,
 	/** a character can be reborn in it (4K alone: 7K and standard have no rebirth) */
 	rebirth?: true,
+	/** its characters pick a genetic and grow gene trees (4K alone) */
+	genetics?: GeneticsDef,
 	/** its medals: they are earned, held and ranked in this ruleset alone */
 	medals: MedalCatalogue,
 	/** rosu-pp's `Performance` arguments for a play (rosu reads the mode off the chart) */

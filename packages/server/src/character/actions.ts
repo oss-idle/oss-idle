@@ -5,6 +5,10 @@ import {
 import { HTTPException } from 'hono/http-exception';
 
 import type { DebugCharacterBody } from '@oss-idle/shared/debug';
+import {
+	convert,
+	effectOf,
+} from '@oss-idle/shared/genetics';
 import type { PendingAction } from '@oss-idle/shared/pendingAction';
 import {
 	applyPrestige,
@@ -26,6 +30,7 @@ import { db } from '../db/client';
 import {
 	type CharacterRow,
 	characters,
+	geneticsOf,
 	profileOf,
 	type ProfileRow,
 	skillColumnsFor,
@@ -36,11 +41,10 @@ import {
 	type UserRow,
 	users,
 } from '../db/schema/user';
-import { rekeyQueue } from '../queue';
+import { leaveOrPlayOn } from '../queue';
 import { reindexCharacter } from '../rankings';
 import type { ServerRuleset } from '../rulesets/ruleset';
-import { hub } from '../ws/hub';
-import { rekey as presenceRekey } from '../ws/presence';
+import { watchedSlot } from '../slot';
 import {
 	assertNameAvailable,
 	displacedName,
@@ -124,33 +128,6 @@ const projectSkill = (
 	return state;
 };
 
-/**
- * The overall level once everything already parked has run. Upgrades and
- * prestiges spend lifetime xp, and the overall level is derived from it, so a
- * rebirth checked against today's level is accepted and then refused for real
- * when its turn comes - silently, long after the player was told it would
- * happen.
- */
-const projectOverallLevel = (
-	r: ServerRuleset,
-	row: ProfileRow,
-	parked: PendingAction[],
-): number => {
-	let spent = 0;
-	for (let i = 0; i < parked.length; i++) {
-		const action = parked[i];
-		if (action.type === 'rebirth' || action.ruleset !== r.def.id) continue;
-		const state = projectSkill(r, row, parked.slice(0, i), action.skill);
-		try {
-			const next = action.type === 'upgrade' ? applyUpgrade(state) : applyPrestige(state);
-			spent += Math.round(next.spent);
-		} catch {
-			// one that will not apply spends nothing
-		}
-	}
-	return xpGivesLevel(Math.max(0, row.overallTotalXp - spent)).level;
-};
-
 /** The same availability check the action itself makes, run before parking one
  *  so an impossible request is refused now instead of being dropped silently
  *  when the play ends. `parked` is what is already waiting on this character. */
@@ -178,7 +155,7 @@ export const assertActionAvailable = (
 			}
 			return;
 		case 'rebirth':
-			if (!canRebirth(projectOverallLevel(r, row, parked))) {
+			if (!canRebirth(xpGivesLevel(row.overallLifetimeXp).level, row.generation)) {
 				throw new HTTPException(409, { message: 'Rebirth not available' });
 			}
 			return;
@@ -205,7 +182,9 @@ export const performUpgrade = async (
 		if (!canUpgrade(state)) {
 			throw new HTTPException(409, { message: 'Upgrade not purchasable' });
 		}
-		const next = applyUpgrade(state);
+		const genetics = r.def.genetics;
+		const bonus = genetics ? effectOf(genetics, geneticsOf(current), 'overdrive', skill) : 0;
+		const next = applyUpgrade(state, bonus);
 		const spent = Math.round(next.spent);
 
 		const updates: Partial<ProfileRow> = {
@@ -352,6 +331,8 @@ export const performPrestige = async (
 				prestige: next.prestige,
 			}),
 			...spendTotals(current, skill, spent),
+			// what overdrive is left becomes climaxx instead of being lost
+			...r.def.genetics ? { genetics: convert(geneticsOf(current), skill, state.overdrive) } : {},
 		};
 
 		await tx.update(r.profile).set(updates).where(eq(r.profile.id, characterId));
@@ -391,7 +372,7 @@ export const performRebirth = async (
 	name: string,
 ): Promise<number> => {
 	const profile = await profileOf(r, row.id);
-	if (!canRebirth(profile.overallLevel)) {
+	if (!canRebirth(xpGivesLevel(profile.overallLifetimeXp).level, profile.generation)) {
 		throw new HTTPException(409, { message: 'Rebirth not available' });
 	}
 	// Keeping your name is the only thing that displaces the old character: it
@@ -418,11 +399,12 @@ export const performRebirth = async (
 			rulesetLock: r.def.id,
 			autopilotMode: row.autopilotMode,
 			autopilotDelay: row.autopilotDelay,
-			playRate: row.playRate,
-			playMods: row.playMods,
 		});
 		await tx.insert(r.profile).values({
-			id: created.insertId, generation: profile.generation + 1,
+			id: created.insertId,
+			generation: profile.generation + 1,
+			playRate: profile.playRate,
+			playMods: profile.playMods,
 		});
 		await tx.update(users)
 			.set({ currentCharacter: created.insertId })
@@ -433,20 +415,8 @@ export const performRebirth = async (
 	await reindexCharacter(r, row.id);
 	await reindexCharacter(r, characterId);
 
-	// The account's sockets and its roster entry were both keyed by the character
-	// that just gave up its place: without moving them, everything about the new
-	// one's plays reaches nobody, and the player drops off the community overlay.
-	hub.rekey(row.id, characterId);
-	await rekeyQueue(row.id, characterId);
-	const [fresh] = await db
-		.select()
-		.from(characters)
-		.where(eq(characters.id, characterId))
-		.limit(1);
-	if (fresh) {
-		await presenceRekey({
-			fromId: row.id, character: fresh, user,
-		});
-	}
+	// the one left behind keeps playing its queue; the account's clients reconnect
+	// onto the new one
+	await leaveOrPlayOn(watchedSlot(row));
 	return characterId;
 };

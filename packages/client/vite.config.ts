@@ -9,6 +9,8 @@ import {
 	type Plugin,
 } from 'vite';
 
+import catalogCompletion from './catalogCompletion';
+
 const MIME: Record<string, string> = {
 	'.osz': 'application/octet-stream',
 	'.jpg': 'image/jpeg',
@@ -53,6 +55,18 @@ function serveEncodedAssets(): Plugin {
 		},
 	};
 }
+
+/** How much of each language's game catalog is translated, for the language picker: the
+ *  catalogs themselves only load for the language in use. */
+const catalogCompletions = () => {
+	const dir = new URL('./src/locales/', import.meta.url);
+	return Object.fromEntries(fs.readdirSync(dir)
+		.filter(file => file.endsWith('.po'))
+		.map(file => [
+			file.slice(0, -'.po'.length),
+			catalogCompletion(fs.readFileSync(new URL(file, dir), 'utf8')),
+		]));
+};
 
 // https://vite.dev/config/
 /** The dev server follows public/.htaccess's /discord redirect too (prod is Apache). */
@@ -123,6 +137,7 @@ const profileReports = (): Plugin => ({
 });
 
 export default defineConfig({
+	define: { __CATALOG_COMPLETION__: JSON.stringify(catalogCompletions()) },
 	// `@vitejs/plugin-react` already runs Babel, so Lingui's macros transform
 	// through its babel plugin here - no separate SWC/Babel toolchain. The lingui
 	// plugin compiles the `.po` catalogs imported in src/i18n.ts.

@@ -16,7 +16,10 @@ import { characters } from './db/schema/character';
 import { toScoreDTO } from './db/schema/score';
 import { enabledRulesets } from './rulesets/registry';
 import type { ServerRuleset } from './rulesets/ruleset';
-import { SCORE_VERSION } from './sim';
+import {
+	SCORE_SYNC_VERSION,
+	SCORE_VERSIONS,
+} from './sim';
 
 /** Scores in a page of an account's history. */
 export const SCORE_PAGE = 5000;
@@ -33,16 +36,16 @@ export const scoreSyncState = async (userId: number) => {
 	const ids = await accountCharacters(userId);
 	const rulesets = enabledRulesets();
 	let pending = 0;
-	for (const { score } of ids.length ? rulesets : []) {
+	for (const { def, score } of ids.length ? rulesets : []) {
 		const [row] = await db
 			.select({ n: count() })
 			.from(score)
-			.where(and(inArray(score.characterId, ids), lt(score.version, SCORE_VERSION)));
+			.where(and(inArray(score.characterId, ids), lt(score.version, SCORE_VERSIONS[def.id])));
 		pending += row?.n ?? 0;
 	}
 	return {
 		userId,
-		version: SCORE_VERSION,
+		version: SCORE_SYNC_VERSION,
 		pending,
 		characters: ids,
 		rulesets: rulesets.map(r => r.def.id) as RulesetId[],

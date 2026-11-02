@@ -33,3 +33,10 @@ export const bakeCover = async (file: string): Promise<boolean> => {
 		return false;
 	}
 };
+
+/** Whether osu! serves covers for a set: an old one can have none (a 404). Unreachable
+ *  counts as served. */
+export const osuServesCover = (osuId: number) =>
+	fetch(`https://assets.ppy.sh/beatmaps/${osuId}/covers/cover.jpg`, {
+		method: 'HEAD', signal: AbortSignal.timeout(5000),
+	}).then(res => res.status !== 404, () => true);

@@ -12,6 +12,7 @@ import {
 	skillLevelMessage,
 } from '@oss-idle/shared/community/announcements';
 import { ANNOUNCE_CHANNEL } from '@oss-idle/shared/community/wire';
+import { RANK_EVENT_MAX } from '@oss-idle/shared/events';
 import { parseMods } from '@oss-idle/shared/mods';
 import { betterScore } from '@oss-idle/shared/scoreOrder';
 import {
@@ -59,9 +60,14 @@ import {
 	getSkillMilestones,
 	setSkillMilestone,
 } from './db/schema/skill_milestone';
+import {
+	characterEvent,
+	playcountEvent,
+} from './events';
 import { calculatePP } from './pp';
 import {
 	beatmapPageIds,
+	beatmapRank,
 	reindexCharacter,
 	unindexBeatmap,
 } from './rankings';
@@ -145,10 +151,15 @@ export async function submitScore(ruleset: ServerRuleset, draft: NewScoreRow) {
 		...draft, pp: '0',
 	} : draft);
 	const score = (await getScoreById(ruleset, ins.insertId))!;
-	await onSubmitScore(ruleset, score, true, loved);
+	const dethroned = await onSubmitScore(ruleset, score, true, loved);
+	await playcountEvent(ruleset.def.id, score.beatmapId);
+	if (dethroned !== undefined) await characterEvent(dethroned, ruleset.def.id, {
+		type: 'rankLost', beatmapId: score.beatmapId,
+	});
 	return score;
 }
 
+/** The score's aggregates; the character it took the map's #1 from, if any. */
 export const onSubmitScore = async (
 	ruleset: ServerRuleset,
 	score: ScoreRow,
@@ -165,7 +176,7 @@ export const onSubmitScore = async (
 	if (!(loved ?? await isLovedBeatmap(ruleset, score.beatmapId))) {
 		await checkNewBestPP(ruleset, score, recompute);
 	}
-	await checkNewFirstPlace(ruleset, score);
+	return checkNewFirstPlace(ruleset, score);
 };
 
 /**
@@ -255,6 +266,18 @@ export const checkNewFirstPlace = async (ruleset: ServerRuleset, score: ScoreRow
 	// Beating your own #1 is not news.
 	if (best?.characterId === score.characterId) return;
 	await announceFirstPlace(score);
+	return best?.characterId;
+};
+
+/** A new best high on its map's leaderboard is news, once the board has it indexed. */
+export const rankEvent = async (ruleset: ServerRuleset, score: ScoreRow) => {
+	const best = await getBestPlay(ruleset, score.characterId, score.beatmapId);
+	if (best?.id !== score.id) return;
+	const rank = await beatmapRank(ruleset, score.beatmapId, score.characterId);
+	if (rank === undefined || rank > RANK_EVENT_MAX) return;
+	await characterEvent(score.characterId, ruleset.def.id, {
+		type: 'rank', beatmapId: score.beatmapId, rank, grade: score.grade,
+	});
 };
 
 /** Hand a map's #1 to whoever now tops its leaderboard (a restriction lifted or set). */

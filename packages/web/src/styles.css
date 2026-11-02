@@ -187,8 +187,13 @@ html {
 
 body {
 	color: var(--text);
-	font-family: Urbanist, "Segoe UI", "Exo 2", system-ui, sans-serif;
+	font-family: Urbanist, "Exo 2", "Segoe UI", system-ui, sans-serif;
 	-webkit-font-smoothing: antialiased;
+}
+
+/* a Vietnamese word mixes letters from two fonts in Urbanist */
+body:lang(vi) {
+	font-family: "Exo 2 Latin", "Exo 2", "Segoe UI", system-ui, sans-serif;
 }
 
 [data-visibility] {
@@ -364,4 +369,32 @@ a:visited {
 
 .cta-button:hover svg {
 	transform: translateX(4px);
+}
+
+/* the game's options checkbox: pink ring, filled when on. No stock checkbox on the site. */
+input[type="checkbox"] {
+	flex: none;
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	border: 2px solid var(--pink-dark);
+	border-radius: 50%;
+	vertical-align: middle;
+	appearance: none;
+	cursor: pointer;
+	transition: background-color 120ms ease;
+}
+
+input[type="checkbox"]:checked {
+	background-color: var(--pink-dark);
+}
+
+input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--pink);
+	outline-offset: 2px;
+}
+
+input[type="checkbox"]:disabled {
+	opacity: 0.5;
+	cursor: default;
 }

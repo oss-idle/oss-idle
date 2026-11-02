@@ -13,6 +13,7 @@ import useAsync from '@oss-idle/shared/hooks/useAsync';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { music } from '../../audio/MusicPlayer';
+import { uiSound } from '../../audio/uiSounds';
 import { scoresVersion } from '../../db/schema/score';
 import {
 	SCORE_TAB,
@@ -123,6 +124,16 @@ export default function Leaderboard() {
 		return () => clearInterval(timer);
 	}, [board.key]);
 	const rows = scores.slice(0, arrived);
+
+	// osu!'s tick for each score that comes in where it can be seen
+	useEffect(() => {
+		const list = listRef.current;
+		const row = list?.children[arrived - 1] as HTMLElement | undefined;
+		if (!list || !row || row.offsetTop > list.scrollTop + list.clientHeight) return;
+		uiSound('songselect/leaderboard-score', {
+			pitch: 0.98 + Math.random() * 0.04, pan: -0.3, gap: 0, 
+		});
+	}, [arrived, board.key]);
 
 	// rows that moved (a score came in above them, or left) glide from where they were;
 	// only a board updating in place reads the layout, never a map switch

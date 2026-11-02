@@ -29,6 +29,10 @@ const SAMPLE_TICK_MS = 120;
 /** silence kept after the last sound before a track is considered finished. */
 const END_PAD_MS = 800;
 
+/** The song a map plays: a set's difficulties mostly share one. */
+export const trackOf = (map: LightBeatmap): string =>
+	`${map.metadata.runtime ? 'file' : 'clip'}:${map.set.metadata.id}/${map.metadata.audio}`;
+
 export class MusicPlayer {
 
 	public listeners = { beat: new Listener<(beat: number, time: number) => void>() };
@@ -36,11 +40,15 @@ export class MusicPlayer {
 	public readonly beatmap = new Synced<LightBeatmap | undefined>(undefined);
 	public readonly playing = new Synced(false);
 	public readonly mode = new Synced<PlayerMode>(PLAYER_MODE.PLAYLIST);
+	/** silenced while something else plays over it (a web page's preview) */
+	public readonly muted = new Synced(false);
 	
 	private _playing = false;
 	private raf = new Listener<() => void>();
 
 	private readonly audioSource = new Synced<string | undefined>(undefined);
+	/** the track the source was last asked for */
+	private track?: string;
 
 	private _audio?: HTMLAudioElement;
 	private get audio(): HTMLAudioElement {
@@ -59,6 +67,10 @@ export class MusicPlayer {
 		this.context = this.getAudioContext();
 
 		this.beatmap.sync(async beatmap => {
+			const track = beatmap && trackOf(beatmap);
+			// another difficulty of the same song: the song goes on
+			if (track && track === this.track) return void this.loadTimeline(beatmap);
+			this.track = track;
 			const src = await this.getAudioSource(beatmap);
 			// reads finish out of order when the selection moves on quickly
 			if (beatmap !== this.beatmap.get()) return revokeBlob(src);
@@ -85,9 +97,10 @@ export class MusicPlayer {
 		Synced.all([
 			SETTINGS.mainVolume,
 			SETTINGS.musicVolume,
-		], ([main, music]) => {
+			this.muted,
+		], () => {
 			if (!this._gain) return;
-			this._gain.gain.setTargetAtTime(music * main, this.context.currentTime, 0.05);
+			this._gain.gain.setTargetAtTime(this.volume(), this.context.currentTime, 0.05);
 		});
 
 		this.initBeatDetection();
@@ -206,7 +219,7 @@ export class MusicPlayer {
 		const ctx = audioContext;
 		this._source = ctx.createMediaElementSource(this.audio);
 		this._gain = ctx.createGain();
-		this._gain.gain.value = SETTINGS.musicVolume.get() * SETTINGS.mainVolume.get();
+		this._gain.gain.value = this.volume();
 		this._analyser = ctx.createAnalyser();
 		this._analyser.fftSize = 256;
 		this._analyser.smoothingTimeConstant = 0.78;
@@ -630,6 +643,7 @@ export class MusicPlayer {
 
 	/** Forget the decoded and stretched song: its file changed under the same name. */
 	forgetTrack(): void {
+		this.track = undefined;
 		this.decoded = undefined;
 		this.stretched = undefined;
 	}
@@ -704,8 +718,11 @@ export class MusicPlayer {
 	/** Ramp from silence up to the current music volume - used to soften an abrupt
 	 *  start when playback begins mid-song (e.g. the random startup track). */
 	fadeIn(ms = 800): void {
-		const target = SETTINGS.musicVolume.get() * SETTINGS.mainVolume.get();
-		this.changeGain(target, ms, 0);
+		this.changeGain(this.volume(), ms, 0);
+	}
+
+	private volume(): number {
+		return this.muted.get() ? 0 : SETTINGS.musicVolume.get() * SETTINGS.mainVolume.get();
 	}
 
 	private initRaf() {

@@ -30,7 +30,7 @@ const TOC: TocItem[] = [
 	]),
 ];
 
-/** Writing add-ons: the guide for authors, in the API docs' layout. English only, not sent to Crowdin. */
+/** Writing add-ons: the guide for authors, in the API docs' layout. English only, not sent for translation. */
 export default function AddonDocs() {
 	const active = useActiveHeading();
 	const [menu, setMenu] = useState(false);

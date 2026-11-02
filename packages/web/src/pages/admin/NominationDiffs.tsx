@@ -2,10 +2,12 @@ import {
 	MAP_TAGS,
 	type MapTag,
 } from '@oss-idle/shared/beatmap';
+import { nominatesIn } from '@oss-idle/shared/groups';
 import { rulesetOf } from '@oss-idle/shared/rulesets/ids';
 
 import type { Nomination } from '../../api/maps';
-import { ENABLED_RULESETS } from '../../rulesets';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { QUEUED_RULESETS } from '../../rulesets';
 
 type Diff = Nomination['diffs'][number];
 
@@ -21,6 +23,7 @@ export default function NominationDiffs({
 	onToggle: (beatmapId: number, ranked: boolean) => void;
 	onTags: (beatmapId: number, tags: MapTag[]) => void;
 }) {
+	const user = useCurrentUser() ?? undefined;
 	const title = (diff: Diff, locked: boolean): string => {
 		if (locked) return 'No ruleset here plays this difficulty';
 		if (diff.ranked) return 'Ranked — click to unrank this difficulty';
@@ -50,12 +53,14 @@ export default function NominationDiffs({
 		<div className='nomination__diffs'>
 			{diffs.map(diff => {
 				const ruleset = rulesetOf(diff.mode, diff.keys);
-				const locked = !ruleset || !ENABLED_RULESETS.includes(ruleset);
+				const locked = !ruleset || !QUEUED_RULESETS.includes(ruleset);
+				// another ruleset's difficulty is that ruleset's nominators'
+				const theirs = !!ruleset && nominatesIn(user, ruleset);
 				return (
 					<span key={diff.id} className={`nomination__diff-group ${diff.ranked ? 'is-ranked' : ''}`}>
 						<button
 							className={`nomination__diff ${diff.ranked ? 'is-ranked' : ''} ${locked ? 'is-locked' : ''}`}
-							disabled={busy || (locked && !diff.ranked)}
+							disabled={busy || !theirs || (locked && !diff.ranked)}
 							title={title(diff, locked)}
 							onClick={() => toggle(diff)}
 						>
@@ -67,7 +72,7 @@ export default function NominationDiffs({
 							<button
 								key={tag}
 								className={`nomination__diff-tag ${diff.tags.includes(tag) ? 'is-on' : ''}`}
-								disabled={busy}
+								disabled={busy || !theirs}
 								onClick={() => toggleTag(diff, tag)}
 							>
 								{tag.toUpperCase()}{hint(diff, tag)}

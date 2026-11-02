@@ -72,3 +72,21 @@
 	color: hsl(var(--hsl-c2));
 	font-size: 14px;
 }
+
+.team-member__rulesets {
+	display: flex;
+	gap: 12px;
+	margin-left: auto;
+}
+
+.team-member__rulesets label {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.team-member__rulesets + .team-member__actions {
+	margin-left: 12px;
+}

@@ -12,6 +12,7 @@ import { rulesetDef } from '../../rulesets';
 import Flag from '../Flag';
 import Link from '../Link';
 import Pager from './Pager';
+import { useBoardRuleset } from './useBoardRuleset';
 
 type Players = Awaited<ReturnType<typeof getMedalRanking>>;
 
@@ -20,6 +21,7 @@ export default function PlayerMedalLeaderboard({ page, players }: {
 	players: Players,
 }) {
 	const self = useCurrentCharacter();
+	const medalCount = rulesetDef(useBoardRuleset()).medals.medals.length;
 	return (<div className='player__lb'>
 		<div className='player__lb_scroll'>
 			<table className='player__lb_listing'>
@@ -43,7 +45,7 @@ export default function PlayerMedalLeaderboard({ page, players }: {
 							<Link to='/c/$id' params={{ id: String(player.character.id) }}>{player.character.name}</Link>
 						</div></td>
 						<td className='dimmed'>{num(player.totals.playCount)}</td>
-						<td className='dimmed'>{player.medals.held} / {rulesetDef().medals.medals.length}</td>
+						<td className='dimmed'>{player.medals.held} / {medalCount}</td>
 						<td className='current'>{num(player.medals.score, 2)}</td>
 					</tr>)}
 				</tbody>

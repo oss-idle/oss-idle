@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { geneticsSchema } from './genetics.js';
 import {
 	type Grade,
 	Grades,
@@ -40,11 +41,13 @@ export const characterDTO = z.object({
 	// Rebirth number, 1 for a first character: its unlock set is the first
 	// generation - 1 entries of REBIRTH_UNLOCKS.
 	generation: z.number().int().positive(),
-	// Drives the rebirth requirement.
+	// What the lifetime xp buys: shown, and the rebirth requirement.
 	overallLevel: z.number().int().min(0),
 	skills: skillsDTO,
 	// What a running play has deferred to its end, in the order it was asked for.
 	pendingActions: pendingActionDTO.array().optional(),
+	// Its genetic and genes, in a ruleset that has them.
+	genetics: geneticsSchema.optional(),
 });
 export type CharacterDTO = z.infer<typeof characterDTO>;
 

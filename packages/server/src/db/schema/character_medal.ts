@@ -14,6 +14,10 @@ import {
 
 import type { MedalBatch } from '@oss-idle/shared/play';
 
+import {
+	characterEvent,
+	removeMedalEvents,
+} from '../../events';
 import type { ServerRuleset } from '../../rulesets/ruleset';
 import { db } from '../client';
 import { characters } from './character';
@@ -61,6 +65,11 @@ export const addMedals = async (
 		.values(fresh.map(medalId => ({
 			characterId, medalId,
 		})));
+	for (const medalId of fresh) {
+		await characterEvent(characterId, t.def.id, {
+			type: 'achievement', medalId,
+		});
+	}
 	return {
 		ids: fresh, held: held.size + fresh.length,
 	};
@@ -68,11 +77,12 @@ export const addMedals = async (
 
 /** Take medals back: only a score reprocess does. */
 export const removeMedals = async (
-	{ medals: characterMedals }: ServerRuleset,
+	{ medals: characterMedals, def }: ServerRuleset,
 	characterId: number,
 	ids: string[],
 ) => {
 	if (!ids.length) return;
 	await db.delete(characterMedals)
 		.where(and(eq(characterMedals.characterId, characterId), inArray(characterMedals.medalId, ids)));
+	await removeMedalEvents(characterId, def.id, ids);
 };

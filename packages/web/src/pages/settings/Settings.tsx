@@ -3,6 +3,8 @@ import './Settings.css';
 import { Trans } from '@lingui/react/macro';
 
 import { useCurrentCharacter } from '../../hooks/useCurrentCharacter';
+import { PBE } from '../../pbe/pbe';
+import SupporterSettings from '../../pbe/SupporterSettings';
 import EmojiSettings from './EmojiSettings';
 import ItchSettings, { type ItchClaim } from './ItchSettings';
 import OAuthSettings from './OAuthSettings';
@@ -16,6 +18,12 @@ export default function Settings({ itch }: { itch?: ItchClaim }) {
 	}
 
 	return <div className='settings'>
+		{PBE && <div className='settings__section'>
+			<div className='settings__name'>PBE</div>
+			<div className='settings__body'>
+				<SupporterSettings />
+			</div>
+		</div>}
 		<div className='settings__section'>
 			<div className='settings__name'><Trans>Title</Trans></div>
 			<div className='settings__body'>
@@ -28,12 +36,12 @@ export default function Settings({ itch }: { itch?: ItchClaim }) {
 				<EmojiSettings />
 			</div>
 		</div>
-		<div className='settings__section'>
+		{!PBE && <div className='settings__section'>
 			<div className='settings__name'>itch.io</div>
 			<div className='settings__body'>
 				<ItchSettings claim={itch} />
 			</div>
-		</div>
+		</div>}
 		<div className='settings__section'>
 			<div className='settings__name'><Trans>OAuth</Trans></div>
 			<div className='settings__body'>

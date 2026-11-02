@@ -32,20 +32,30 @@ export const IS_DEV = !app.isPackaged;
 
 /** A staging build: packaged like prod, but its package.json (written by the build)
  *  names a staging server for the API and the website. */
-export const STAGING = (JSON.parse(
+const META = JSON.parse(
 	fs.readFileSync(path.join(app.getAppPath(), 'package.json'), 'utf8'),
-) as { staging?: { api: string; site: string; stream?: string; streams?: string } }).staging;
+) as {
+	staging?: { api: string; site: string; stream?: string; streams?: string };
+	pbe?: { api: string; site: string };
+};
+export const STAGING = META.staging;
+
+/** A PBE build: a release in all but its server, written by its build like staging's. */
+export const PBE = META.pbe;
+
+/** A separate install beside the real game: its own save, and no oss-idle:// links. */
+export const OTHER_INSTALL = STAGING ? 'oss!idle staging' : PBE && 'oss!idle PBE';
 
 /** Backend API base (absolute - the renderer loads from app://, not the API). */
 export const API_BASE = IS_DEV
 	? 'http://localhost:3873'
-	: STAGING?.api ?? 'https://api.oss.idle.rhythmgamers.net';
+	: STAGING?.api ?? PBE?.api ?? 'https://api.oss.idle.rhythmgamers.net';
 
 /** What the main window loads: the live Vite dev server, or the bundled origin. */
 export const RENDERER_URL = IS_DEV ? 'http://localhost:5173/' : `${APP_ORIGIN}/`;
 
 /** The website origin (the signed-in page after a desktop login). */
-export const SITE_BASE = STAGING?.site ?? 'https://oss.idle.rhythmgamers.net';
+export const SITE_BASE = STAGING?.site ?? PBE?.site ?? 'https://oss.idle.rhythmgamers.net';
 
 /** On-disk root of a bundled renderer ('client' or 'web'). Packaged: copied under
  *  resources/renderer (see electron-builder `extraResources`). Unpackaged: each

@@ -84,9 +84,11 @@ function BeatmapCard({
 	const [scoresV] = useSynced(scoresVersion);
 	const [pickedRate] = useSynced(selectedRate);
 	const rate = beatmap.lockedRate ?? pickedRate ?? 1;
-	const grade = useAsync(async () => 
-		(await Score.bestAtRate(character.id, beatmap.metadata.id, rate))?.grade
-	, [beatmap, character.id, scoresV, rate]);
+	const [anyRate] = useSynced(SETTINGS.bestGradeAnyRate);
+	const grade = useAsync(async () => (anyRate
+		? await Score.best(character.id, beatmap.metadata.id)
+		: await Score.bestAtRate(character.id, beatmap.metadata.id, rate)
+	)?.grade, [beatmap, character.id, scoresV, rate, anyRate]);
 
 	const version = useRatedVersion(beatmap);
 	useSynced(liveSpeedUpgrades);
@@ -130,6 +132,7 @@ function BeatmapCard({
 			className={cardClassName(active, sibling, downloaded, reachable)}
 			data-id={beatmap.metadata.id}
 			data-lock={beatmap.lock}
+			data-sound="hover"
 			onClick={handleClick}
 			style={bg ? { backgroundImage: `url("${bg}")` } : undefined}
 		>

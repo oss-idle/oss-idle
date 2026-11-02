@@ -1,5 +1,6 @@
 /**
- * Reprocess the 4K scores set on an older score version (`version` below sim.ts SCORE_VERSION):
+ * Reprocess a ruleset's scores set on an older score version (`version` below sim.ts
+ * SCORE_VERSIONS; --ruleset, mania 4k when left out):
  * each play simulated again on the server's sim, at the skills the character had
  * when it set it (state.ts, from the dumps snapshots.ts loaded), as tired and with
  * as much memory of the map as it had then. A play whose window is ambiguous keeps
@@ -7,14 +8,17 @@
  * each one tires the next; characters spread over the workers.
  *
  * --live runs beside the server: it keeps taking the plays still landing on the old
- * version and stops once the server says it simulates on SCORE_VERSION and no play started
+ * version and stops once the server says it simulates on that version and no play started
  * before that is left. --check N plays N stored scores again on the old sim instead,
  * writing nothing, to see where each fell among what its rebuilt state could score.
  *
+ * A play that fails every try failed: it is deleted, as 1.3 keeps no failed play.
+ *
  * A replayed character's medals follow its new scores both ways (medals.ts
  * recalculateMedals), and once every score is replayed a last pass does it for every
- * character with 4K scores, replayed or not. --medals runs that pass alone,
- * --medals --dry-run only reports what it would add and remove.
+ * character with scores in the ruleset, replayed or not. --medals runs that pass alone,
+ * --medals --dry-run only reports what it would add and remove. --no-medals leaves medals
+ * alone; --no-rankings skips the rankings rebuild at the start (the server's own boards).
  *
  *   tsx src/db/reprocess/reprocess.ts [--workers 24] [--live] [--only 12,34] [--check 300 --draws 16]
  *   tsx src/db/reprocess/reprocess.ts --medals [--dry-run]
@@ -23,8 +27,10 @@ import { fork } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import {
+	and,
 	eq,
 	getTableName,
+	inArray,
 	sql,
 } from 'drizzle-orm';
 import type { AnyMySqlColumn } from 'drizzle-orm/mysql-core';
@@ -44,14 +50,15 @@ import {
 } from '@oss-idle/shared/mods';
 import { hasUnlock } from '@oss-idle/shared/rebirth';
 import type { ScoreLike } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
-import type { SkillName } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import type {
 	ManiaSim,
 	SimPlay,
+	Sims,
 } from '@oss-idle/shared/rulesets/mania/sim';
 import { publicSims } from '@oss-idle/shared/rulesets/mania/sims';
 import { betterScore } from '@oss-idle/shared/scoreOrder';
 
+import { redisKeyPrefix } from '../../env';
 import { activateServerI18n } from '../../i18n';
 import {
 	type MedalChanges,
@@ -69,11 +76,12 @@ import {
 	versionKey,
 } from '../../redis';
 import { STRAINED_4K } from '../../rulesets/mania/4k/simState';
+import { STRAINED_7K } from '../../rulesets/mania/7k/play';
 import { runManiaPlay } from '../../rulesets/mania/simulate';
 import { playStrain } from '../../rulesets/mania/xpRules';
 import {
 	loadRulesets,
-	rulesetFor,
+	rulesetFromArgs,
 } from '../../rulesets/registry';
 import type { ServerRuleset } from '../../rulesets/ruleset';
 import {
@@ -84,9 +92,13 @@ import {
 } from '../../scores';
 import {
 	loadSim,
-	SCORE_VERSION,
+	SCORE_VERSIONS,
 	sim,
 } from '../../sim';
+import {
+	parseSlot,
+	type Slot,
+} from '../../slot';
 import {
 	db,
 	pool,
@@ -118,11 +130,12 @@ const flag = (name: string) => process.argv.includes(`--${name}`);
 const WORKERS = Number(arg('workers') ?? 1);
 const LIVE = flag('live');
 const CHECK = Number(arg('check') ?? 0);
+const MEDALS = !flag('no-medals');
+const RANKINGS = !flag('no-rankings');
 const DRAWS = Number(arg('draws') ?? 16);
 /** only these characters, to try it on a few */
 const ONLY = arg('only')?.split(',').map(Number);
-/** A failed draw is played again this many times, then once more without failing:
- *  the stored play passed. */
+/** A failed draw is played again this many times; failing every time, the play failed. */
 const RETRIES = 4;
 const CHARTS_KEPT = 64;
 const WRITE_CHUNK = 500;
@@ -135,6 +148,11 @@ const discrete = (skill: string, field: 'upgrades' | 'overdrive' | 'prestige') =
 const decoder = new BeatmapDecoder();
 let r: ServerRuleset;
 let scores: string;
+let scoreVersion: number;
+let strainedOf: Readonly<Record<string, number>>;
+
+const simOf = (sims: Sims) =>
+	sims[r.def.id as keyof Sims] as unknown as ManiaSim<string, ScoreLike>;
 
 type Chart = { text: string, beatmap: Beatmap, loved: boolean, stars: number };
 const charts = new Map<number, Chart>();
@@ -280,14 +298,14 @@ const walk = async (
 
 /** One try of a play on `on`: its whole play natively when it has one, its bot through
  *  the game's engine otherwise and for a play that must not fail (`play` can't). */
-const attempt = (on: ManiaSim<SkillName, ScoreLike>, play: SimPlay<SkillName>, input: {
+const attempt = (on: ManiaSim<string, ScoreLike>, play: SimPlay<string>, input: {
 	chart: Chart, rate: number, mods: Mod[], divine: boolean, noFail: boolean,
 }) => {
 	const { chart, rate, mods, divine, noFail } = input;
 	if (on.play && !noFail) {
 		const played = on.play({
 			chart: chart.text, beatmap: chart.beatmap, play, rate, mods, divine, round: false,
-			strained: STRAINED_4K, gauged: [], scoreOnly: true,
+			strained: strainedOf, gauged: [], scoreOnly: true,
 		});
 		return {
 			played, share: played.strainedShare,
@@ -298,21 +316,21 @@ const attempt = (on: ManiaSim<SkillName, ScoreLike>, play: SimPlay<SkillName>, i
 		divine, rate, mods, playOn: false, noFail,
 	}, false);
 	return {
-		played, share: bot.strainedShare(STRAINED_4K),
+		played, share: bot.strainedShare(strainedOf),
 	};
 };
 
 const playOf = (
 	progress: Record<string, Progress>,
 	{ fatigue, warm, plays }: Pick<Situation, 'fatigue' | 'warm' | 'plays'>,
-): SimPlay<SkillName> => ({
+): SimPlay<string> => ({
 	progress: skill => progress[skill], fatigue, warm, plays,
 });
 
 /** One draw of a play on `on`, failing draws replayed: the stored play passed. With the
  *  minutes it strained, which tire the plays after it. */
 const draw = (
-	on: ManiaSim<SkillName, ScoreLike>,
+	on: ManiaSim<string, ScoreLike>,
 	progress: Record<string, Progress>,
 	ch: Character,
 	row: ScoreRow,
@@ -331,8 +349,10 @@ const draw = (
 		});
 		if (!played.failedAt) return {
 			played,
-			strained: playStrain(STRAINED_4K, { strainedShare: () => share }, lengthMs),
+			strained: playStrain(strainedOf, { strainedShare: () => share }, lengthMs),
 			retried: i,
+			// the last try plays on without failing only for the strain it leaves
+			failed: i > RETRIES,
 		};
 	}
 };
@@ -343,10 +363,10 @@ const strains = new Map<number, number>();
 const RESULT = ['score', 'accuracy', 'maxCombo', 'grade', 'pp', 'ur', 'pfc', 'version'] as const;
 
 /** Write the reprocessed plays back over themselves, then everything their bests feed. */
-const store = async (ch: Character, replayed: ScoreRow[]) => {
+const store = async (ch: Character, replayed: ScoreRow[], gone: ScoreRow[]) => {
 	// a map unranked, deleted or updated while the character replayed took its scores with
 	// it, and a map loved since pays no pp: as they stand now, never as they were loaded
-	const touched = [...new Set(replayed.map(row => row.beatmapId))];
+	const touched = [...new Set([...replayed, ...gone].map(row => row.beatmapId))];
 	const alive = new Set((await query<{ id: number }>(
 		`SELECT id FROM ${scores} WHERE character_id = ? AND beatmap_id IN (?)`, [ch.id, touched],
 	)).map(row => row.id));
@@ -355,6 +375,17 @@ const store = async (ch: Character, replayed: ScoreRow[]) => {
 	for (const beatmapId of touched) if (await isLovedBeatmap(r, beatmapId)) loved.add(beatmapId);
 	const done = replayed.filter(row => alive.has(row.id));
 	for (const row of done) if (loved.has(row.beatmapId)) row.pp = '0';
+	const failed = gone.filter(row => alive.has(row.id));
+	if (failed.length) {
+		await db.delete(r.score).where(inArray(r.score.id, failed.map(row => row.id)));
+	}
+	// a failed play is no pass of the map
+	for (const [beatmapId, plays] of Map.groupBy(failed, row => row.beatmapId)) {
+		await query(`UPDATE ${getTableName(r.played)} SET plays = GREATEST(plays - ?, 0)
+			WHERE character_id = ? AND beatmap_id = ?`, [plays.length, ch.id, beatmapId]);
+		await query('UPDATE beatmap SET plays = GREATEST(plays - ?, 0) WHERE id = ?',
+			[plays.length, beatmapId]);
+	}
 
 	const columns = [...RESULT, ...r.def.judgements] as (keyof ScoreRow)[];
 	const table = r.score as unknown as Record<string, AnyMySqlColumn>;
@@ -363,10 +394,20 @@ const store = async (ch: Character, replayed: ScoreRow[]) => {
 		await db.insert(r.score).values(done.slice(i, i + WRITE_CHUNK)).onDuplicateKeyUpdate({ set });
 	}
 
-	const maps = new Set(done.map(row => row.beatmapId));
-	const standing = ch.rows.filter(row => maps.has(row.beatmapId) && alive.has(row.id));
+	const maps = new Set([...done, ...failed].map(row => row.beatmapId));
+	const failedIds = new Set(failed.map(row => row.id));
+	const standing = ch.rows.filter(row =>
+		maps.has(row.beatmapId) && alive.has(row.id) && !failedIds.has(row.id));
 	const byMap = Map.groupBy(standing, row => row.beatmapId);
-	for (const [beatmapId, plays] of byMap) {
+	for (const beatmapId of maps) {
+		const plays = byMap.get(beatmapId);
+		if (!plays) {
+			const mine = (t: typeof r.best | typeof r.bestPP) =>
+				and(eq(t.characterId, ch.id), eq(t.beatmapId, beatmapId));
+			await db.delete(r.best).where(mine(r.best));
+			await db.delete(r.bestPP).where(mine(r.bestPP));
+			continue;
+		}
 		await setNewBestPlay(r, plays.reduce((a, b) => betterScore(b, a) ? b : a));
 		if (!loved.has(beatmapId)) {
 			await setNewBestPPPlay(r, plays.reduce((a, b) => compareScoresPP(b, a) ? b : a));
@@ -379,11 +420,13 @@ const store = async (ch: Character, replayed: ScoreRow[]) => {
 		await reindexBeatmap(r, ch.id, beatmapId);
 		await recomputeFirstPlace(beatmapId);
 	}
-	return recalculateMedals(r, ch.id);
+	return MEDALS ? recalculateMedals(r, ch.id) : {
+		added: [], removed: [],
+	};
 };
 
 type Tally = Record<
-	'played' | 'kept' | 'x' | 'xLost' | 'ambiguous' | 'retried' | 'noFail' | 'noChart', number
+	'played' | 'kept' | 'x' | 'xLost' | 'ambiguous' | 'retried' | 'failed' | 'noChart', number
 >;
 
 /** Stored grades a replay takes away only when the sim can't reach them: a player
@@ -425,37 +468,48 @@ const keepsX = async (ch: Character, row: ScoreRow, situation: Situation) => {
 	for (let i = 0; i < X_TRIES; i++) {
 		// the skills' syncs settle on the event loop
 		if (i % 100 === 99) await sleep(0);
-		const { played } = attempt(sim().mania4k, play, input);
+		const { played } = attempt(simOf(sim()), play, input);
 		if (!played.failedAt && KEPT_GRADES.includes(played.grade)) reached++;
 	}
 	return reached / X_TRIES > X_MIN_CHANCE;
 };
 
+/** Whether the row's stored X or XX stays, tallied. */
+const keptX = async (ch: Character, row: ScoreRow, situation: Situation, tally: Tally) => {
+	if (!KEPT_GRADES.includes(row.grade)) return false;
+	const x = await keepsX(ch, row, situation);
+	tally[x ? 'x' : 'xLost']++;
+	return x;
+};
+
 /** Play one row again; a row on an older version takes the result. Returns its strained
  *  minutes, which a row already on this version only needs for the plays after it. */
 const replay = async (
-	ch: Character, row: ScoreRow, situation: Situation, tally: Tally, done: ScoreRow[],
+	ch: Character, row: ScoreRow, situation: Situation, tally: Tally, done: ScoreRow[], gone: ScoreRow[],
 ) => {
-	const current = row.version >= SCORE_VERSION;
+	const current = row.version >= scoreVersion;
 	const cached = strains.get(row.id);
 	if (current && cached !== undefined) return cached;
-	const drawn = draw(sim().mania4k, situation.skills.progress, ch, row, situation);
+	const drawn = draw(simOf(sim()), situation.skills.progress, ch, row, situation);
 	const { strained } = drawn;
 	strains.set(row.id, strained);
 	if (current) return strained;
 
 	tally.played++;
 	if (drawn.retried) tally.retried++;
-	if (drawn.retried > RETRIES) tally.noFail++;
 	if (situation.ambiguous) tally.ambiguous++;
 	const result = resultOf(row, drawn, situation.chart);
-	const x = KEPT_GRADES.includes(row.grade) && await keepsX(ch, row, situation);
-	if (x) tally.x++;
-	else if (KEPT_GRADES.includes(row.grade)) tally.xLost++;
+	const x = await keptX(ch, row, situation, tally);
+	row.version = scoreVersion;
+	if (drawn.failed && !x) {
+		tally.failed++;
+		gone.push(row);
+		return strained;
+	}
 	// an ambiguous window only ever lowers a play
 	const keep = x || (situation.ambiguous && betterScore(result, row));
 	if (keep) tally.kept++;
-	Object.assign(row, keep ? {} : result, { version: SCORE_VERSION });
+	Object.assign(row, keep ? {} : result, { version: scoreVersion });
 	done.push(row);
 	return strained;
 };
@@ -466,22 +520,24 @@ const reprocessCharacter = async (id: number) => {
 	charts.clear();
 	const ch = await characterOf(id);
 	const tally: Tally = {
-		played: 0, kept: 0, x: 0, xLost: 0, ambiguous: 0, retried: 0, noFail: 0, noChart: 0,
+		played: 0, kept: 0, x: 0, xLost: 0, ambiguous: 0, retried: 0, failed: 0, noChart: 0,
 	};
 	const done: ScoreRow[] = [];
+	const gone: ScoreRow[] = [];
 	for (const window of windowsOf(ch.anchors, ch.rows)) {
-		const last = window.plays.findLastIndex(row => row.version < SCORE_VERSION);
+		const last = window.plays.findLastIndex(row => row.version < scoreVersion);
 		if (last === -1) continue;
-		await walk(ch, window, last, async (row, situation) => replay(ch, row, situation, tally, done));
+		await walk(ch, window, last, async (row, situation) =>
+			replay(ch, row, situation, tally, done, gone));
 		// a play on a map we no longer have is left as it was, but done
-		for (const row of window.plays.slice(0, last + 1).filter(row => row.version < SCORE_VERSION)) {
+		for (const row of window.plays.slice(0, last + 1).filter(row => row.version < scoreVersion)) {
 			tally.noChart++;
-			row.version = SCORE_VERSION;
+			row.version = scoreVersion;
 			done.push(row);
 		}
 	}
-	if (!done.length) return;
-	const medals = await store(ch, done);
+	if (!done.length && !gone.length) return;
+	const medals = await store(ch, done, gone);
 	const seconds = Math.round((Date.now() - started) / 1000);
 	console.log(`character ${id}: ${done.length} plays in ${seconds}s`, JSON.stringify(tally),
 		medalsLog(medals));
@@ -490,7 +546,7 @@ const reprocessCharacter = async (id: number) => {
 const medalsLog = ({ added, removed }: MedalChanges) =>
 	added.length || removed.length ? `medals +[${added.join(' ')}] -[${removed.join(' ')}]` : '';
 
-/** Every character with 4K scores, its medals against its scores now: applied, or with
+/** Every character with scores in the ruleset, its medals against its scores now: applied, or with
  *  `dryRun` only told. With how many characters gain and lose each medal. */
 const medalPass = async (dryRun: boolean) => {
 	const ids = await query<{ id: number }>(`SELECT DISTINCT character_id id FROM ${scores}`, []);
@@ -517,33 +573,33 @@ const medalPass = async (dryRun: boolean) => {
 	}
 };
 
-/** The plays the server started before it simulated on SCORE_VERSION and has not stored yet. */
+/** The ruleset's plays the server started before it simulated on its version and has not stored yet. */
 const oldPlaysPending = async () => {
-	const prefix = versionKey.slice(0, -'score-version'.length);
 	let cursor = '0';
 	do {
-		const [next, keys] = await redis.scan(cursor, 'MATCH', `${prefix}play:*`, 'COUNT', 500);
+		const [next, keys] = await redis.scan(cursor, 'MATCH', `${redisKeyPrefix}play:*`, 'COUNT', 500);
 		cursor = next;
 		for (const key of keys) {
+			if (parseSlot(key.slice(`${redisKeyPrefix}play:`.length) as Slot).ruleset !== r.def.id) continue;
 			const play = JSON.parse(await redis.get(key) ?? '{}') as { draft?: { version?: number } };
-			if (play.draft && (play.draft.version ?? 1) < SCORE_VERSION) return true;
+			if (play.draft && (play.draft.version ?? 1) < scoreVersion) return true;
 		}
 	} while (cursor !== '0');
 	return false;
 };
 
-/** No old play can land any more: the server simulates on SCORE_VERSION and none it started before is left. */
+/** No old play can land any more: the server simulates on the version and none it started before is left. */
 const settled = async () =>
-	Number(await redis.get(versionKey) ?? 0) >= SCORE_VERSION && !await oldPlaysPending();
+	Number(await redis.get(versionKey(r.def.id)) ?? 0) >= scoreVersion && !await oldPlaysPending();
 
 /** A worker's hold on a character while it replays it: one worker per character. */
-const claimKey = (id: number | string) => `${versionKey}:claim:${id}`;
+const claimKey = (id: number | string) => `${versionKey(r.def.id)}:claim:${id}`;
 const CLAIM_S = 24 * 3600;
 
 /** The characters with plays left on an older version, the most plays first. */
 const pendingCharacters = () => query<{ character_id: number }>(
 	`SELECT character_id FROM ${scores} WHERE version < ?${ONLY ? ' AND character_id IN (?)' : ''}
-	GROUP BY character_id ORDER BY COUNT(*) DESC`, [SCORE_VERSION, ONLY]);
+	GROUP BY character_id ORDER BY COUNT(*) DESC`, [scoreVersion, ONLY]);
 
 /** Replay every pending character no other worker holds. How many it took. */
 const takeCharacters = async (shard: number, pending: { character_id: number }[]) => {
@@ -605,7 +661,7 @@ const check = async () => {
 			const old = situation.skills.old;
 			if (!old) return 0;
 			if (row.id !== sample.id) {
-				return draw(publicSims.mania4k, old, ch, row, situation).strained;
+				return draw(simOf(publicSims), old, ch, row, situation).strained;
 			}
 			const now = Object.fromEntries(r.def.skills.map(s => {
 				const [level, xp, upgrades, overdrive, prestige, lifetimeXp] = ch.today.skills[s];
@@ -614,7 +670,7 @@ const check = async () => {
 				}];
 			}));
 			const scores = (progress: Record<string, Progress>) => Array.from({ length: DRAWS },
-				() => draw(publicSims.mania4k, progress, ch, row, situation).played.score);
+				() => draw(simOf(publicSims), progress, ch, row, situation).played.score);
 			rebuilt.push(rankAmong(row, scores(old)));
 			today.push(rankAmong(row, scores(now)));
 			console.log(`${rebuilt.length}/${CHECK} score ${row.id}:`
@@ -630,7 +686,7 @@ const check = async () => {
 };
 
 const older = async () => (await query<{ n: number }>(
-	`SELECT COUNT(*) n FROM ${scores} WHERE version < ?`, [SCORE_VERSION]))[0].n;
+	`SELECT COUNT(*) n FROM ${scores} WHERE version < ?`, [scoreVersion]))[0].n;
 
 /** This script again as worker `shard`, to its exit code. */
 const worker = (shard: number) => new Promise<number>(resolve => {
@@ -642,8 +698,10 @@ const main = async () => {
 	activateServerI18n();
 	await loadRulesets();
 	await loadSim();
-	r = rulesetFor('mania4k');
+	r = rulesetFromArgs();
 	scores = getTableName(r.score);
+	scoreVersion = SCORE_VERSIONS[r.def.id];
+	strainedOf = r.def.id === 'mania7k' ? STRAINED_7K : STRAINED_4K;
 	const shard = arg('worker');
 
 	if (shard !== undefined) {
@@ -653,18 +711,18 @@ const main = async () => {
 		await check();
 	} else if (flag('medals')) {
 		// the top-% medals read the rankings
-		await ensureRankings();
+		if (RANKINGS) await ensureRankings();
 		await medalPass(flag('dry-run'));
 	} else {
-		await ensureRankings();
+		if (RANKINGS) await ensureRankings();
 		// a worker that died holding a character must not keep it
 		for (const key of await redis.keys(claimKey('*'))) await redis.del(key);
-		console.log(`${await older()} scores below version ${SCORE_VERSION}, ${WORKERS} workers`
+		console.log(`${await older()} scores below version ${scoreVersion}, ${WORKERS} workers`
 			+ `${LIVE ? ', live' : ''}, sim ${sim().name} ${sim().version}`);
 		const codes = await Promise.all(Array.from({ length: WORKERS }, (_, i) => worker(i)));
-		console.log(`done: ${await older()} scores left below version ${SCORE_VERSION}`);
+		console.log(`done: ${await older()} scores left below version ${scoreVersion}`);
 		if (codes.some(Boolean)) process.exitCode = 1;
-		else await medalPass(false);
+		else if (MEDALS) await medalPass(false);
 	}
 	await redis.quit();
 	process.exit(process.exitCode ?? 0);

@@ -56,10 +56,9 @@ export default class LightBeatmap {
 	}
 
 	public async load(): Promise<Beatmap> {
-		const set = new BeatmapSet(this.set.metadata.id);
-		const maps = await set.beatmaps;
-		if (!maps[this.metadata.id]) throw new Error(`Loaded invalid beatmap ${this.metadata.id} from set ${this.set.metadata.id}`);
-		return maps[this.metadata.id];
+		const beatmap = await new BeatmapSet(this.set.metadata.id).beatmap(this.metadata.id);
+		if (!beatmap) throw new Error(`Loaded invalid beatmap ${this.metadata.id} from set ${this.set.metadata.id}`);
+		return beatmap;
 	}
 
 	public async getBackgroundUri(): Promise<string | undefined> {

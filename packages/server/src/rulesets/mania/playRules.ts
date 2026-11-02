@@ -5,6 +5,10 @@ import {
 	warmupBar,
 } from '@oss-idle/shared/fatigue';
 import {
+	fatigueGenes,
+	type GeneticsDef,
+} from '@oss-idle/shared/genetics';
+import {
 	compareGradeGT,
 	compareGradeGTE,
 	GRADE,
@@ -12,6 +16,7 @@ import {
 } from '@oss-idle/shared/grade';
 
 import {
+	geneticsOf,
 	type ProfileRow,
 	skillOf,
 } from '../../db/schema/character';
@@ -29,13 +34,17 @@ import {
 } from './xpRules';
 
 /** How tired and warmed up the character plays right now: warm-up gear warms it faster. */
-export const tiredness = (warmupSkill: string) => (profile: ProfileRow): Tiredness => {
-	const tired = restedFatigue(profile.fatigue ?? undefined, Date.now());
+export const tiredness = (
+	warmupSkill: string,
+	genetics?: GeneticsDef,
+) => (profile: ProfileRow): Tiredness => {
+	const genes = fatigueGenes(genetics, geneticsOf(profile));
 	const { upgrades } = skillOf(profile, warmupSkill);
+	const tired = restedFatigue(profile.fatigue ?? undefined, Date.now(), genes, upgrades);
 	return {
 		fatigue: fatigueLevel(tired),
-		warmup: warmup(tired, upgrades),
-		warmupBar: warmupBar(tired, upgrades),
+		warmup: warmup(tired, upgrades, genes),
+		warmupBar: warmupBar(tired, upgrades, genes),
 	};
 };
 
@@ -47,11 +56,12 @@ export const serverXp = async <S extends string>(
 	beatmapId: number,
 	skillXp: Record<S, number>,
 	{
-		grade, stars, ...rules
+		grade, stars, genetics, ...rules
 	}: XpRules<S> & {
 		grade: Grade,
 		/** the map's stars at the play's rate */
 		stars: number,
+		genetics?: Readonly<Record<string, number>>,
 	},
 ): Promise<Record<S, number>> => {
 	const topGrade = await bestGradeOn(r, characterId, beatmapId);
@@ -61,5 +71,6 @@ export const serverXp = async <S extends string>(
 		mindblock: mindblockFactor(await recentMapPlays(r, characterId, beatmapId)),
 		medals: await medalMultiplier(r, characterId),
 		firstX: firstX ? Math.floor(1000 * stars) : 0,
+		genetics,
 	});
 };

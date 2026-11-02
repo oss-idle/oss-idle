@@ -9,6 +9,7 @@ import {
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { music } from '../audio/MusicPlayer';
 import { copyText } from '../clipboard';
 import {
 	isWebOpen,
@@ -60,6 +61,16 @@ export default function WebBrowser() {
 
 	const frameWindow = () => frameRef.current?.contentWindow ?? undefined;
 
+	// a map's preview on the page plays over the music, muted meanwhile
+	useEffect(() => {
+		const onMessage = (e: MessageEvent<{ type?: string, playing?: boolean }>) => {
+			if (e.source !== frameWindow() || e.data?.type !== 'oss-idle:preview') return;
+			void music.muted.set(!!e.data.playing);
+		};
+		window.addEventListener('message', onMessage);
+		return () => window.removeEventListener('message', onMessage);
+	}, []);
+
 	// Create the iframe on first open and never tear it down. Each open sends it
 	// to the asked page, which may be the url it was last opened on.
 	useEffect(() => {
@@ -95,7 +106,10 @@ export default function WebBrowser() {
 		});
 		// Re-show the spinner the instant the next full navigation starts, so the
 		// game never flashes inside the frame while the origin root loads.
-		win?.addEventListener('beforeunload', () => setLoaded(false), { once: true });
+		win?.addEventListener('beforeunload', () => {
+			setLoaded(false);
+			void music.muted.set(false);
+		}, { once: true });
 	};
 
 	return (

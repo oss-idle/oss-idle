@@ -1,26 +1,22 @@
-import { faReply } from '@fortawesome/free-solid-svg-icons/faReply';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-	ph,
-	t,
-} from '@lingui/core/macro';
+import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
 	type RefObject,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
 
-import type { Reactions as LineReactions } from '@oss-idle/shared/community/reactions';
 import {
 	ANNOUNCE_CHANNEL,
-	type ReplyQuote,
+	type ChatLine,
 } from '@oss-idle/shared/community/wire';
-import clock from '@oss-idle/shared/display/clock';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import useSyncedSelect from '@oss-idle/shared/hooks/useSyncedSelect';
 
 import { music } from '../../../audio/MusicPlayer';
+import Entities from '../../../entity/entities';
 import { SITE_URL } from '../../../globals';
 import {
 	logLines,
@@ -34,19 +30,14 @@ import {
 	sendPm,
 } from '../../../online/privateMessages';
 import Socket from '../../../online/socket';
-import type { MenuTarget } from '../state';
-import ChatText from './ChatText';
+import ChatLogLine, { type LogLine } from './ChatLogLine';
 import { mapLink } from './links';
 import {
 	MENTION_COLOR,
 	mentionsMe,
 } from './mentions';
 import MentionSuggestions from './MentionSuggestions';
-import Reactions from './Reactions';
-import ReactPicker from './ReactPicker';
 import ReplyBar from './ReplyBar';
-import ReplyRef from './ReplyRef';
-import SenderName from './SenderName';
 import {
 	chatTabs,
 	pmContact,
@@ -55,19 +46,27 @@ import useEmojiSuggest from './useEmojiSuggest';
 import useNameComplete from './useNameComplete';
 import useReply from './useReply';
 
-/** A line as the log renders it; no `name` = a system line, coloured whole. */
-type LogLine = {
-	id: string,
-	at: number,
-	text: string,
-	color?: string,
-	name?: string,
-	fromId?: number,
-	fromColor?: string,
-	link?: { label: string, path: string },
-	sender?: MenuTarget,
-	replyTo?: ReplyQuote,
-	reactions?: LineReactions,
+/** How a channel line shows to you: `me` sees their mentions lit, blocked players' lines hidden. */
+const toLogLine = (l: ChatLine, blockedIds: ReadonlySet<number>, me?: number): LogLine => {
+	if (l.kind === 'system') return {
+		id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link,
+		sender: l.from && l.name !== undefined ? {
+			...l.from, name: l.name,
+		} : undefined,
+	};
+	// a blocked player's line, with not even their name
+	if (blockedIds.has(l.from.userId)) return {
+		id: l.id, at: l.at, text: '<block>',
+	};
+	return {
+		id: l.id, at: l.at, text: l.text, name: l.from.name, fromId: l.from.userId, fromColor: l.from.color,
+		reactions: l.reactions,
+		color: mentionsMe(l.text) && l.from.userId !== me ? MENTION_COLOR : l.from.color,
+		replyTo: l.replyTo,
+		sender: {
+			...l.from, line: l,
+		},
+	};
 };
 
 export default function ChatTabContents({ channel, inputRef } : {
@@ -80,39 +79,27 @@ export default function ChatTabContents({ channel, inputRef } : {
 	const [blockedIds = new Set<number>()] = useSynced(blocked);
 	const [draft, setDraft] = useState('');
 	const logRef = useRef<HTMLDivElement>(null);
+	const atBottom = useRef(true);
 	const emoji = useEmojiSuggest(draft, setDraft, inputRef);
 	const [user] = useSynced(Auth.user);
 	const me = user?.id;
+	const myName = useSyncedSelect(Entities.character, c => c.name);
 
-	const shown: LogLine[] = contact === undefined
+	// one view per line, kept while the line is unchanged, so only new or changed rows render
+	const views = useMemo(() => new WeakMap<ChatLine, LogLine>(), [blockedIds, me, myName]);
+	const shown: LogLine[] = useMemo(() => contact === undefined
 		? lines.filter(l => l.channel === channel).map(l => {
-			if (l.kind === 'system') return {
-				id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link,
-				sender: l.from && l.name !== undefined ? {
-					...l.from, name: l.name,
-				} : undefined,
-			};
-			// a blocked player's line, with not even their name
-			if (blockedIds.has(l.from.userId)) return {
-				id: l.id, at: l.at, text: '<block>',
-			};
-			return {
-				id: l.id, at: l.at, text: l.text, name: l.from.name, fromId: l.from.userId, fromColor: l.from.color,
-				reactions: l.reactions,
-				color: mentionsMe(l.text) && l.from.userId !== me ? MENTION_COLOR : l.from.color,
-				replyTo: l.replyTo,
-				sender: {
-					...l.from, line: l,
-				},
-			};
+			let view = views.get(l);
+			if (!view) views.set(l, view = toLogLine(l, blockedIds, me));
+			return view;
 		})
-		: (pms.get(contact) ?? []);
+		: (pms.get(contact) ?? []), [lines, pms, views, channel, contact]);
 	const names = useNameComplete(draft, setDraft, inputRef, shown);
 	const reply = useReply(shown, logRef, inputRef);
 
 	useEffect(() => {
 		const el = logRef.current;
-		if (el) el.scrollTop = el.scrollHeight;
+		if (el && atBottom.current) el.scrollTop = el.scrollHeight;
 	}, [shown[shown.length - 1]?.id]);
 
 	const handleCommand = (text: string) => {
@@ -141,45 +128,24 @@ export default function ChatTabContents({ channel, inputRef } : {
 			Socket.sendChat(out.text, channel, out.replyTo);
 		} else sendPm(contact, handleCommand(text));
 		setDraft('');
+		atBottom.current = true;
 	};
 
 	return (<>
-		<div className="chat__log" ref={logRef}>
-			{shown.map(line => {
-				const time = clock(line.at);
-
-				if (line.name === undefined) {
-					return (
-						<div key={line.id} className="chat__line chat__line--system">
-							<span className="chat__text" style={{ color: line.color }}>{time} {line.text}</span>
-						</div>
-					);
-				}
-
-				const { sender } = line;
-				return (
-					<div key={line.id} className="chat__line" data-line={line.id}>
-						<ReplyRef to={line.replyTo} reply={reply} />
-						<span className="chat__from" style={{ color: line.color }}>
-							{`${time} `}
-							<SenderName sender={sender} name={line.name} color={line.color} />:
-						</span>
-						<span className="chat__body">
-							<ChatText text={line.text} link={line.link} senderId={line.fromId} />
-							<Reactions channel={channel} id={line.id} reactions={line.reactions} />
-						</span>
-						{contact === undefined && line.fromId !== undefined && line.text !== '<deleted>' && (
-							<span className="chat__line-actions">
-								<button
-									type="button" className="chat__line-btn" aria-label={t`Reply`}
-									onClick={() => reply.start(line)}
-								><FontAwesomeIcon icon={faReply} /></button>
-								<ReactPicker channel={channel} id={line.id} />
-							</span>
-						)}
-					</div>
-				);
-			})}
+		<div
+			className="chat__log" ref={logRef}
+			onScroll={e => {
+				const el = e.currentTarget;
+				atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 4;
+			}}
+		>
+			{shown.map(line => (
+				<ChatLogLine
+					key={line.id} line={line} channel={channel} actions={contact === undefined}
+					there={!!line.replyTo && reply.inLog(line.replyTo.id)}
+					onReply={reply.start} onJump={reply.jump}
+				/>
+			))}
 		</div>
 
 		{channel !== LOGS_CHANNEL && channel !== ANNOUNCE_CHANNEL && (

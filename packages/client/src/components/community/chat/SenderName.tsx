@@ -5,7 +5,7 @@ import {
 } from 'react';
 
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
-import useSynced from '@oss-idle/shared/hooks/useSynced';
+import useSyncedSelect from '@oss-idle/shared/hooks/useSyncedSelect';
 
 import { isCommunityOpen } from '../../../globals';
 import { getCharacterCard } from '../../../online/services/characters';
@@ -30,11 +30,11 @@ export default function SenderName({ sender, name, color }: {
 	name: string,
 	color?: string,
 }) {
-	const [roster = []] = useSynced(Socket.presence);
+	const live = useSyncedSelect(Socket.presence, roster =>
+		sender && roster.find(p => p.characterId === sender.characterId));
 	const [at, setAt] = useState<{ left: number, top: number }>();
 	const timer = useRef<number>(undefined);
 	const cardRef = useRef<HTMLDivElement>(null);
-	const live = sender && roster.find(p => p.characterId === sender.characterId);
 	// read when hovered, for a player who isn't online
 	const [offline, setOffline] = useState<PresenceEntry>();
 	const card = live ?? (offline?.characterId === sender?.characterId ? offline : undefined);

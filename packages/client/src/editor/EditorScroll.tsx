@@ -1,5 +1,8 @@
 import { ph } from '@lingui/core/macro';
-import { Trans } from '@lingui/react/macro';
+import {
+	Plural,
+	Trans,
+} from '@lingui/react/macro';
 import {
 	useEffect,
 	useState,
@@ -55,7 +58,7 @@ export default function EditorScroll({ session }: { session: EditorSession }) {
 			))}
 			{points.length > shown.length && (
 				<span className="editor__hint">
-					<Trans>{ph({ shown: shown.length })} of {ph({ total: points.length })} points, around the current time</Trans>
+					<Trans>{ph({ shown: shown.length })} of <Plural value={ph({ total: points.length })} one='# point' other='# points' />, around the current time</Trans>
 				</span>
 			)}
 		</div>

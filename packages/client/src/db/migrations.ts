@@ -11,9 +11,8 @@ import {
  * Schema migrations, applied in order on boot.
  *
  * Versioning rides on SQLite's `PRAGMA user_version`: it records how many
- * migrations have run, so each one applies exactly once per database. New
- * databases start at 0 and replay every migration (cheap, since there's no
- * data yet), which keeps the path uniform - there's no "fresh vs upgrade" fork.
+ * migrations have run, so each one applies exactly once per database. A new
+ * database is created from the live schema, so it starts past every migration.
  *
  * Each migration is a frozen snapshot: it embeds its own DDL rather than
  * referencing the live `table()` definitions, so editing a schema later never
@@ -21,9 +20,8 @@ import {
  */
 type Migration = (db: Database) => void;
 
-/** `ALTER TABLE ... ADD COLUMN`, skipped when the column is already there. A
- *  fresh database is created from the live schema and then replays every
- *  migration, so an unguarded add fails on the columns it means to add. */
+/** `ALTER TABLE ... ADD COLUMN`, skipped when the column is already there: the
+ *  live schema's tables are created before migrating, so they may hold it already. */
 const hasColumn = (db: Database, table: string, column: string): boolean => !!db.exec(`
 	SELECT EXISTS (
 		SELECT 1 FROM pragma_table_info('${table}') WHERE name = '${column}'
@@ -423,6 +421,33 @@ const addAddonAutoUpdate: Migration = db => {
 	if (db.exec(table).length) addColumn(db, 'addon', 'autoUpdate', 'INTEGER NOT NULL DEFAULT 0');
 };
 
+/** 7K's chords skill became jacks while dev-only: its local columns follow. A
+ *  fresh database already has the jacks columns. */
+const rename7kJacks: Migration = db => {
+	for (const field of ['', 'XP', 'Upgrades', 'Overdrive', 'Prestige', 'TotalXp', 'LifetimeXp']) {
+		if (!hasColumn(db, 'character_mania7k', `chords${field}`)) continue;
+		db.run(`ALTER TABLE character_mania7k RENAME COLUMN chords${field} TO jacks${field};`);
+	}
+};
+
+/** Playlists belong to a character: the existing ones go to the first that reads them. */
+const playlistCharacter: Migration = db => {
+	const table = 'SELECT 1 FROM sqlite_master WHERE type = \'table\' AND name = \'playlist\';';
+	if (db.exec(table).length) addColumn(db, 'playlist', 'characterId', 'INTEGER NOT NULL DEFAULT 0');
+};
+
+/** A local character's genetic and genes. */
+const addGenetics: Migration = db => {
+	const tables = db.exec(
+		'SELECT name FROM sqlite_master WHERE type = \'table\' AND name LIKE \'character%\'',
+	);
+	for (const [name] of tables[0]?.values ?? []) {
+		if (name === 'character' || String(name).startsWith('character_')) {
+			addColumn(db, String(name), 'geneticsJson', 'TEXT NOT NULL DEFAULT \'\'');
+		}
+	}
+};
+
 const migrations: Migration[] = [
 	recomputeBests,
 	addOnlineId,
@@ -448,7 +473,15 @@ const migrations: Migration[] = [
 	scoreXpGains,
 	playlistEntryMods,
 	addAddonAutoUpdate,
+	rename7kJacks,
+	playlistCharacter,
+	addGenetics,
 ];
+
+/** A database just created from the live schema already is what every migration makes. */
+export function markMigrated(db: Database): void {
+	db.run(`PRAGMA user_version = ${migrations.length}`);
+}
 
 /**
  * Apply every migration not yet recorded in `user_version`, then bump it.

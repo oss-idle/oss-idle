@@ -6,6 +6,7 @@ import {
 	isApproved,
 	type MapTag,
 } from '@oss-idle/shared/beatmap';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	type Nomination,
@@ -17,6 +18,7 @@ import NominationCategory from './NominationCategory';
 import NominationCover from './NominationCover';
 import NominationDiffs from './NominationDiffs';
 import NominationMeta from './NominationMeta';
+import NominationSchedule from './NominationSchedule';
 import { phaseOf } from './nominationStatus';
 
 /** ISO timestamp -> value for an <input type="datetime-local"> (local time). */
@@ -27,27 +29,17 @@ const toLocalInput = (iso: string | null): string => {
 	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const HOUR = 3600e3;
-// Quick-schedule windows: a random moment within the next hour/day/week/month.
-const WINDOWS: [label: string, ms: number][] = [
-	['hour', HOUR],
-	['day', 24 * HOUR],
-	['week', 7 * 24 * HOUR],
-	['month', 30 * 24 * HOUR],
-];
 
-const RANK_NOW: Record<ApprovedStatus, string> = {
-	ranked: 'Rank now', loved: 'Love now',
-};
 
 /** What scheduling ranks a set as: ranked, or loved (no pp). */
 const categoryOf = (status: BeatmapStatus): ApprovedStatus =>
 	isApproved(status) ? status : 'ranked';
 
 export default function NominationRow({
-	row, busy, onPatch, onToggleDiff, onTagDiff, onDelete,
+	row, ruleset, busy, onPatch, onToggleDiff, onTagDiff, onDelete,
 }: {
 	row: Nomination;
+	ruleset: RulesetId;
 	busy: boolean;
 	onPatch: (
 		setId: number,
@@ -55,7 +47,8 @@ export default function NominationRow({
 	) => void;
 	onToggleDiff: (setId: number, beatmapId: number, ranked: boolean) => void;
 	onTagDiff: (setId: number, beatmapId: number, tags: MapTag[]) => void;
-	onDelete: (setId: number) => void;
+	/** admins only: it takes the set out of every ruleset */
+	onDelete?: (setId: number) => void;
 }) {
 	const [date, setDate] = useState(toLocalInput(row.rankedAt));
 	const scheduled = isApproved(row.status);
@@ -93,7 +86,7 @@ export default function NominationRow({
 	return (
 		<div className='nomination__entry'>
 			<div className='nomination__info'>
-				<NominationCover row={row} />
+				<NominationCover row={row} ruleset={ruleset} />
 				<NominationMeta row={row} player={player} />
 
 				<span className={`nomination__badge nomination__badge--${phase}`}>{phase}</span>
@@ -157,27 +150,14 @@ export default function NominationRow({
 				>
 					Categorized
 				</button>
-				{!live && (
-					<div className='nomination__quick'>
-						<span className='nomination__label'>Random in</span>
-						{WINDOWS.map(([label, ms]) => (
-							<button key={label} className='nomination__btn' disabled={busy}
-								title={`Schedule randomly within the next ${label}`} onClick={() => scheduleIn(ms)}>
-								{label}
-							</button>
-						))}
-					</div>
-				)}
-				{!live && <button 
-					className='nomination__btn nomination__btn--primary' 
-					disabled={busy || !date} 
-					onClick={schedule}
-				>
-					Schedule
-				</button>}
-				{!live && <button className='nomination__btn' disabled={busy} onClick={rankNow}>
-					{RANK_NOW[category]}
-				</button>}
+				{!live && <NominationSchedule
+					busy={busy}
+					date={date}
+					category={category}
+					onSchedule={schedule}
+					onRankNow={rankNow}
+					onScheduleIn={scheduleIn}
+				/>}
 				{scheduled && <button 
 					className='nomination__btn' 
 					disabled={busy} 
@@ -192,14 +172,14 @@ export default function NominationRow({
 				>
 					{player ? 'Send back' : 'Reject'}
 				</button>}
-				<a className='nomination__btn' href={nominationOszUrl(row.id)} download>Download</a>
-				<button 
+				<a className='nomination__btn' href={nominationOszUrl(row.id, ruleset)} download>Download</a>
+				{onDelete && <button 
 					className='nomination__btn nomination__btn--danger'
 					disabled={busy}
 					onClick={() => onDelete(row.id)}
 				>
 					Delete
-				</button>
+				</button>}
 			</div>
 		</div>
 	);

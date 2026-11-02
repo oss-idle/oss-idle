@@ -25,6 +25,7 @@ import HomeButton from '../components/HomeButton';
 import Link from '../components/Link';
 import NewsCard, { articleToCard } from '../components/NewsCard';
 import NewsRow from '../components/NewsRow';
+import { PBE } from '../pbe/pbe';
 
 // osu!web's NewsPost::LANDING_LIMIT and DASHBOARD_LIMIT
 const LARGE_NEWS = 4;
@@ -72,9 +73,9 @@ export default function Home({ articles, stats, recent, recentMaps }: {
 					<HomeButton to='/download' icon={faDownload} hue={274}>
 						<Trans>download oss!idle</Trans>
 					</HomeButton>
-					<HomeButton to='/store' icon={faHeart} hue={340}>
+					{!PBE && <HomeButton to='/store' icon={faHeart} hue={340}>
 						<Trans>support the game</Trans>
-					</HomeButton>
+					</HomeButton>}
 				</div>
 				<div className='dashboard__ranked'>
 					<div className='dashboard__ranked_title'>

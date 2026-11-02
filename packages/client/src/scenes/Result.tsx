@@ -22,6 +22,7 @@ import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
 import { ScoreDTO } from '@oss-idle/shared/score';
 
 import useSmoothNumber from '../animations/useSmoothNumber';
+import { uiSound } from '../audio/uiSounds';
 import MatchRanking from '../components/multiplayer/MatchRanking';
 import useMatchRanking from '../components/multiplayer/useMatchRanking';
 import CountUp, { COUNT_UP_MS } from '../components/result/CountUp';
@@ -29,6 +30,7 @@ import ResultMeta from '../components/result/ResultMeta';
 import ResultMods from '../components/result/ResultMods';
 import ShareScoreButton from '../components/result/ShareScoreButton';
 import SkillProgression from '../components/result/SkillProgression';
+import useResultSounds from '../components/result/useResultSounds';
 import Character from '../db/schema/character';
 import { Score } from '../db/schema/score';
 import DevianceGraph from '../gameplay/DevianceGraph';
@@ -89,6 +91,8 @@ type Props = {
 export default function Result({ score, game, progression, failed, beatmap, medals }: Props) {
 	const [skin] = useSynced(currentSkin);
 	const gradeImage = useGradeUrl(skin, score.grade, true);
+	// a play just watched, not a score opened from a leaderboard
+	useResultSounds(!!beatmap);
 
 	const count = (j: Judgement): number =>
 		score instanceof Score ? score[j] : score.judgements[j];
@@ -124,7 +128,10 @@ export default function Result({ score, game, progression, failed, beatmap, meda
 	// a match play's standings, at the right edge as on osu!'s ranking screen
 	const ranking = useMatchRanking(score);
 
-	const onBack = () => SceneManager.set(Multiplayer.afterPlay());
+	const onBack = () => {
+		uiSound('ui/screen-back');
+		SceneManager.set(Multiplayer.afterPlay());
+	};
 	Controls.back.usePress(onBack);
 	const [match] = useSynced(Multiplayer.current);
 	const retryable = beatmap && !match;
@@ -171,7 +178,7 @@ export default function Result({ score, game, progression, failed, beatmap, meda
 			<ResultMeta playerName={playerName} playedAt={playedAt} beatmap={beatmap} rate={score.rate} />
 			{ranking && <MatchRanking ranking={ranking} />}
 			<div className="result__actions" ref={actions}>
-				<button className="result__exit" onClick={onBack}>
+				<button className="result__exit" onClick={onBack} data-sound="hover">
 					<Trans>BACK</Trans>
 				</button>
 				{retryable && <button className="result__exit" onClick={retry}>
@@ -211,7 +218,10 @@ export default function Result({ score, game, progression, failed, beatmap, meda
 										/>
 										<span 
 											className="result__judge-count" 
-											style={{ textShadow: `0 0px 4px ${skin.data.judgements[j].judge}` }}>
+											style={{
+												textShadow: `0 0px 4px ${skin.data.judgements[j].judge}`,
+												width: `${String(count(j)).length}ch`,
+											}}>
 											<CountUp value={count(j)} 
 											/></span>
 									</div>

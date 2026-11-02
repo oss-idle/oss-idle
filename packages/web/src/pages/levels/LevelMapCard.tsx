@@ -38,7 +38,7 @@ export default function LevelMapCard({
 				className='level-map__cover'
 				style={{
 					backgroundImage: coverBackground({
-						id: map.setId, osuId: map.osuId, background: map.background,
+						id: map.setId, osuId: map.osuId, osuCover: map.osuCover, background: map.background,
 					}, 'list'),
 				}}
 			/>

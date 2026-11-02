@@ -39,13 +39,15 @@ export default class Game {
 
 	/** Load the client and wait for the dev bridge and the resolved session.
 	 *  A reload first waits out the page's pending local saves. */
-	async open({ local = true } = {}): Promise<void> {
+	async open({ local = true, geneticAsk = false } = {}): Promise<void> {
 		await this.page.evaluate(() => window.__idle?.saved());
 		await this.page.goto('/');
 		await this.page.waitForFunction(() => !!window.__idle, undefined, { timeout: 60_000 });
 		await this.page.waitForFunction(
 			() => window.__idle!.sessionReady(), undefined, { timeout: 60_000 },
 		);
+		// song select's ask for a genetic would cover every spec
+		if (!geneticAsk) await this.page.evaluate(() => window.__idle!.skipGeneticAsks());
 		// a fresh device has no character until the first Play; specs start as the
 		// local guest unless that choice is what they test
 		if (local) await this.page.evaluate(async () => {
@@ -102,6 +104,14 @@ export default class Game {
 		await this.page.locator('.editor__new-map')
 			.getByRole('button', { name: 'Start mapping' }).click();
 		await expect(this.page.locator('.editor__counts')).toHaveAttribute('data-notes', '0');
+	}
+
+	/** The ring: the first skill on it, then Begin. */
+	async pickGenetic(): Promise<void> {
+		const choice = this.page.locator('.genetic-choice');
+		await choice.locator('.genetic-ring__skill').first().click();
+		await choice.getByRole('button', { name: /^Begin with/ }).click();
+		await expect(choice).toBeHidden();
 	}
 
 	menuOption(title: string): Locator {

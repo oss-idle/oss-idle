@@ -1,4 +1,7 @@
-import { ph } from '@lingui/core/macro';
+import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
 import {
 	Trans,
 	useLingui,
@@ -93,7 +96,9 @@ export default function CreateMatch({ onClose }: { onClose: () => void }) {
 					className="mp-create__size"
 					value={size}
 					options={SIZES.map(n => ({
-						value: n, label: t`${n} players`,
+						value: n, label: plural(ph({ n }), {
+							one: '# player', other: '# players', 
+						}),
 					}))}
 				/>
 			</div>

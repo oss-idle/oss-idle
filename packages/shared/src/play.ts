@@ -216,6 +216,8 @@ export const playClientMessages = [
 		token: z.string(),
 		/** where the client's replay got to, so the answer carries the rest */
 		next: z.number(),
+		/** nobody is watching: end it here and now, with no replay to send */
+		away: z.boolean().optional(),
 	}),
 	// quit: drop the play without submitting
 	z.object({

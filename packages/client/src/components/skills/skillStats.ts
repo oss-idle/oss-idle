@@ -1,3 +1,7 @@
+import {
+	type GeneticsXpParts,
+	geneticsXpTotal,
+} from '@oss-idle/shared/genetics';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import {
 	maxUpgrades,
@@ -9,13 +13,18 @@ import {
 
 export type MedalBoost = { held: number, multiplier: number };
 
-/** Everything a skill's XP multiplier is made of. Guests have no medals. */
-export const skillStats = (skill: SkillState, medals?: MedalBoost) => {
+/** Everything a skill's XP multiplier is made of. Guests have no medals, some rulesets no genetics. */
+export const skillStats = (
+	skill: SkillState,
+	medals?: MedalBoost,
+	geneticsParts?: GeneticsXpParts,
+) => {
 	const upgrades = skill.upgrades.get();
 	const overdrive = skill.overdrive.get();
 	const prestige = skill.prestige.get();
 	const upgradeBoost = upgradeXPMultiplier(upgrades, overdrive);
 	const prestigeBoost = prestigeXPMultiplier(prestige);
+	const genetics = geneticsParts && geneticsXpTotal(geneticsParts);
 	return {
 		skill,
 		level: skill.level.get(),
@@ -29,7 +38,9 @@ export const skillStats = (skill: SkillState, medals?: MedalBoost) => {
 		prestige,
 		prestigeBoost,
 		medals,
-		total: upgradeBoost * prestigeBoost * (medals?.multiplier ?? 1),
+		genetics,
+		geneticsParts,
+		total: upgradeBoost * prestigeBoost * (genetics ?? 1) * (medals?.multiplier ?? 1),
 	};
 };
 

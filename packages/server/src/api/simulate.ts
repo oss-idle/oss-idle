@@ -7,6 +7,7 @@ import type {
 import { STRAIN_CAP } from '@oss-idle/shared/fatigue';
 import {
 	cleanMods,
+	modsFor,
 	modsSchema,
 } from '@oss-idle/shared/mods';
 import {
@@ -24,6 +25,7 @@ import { maxUpgrades } from '@oss-idle/shared/upgrades';
 import { getLiveBeatmap } from '../beatmaps';
 import {
 	env,
+	isPbe,
 	isProd,
 } from '../env';
 import {
@@ -43,7 +45,8 @@ const skillState = z.object({
 	lifetime_xp: z.number().min(0).max(1e15).default(0),
 	prestige: count(1000).default(0),
 	upgrades: count(1000).default(0),
-	overdrive: count(1000).default(0),
+	// overdrive has no limit, and grows by fractions (the overspend ratio)
+	overdrive: z.number().min(0).default(0),
 }).refine(s => s.upgrades <= maxUpgrades(s.prestige), {
 	message: 'More upgrades than the prestige allows', path: ['upgrades'],
 });
@@ -70,10 +73,10 @@ const refuse = (status: Refusal['status'], error: string): Refusal => ({
 	status, error,
 });
 
-/** The play, from the sim services; this server plays it itself where there are none (dev). */
-const play = async (input: SimInput, chart: string): Promise<SimResult | Refusal> => {
+/** The play, from the sim services; this server plays it itself where there are none (dev, the PBE). */
+export const play = async (input: SimInput, chart: string): Promise<SimResult | Refusal> => {
 	if (!env.SIM_SERVICE_URL.length) {
-		return isProd ? refuse(503, 'Simulations are unavailable') : simulateState(input, chart);
+		return isProd && !isPbe ? refuse(503, 'Simulations are unavailable') : simulateState(input, chart);
 	}
 	return playOnHosts(env.SIM_SERVICE_URL, env.SIM_SERVICE_SECRET ?? '', input, chart);
 };
@@ -87,7 +90,7 @@ export const simulate = async (body: SimulateBody): Promise<ApiSimulation | Refu
 	if (allowedRate(body.rate, speed) !== body.rate) {
 		return refuse(422, 'The speed upgrades given don\'t allow this rate');
 	}
-	const mods = cleanMods(body.mods);
+	const mods = modsFor(cleanMods(body.mods), mania4k.id);
 	const result = await play({
 		beatmapId: map.id,
 		checksum: map.checksum,

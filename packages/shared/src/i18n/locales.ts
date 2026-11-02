@@ -3,7 +3,7 @@
  * shared by every package: the server negotiates against it, the two frontends
  * load catalogs for it, and the CLI extracts catalogs for exactly these.
  */
-export const SUPPORTED_LOCALES = ['en', 'fr'] as const;
+export const SUPPORTED_LOCALES = ['en', 'de', 'es', 'fil', 'fr', 'ru', 'vi'] as const;
 
 export type Locale = typeof SUPPORTED_LOCALES[number];
 
@@ -13,7 +13,12 @@ export const DEFAULT_LOCALE: Locale = 'en';
 /** Human-readable names, shown in a language picker (in their own language). */
 export const LOCALE_LABELS: Record<Locale, string> = {
 	en: 'English',
+	de: 'Deutsch',
+	es: 'Español',
+	fil: 'Filipino',
 	fr: 'Français',
+	ru: 'Русский',
+	vi: 'Tiếng Việt',
 };
 
 export function isLocale(value: string): value is Locale {

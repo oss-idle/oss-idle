@@ -16,10 +16,8 @@ import {
 	isProd,
 } from '../env';
 
-/** Discord's own limits: 4096 chars per embed description, 10 embeds and 6000
- *  chars per message. One embed per message keeps both trivially satisfied. */
+/** Discord's limit is 4096 chars per embed description: a longer article is cut there. */
 const CHUNK = 3800;
-const MAX_PARTS = 8;
 
 export type AnnounceArticle = Pick<NewsRow,
 	'slug' | 'title' | 'summary' | 'content' | 'tag' | 'imageUrl'>;
@@ -52,11 +50,11 @@ const coverUrl = (article: AnnounceArticle, tag: (typeof NEWS_TAGS)[NewsTag]) =>
 };
 
 /**
- * Post a published article to the news feed: the whole thing, converted to
- * Discord markdown, with the cover and a link back to the site. A long article
- * runs over several embeds (one message each, in order) rather than being cut
- * short. No-op outside prod or without a configured webhook, and the caller
- * claims the announce first so it fires exactly once per article.
+ * Post a published article to the news feed: one message, converted to Discord
+ * markdown, with the cover and a link back to the site. A long article is cut at a
+ * line break and ends with the link to the full post. No-op outside prod or without a
+ * configured webhook, and the caller claims the announce first so it fires exactly
+ * once per article.
  */
 export const announceNews = async (
 	article: AnnounceArticle, authorName: string,
@@ -65,36 +63,23 @@ export const announceNews = async (
 
 	const tag = NEWS_TAGS[article.tag as NewsTag] ?? NEWS_TAGS.update;
 	const url = `${clientUrl}/web/news/${article.slug}`;
-	const colour = tagColour(tag.hue);
-
 	const image = coverUrl(article, tag);
 	const body = htmlToMarkdown(article.content);
-	const parts = chunkText(`*${article.summary}*\n\n${body}`, CHUNK);
-	const kept = parts.slice(0, MAX_PARTS);
-	// Whatever didn't fit stays one click away.
-	const cut = parts.length > MAX_PARTS ? '\n\n…' : '';
-	kept[kept.length - 1] += `${cut}\n\n[Read it on the website](${url})`;
+	const [opening, ...rest] = chunkText(`*${article.summary}*\n\n${body}`, CHUNK);
+	// a cut right after a heading would leave it with nothing under it
+	const shown = rest.length ? opening.replace(/\n+#+ [^\n]*$/, '') : opening;
+	const link = rest.length ? `…\n\n[Read the full post](${url})` : `[Read it on the website](${url})`;
 
-	let sent = true;
-	for (const [i, part] of kept.entries()) {
-		sent = await publish(env.NEWS_FEED_WEBHOOK, {
-			embeds: [{
-				// Only the opening embed carries the heading and the cover, so the
-				// rest read as one continuous article.
-				...(i === 0 ? {
-					author: { name: tag.label },
-					title: article.title,
-					url,
-					...(image ? { image: { url: image } } : {}),
-					footer: { text: `by ${authorName}` },
-					timestamp: new Date().toISOString(),
-				} : {}),
-				description: part,
-				color: colour,
-			}],
-		});
-		// A rejected part means the rest would land out of context: stop there.
-		if (!sent) break;
-	}
-	return sent;
+	return publish(env.NEWS_FEED_WEBHOOK, {
+		embeds: [{
+			author: { name: tag.label },
+			title: article.title,
+			url,
+			...(image ? { image: { url: image } } : {}),
+			footer: { text: `by ${authorName}` },
+			timestamp: new Date().toISOString(),
+			description: `${shown}\n\n${link}`,
+			color: tagColour(tag.hue),
+		}],
+	});
 };

@@ -43,10 +43,11 @@ const unmark = (keep: (tab: string) => boolean): void => {
 void activeChatTab.sync(active => unmark(tab => tab !== active));
 void chatTabs.sync(open => unmark(tab => open.includes(tab)));
 
-let logCount = logLines.get().length;
+let lastLog = logLines.get().at(-1)?.id;
 void logLines.sync(lines => {
-	if (lines.length > logCount) markUnread(LOGS_CHANNEL);
-	logCount = lines.length;
+	const last = lines.at(-1)?.id;
+	if (last !== lastLog) markUnread(LOGS_CHANNEL);
+	lastLog = last;
 });
 
 Socket.on('chat', ({ line }) => {

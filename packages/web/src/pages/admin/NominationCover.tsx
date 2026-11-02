@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect } from 'react';
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	coverBackground,
@@ -19,7 +20,7 @@ import {
 } from '../../preview';
 
 /** The set's cover; clicking it plays the audio preview. */
-export default function NominationCover({ row }: { row: Nomination }) {
+export default function NominationCover({ row, ruleset }: { row: Nomination, ruleset: RulesetId }) {
 	const [playing] = useSynced(preview);
 	const mine = playing?.setId === row.id ? playing : undefined;
 	useEffect(() => () => stopPreview(row.id), [row.id]);
@@ -31,7 +32,7 @@ export default function NominationCover({ row }: { row: Nomination }) {
 			style={{ backgroundImage: coverBackground(row, 'list') }}
 			disabled={!row.audio}
 			aria-label='Preview'
-			onClick={() => togglePreview(row.id, nominationPreviewUrl(row.id, row.audio!))}
+			onClick={() => togglePreview(row.id, nominationPreviewUrl(row.id, row.audio!, ruleset))}
 		>
 			{row.audio && <FontAwesomeIcon icon={mine && mine.state !== 'paused' ? faPause : faPlay} />}
 		</button>

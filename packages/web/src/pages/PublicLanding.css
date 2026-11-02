@@ -62,6 +62,8 @@
 /* ---- Top bar -------------------------------------------------------------- */
 
 .landing__topbar {
+	position: relative;
+	z-index: 3;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;

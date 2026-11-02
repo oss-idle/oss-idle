@@ -5,7 +5,9 @@ import {
 	parseMods,
 } from '@oss-idle/shared/mods';
 
+import Entities from '../../entity/entities';
 import {
+	addonWrites,
 	Column,
 	DAO,
 	DB,
@@ -14,10 +16,13 @@ import {
 	text,
 } from '../dao';
 
+// each character has its own playlists; 0 is unowned (made before playlists
+// were per character, or written by an add-on) until a character reads them
 const playlist = table('playlist', {
-	id:        integer().primaryKey().autoincrement(),
-	name:      text(),
-	createdAt: integer(),
+	id:          integer().primaryKey().autoincrement(),
+	name:        text(),
+	createdAt:   integer(),
+	characterId: integer().default(0),
 });
 
 // in play order; a difficulty can sit in a playlist more than once, each copy
@@ -38,18 +43,23 @@ const playlistEntry = table('playlist_entry', {
  *  the manage overlay) re-query instead of holding stale lists. */
 export const playlistsVersion = new Synced(0);
 const touch = () => playlistsVersion.set(playlistsVersion.get() + 1);
+// an add-on (the sim) can fill playlists in raw SQL
+addonWrites.forceSync(touch);
+Entities.character.forceSync(touch);
+
+const owner = () => Entities.character.get().id;
 
 export class PlaylistEntry extends DAO(playlistEntry) {}
 
 export class Playlist extends DAO(playlist) {
 
 	static byName(name: string): Promise<Playlist | undefined> {
-		return this.first('SELECT * FROM playlist WHERE name = ?', [name]);
+		return this.first('SELECT * FROM playlist WHERE name = ? AND characterId = ?', [name, owner()]);
 	}
 
 	static async create(name: string): Promise<Playlist> {
 		const p = await new Playlist({
-			name, createdAt: Date.now(), 
+			name, createdAt: Date.now(), characterId: owner(),
 		}).add();
 		touch();
 		return p;
@@ -121,8 +131,14 @@ export interface PlaylistIndex {
 }
 
 export async function getPlaylistIndex(): Promise<PlaylistIndex> {
-	const playlists = (await Playlist.getAll())
-		.sort((a, b) => a.name.localeCompare(b.name));
+	const characterId = owner();
+	// the placeholder (id 0) stands in while the session resolves: it owns nothing
+	if (characterId) {
+		await DB.run('UPDATE playlist SET characterId = ? WHERE characterId = 0', [characterId]);
+	}
+	const playlists = (await Playlist.query(
+		'SELECT * FROM playlist WHERE characterId = ?', [characterId],
+	)).sort((a, b) => a.name.localeCompare(b.name));
 	const entries = await PlaylistEntry.query('SELECT * FROM playlist_entry ORDER BY position');
 	const byId = new Map(playlists.map(p => [p.id, p]));
 	const counts = new Map<number, number>();

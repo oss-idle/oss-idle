@@ -1,8 +1,12 @@
+import { effectOf } from '@oss-idle/shared/genetics';
 import { applyUpgrade } from '@oss-idle/shared/upgrades';
 
 import type Character from '../../db/schema/character';
 import Entities from '../../entity/entities';
-import { selectedProgression } from '../../rulesets/registry';
+import {
+	selectedDef,
+	selectedProgression,
+} from '../../rulesets/registry';
 import { rpc } from '../client';
 import { sendCharacterAction } from './characterAction';
 
@@ -35,7 +39,9 @@ const spendLocally = async (
 	if (!skill) return false;
 	let spent = 0;
 	try {
-		const purchase = applyUpgrade(skill.state());
+		const genetics = selectedDef().genetics;
+		const bonus = genetics ? effectOf(genetics, character.genetics.get(), 'overdrive', skillName) : 0;
+		const purchase = applyUpgrade(skill.state(), bonus);
 		skill.apply(purchase);
 		spent = purchase.spent;
 	} catch {

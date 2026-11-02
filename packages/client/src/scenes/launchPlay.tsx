@@ -15,6 +15,9 @@ import { Transition } from './Transition';
 let launching = 0;
 const LAUNCH_GUARD_MS = 5000;
 
+/** A launch is on its way to the gameplay scene. */
+export const launchInFlight = (): boolean => Date.now() - launching < LAUNCH_GUARD_MS;
+
 /**
  * Launch gameplay for a downloaded difficulty. Resolves the play over the
  * current scene (asking there if it must), then fades to black and hands off

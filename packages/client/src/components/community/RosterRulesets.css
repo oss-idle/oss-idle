@@ -1,0 +1,56 @@
+/* osu!'s: white icons, the picked one bright, the others dimmed */
+.roster-rulesets {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin-top: 10px;
+}
+
+.roster-rulesets__pick {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: #fff;
+	opacity: 0.35;
+	cursor: pointer;
+	transition: opacity 0.15s;
+}
+
+.roster-rulesets__pick:hover {
+	opacity: 0.7;
+}
+
+.roster-rulesets__pick.is-active {
+	opacity: 1;
+}
+
+.roster-rulesets__icon {
+	width: 40px;
+	height: 40px;
+}
+
+.roster-rulesets__variant {
+	position: absolute;
+	right: -6px;
+	bottom: -4px;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+@media (max-width: 850px) {
+	.roster-rulesets__pick {
+		width: 36px;
+		height: 36px;
+	}
+	.roster-rulesets__icon {
+		width: 32px;
+		height: 32px;
+	}
+}

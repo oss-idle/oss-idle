@@ -8,6 +8,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { SITE_URL } from '../globals';
 import Auth from '../online/auth';
+import { PBE } from '../pbe/pbe';
 
 /** osu!'s main menu heart: full for supporters, empty (a link to the store) for anyone else. */
 export default function SupporterHeart() {
@@ -21,13 +22,15 @@ export default function SupporterHeart() {
 	</div>;
 	return <a
 		className='supporter-heart supporter-heart--off'
-		href={`${SITE_URL}/web/store`}
+		href={`${SITE_URL}/web/${PBE ? 'settings' : 'store'}`}
 		target='_blank'
 		rel='noreferrer'
 	>
 		<FontAwesomeIcon icon={faHeart} />
 		<div className='supporter-heart__tip'>
-			<Trans>Support the game to access cool features!</Trans>
+			{PBE
+				? 'Turn on oss!supporter in the web settings'
+				: <Trans>Support the game to access cool features!</Trans>}
 		</div>
 	</a>;
 }

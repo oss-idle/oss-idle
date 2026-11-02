@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 
 import type { Reactions as LineReactions } from '@oss-idle/shared/community/reactions';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import useSyncedSelect from '@oss-idle/shared/hooks/useSyncedSelect';
 
 import Auth from '../../../online/auth';
 import { emoji } from '../../../online/emoji';
@@ -16,11 +17,14 @@ export default function Reactions({ channel, id, reactions }: {
 	reactions?: LineReactions,
 }) {
 	const [user] = useSynced(Auth.user);
-	const [presence = []] = useSynced(Socket.presence);
 	const [{ list }] = useSynced(emoji);
 	const entries = Object.entries(reactions ?? {}).filter(([, who]) => who.length);
+	const reactors = [...new Set(entries.flatMap(([, who]) => who))];
+	// a string, so only the reactors coming or going re-renders the line
+	const online = useSyncedSelect(Socket.presence, presence => reactors
+		.map(u => presence.find(p => p.userId === u)?.name ?? '').join('\n')).split('\n');
 	if (!entries.length) return null;
-	const names = new Map(presence.map(p => [p.userId, p.name]));
+	const names = new Map(reactors.map((u, i) => [u, online[i]]));
 	const byId = new Map(list.map(e => [String(e.id), e]));
 	return (
 		<span className="chat__reactions">

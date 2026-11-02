@@ -9,6 +9,7 @@ import {
 	MINDBLOCK_SKILLS_7K,
 	PHYSICAL_SKILLS_7K,
 	SKILL_7K,
+	type SkillName7k,
 } from '@oss-idle/shared/rulesets/mania/7k/skills';
 import { xpScore } from '@oss-idle/shared/rulesets/mania/xpScore';
 
@@ -29,7 +30,7 @@ import { playStrain } from '../xpRules';
 const decoder = new BeatmapDecoder();
 
 // Notes where no physical skill strains past this add no fatigue.
-const STRAINED_7K = Object.fromEntries(PHYSICAL_SKILLS_7K.map(skill => [skill, 0.2]));
+export const STRAINED_7K = Object.fromEntries(PHYSICAL_SKILLS_7K.map(skill => [skill, 0.2]));
 
 /** 7K's play: its own bot and skills, mania's engine, the shared fatigue and xp rules. */
 export const play: RulesetPlay = {
@@ -40,12 +41,42 @@ export const play: RulesetPlay = {
 		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,
 	}) {
 		const { fatigue, warmup: warm } = tired;
-		const bot = sim().mania7k.bot({
-			progress: skill => skillOf(profile, skill),
+		const simPlay = {
+			progress: (skill: SkillName7k) => skillOf(profile, skill),
 			fatigue,
 			warm,
 			plays: await getPlays(r, profile.id, beatmapId),
-		});
+		};
+		const native = sim().mania7k.play;
+		if (native) {
+			const {
+				xpScore: score, skillXp, rawXp, strainedShare, totalLength, ...played
+			} = native({
+				chart: text,
+				play: simPlay,
+				rate, mods, divine: false, round, strained: STRAINED_7K, gauged: r.def.gauged as SkillName7k[],
+			});
+			if (board) return {
+				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+			};
+			const length = totalLength / rate;
+			return {
+				...played,
+				skillXp: await serverXp(r, profile.id, beatmapId, skillXp, {
+					mindblock: MINDBLOCK_SKILLS_7K,
+					modMultipliers: modXpMultipliers7k(mods),
+					grade: score.grade,
+					stars: sr,
+					fatigue,
+				}),
+				rawXp,
+				strain: {
+					minutes: length / 60_000,
+					strained: playStrain(STRAINED_7K, { strainedShare: () => strainedShare }, length),
+				},
+			};
+		}
+		const bot = sim().mania7k.bot(simPlay);
 		const chart = decoder.decodeFromString(text);
 		const options = {
 			rate, mods, playOn: round,

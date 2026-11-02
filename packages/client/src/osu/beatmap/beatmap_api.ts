@@ -96,12 +96,14 @@ export default class BeatmapAPI {
 		let buf: Uint8Array;
 		try {
 			const url = `${BASE_URL}/v1/beatmap/osz/${metadata.id}${bulk ? '?bulk' : ''}`;
-			// signed in: the day's full-speed downloads are counted on the account
-			let res = await API.fetch(url, withAuth());
+			// signed in: the day's full-speed downloads are counted on the account;
+			// a set changes on the server, and older builds of it may sit in the HTTP cache
+			const init = withAuth({ cache: 'no-store' });
+			let res = await API.fetch(url, init);
 			// over the server's 10 downloads per address (another device or tab)
 			while (res.status === 429) {
 				await sleep(2_000);
-				res = await API.fetch(url, withAuth());
+				res = await API.fetch(url, init);
 			}
 			if (!res.ok) throw new Error(`Download of set ${metadata.id} failed: ${res.status}`);
 			buf = await this.readWithProgress(res, onProgress);

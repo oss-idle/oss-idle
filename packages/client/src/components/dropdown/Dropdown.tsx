@@ -10,6 +10,7 @@ import {
 import Synced from '@oss-idle/shared/helpers/synced';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { uiSound } from '../../audio/uiSounds';
 import { isChanged } from '../../db/settings';
 
 export interface DropdownOption<T> {
@@ -43,6 +44,13 @@ export default function Dropdown<T>({
 	const [selected] = useSynced(value);
 	const [open, setOpen] = useState(false);
 	const root = useRef<HTMLDivElement>(null);
+	const opened = useRef(false);
+
+	useEffect(() => {
+		if (open) uiSound('ui/dropdown-open');
+		else if (opened.current) uiSound('ui/dropdown-close');
+		opened.current = open;
+	}, [open]);
 
 	// close on click/focus anywhere outside the dropdown
 	useEffect(() => {
@@ -81,6 +89,7 @@ export default function Dropdown<T>({
 						type="button"
 						key={i}
 						role="option"
+						data-sound="hover"
 						aria-selected={o.value === selected}
 						className={`dropdown__option ${o.value === selected ? 'is-selected' : ''}`}
 						disabled={o.disabled}

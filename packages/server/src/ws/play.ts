@@ -7,10 +7,14 @@ import type {
 } from '@oss-idle/shared/play';
 
 import type { CharacterRow } from '../db/schema/character';
-import { isProd } from '../env';
+import {
+	isPbe,
+	isProd,
+} from '../env';
 import {
 	abortPlay,
 	fetchResult,
+	finalizePlay,
 	finishPlayNow,
 	isPlaying,
 	type PlayOptions,
@@ -19,6 +23,7 @@ import {
 	startPlay,
 	streamOffsets,
 } from '../play';
+import type { Slot } from '../slot';
 import { hub } from './hub';
 import { ownMatch } from './multiplayer';
 
@@ -47,8 +52,8 @@ export class PlayFeed {
 	private ticking = false;
 
 	constructor(
-		/** read per use: a rebirth moves the socket onto a new character mid-play */
-		private readonly characterId: () => number,
+		/** read per use: the hub says which slot the socket watches */
+		private readonly slot: () => Slot,
 		private readonly ws: WSContext,
 	) {}
 
@@ -74,7 +79,7 @@ export class PlayFeed {
 			if (this.next !== undefined) await this.streamTick(token);
 			else await this.stateTick(token);
 		} catch (e) {
-			console.error('[play] feed tick failed for', this.characterId(), e);
+			console.error('[play] feed tick failed for', this.slot(), e);
 		} finally {
 			this.ticking = false;
 		}
@@ -83,7 +88,7 @@ export class PlayFeed {
 	/** Push the offsets revealed since the cursor; a final (possibly empty) done
 	 *  chunk closes the stream client-side. */
 	private async streamTick(token: string): Promise<void> {
-		const chunk = await streamOffsets(this.characterId(), token, this.next!);
+		const chunk = await streamOffsets(this.slot(), token, this.next!);
 		if (chunk.offsets.length || chunk.done) {
 			hub.sendLocal(this.ws, {
 				type: 'play:offsets', token, ...chunk,
@@ -96,7 +101,7 @@ export class PlayFeed {
 	/** Push the play state whenever its checkpoint moves; the terminal state
 	 *  (finished/idle/another play) is pushed once, then the feed stops. */
 	private async stateTick(token: string): Promise<void> {
-		const state = await playState(this.characterId());
+		const state = await playState(this.slot());
 		const live = state.phase === 'active' && state.token === token;
 		const key = state.phase === 'active'
 			? `${state.token}:${state.accuracy}:${state.grade}`
@@ -114,12 +119,12 @@ export class PlayFeed {
 
 type PlaySession = {
 	character: CharacterRow,
-	/** the socket's character now: a rebirth or a switch moves it off `character` */
-	characterId: number,
+	/** the slot the socket watches */
+	slot: Slot,
 	ws: WSContext,
 	feed: PlayFeed,
-	/** re-reads the character row - its skills level up between plays, and the
-	 *  authoritative simulation must run on the current state, not the row
+	/** re-reads the slot's character row - its skills level up between plays, and
+	 *  the authoritative simulation must run on the current state, not the row
 	 *  resolved when the socket connected */
 	freshCharacter: () => Promise<CharacterRow | undefined>,
 };
@@ -130,16 +135,16 @@ type PlaySession = {
  *  silence until it gave up - a server fault reaching the player as a hang. */
 const answerResult = async (
 	ws: WSContext,
-	characterId: number,
+	slot: Slot,
 	{
 		token, forceSee = false, medals = false,
 	}: Extract<ClientMessage, { type: 'play:result' }>,
 ): Promise<void> => {
 	let result: PlayResult;
 	try {
-		result = await fetchResult(characterId, token, forceSee, medals);
+		result = await fetchResult(slot, token, forceSee, medals);
 	} catch (e) {
-		console.error('[play] result failed for', characterId, e);
+		console.error('[play] result failed for', slot, e);
 		result = {
 			ok: false, reason: 'unfinalized',
 		};
@@ -151,15 +156,47 @@ const answerResult = async (
 
 /** A seated player's only play is the round's, which already exists when they join it. */
 const startUnlessSeated = async (
-	character: CharacterRow, beatmapId: number, options: PlayOptions,
-): Promise<PlayStartResult> => await ownMatch(character.id) && !await isPlaying(character.id)
+	slot: Slot, character: CharacterRow, beatmapId: number, options: PlayOptions,
+): Promise<PlayStartResult> => await ownMatch(character.id) && !await isPlaying(slot)
 	? { status: 'inMatch' }
-	: startPlay(character, beatmapId, options);
+	: startPlay(slot, character, beatmapId, options);
+
+const finishPlay = async (
+	msg: Extract<ClientMessage, { type: 'play:finish' }>,
+	slot: Slot,
+	ws: WSContext,
+): Promise<void> => {
+	// a debug affordance: on prod it would hand out a play's xp without
+	// spending the time the idle loop is built on
+	if (isProd && !isPbe) return;
+	// ending the play opens the whole remainder to the horizon gate, so the
+	// rest of the replay can be answered right here - the client must not be
+	// left waiting on the periodic feed to notice
+	const { ok } = await finishPlayNow(slot, msg.token);
+	if (msg.away) {
+		if (ok) await finalizePlay(slot, true);
+		return;
+	}
+	// read the rest of the replay out before finalising - finalising
+	// consumes the play record
+	const rest = await streamOffsets(slot, msg.token, msg.next);
+	// `done` from the horizon gate answers "is the map fully revealed", which
+	// a failed play never satisfies: its timeline stops where the bot died, so
+	// the offsets past that point are never released. The play is over either
+	// way, so nothing more is coming - say so, or the client waits forever.
+	// Do not finalise here. finalizePlay consumes the play record, so a
+	// finalise racing the client's own play:result leaves that read with
+	// nothing to find - it reports unknown and retries while the first one
+	// is still storing, which reads as the client hanging on "submitting".
+	hub.sendLocal(ws, {
+		type: 'play:offsets', token: msg.token, ...rest, done: true,
+	});
+};
 
 export const handlePlay = async (
 	msg: ClientMessage,
 	{
-		character, characterId, ws, feed, freshCharacter,
+		character, slot, ws, feed, freshCharacter,
 	}: PlaySession,
 ): Promise<boolean> => {
 	switch (msg.type) {
@@ -168,7 +205,7 @@ export const handlePlay = async (
 			try {
 				const fresh = await freshCharacter() ?? character;
 				console.log(fresh.name, 'wants to play', msg.beatmapId);
-				const result = await startUnlessSeated(fresh, msg.beatmapId, {
+				const result = await startUnlessSeated(slot, fresh, msg.beatmapId, {
 					xpMultiplier: isProd ? 1 : msg.xpMultiplier ?? 1, rate: msg.rate, mods: msg.mods,
 				});
 				console.log(fresh.name, 'play status', result.status);
@@ -190,37 +227,16 @@ export const handlePlay = async (
 			feed.stop();
 			return true;
 		case 'play:skip':
-			await skipPlay(characterId, msg.token);
+			await skipPlay(slot, msg.token);
 			return true;
-		case 'play:finish': {
-			// a debug affordance: on prod it would hand out a play's xp without
-			// spending the time the idle loop is built on
-			if (isProd) return true;
-			// ending the play opens the whole remainder to the horizon gate, so the
-			// rest of the replay can be answered right here - the client must not be
-			// left waiting on the periodic feed to notice
-			await finishPlayNow(characterId, msg.token);
-			// read the rest of the replay out before finalising - finalising
-			// consumes the play record
-			const rest = await streamOffsets(characterId, msg.token, msg.next);
-			// `done` from the horizon gate answers "is the map fully revealed", which
-			// a failed play never satisfies: its timeline stops where the bot died, so
-			// the offsets past that point are never released. The play is over either
-			// way, so nothing more is coming - say so, or the client waits forever.
-			// Do not finalise here. finalizePlay consumes the play record, so a
-			// finalise racing the client's own play:result leaves that read with
-			// nothing to find - it reports unknown and retries while the first one
-			// is still storing, which reads as the client hanging on "submitting".
-			hub.sendLocal(ws, {
-				type: 'play:offsets', token: msg.token, ...rest, done: true,
-			});
+		case 'play:finish':
+			await finishPlay(msg, slot, ws);
 			return true;
-		}
 		case 'play:abort':
-			await abortPlay(characterId, msg.token);
+			await abortPlay(slot, msg.token);
 			return true;
 		case 'play:result':
-			await answerResult(ws, characterId, msg);
+			await answerResult(ws, slot, msg);
 			return true;
 		default:
 			return false;

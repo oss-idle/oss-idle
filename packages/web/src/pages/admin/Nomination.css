@@ -381,3 +381,7 @@
 .nomination__tag:disabled {
 	cursor: default;
 }
+
+.nomination__rulesets {
+	margin-bottom: 10px;
+}

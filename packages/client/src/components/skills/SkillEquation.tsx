@@ -3,16 +3,18 @@ import {
 	Trans,
 } from '@lingui/react/macro';
 
+import HoverCard from '@oss-idle/shared/display/HoverCard';
 import { overdriveText } from '@oss-idle/shared/display/overdrive';
 
 import PrestigeDiamonds from '../character/PrestigeDiamonds';
+import GeneticsXpRows from '../genetics/GeneticsXpRows';
 import SkillChip from './SkillChip';
 import {
 	type SkillStats,
 	x,
 } from './skillStats';
 
-/** The XP multiplier written out: upgrades x overdrive → boost, x prestige x medals = total.
+/** The XP multiplier written out: upgrades x overdrive → boost, x prestige x genetics x medals = total.
  *  A part that changes nothing is dimmed. */
 export default function SkillEquation({ s }: { s: SkillStats }) {
 	const { upgrades, max, medals } = s;
@@ -45,6 +47,16 @@ export default function SkillEquation({ s }: { s: SkillStats }) {
 				value={x(s.prestigeBoost)}
 				base={s.prestige === 0}
 			/>
+			{s.genetics !== undefined && <>
+				<span className="skill-eq__op">x</span>
+				<HoverCard card={s.geneticsParts && <GeneticsXpRows parts={s.geneticsParts} />}>
+					<SkillChip
+						label={<Trans>genetics</Trans>}
+						value={x(s.genetics)}
+						base={s.genetics === 1}
+					/>
+				</HoverCard>
+			</>}
 			{medals && <>
 				<span className="skill-eq__op">x</span>
 				<SkillChip

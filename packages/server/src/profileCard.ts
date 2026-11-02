@@ -40,14 +40,22 @@ const num = (n: number) => Math.round(n).toLocaleString('en-US');
 
 const rank = (n?: number) => (n ? `#${num(n)}` : '-');
 
+/** The image type its first bytes say: servers label some PNGs as JPEG, which draws nothing. */
+const imageType = (bytes: Buffer, label: string) => {
+	if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'image/png';
+	if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'image/jpeg';
+	return label;
+};
+
 /** An image as a data URL, undefined when it cannot be fetched. */
-const inline = async (url?: string): Promise<string | undefined> => {
+export const inline = async (url?: string): Promise<string | undefined> => {
 	if (!url) return undefined;
 	try {
 		const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
 		if (!res.ok) return undefined;
-		const type = res.headers.get('content-type') ?? 'image/png';
-		return `data:${type};base64,${Buffer.from(await res.arrayBuffer()).toString('base64')}`;
+		const bytes = Buffer.from(await res.arrayBuffer());
+		const type = imageType(bytes, res.headers.get('content-type') ?? 'image/png');
+		return `data:${type};base64,${bytes.toString('base64')}`;
 	} catch {
 		return undefined;
 	}

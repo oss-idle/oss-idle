@@ -7,7 +7,10 @@ import {
 
 import { db } from '../db/client';
 import { beatmaps } from '../db/schema/beatmap';
-import { ENABLED_RULESETS } from './enabled';
+import {
+	ENABLED_RULESETS,
+	QUEUED_RULESETS,
+} from './enabled';
 import type { ServerRuleset } from './ruleset';
 
 type Loader = () => Promise<{ ruleset: ServerRuleset }>;
@@ -18,13 +21,17 @@ const loaders: Record<RulesetId, Loader> = {
 };
 
 const loaded = new Map<RulesetId, ServerRuleset>();
+const queued = new Map<RulesetId, ServerRuleset>();
 
-/** Import the rulesets this server plays - only those: the others are never loaded.
+/** Import the rulesets this server plays, and those nominators work on: the others are never
+ *  loaded, and one players don't have yet only ever serves its queue.
  *  Runs once before anything serves (boot, a script's start). Not at import time: the
  *  rulesets import modules that import this one. */
 export const loadRulesets = async (): Promise<void> => {
-	for (const id of ENABLED_RULESETS) {
-		loaded.set(id, (await loaders[id]()).ruleset);
+	for (const id of QUEUED_RULESETS) {
+		const { ruleset } = await loaders[id]();
+		queued.set(id, ruleset);
+		if (ENABLED_RULESETS.includes(id)) loaded.set(id, ruleset);
 	}
 };
 
@@ -49,6 +56,22 @@ export const rulesetOfBeatmap = async (beatmapId: number): Promise<ServerRuleset
 		.from(beatmaps).where(eq(beatmaps.id, beatmapId)).limit(1);
 	return row && rulesetOfChart(row.mode, row.keys);
 };
+
+/** The ruleset a stored difficulty is ranked in, when it has a queue here. */
+export const queueOfBeatmap = async (beatmapId: number): Promise<RulesetId | undefined> => {
+	const [row] = await db.select({
+		mode: beatmaps.mode, keys: beatmaps.keys, 
+	})
+		.from(beatmaps).where(eq(beatmaps.id, beatmapId)).limit(1);
+	const id = row && rulesetOf(row.mode, row.keys);
+	return id && queued.has(id) ? id : undefined;
+};
+
+/** A ruleset whose queue this server keeps, played yet or not. */
+export const queuedRuleset = (id: RulesetId): ServerRuleset | undefined => queued.get(id);
+
+/** Every ruleset whose queue this server keeps: a set's status is written in all of them. */
+export const queuedRulesets = (): ServerRuleset[] => [...queued.values()];
 
 /** Every ruleset this server plays. */
 export const enabledRulesets = (): ServerRuleset[] => [...loaded.values()];

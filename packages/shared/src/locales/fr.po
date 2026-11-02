@@ -8,19 +8,14 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-28 18:45\n"
+"PO-Revision-Date: 2026-10-30 16:12\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Crowdin-Project: osu-idle\n"
-"X-Crowdin-Project-ID: 907073\n"
-"X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /packages/shared/src/locales/en.po\n"
-"X-Crowdin-File-ID: 23\n"
 
 #: src/display/ago.ts
-msgid "{d} days ago"
-msgstr "il y a {d} jours"
+msgid "{d, plural, one {# day ago} other {# days ago}}"
+msgstr "{d, plural, one {il y a # jour} other {il y a # jours}}"
 
 #: src/display/ago.ts
 #: src/display/length.ts
@@ -28,32 +23,32 @@ msgid "{d}d"
 msgstr "{d}j"
 
 #: src/display/ago.ts
-msgid "{h} hours ago"
-msgstr "il y a {h} heures"
+msgid "{h, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{h, plural, one {il y a # heure} other {il y a # heures}}"
 
 #: src/display/ago.ts
 msgid "{h}h"
 msgstr "{h}h"
 
 #: src/display/ago.ts
-msgid "{m} minutes ago"
-msgstr "il y a {m} minutes"
+msgid "{m, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{m, plural, one {il y a # minute} other {il y a # minutes}}"
 
 #: src/display/ago.ts
 msgid "{m}mn"
 msgstr "{m}mn"
 
 #: src/display/ago.ts
-msgid "{mo} months ago"
-msgstr "il y a {mo} mois"
+msgid "{mo, plural, one {# month ago} other {# months ago}}"
+msgstr "{mo, plural, one {il y a # mois} other {il y a # mois}}"
 
 #: src/rulesets/mania/gear.ts
 msgid "{name} Tier {tier}"
 msgstr "{name} Tier {tier}"
 
 #: src/display/ago.ts
-msgid "{s} seconds ago"
-msgstr "il y a {s} secondes"
+msgid "{s, plural, one {# second ago} other {# seconds ago}}"
+msgstr "{s, plural, one {il y a # seconde} other {il y a # secondes}}"
 
 #: src/display/ago.ts
 msgid "{s}s"
@@ -86,8 +81,8 @@ msgid "{value}hz Monitor"
 msgstr "Écran {value}hz"
 
 #: src/display/ago.ts
-msgid "{y} years ago"
-msgstr "il y a {y} ans"
+msgid "{y, plural, one {# year ago} other {# years ago}}"
+msgstr "{y, plural, one {il y a # an} other {il y a # ans}}"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "←↓↑→"
@@ -156,6 +151,10 @@ msgstr "AFK"
 #: src/rulesets/mania/medalText.ts
 msgid "Again and Again"
 msgstr "Encore et encore"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Against Nature"
+msgstr "Contre nature"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "AirPods"
@@ -241,8 +240,8 @@ msgid "Better audio and less noise to stay locked in"
 msgstr "Meilleur son et moins de bruits pour lock in"
 
 #: src/rulesets/mania/7k/display.ts
-msgid "Better rollover and switches for big chords"
-msgstr "Un meilleur rollover et de meilleurs switches pour les gros accords"
+msgid "Better rollover and switches for chordjacks"
+msgstr "Meilleur rollover et switches pour les chordjacks"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Beyond Perfect"
@@ -289,6 +288,10 @@ msgid "BottomCentered Anchored LN tails"
 msgstr "LN tail ancrées en bas"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Branching Out"
+msgstr "Ramification"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Broken Record"
 msgstr "Radoteur"
 
@@ -307,8 +310,36 @@ msgid "Build a better warmup routine to endure long maps"
 msgstr "Améliore ton warm up pour gérer des maps plus longues"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Buy 100 gene tiers"
+msgstr "Acheter 100 tiers de gènes"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 150 gene tiers"
+msgstr "Acheter 150 tiers de gènes"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 25 gene tiers"
+msgstr "Acheter 25 tiers de gènes"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 50 gene tiers"
+msgstr "Acheter 50 tiers de gènes"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy half the tiers of a tree"
+msgstr "Acheter la moitié des tiers d'un arbre"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy your first gene"
+msgstr "Acheter ton premier gène"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Buy your first upgrade"
 msgstr "Première amélioration achetée"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buyer's Remorse"
+msgstr "Remords d'acheteur"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "Cap"
@@ -326,6 +357,10 @@ msgstr "Chaise de bureau Ikea CENTERHALV"
 msgid "Centurion"
 msgstr "Centurion"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Change your genetics 5 times"
+msgstr "Changer de génétiques 5 fois"
+
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
 msgid "Change your way of learning SV maps"
@@ -334,15 +369,6 @@ msgstr "Change ta façon de train les maps SV"
 #: src/display/social.ts
 msgid "Cheating"
 msgstr "Triche"
-
-#: src/rulesets/mania/7k/display.ts
-msgid "Chords"
-msgstr "Accords"
-
-#: src/rulesets/mania/7k/medalText.ts
-msgctxt "skill in a medal name"
-msgid "Chords"
-msgstr "des accords"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "Circle skin LNs"
@@ -423,6 +449,10 @@ msgstr "Corsair K60"
 #: src/rulesets/mania/medalText.ts
 msgid "Craftsman"
 msgstr "Artisan"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Crescendo"
+msgstr "Crescendo"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Crowd Favourite"
@@ -513,6 +543,10 @@ msgstr "Ne pas déranger partout"
 msgid "DOF Reality H6R"
 msgstr "DOF Reality H6R"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Double Helix"
+msgstr "Double hélice"
+
 #: src/rulesets/mania/7k/display.ts
 msgid "Drumming practice"
 msgstr "Entraînement à la batterie"
@@ -541,6 +575,22 @@ msgstr "DXRacer Drifting"
 #: src/rulesets/mania/7k/display.ts
 msgid "Dynamic sight focus"
 msgstr "Focalisation dynamique du regard"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 10,000 climaxx from overdrive in one skill"
+msgstr "Gagner 10 000 climaxx grâce à l'overdrive dans une seule compétence"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 2,000 climaxx from overdrive in one skill"
+msgstr "Gagner 2 000 climaxx grâce à l'overdrive dans une seule compétence"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 5,000 climaxx from overdrive in one skill"
+msgstr "Gagner 5 000 climaxx grâce à l'overdrive dans une seule compétence"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 500 climaxx from overdrive in one skill"
+msgstr "Gagner 500 climaxx grâce à l'overdrive dans une seule compétence"
 
 #: src/display/mods.ts
 msgid "Easy"
@@ -586,6 +636,10 @@ msgstr "Éternel"
 msgid "Eternal Return"
 msgstr "Retour Éternel"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Evolving"
+msgstr "En évolution"
+
 #: src/rulesets/mania/4k/display.ts
 msgid "Fade-out tail LNs"
 msgstr "LN tail en fondu"
@@ -618,6 +672,10 @@ msgstr "Trouver le tempo"
 #: src/rulesets/mania/medalText.ts
 msgid "Finish a play at exactly 727 combo"
 msgstr "Termine avec un combo d'exactement 727"
+
+#: src/rulesets/mania/medalText.ts
+msgid "First Gene"
+msgstr "Premier gène"
 
 #: src/rulesets/mania/medalText.ts
 msgid "First Spark"
@@ -665,6 +723,10 @@ msgid "Full N-key rollover"
 msgstr "N-key rollover complet"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Fully Grown"
+msgstr "À maturité"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Fully Loaded"
 msgstr "Jusqu’aux dents"
 
@@ -681,8 +743,20 @@ msgid "Gearing Up"
 msgstr "Préparation"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Genome Expert"
+msgstr "Expert du génome"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Get a 1,000,000 score on TAG underground - POSSESSION"
 msgstr "Obtenir un score de 1 000 000 sur TAG underground - POSSESSION"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get a tree to 150% strength"
+msgstr "Amener un arbre à 150% de puissance"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get a tree to 200% strength"
+msgstr "Amener un arbre à 200% de puissance"
 
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
@@ -694,8 +768,8 @@ msgid "Get added as a friend"
 msgstr "Être ajouté en ami"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Get added as a friend by {count} players"
-msgstr "Être ajouté en ami par {count} joueurs"
+msgid "Get added as a friend by {count, plural, one {# player} other {# players}}"
+msgstr "{count, plural, one {Être ajouté en ami par # joueur} other {Être ajouté en ami par # joueurs}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Get an S on The Parallax II: Future Sequence [Marathon]"
@@ -729,6 +803,14 @@ msgstr "Glorious GMMK Pro"
 msgid "Gold medal"
 msgstr "Médaille d'or"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Grand Finale"
+msgstr "Bouquet final"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Growing"
+msgstr "En croissance"
+
 #: src/rulesets/mania/4k/display.ts
 msgid "Gym, stretch session + meditation"
 msgstr "Musculation, étirements + méditation"
@@ -750,12 +832,12 @@ msgid "Hard Rock"
 msgstr "Hard Rock"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Have {count} of your own mapsets approved"
-msgstr "Faire approuver {count} de tes mapsets"
+msgid "Have {count, plural, one {# of your own mapsets} other {# of your own mapsets}} approved"
+msgstr "{count, plural, one {Faire approuver # de tes mapsets} other {Faire approuver # de tes mapsets}}"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Have {count} of your proposed maps approved"
-msgstr "{count} de tes propositions de map sont approuvées"
+msgid "Have {count, plural, one {# of your proposed maps} other {# of your proposed maps}} approved"
+msgstr "{count, plural, one {# de tes propositions de map est approuvée} other {# de tes propositions de map sont approuvées}}"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "Hbada E3 Pro"
@@ -774,16 +856,16 @@ msgid "High Orbit"
 msgstr "En orbite"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Hit {count} notes"
-msgstr "Jouer {count} notes"
+msgid "Hit {count, plural, one {# note} other {# notes}}"
+msgstr "{count, plural, one {Jouer # note} other {Jouer # notes}}"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Hold {count} upgrades at once"
-msgstr "Détenir {count} améliorations en même temps"
+msgid "Hold {count, plural, one {# upgrade} other {# upgrades}} at once"
+msgstr "{count, plural, one {Détenir # amélioration en même temps} other {Détenir # améliorations en même temps}}"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Hold #1 on {count} ranked maps"
-msgstr "Maintenir la première place sur {count} maps classées"
+msgid "Hold #1 on {count, plural, one {# ranked map} other {# ranked maps}}"
+msgstr "{count, plural, one {Maintenir la première place sur # map classée} other {Maintenir la première place sur # maps classées}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Hold the Line"
@@ -798,10 +880,6 @@ msgstr "Ta précision et ta stabilité au moment de relâcher les longues notes"
 msgid "How accurately you hit the notes as a baseline"
 msgstr "Ta précision de base quand tu joues confortablement"
 
-#: src/rulesets/mania/7k/display.ts
-msgid "How cleanly you hit wide chords, and chords repeated on the same keys"
-msgstr "Ta propreté sur les grands accords, et sur les accords répétés sur les mêmes touches"
-
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
 msgid "How comfortable you generally are during SV sections"
@@ -810,6 +888,10 @@ msgstr "Ton aisance générale pendant les sections SV"
 #: src/rulesets/mania/7k/display.ts
 msgid "How dense the streams and jumptrills you can keep up with are"
 msgstr "La densité des streams et jumptrills que tu arrives à suivre"
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How fast you repeat keys, alone and in chords"
+msgstr "La vitesse à laquelle tu répètes une touche, seule ou en accord"
 
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
@@ -851,6 +933,10 @@ msgstr "HyperX Alloy Origins"
 #: src/rulesets/mania/medalText.ts
 msgid "Icon"
 msgstr "Icône"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Identity Crisis"
+msgstr "Crise d'identité"
 
 #: src/display/community.ts
 msgid "Idle"
@@ -913,6 +999,19 @@ msgstr "Jackspeed"
 msgctxt "skill in a medal name"
 msgid "Jack Speed"
 msgstr "de la jackspeed"
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Jacks"
+msgstr "Jacks"
+
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Jacks"
+msgstr "des jacks"
+
+#: src/display/mods.ts
+msgid "Justice"
+msgstr "Justice"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Keeping Up"
@@ -1011,8 +1110,20 @@ msgid "Mastery"
 msgstr "Maîtrise"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Max out the upgrades of {count} skills at once"
-msgstr "Acheter toutes les améliorations de {count} compétences en même temps"
+msgid "Max out 15 genes"
+msgstr "Monter 15 gènes au maximum"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out 5 genes"
+msgstr "Monter 5 gènes au maximum"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out a gene"
+msgstr "Monter un gène au maximum"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out the upgrades of {count, plural, one {# skill} other {# skills}} at once"
+msgstr "{count, plural, one {Acheter toutes les améliorations de # compétence en même temps} other {Acheter toutes les améliorations de # compétences en même temps}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Max out the upgrades of a skill"
@@ -1075,6 +1186,14 @@ msgstr "Firmware moddé rapid trigger"
 #: src/rulesets/mania/7k/display.ts
 msgid "Music anticipation"
 msgstr "Anticipation de la musique"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Mutant"
+msgstr "Mutant"
+
+#: src/rulesets/mania/medalText.ts
+msgid "New Species"
+msgstr "Nouvelle espèce"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Night Owl"
@@ -1209,6 +1328,10 @@ msgid "Perfect"
 msgstr "Perfect"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Perfect Specimen"
+msgstr "Spécimen parfait"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Perfect Storm"
 msgstr "Tempête parfaite"
 
@@ -1229,16 +1352,16 @@ msgid "Platinum medal"
 msgstr "Médaille de platine"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Play {count} approved maps"
-msgstr "Joue {count} parties approuvées"
+msgid "Play {count, plural, one {# approved map} other {# approved maps}}"
+msgstr "{count, plural, one {Joue # partie approuvée} other {Joue # parties approuvées}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Play between 3 and 5 am"
 msgstr "Joue entre 3 et 5 heures du matin"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Play for {hours} hours"
-msgstr "Joue pendant {hours} heures"
+msgid "Play for {hours, plural, one {# hour} other {# hours}}"
+msgstr "{hours, plural, one {Joue pendant # heure} other {Joue pendant # heures}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Play the same map 100 times"
@@ -1274,8 +1397,8 @@ msgid "Practising sections"
 msgstr "Entraînement par sections"
 
 #: src/rulesets/mania/medalText.ts
-msgid "Prestige {count} times in total"
-msgstr "Fais un prestige {count} fois au total"
+msgid "Prestige {count, plural, one {# time} other {# times}} in total"
+msgstr "{count, plural, one {Fais un prestige # fois au total} other {Fais un prestige # fois au total}}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Prestige a skill"
@@ -1335,8 +1458,16 @@ msgid "Reach {pp} pp"
 msgstr "Atteindre {pp}pp"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Reach every tree"
+msgstr "Atteindre tous les arbres"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Reach level {level} in {skill}"
 msgstr "Atteindre le niveau {level} en {skill}"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach level 110 in a skill your genetics don't reach"
+msgstr "Atteindre le niveau 110 dans une compétence hors de portée de tes génétiques"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Reach overall level {level}"
@@ -1380,6 +1511,14 @@ msgstr "Réinitialise toutes les maps apprises"
 msgid "Rice Cooker"
 msgstr "Cuiseur à riz"
 
+#: src/display/mods.ts
+msgid "Right Thumb"
+msgstr "Right Thumb"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Rising Action"
+msgstr "Montée en tension"
+
 #: src/rulesets/mania/medalText.ts
 msgid "Royalty"
 msgstr "Royauté"
@@ -1403,6 +1542,10 @@ msgstr "Vétéran"
 #: src/rulesets/mania/4k/display.ts
 msgid "Secretlab TITAN Evo"
 msgstr "Secretlab TITAN Evo"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Sell a gene within a minute of buying it"
+msgstr "Vendre un gène moins d'une minute après l'avoir acheté"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "Sennheiser Momentum 4"
@@ -1627,6 +1770,10 @@ msgstr "Entraîne tes mains à jouer indépendamment"
 msgid "Triple Digits"
 msgstr "3 digits"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Triple Helix"
+msgstr "Triple hélice"
+
 #: src/rulesets/mania/4k/display.ts
 msgid "Try different layouts to increase finger independance"
 msgstr "Essaie différentes positions pour améliorer l'indépendance de tes doigts"
@@ -1634,6 +1781,10 @@ msgstr "Essaie différentes positions pour améliorer l'indépendance de tes doi
 #: src/rulesets/mania/4k/display.ts
 msgid "Tune drivers and firmware for faster repeated inputs"
 msgstr "Règle tes drivers et firmwares pour des inputs plus rapides"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Turning Point"
+msgstr "Point de bascule"
 
 #: src/rulesets/mania/7k/display.ts
 msgid "Two keyboards"
@@ -1740,6 +1891,10 @@ msgid "Watching replays"
 msgstr "Regarder des replays"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Well Bred"
+msgstr "Pur-sang"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Well Rounded"
 msgstr "Équilibré"
 
@@ -1782,4 +1937,3 @@ msgstr "Switches usés"
 #: src/rulesets/mania/4k/display.ts
 msgid "Yealink Phone Headset"
 msgstr "Casque de télécommunication Yealink"
-

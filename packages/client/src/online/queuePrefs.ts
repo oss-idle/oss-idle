@@ -6,6 +6,10 @@ import {
 	wasStored,
 } from '../db/settings';
 import Entities from '../entity/entities';
+import {
+	autoSkip,
+	PBE,
+} from '../pbe/pbe';
 import Socket from './socket';
 
 /** Set once this device's own preferences, from before they moved to the
@@ -15,7 +19,7 @@ const UPLOADED = 'queuePrefsUploaded';
 type Key = keyof QueuePrefs;
 
 /** The defaults from before the move: a value still at one was never picked. */
-const OLD_DEFAULTS: Omit<QueuePrefs, 'keepPlaying'> = {
+const OLD_DEFAULTS: Omit<QueuePrefs, 'keepPlaying' | 'autoSkip'> = {
 	mode: 'PLAYLIST', delay: 30, rate: 1, mods: [],
 };
 
@@ -28,9 +32,10 @@ const VALUE: { [K in Key]: Synced<QueuePrefs[K]> } = {
 	rate: SETTINGS.rate,
 	mods: SETTINGS.mods,
 	keepPlaying,
+	autoSkip: autoSkip as Synced<boolean | undefined>,
 };
 
-const KEYS = Object.keys(VALUE) as Key[];
+const KEYS = (Object.keys(VALUE) as Key[]).filter(k => PBE || k !== 'autoSkip');
 
 /** What the server holds for the character. */
 let server: QueuePrefs | undefined;
@@ -82,7 +87,7 @@ export const resetPrefs = (): void => {
 
 /** A value this device picked before the preferences moved to the server: sent
  *  up the first time, instead of being replaced. */
-const pickedHere = (k: Key): boolean => k !== 'keepPlaying'
+const pickedHere = (k: Key): boolean => k !== 'keepPlaying' && k !== 'autoSkip'
 	&& wasStored((VALUE[k] as typeof SETTINGS.rate).key)
 	&& !same(VALUE[k].get(), OLD_DEFAULTS[k]);
 

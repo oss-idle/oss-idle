@@ -1,4 +1,7 @@
-import { Trans } from '@lingui/react/macro';
+import {
+	Plural,
+	Trans,
+} from '@lingui/react/macro';
 import {
 	useEffect,
 	useState,
@@ -55,7 +58,9 @@ export default function RequestBulkBar({
 
 	return (
 		<div className='requests__bulk'>
-			<span className='requests__muted'><Trans>{count} selected</Trans></span>
+			<span className='requests__muted'>
+				<Plural value={count} one='# selected' other='# selected' />
+			</span>
 			<button className='request__btn' disabled={busy} onClick={onSelectPage}>
 				<Trans>Select page</Trans>
 			</button>

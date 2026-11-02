@@ -17,7 +17,7 @@ export default function Button({ label, onClick, accent }: Props) {
 	const style = accent ? ({ '--accent': accent } as React.CSSProperties) : undefined;
 	
 	return (
-		<button type="button" className="opt-button" style={style} onClick={onClick}>
+		<button type="button" className="opt-button" style={style} onClick={onClick} data-sound="button">
 			{label}
 		</button>
 	);

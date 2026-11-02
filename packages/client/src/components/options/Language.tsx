@@ -9,9 +9,19 @@ import {
 import { SETTINGS } from '../../db/settings';
 import Dropdown from '../dropdown/Dropdown';
 
+/** Under this, the picker says how much of a language is translated. */
+const SHOW_COMPLETION_UNDER = 90;
+
+const languageLabel = (locale: Locale) => {
+	const completion = __CATALOG_COMPLETION__[locale];
+	return completion < SHOW_COMPLETION_UNDER
+		? `${LOCALE_LABELS[locale]} (${completion}%)`
+		: LOCALE_LABELS[locale];
+};
+
 const LANGUAGE_OPTIONS = SUPPORTED_LOCALES.map((locale) => ({
 	value: locale as Locale,
-	label: LOCALE_LABELS[locale],
+	label: languageLabel(locale),
 }));
 
 /** The catalog activation itself is wired globally (main.tsx subscribes to the

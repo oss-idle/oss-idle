@@ -5,6 +5,8 @@ import {
 	useAdmin,
 	useModerator,
 } from './hooks/useAdmin';
+import { useCurrentUser } from './hooks/useCurrentUser';
+import { PBE } from './pbe/pbe';
 
 type Props = {
 	open: boolean;
@@ -19,6 +21,7 @@ export default function HeaderLinks({ open, onNavigate, showSub }: Props) {
 	const { t } = useLingui();
 	const admin = useAdmin();
 	const moderator = useModerator();
+	const nominator = !!useCurrentUser()?.nominates.length;
 
 	return (
 		<div
@@ -64,9 +67,9 @@ export default function HeaderLinks({ open, onNavigate, showSub }: Props) {
 				</div>
 			</div>
 
-			<div className="topbar__link regular" {...showSub}>
+			{!PBE && <div className="topbar__link regular" {...showSub}>
 				<Link to='/store' className="topbar__link-anchor"><span>{t`store`}</span></Link>
-			</div>
+			</div>}
 
 			<div className="topbar__link regular" {...showSub}>
 				<Link to='/help/faq' className="topbar__link-anchor"><span>{t`help`}</span></Link>
@@ -75,9 +78,12 @@ export default function HeaderLinks({ open, onNavigate, showSub }: Props) {
 				</div>
 			</div>
 
-			{moderator && (
+			{(moderator || nominator) && (
 				<div className="topbar__link regular">
-					<Link to={admin ? '/admin' : '/admin/chat'} className="topbar__link-anchor">
+					<Link
+						to={admin ? '/admin' : moderator ? '/admin/chat' : '/admin/nomination'}
+						className="topbar__link-anchor"
+					>
 						<span>{t`admin`}</span>
 					</Link>
 				</div>

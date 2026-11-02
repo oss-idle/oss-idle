@@ -8,15 +8,10 @@ msgstr ""
 "Language: fr\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-28 18:45\n"
+"PO-Revision-Date: 2026-10-30 16:12\n"
 "Last-Translator: \n"
 "Language-Team: French\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Crowdin-Project: osu-idle\n"
-"X-Crowdin-Project-ID: 907073\n"
-"X-Crowdin-Language: fr\n"
-"X-Crowdin-File: /packages/server/src/locales/en.po\n"
-"X-Crowdin-File-ID: 31\n"
 
 #: src/userPage.ts
 msgid "{name} wrote:"
@@ -29,4 +24,3 @@ msgstr "Introuvable"
 #: src/userPage.ts
 msgid "SPOILER"
 msgstr "SPOILER"
-

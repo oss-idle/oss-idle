@@ -50,6 +50,7 @@ const diffColumns = {
 	beatmapId: beatmaps.id,
 	setId: beatmapset.id,
 	osuId: beatmapset.osuId,
+	osuCover: beatmapset.osuCover,
 	background: beatmaps.background,
 	artist: beatmapset.artist,
 	title: beatmapset.title,

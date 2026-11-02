@@ -151,8 +151,14 @@ describe('prestige', () => {
 
 describe('rebirth', () => {
 	it('unlocks on overall level, not a per-skill one', () => {
-		expect(canRebirth(REBIRTH_MIN_OVERALL_LEVEL - 1)).toBe(false);
-		expect(canRebirth(REBIRTH_MIN_OVERALL_LEVEL)).toBe(true);
+		expect(canRebirth(REBIRTH_MIN_OVERALL_LEVEL - 1, 1)).toBe(false);
+		expect(canRebirth(REBIRTH_MIN_OVERALL_LEVEL, 1)).toBe(true);
+	});
+	it('each generation needs 10 more levels', () => {
+		expect(canRebirth(119, 2)).toBe(false);
+		expect(canRebirth(120, 2)).toBe(true);
+		expect(canRebirth(129, 3)).toBe(false);
+		expect(canRebirth(130, 3)).toBe(true);
 	});
 });
 

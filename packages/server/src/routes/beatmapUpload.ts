@@ -34,6 +34,7 @@ import {
 import { db } from '../db/client';
 import { beatmapset } from '../db/schema/beatmapset';
 import { redisKeyPrefix } from '../env';
+import { addEvent } from '../events';
 import { redis } from '../redis';
 import { rulesetQuery } from '../rulesets/request';
 import { isSupporter } from '../supporter';
@@ -95,6 +96,9 @@ export const beatmapUploadRoutes = new Hono<{ Variables: { userId: number } }>()
 				};
 			});
 			await boardForSupporters(userId, result.setId);
+			await addEvent({ userId }, {
+				type: target.setId === undefined ? 'beatmapsetUpload' : 'beatmapsetUpdate', setId: result.setId,
+			});
 			return c.json({
 				setId: result.setId, updated: target.setId !== undefined, ids: result.ids,
 			});

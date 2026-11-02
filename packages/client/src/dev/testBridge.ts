@@ -11,6 +11,7 @@ import { ScoreXP } from '../db/schema/score_xp';
 import { SETTINGS } from '../db/settings';
 import Entities from '../entity/entities';
 import PlayQueue from '../gameplay/playQueue';
+import { geneticChoice } from '../globals';
 import Account from '../online/account';
 import {
 	currentLocalPlay,
@@ -207,6 +208,12 @@ const bridge = {
 	noCharacter: (): boolean => Account.noCharacter.get(),
 	/** the first-Play choice, answered with local play (boot.spec clicks it) */
 	playLocally: (): Promise<void> => Account.playLocally(),
+	/** song select no longer asks a character with no genetic for one; a new character still picks */
+	skipGeneticAsks: (): void => {
+		geneticChoice.forceSync(mode => {
+			if (mode === 'change') void geneticChoice.set(undefined);
+		});
+	},
 	character,
 	/** every local database write so far has reached IndexedDB */
 	saved: (): Promise<void> => DB.saved(),

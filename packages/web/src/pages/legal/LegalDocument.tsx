@@ -17,7 +17,7 @@ const block = (b: Block, i: number) => {
 };
 
 /** A legal page, in French for French speakers and in English for everyone else. Not translated
- *  through Crowdin: a legal text has to say exactly what was written. */
+ *  through Weblate: a legal text has to say exactly what was written. */
 export default function LegalDocument({ doc }: { doc: Bilingual }) {
 	const { i18n } = useLingui();
 	const [lang, setLang] = useState<'en' | 'fr'>(i18n.locale.startsWith('fr') ? 'fr' : 'en');

@@ -44,6 +44,8 @@ export const INTRO_SET_ID = 355322;
 export type MapCover = {
 	id: number;
 	osuId: number | null;
+	/** osu! serves covers for the set (an old one can have none) */
+	osuCover: boolean;
 	/** one of its difficulties' preview background */
 	background?: string | null;
 };
@@ -51,14 +53,10 @@ export type MapCover = {
 /** A difficulty as a set's panel lists it. */
 export type PanelDiff = { id: number, version: string, sr: number, keys: number };
 
-/** Our own preview of a set's background, when one of its difficulties has one. */
-export const ownCoverUrl = (set: MapCover, apiBase = '') =>
-	set.background ? `${apiBase}/v1/beatmap/preview/${set.id}/${set.background}` : undefined;
-
-/** A set's cover: osu!'s when it is on osu!, else our own preview background. */
+/** A set's cover: osu!'s when osu! serves one, else our own preview background. */
 export const mapCoverUrl = (set: MapCover, size: 'list' | 'card' | 'cover', apiBase = '') => {
-	if (set.osuId) return `https://assets.ppy.sh/beatmaps/${set.osuId}/covers/${size}.jpg`;
-	return ownCoverUrl(set, apiBase);
+	if (set.osuId && set.osuCover) return `https://assets.ppy.sh/beatmaps/${set.osuId}/covers/${size}.jpg`;
+	if (set.background) return `${apiBase}/v1/beatmap/preview/${set.id}/${set.background}`;
 };
 
 /** Downloads a set into the game: the desktop app takes it from the OS, an

@@ -1,4 +1,7 @@
-import { ph } from '@lingui/core/macro';
+import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
 import {
 	Trans,
 	useLingui,
@@ -9,6 +12,10 @@ import HoverCard from '@oss-idle/shared/display/HoverCard';
 import HoverCardRow from '@oss-idle/shared/display/HoverCardRow';
 import num from '@oss-idle/shared/display/num';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
+import {
+	CLIMAXX_SYMBOL,
+	conversionGain,
+} from '@oss-idle/shared/genetics';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import {
@@ -21,18 +28,26 @@ import {
 import { levelProgress } from '@oss-idle/shared/xp';
 import { xpToLevel } from '@oss-idle/shared/xp';
 
-import { prestigeSkill } from '../../online/services/prestige';
 import { selectedDef } from '../../rulesets/registry';
 import ConfirmMenu, { type Confirm } from '../ConfirmMenu';
+import PrestigeAction from './PrestigeAction';
+import PrestigeClimaxxPop from './PrestigeClimaxxPop';
 import PrestigeDiamonds from './PrestigeDiamonds';
+import usePrestige from './usePrestige';
 
 export default function PrestigeRow({
 	skill,
 	locked,
+	converted,
+	climaxxNow,
 	lifetimeXp,
 }: {
 	skill: SkillState,
 	locked: boolean,
+	/** the skill's overdrive already turned into climaxx; none without genetics */
+	converted?: number,
+	/** the skill's climaxx, read when the prestige starts */
+	climaxxNow?: () => number,
 	/** xp ever earned on the skill, shown as a level behind it on hover */
 	lifetimeXp?: number,
 }) {
@@ -40,7 +55,7 @@ export default function PrestigeRow({
 	const [level] = useSynced(skill.level);
 	const [xp] = useSynced(skill.xp);
 	const [prestige] = useSynced(skill.prestige);
-	const [busy, setBusy] = useState(false);
+	const [overdrive] = useSynced(skill.overdrive);
 	const [confirming, setConfirming] = useState<Confirm | undefined>(undefined);
 
 	const required = prestigeMinLevel(prestige);
@@ -54,16 +69,10 @@ export default function PrestigeRow({
 	const earned = xpToLevel(level) + xp;
 	const needed = xpToLevel(required);
 	const progress = Math.min(1, earned / needed);
-
-	const run = async () => {
-		if (busy) return;
-		setBusy(true);
-		try {
-			await prestigeSkill(skill.name);
-		} finally {
-			setBusy(false);
-		}
-	};
+	const gain = converted === undefined ? 0 : conversionGain(converted, overdrive);
+	const {
+		busy, run, transfer, closeTransfer,
+	} = usePrestige(skill, gain, climaxxNow);
 
 	const confirm = () => {
 		if (!ready || busy) return;
@@ -72,7 +81,12 @@ export default function PrestigeRow({
 		setConfirming({
 			title: t`Prestige ${name}?`,
 			sub: [
-				t`XP Lv${level} → XP Lv0 · Loses every upgrade and all Overdrive · Keeps +${ph({ bonus: prestige + 1 })} bonus levels, ${ph({ slots: maxUpgrades(prestige + 1) })} gear slots and x${ph({ multiplier: next.toFixed(2) })} XP`,
+				// eslint-disable-next-line @stylistic/max-len
+				t`XP Lv${level} → XP Lv0 · Loses every upgrade and all Overdrive · Keeps +${plural(ph({ bonus: prestige + 1 }), {
+					one: '# bonus level', other: '# bonus levels', 
+				})}, ${plural(ph({ slots: maxUpgrades(prestige + 1) }), {
+					one: '# gear slot', other: '# gear slots', 
+				})} and x${ph({ multiplier: next.toFixed(2) })} XP`,
 				...note ? [note] : [],
 			].join(' · '),
 			confirmLabel: t`Prestige`,
@@ -87,6 +101,9 @@ export default function PrestigeRow({
 		</HoverCardRow>
 		{!ready && <HoverCardRow label={<Trans>To go</Trans>}>
 			{num(Math.ceil(needed - earned))}
+		</HoverCardRow>}
+		{gain > 0 && <HoverCardRow label={<Trans>Climaxx</Trans>}>
+			+{CLIMAXX_SYMBOL}{gain.toLocaleString()}
 		</HoverCardRow>}
 	</>;
 
@@ -117,13 +134,15 @@ export default function PrestigeRow({
 					<span style={{ transform: `scaleX(${progress})` }} />
 				</div>
 			</HoverCard>
-			<HoverCard className="ladder-act__main prestige-act" card={card}>
-				{ready
-					? <button className="ladder-act__buy" disabled={busy} onClick={confirm}>
-						<span><Trans>Prestige</Trans></span>
-					</button>
-					: <span className="ladder-act__state"><span><Trans>Requires XP Lv{required}</Trans></span></span>}
-			</HoverCard>
+			<PrestigeAction
+				ready={ready}
+				busy={busy}
+				required={required}
+				gain={gain}
+				card={card}
+				onConfirm={confirm}
+			/>
+			{transfer && <PrestigeClimaxxPop {...transfer} onClose={closeTransfer} />}
 			{confirming && <ConfirmMenu
 				{...confirming}
 				onClose={() => setConfirming(undefined)}

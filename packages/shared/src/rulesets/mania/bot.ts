@@ -1,3 +1,4 @@
+import type { Mod } from '../../mods.js';
 import type RuntimeNote from './runtimeNote.js';
 import type { HitWindows } from './scoring.js';
 import type {
@@ -26,6 +27,8 @@ export interface BotContext {
 	inputs: InputEvent[]
 	/** number of columns (keys) in the map - used to split columns into hands */
 	keyCount: number
+	/** the play's mods: 7K's RT puts the middle key on the right hand */
+	mods: readonly Mod[]
 	/** the play's hit windows (OD, divine and mods applied) */
 	windows: HitWindows
 	scroll: ScrollModel

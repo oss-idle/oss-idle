@@ -20,6 +20,8 @@ export const beatmapset = mysqlTable('beatmapset', {
 	id: int().primaryKey().autoincrement(),
 	// osu!'s set id, when the map has one
 	osuId: int().unique(),
+	// osu! serves covers for it (an old set can have none): else our own background
+	osuCover: boolean().notNull().default(true),
 	artist: text().notNull(),
 	title: text().notNull(),
 	creator: text().notNull(),
@@ -37,6 +39,8 @@ export const beatmapset = mysqlTable('beatmapset', {
 	bundled: boolean().notNull().default(false),
 	// its tags were reviewed: off the nomination page's "to categorize" queue
 	categorized: boolean().notNull().default(false),
+	// players who favourited it (favourite_beatmapset), kept here like osu!'s
+	favouriteCount: int().notNull().default(0),
 }, table => [index('beatmapset_owner_idx').on(table.ownerUserId)]);
 
 /** A set's status in one ruleset: ranking there says nothing of another ruleset. */

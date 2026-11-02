@@ -10,6 +10,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 import clamp from '@oss-idle/shared/math/clamp';
 
 import useSmoothNumber from '../animations/useSmoothNumber';
+import { notchTick } from '../audio/uiSounds';
 import { SETTINGS } from '../db/settings';
 import { isVolumeVisible } from '../globals';
 import Controls from '../input/Controls';
@@ -54,6 +55,7 @@ export default function VolumeOverlay() {
 		const channel = CHANNELS[hoveredRef.current ?? 'main'];
 		const next = clamp(Math.round((channel.get() + delta) * 100) / 100, 0, 1);
 		void channel.set(next);
+		notchTick(next, 0.1);
 		isVolumeVisible.set(true);
 		armHide(() => { if (!hoveredRef.current) isVolumeVisible.set(false); });
 	};

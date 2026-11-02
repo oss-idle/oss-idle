@@ -39,7 +39,10 @@ import {
 	beatmaps,
 } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
-import { characters } from '../db/schema/character';
+import {
+	characters,
+	getCharacterById,
+} from '../db/schema/character';
 import type { NewScoreRow } from '../db/schema/score';
 import { isRestricted } from '../db/schema/user';
 import { redisKeyPrefix } from '../env';
@@ -67,10 +70,15 @@ import {
 	rulesetFor,
 	rulesetOfBeatmap,
 } from '../rulesets/registry';
+import {
+	characterOfSlot,
+	type Slot,
+	watchedSlot,
+} from '../slot';
 import { characterOwner } from './chat';
 import { hub } from './hub';
 import { botLine } from './makiseBot';
-import { areOnline } from './presence';
+import { isListed } from './presence';
 
 /**
  * Multiplayer matches. Every match lives in one Redis hash (id -> JSON) and every
@@ -104,6 +112,8 @@ type Stored = Omit<Match, 'locked'> & {
 
 type RoundPlayer = {
 	characterId: number,
+	/** where its play runs: the slot its client watched when the round started */
+	slot: Slot,
 	startedAt: number,
 	/** when it was due to end at the start: a skip moves both by the same amount */
 	endsAt: number,
@@ -127,16 +137,26 @@ const readRound = async (id: number): Promise<Round | undefined> => {
 	const raw = await redis.get(roundKey(id));
 	if (!raw) return undefined;
 	const round = JSON.parse(raw) as Round;
+	// a round from before slots played in its players' 4K one
+	round.players = round.players.map(p => ({
+		...p, slot: p.slot ?? String(p.characterId) as Slot,
+	}));
 	// a game stored before rulesets keeps its scores in 4K's tables
 	return round.gameId === undefined ? round : {
 		ruleset: 'mania4k', ...round,
 	};
 };
 
+/** The slot a seated character's client watches. */
+const watchedOf = async (characterId: number): Promise<Slot> => {
+	const row = await getCharacterById(characterId);
+	return row ? watchedSlot(row) : String(characterId) as Slot;
+};
+
 /** Every round player's score at the live position; a play that is over shows
  *  its final score. */
 const liveScores = async (round: Round): Promise<RoundScore[]> => {
-	const ends = await playEnds(round.players.map(p => p.characterId));
+	const ends = await playEnds(round.players.map(p => p.slot));
 	return round.players.map((p, i) => {
 		const end = ends[i];
 		if (end === undefined) return p.final;
@@ -158,7 +178,7 @@ const roundOver = async (m: Stored, round: Round | undefined): Promise<boolean> 
 	if (round?.startedAt !== m.roundStartedAt) {
 		return (m.endsAt ?? (m.roundStartedAt ?? 0) + START_TIMEOUT_MS) <= Date.now();
 	}
-	const ends = await playEnds(round!.players.map(p => p.characterId));
+	const ends = await playEnds(round!.players.map(p => p.slot));
 	return ends.every(e => e === undefined);
 };
 
@@ -188,12 +208,14 @@ const roundResult = (
 	playedAt: new Date(draft.playedAt ?? Date.now()).getTime(),
 });
 
-const roundPlayer = async (characterId: number): Promise<RoundPlayer | undefined> => {
-	const play = await playTimeline(characterId);
+const roundPlayer = async (slot: Slot): Promise<RoundPlayer | undefined> => {
+	const play = await playTimeline(slot);
 	if (!play?.samples) return undefined;
 	const { def } = rulesetFor(play.ruleset);
+	const characterId = characterOfSlot(slot);
 	return {
 		characterId,
+		slot,
 		startedAt: play.startedAt,
 		endsAt: play.endsAt,
 		samples: play.samples,
@@ -356,7 +378,7 @@ const create = async (
 	{ name, password, size, isPublic, beatmapId }: Extract<ClientMessage, { type: 'mp:create' }>,
 ): Promise<JoinAnswer> => {
 	if (await restrictedCharacter(characterId)) return { reason: 'restricted' };
-	if (await isPlaying(characterId)) return { reason: 'playing' };
+	if (await isPlaying(await watchedOf(characterId))) return { reason: 'playing' };
 	const beatmap = beatmapId === undefined ? undefined : await findBeatmap(beatmapId);
 	await leaveMatch(characterId);
 	const id = await openMatch(name, isPublic);
@@ -384,7 +406,7 @@ const join = async (
 ): Promise<JoinAnswer> => {
 	if (await memberOf(characterId) !== id) {
 		if (await restrictedCharacter(characterId)) return { reason: 'restricted' };
-		if (await isPlaying(characterId)) return { reason: 'playing' };
+		if (await isPlaying(await watchedOf(characterId))) return { reason: 'playing' };
 		await leaveMatch(characterId);
 	}
 	const answer: JoinAnswer = { reason: 'gone' };
@@ -477,10 +499,11 @@ const start = async (characterId: number): Promise<void> => {
 	});
 	if (beatmapId === undefined) return;
 
+	const slots = await Promise.all(round.map(watchedOf));
 	const started = await Promise.all(round.map(async (id, i) => {
 		const [row] = await db.select().from(characters).where(eq(characters.id, id)).limit(1);
 		const result = row
-			? await startPlay(row, beatmapId!, {
+			? await startPlay(slots[i], row, beatmapId!, {
 				rate: seats[i].rate, mods: seats[i].mods, round: true,
 			}).catch(() => undefined)
 			: undefined;
@@ -490,10 +513,10 @@ const start = async (characterId: number): Promise<void> => {
 
 	const matchId = await memberOf(characterId);
 	if (matchId === undefined) return;
-	const timelines = await Promise.all(round
+	const timelines = await Promise.all(slots
 		.filter((_, i) => started[i] !== undefined)
 		.map(roundPlayer));
-	const ruleset = (await Promise.all(round.map(playTimeline))).find(p => p)?.ruleset;
+	const ruleset = (await Promise.all(slots.map(playTimeline))).find(p => p)?.ruleset;
 	const gameId = ruleset && timelines.some(p => p)
 		? await startGame(matchId, beatmapId, ruleset)
 		: undefined;
@@ -517,8 +540,10 @@ const start = async (characterId: number): Promise<void> => {
 const awayTooLong = async (ids: number[]): Promise<boolean[]> => {
 	if (!ids.length) return [];
 	// a character playing with its game closed looks online, but has left the match
-	const listed = await areOnline(ids);
-	const online = await Promise.all(ids.map(async (id, i) => listed[i] && !await isAway(id)));
+	const online = await Promise.all(ids.map(async id => {
+		const slot = await watchedOf(id);
+		return await isListed(slot) && !await isAway(slot);
+	}));
 	const now = Date.now();
 	const tx = redis.multi();
 	ids.forEach((id, i) => {

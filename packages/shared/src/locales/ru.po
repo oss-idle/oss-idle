@@ -1,0 +1,1939 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-06-11 10:10+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Weblate 2026.10.1\n"
+"Language: ru\n"
+"Project-Id-Version: osu-idle\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2026-10-30 19:22+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
+"Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/shared/ru/>\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+
+#: src/display/ago.ts
+msgid "{d, plural, one {# day ago} other {# days ago}}"
+msgstr ""
+
+#: src/display/ago.ts
+#: src/display/length.ts
+msgid "{d}d"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{h, plural, one {# hour ago} other {# hours ago}}"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{h}h"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{m, plural, one {# minute ago} other {# minutes ago}}"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{m}mn"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{mo, plural, one {# month ago} other {# months ago}}"
+msgstr ""
+
+#: src/rulesets/mania/gear.ts
+msgid "{name} Tier {tier}"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{s, plural, one {# second ago} other {# seconds ago}}"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{s}s"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "{skill} Adept"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "{skill} Grandmaster"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "{skill} Legend"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "{skill} Master"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "{value} Scroll Speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "{value}hz Monitor"
+msgstr ""
+
+#: src/display/ago.ts
+msgid "{y, plural, one {# year ago} other {# years ago}}"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "←↓↑→"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "1 hour pre-session warmup"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "2 hours gym session"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "2-key rollover"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "3-key rollover"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "30 minutes muscle strength warmup"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "30 minutes of streams"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "6-key rollover"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "60hz GMMK firmware"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "A tidy desk"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Absolute"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Accuracy"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Accuracy"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Adjustable actuation"
+msgstr ""
+
+#: src/display/community.ts
+msgid "AFK"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Again and Again"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Against Nature"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "AirPods"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Amazon basics Puresoft office chair"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Anchored LN tails"
+msgstr "Закрепленные хвосты ЛН"
+
+#: src/rulesets/mania/4k/display.ts
+msgid "AndaSeat Kaiser 3"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Anti-ghosting"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Architect"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Archivist"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Arrow skin LNs"
+msgstr "Скин стрелки ЛНов"
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Arrow skin notes"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "AS:\""
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "AS45"
+msgstr "AS45"
+
+#: src/rulesets/mania/4k/display.ts
+msgid "AS56"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Ascendant"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "ASL:"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Audio focused accuracy"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Bar skin LNs"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Bar skin notes"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Basic plastic chair"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Be in the top {percent}% of players by pp"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Better audio and less noise to stay locked in"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Better rollover and switches for chordjacks"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Beyond Perfect"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Beyond Reason"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Beyond the Stars"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Big Spender"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Billion Club"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Blank LN bodies"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Blank LN body with bar LN tail"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Born Again"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Bose QuietComfort Ultra"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Both hands in sync"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "BottomCentered Anchored LN tails"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Branching Out"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Broken Record"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Bronze medal"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Bruteforce learning"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Build a better warmup routine to endure long maps"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 100 gene tiers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 150 gene tiers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 25 gene tiers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy 50 gene tiers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy half the tiers of a tree"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy your first gene"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buy your first upgrade"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Buyer's Remorse"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Cap"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Cartographer"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "CENTERHALV Ikea mesh office chair"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Centurion"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Change your genetics 5 times"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Change your way of learning SV maps"
+msgstr ""
+
+#: src/display/social.ts
+msgid "Cheating"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Circle skin LNs"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Circle skin notes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Clean Start"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Closed door"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Collector"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Coloured LN heads"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Column lighting off"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Completionist"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Concentration"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Concentration"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Consistency"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Consistency"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Constant scroll"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Controller"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Cooler Master MS110"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Coordination"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Coordination"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Corsair K60"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Craftsman"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Crescendo"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Crowd Favourite"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Crystal Clear"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Curator"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Custom hall-effect board"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Cut percy LNs"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Cut percy with LN end indicator"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Dedication"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Default skin LNs"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Default skin notes"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Dell XPS chiclet keyboard"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Determines how fast and how well you are able to learn SV maps"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Determines how many notes you're comfortable hitting in short periods of time"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Determines how often you will get random chokes during plays"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Determines whether you will start drifting away during longer plays"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Devoted"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "DFJK"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Diamond skin notes"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Divine medal"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Divine Touch"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Do Not Disturb everywhere"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "DOF Reality H6R"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Double Helix"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Drumming practice"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "DrunkDeer A75 Pro"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Dualscreen"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Ducky One 2 Mini"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Ducky One 3 TKL"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "DXRacer Drifting"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Dynamic sight focus"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 10,000 climaxx from overdrive in one skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 2,000 climaxx from overdrive in one skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 5,000 climaxx from overdrive in one skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Earn 500 climaxx from overdrive in one skill"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Easy"
+msgstr ""
+
+#: src/display/addon.ts
+msgid "Editor"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Eight Stars Up"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Elite"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Embedded keyboard firmware"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Encore"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Ergonomic chair"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Ergonomic split keyboard"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Escape Velocity"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Eternal"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Eternal Return"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Evolving"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Fade-out tail LNs"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Fail a map in its first 10 seconds"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Fail a map with 1% of it left"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "False Start"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Familiar Face"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Find the perfect LN skin"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Finding the Beat"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Finish a play at exactly 727 combo"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "First Gene"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "First Spark"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "First Steps"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Flawless Flow"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Flow state"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Focus"
+msgstr ""
+
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Focus"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Forearm strength training"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Fresh Start"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Friendly"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Full combo a ranked map of {stars}★ or more"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Full N-key rollover"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Fully Grown"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Fully Loaded"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Future Sequence"
+msgstr ""
+
+#: src/display/addon.ts
+msgid "Gameplay"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Gearing Up"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Genome Expert"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get a 1,000,000 score on TAG underground - POSSESSION"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get a tree to 150% strength"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get a tree to 200% strength"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Get accustomed to higher scroll speeds to perform better"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get added as a friend"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get added as a friend by {count, plural, one {# player} other {# players}}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an S on The Parallax II: Future Sequence [Marathon]"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an SS on AiAe [Wafles' SHD]"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an SS on an approved map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an X on an approved map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an XX on an approved map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Glass Cannon"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Glorious GMMK Pro"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Gold medal"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Grand Finale"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Growing"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Gym, stretch session + meditation"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Gym, stretching and meditation"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Halfway There"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hands Awake"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Hard Rock"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Have {count, plural, one {# of your own mapsets} other {# of your own mapsets}} approved"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Have {count, plural, one {# of your proposed maps} other {# of your proposed maps}} approved"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Hbada E3 Pro"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Heating Up"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hello World"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "High Orbit"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hit {count, plural, one {# note} other {# notes}}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hold {count, plural, one {# upgrade} other {# upgrades}} at once"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hold #1 on {count, plural, one {# ranked map} other {# ranked maps}}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Hold the Line"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "How accurate and stable you are when timing releases"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "How accurately you hit the notes as a baseline"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "How comfortable you generally are during SV sections"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How dense the streams and jumptrills you can keep up with are"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How fast you repeat keys, alone and in chords"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "How long you can keep up with patterns that are too dense for you"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How rarely you choke, and how well you stay locked in on long maps"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How well each hand keeps its own rhythm, the thumb on the middle key included"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "How well you are able to decipher complex patterns on screen without mashing"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "How well you handle other patterns while holding long notes"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How well you make out dense patterns on screen without mashing"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "How well you play while holding LNs, and release them on time"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Hush-Hush"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "HyperX Alloy Origins"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Icon"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Identity Crisis"
+msgstr ""
+
+#: src/display/community.ts
+msgid "Idle"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "In the Running"
+msgstr ""
+
+#: src/display/social.ts
+msgid "Inappropriate chat behaviour"
+msgstr ""
+
+#: src/display/social.ts
+msgid "Inappropriate content"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Independence"
+msgstr ""
+
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Independence"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Inferno"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Into the Storm"
+msgstr ""
+
+#: src/types/color.ts
+msgid "Invalid #hex color"
+msgstr ""
+
+#: src/types/color.ts
+msgid "Invalid color: use a #hex (e.g. #63b3ff) or rgb()/rgba() value"
+msgstr ""
+
+#: src/types/color.ts
+msgid "Invalid rgb()/rgba() color"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Iron Combo"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "IRON165"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Jack Speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Jack Speed"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Jacks"
+msgstr ""
+
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Jacks"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Justice"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Keeping Up"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Keyboard Breaker"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Keychron K8"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Kitted Out"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Laptop keyboard with a dead spacebar"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Latest stock Windows drivers"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Lenovo IdeaPad ultrabook chiclet keyboard"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Lifer"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Liftoff"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Light linear switches"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Light percy LNs"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Living Legend"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "LN"
+msgstr ""
+
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "LN"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "LN end indicator"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Logitech H390"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Logitech K120"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Low latency Corsair iCUE"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Magnetic switches"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Map a set that gets approved"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Map editor studying"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Mapper"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Mastery"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out 15 genes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out 5 genes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out a gene"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out the upgrades of {count, plural, one {# skill} other {# skills}} at once"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Max out the upgrades of a skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Meltdown"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Memorizing the whole map"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Memory"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Memory"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Mental SV palace"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Metal folding chair"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Mid-play stretching + meditation"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Mid-play stretching and meditation"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Million Taps"
+msgstr ""
+
+#: src/display/addon.ts
+msgid "Misc"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Modded actuation prediction firmware"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Modded rapid trigger firmware"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Music anticipation"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Mutant"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "New Species"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Night Owl"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Nine Lives"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "No Fail"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "No Life"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "No tail LNs"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "No warmup"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Noise-cancelling headphones"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Noisy room"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Norbaforce Mark IV"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Note snap coloring"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Note snap colouring"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Number One"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "On top of these, each play's XP changes depending on mods (EZ x{ez} on every skill, HR x{hr} on Accuracy) and drops when you replay the same map many times in a day due to mindblock (except Speed, Stamina, Chords, LN and Memory)."
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "On top of these, each play's XP changes depending on mods (EZ x{ez} on every skill, HR x{hr} on Accuracy) and drops when you replay the same map many times in a day due to mindblock (except Speed, Stamina, Jack Speed and Memory)."
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "One easy map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "One Percent"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "One-hand maps"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Optimized MasterPlus+"
+msgstr ""
+
+#: src/display/social.ts
+msgid "Other (type below)"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Outdated stock Windows drivers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Overachiever"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Overall"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Overclocked"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Pass a 4★ or harder map made of over 50% long notes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Pass a 4★ or harder map made of over 90% single notes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Pass a ranked map of {stars}★ or more"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Passive learning"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Pattern drawings"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Per-key rapid trigger"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Per-map scroll speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Per-map scroll speed setting"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Perfect"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Perfect Specimen"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Perfect Storm"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Perfectionist"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Phone on silent"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Piano scales"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Platinum medal"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Play {count, plural, one {# approved map} other {# approved maps}}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Play between 3 and 5 am"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Play for {hours, plural, one {# hour} other {# hours}}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Play the same map 100 times"
+msgstr ""
+
+#: src/display/community.ts
+msgid "Playing"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Polyrhythm drills"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Popular"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Possessed"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Post-it notes"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Post-it pattern drawings"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Practising sections"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Prestige {count, plural, one {# time} other {# times}} in total"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Prestige a skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Prestigious"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Propose a map that gets approved"
+msgstr ""
+
+#: src/display/addon.ts
+#: src/display/skin.ts
+msgid "Published"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "QW{}"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "QWOP"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "QWP{"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Ranked"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Rapid trigger"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Raw individual finger speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Razer BlackShark V3"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Re-mapping to get mapper's advantage"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach {omega}ω overdrive on a skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach {pp} pp"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach every tree"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach level {level} in {skill}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach level 110 in a skill your genetics don't reach"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Reach overall level {level}"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Rebirth your character"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Redline"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Redragon Kumara"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Regular"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Release"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Release"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Remapping it yourself"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Resets every learned map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Rice Cooker"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Right Thumb"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Rising Action"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Royalty"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Rubber dome office keyboard"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Say something in #oss!idle"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "SDKL"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Seasoned"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Secretlab TITAN Evo"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Sell a gene within a minute of buying it"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Sennheiser Momentum 4"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Set a {pp} pp play"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Sharpen your note visuals to read the scroll"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Sharpen your note visuals to survive dense jams"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Shopping Spree"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Short LN tails"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Shut the world out to stay locked in"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Silver medal"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Singularity"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Sizzling speakers"
+msgstr ""
+
+#: src/display/medals.ts
+msgid "Skill"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "So Close"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Sony WH-1000XM4"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Soundproofed room"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Speed"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Speed Jam"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Speed silver switches"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Split keyboard"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Split map sections training"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Spotless"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Stamina"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Stamina"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Stamina pack warmup"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Steady Hands"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Steelseries Apex Pro"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Steelseries Arctis Nova 5"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Steelseries GG embedded profile"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Stock Logitech G Hub"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Stool"
+msgstr ""
+
+#: src/display/mods.ts
+msgid "Sudden Death"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Supernova"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "SV"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "SV"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Synaptics drivers"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Take #1 on a ranked map"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Talent Scout"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Tapping Away"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Tapping songs on the desk"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Tastemaker"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Technical"
+msgstr ""
+
+#: src/rulesets/mania/4k/medalText.ts
+#: src/rulesets/mania/7k/medalText.ts
+msgctxt "skill in a medal name"
+msgid "Technical"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Ten Thousand Hours"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Ten-Star Legend"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Tented split keyboard"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Thin LN bodies"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Thinks about warmup"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Thumb cluster keyboard"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Time Flies"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Top of the Line"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Top Quarter"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Train your hands to play apart"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Triple Digits"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Triple Helix"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Try different layouts to increase finger independance"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Tune drivers and firmware for faster repeated inputs"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Turning Point"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Two keyboards"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Unbranded membrane keyboard"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Unbroken"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Undisputed"
+msgstr ""
+
+#: src/display/addon.ts
+#: src/display/skin.ts
+msgid "Unpublished"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Untouchable"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Upgrade your chair to play more comfortably"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Upgrade your keyboard to hit all seven keys cleanly"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Upgrade your keyboard to increase your synergy"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Upgrade your monitor to see the notes more clearly"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Upper Half"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Used earbuds"
+msgstr ""
+
+#: src/display/social.ts
+msgid "Using multiple accounts"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+#: src/rulesets/mania/7k/display.ts
+msgid "Vibe playing"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Voyager Focus 2"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Wall of Notes"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Warming Up"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Warmup on easy maps"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Warmup on hard maps"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Warmup on high dans"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Warmup on low dans"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Warmup on mid dans"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Warmup on normal maps"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Warmup on stamina packs"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Watching replays"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Well Bred"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Well Rounded"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "When You See It"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Where Did The Day Go"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Wildfire"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Wired headphones"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Wonderful"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Wooden chair"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Wooting 60HE"
+msgstr ""
+
+#: src/rulesets/mania/7k/display.ts
+msgid "Wooting 80HE"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Worn Switches"
+msgstr ""
+
+#: src/rulesets/mania/4k/display.ts
+msgid "Yealink Phone Headset"
+msgstr ""

@@ -8,7 +8,10 @@ import {
 } from 'react';
 
 import type { MapTag } from '@oss-idle/shared/beatmap';
+import { nominatesIn } from '@oss-idle/shared/groups';
 import { useAction } from '@oss-idle/shared/hooks/useAction';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	deleteNomination,
@@ -21,6 +24,12 @@ import {
 	uploadBeatmap,
 } from '../../api/maps';
 import Link from '../../components/Link';
+import { useAdmin } from '../../hooks/useAdmin';
+import {
+	useAuthLoaded,
+	useCurrentUser,
+} from '../../hooks/useCurrentUser';
+import { QUEUED_RULESETS } from '../../rulesets';
 import NominationRow from './NominationRow';
 import {
 	PHASE_ORDER,
@@ -35,7 +44,14 @@ const time = (iso: string | null): number => iso ? new Date(iso).getTime() : 0;
 const toCategorize = (r: Nomination) => !r.categorized && r.status !== 'rejected';
 const isPending = (r: Nomination) => r.status === 'pending';
 
-export default function NominationPage() {
+export default function NominationPage({ ruleset: asked }: {
+	/** the first one the viewer ranks maps in when left out */
+	ruleset?: RulesetId,
+}) {
+	const user = useCurrentUser() ?? undefined;
+	const admin = useAdmin();
+	const rulesets = QUEUED_RULESETS.filter(id => nominatesIn(user, id));
+	const ruleset = asked ?? rulesets[0];
 	const [list, setList] = useState<Nomination[] | null>(null);
 	// null = still checking, false = denied, true = authorized.
 	const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -50,13 +66,18 @@ export default function NominationPage() {
 	const [queue, setQueue] = useState(false);
 	const [pendingOnly, setPendingOnly] = useState(false);
 
-	// The server is the real gate: if listing the queue succeeds we're an admin.
+	// The server is the real gate: if listing the queue succeeds we may rank in this ruleset.
 	const refresh = () =>
-		listNominations()
+		listNominations(ruleset)
 			.then(rows => { setList(rows); setAuthorized(true); })
 			.catch(e => { setAuthorized(false); setError(String(e.message ?? e)); });
 
-	useEffect(() => { void refresh(); }, []);
+	// a nominator's rulesets come with their session: asking before it's known would be refused
+	const loaded = useAuthLoaded();
+	useEffect(() => {
+		if (ruleset) void refresh();
+		else if (loaded) setAuthorized(false);
+	}, [ruleset, loaded]);
 
 	const run = (action: () => Promise<unknown>) => runAction(action, refresh);
 
@@ -68,7 +89,7 @@ export default function NominationPage() {
 			for (let i = 0; i < list.length; i++) {
 				setProgress(`${i + 1}/${list.length}`);
 				try {
-					await uploadBeatmap(list[i]);
+					await uploadBeatmap(list[i], ruleset);
 				} catch (e) {
 					const msg = String((e as Error).message ?? e);
 					// Already-ranked sets are skipped, not a failure of the batch.
@@ -98,10 +119,10 @@ export default function NominationPage() {
 		setId: number,
 		body: NominationPatch,
 	) => 'status' in body || 'rankedAt' in body
-		? run(() => updateNomination(setId, body))
+		? run(() => updateNomination(setId, body, ruleset))
 		: quick(setId, r => ({
 			...r, ...body, 
-		}), () => updateNomination(setId, body));
+		}), () => updateNomination(setId, body, ruleset));
 	const toggleDiff = (setId: number, beatmapId: number, ranked: boolean) =>
 		run(() => setDiffRanked(setId, beatmapId, ranked));
 	const tagDiff = (setId: number, beatmapId: number, tags: MapTag[]) => quick(
@@ -146,12 +167,27 @@ export default function NominationPage() {
 	);
 
 	if (authorized === false) return <main className='nomination'>
-		<p className='nomination__error'>{error ?? 'Admins only.'}</p>
+		<p className='nomination__error'>{error ?? 'Nominators only.'}</p>
 	</main>;
 	if (!list) return <main className='nomination'><p className='nomination__muted'>Loading…</p></main>;
 
 	return (
 		<main className='nomination'>
+			{rulesets.length > 1 && (
+				<div className='nomination__sort nomination__rulesets'>
+					<span className='nomination__muted'>Mode</span>
+					{rulesets.map(id => (
+						<Link
+							key={id}
+							to='/admin/nomination'
+							search={{ ruleset: id }}
+							className={`nomination__sort-btn ${id === ruleset ? 'current' : ''}`}
+						>
+							{rulesetLabel(id)}
+						</Link>
+					))}
+				</div>
+			)}
 			<div className='nomination__toolbar'>
 				<label className={`nomination__btn nomination__btn--primary ${busy ? 'is-disabled' : ''}`}>
 					{busy ? `Working… ${progress ?? ''}` : 'Upload .osz'}
@@ -182,7 +218,7 @@ export default function NominationPage() {
 					Pending ({list.filter(isPending).length})
 				</button>
 				<Link to='/maps/requests' search={{
-					filter: 'open', sort: 'support', page: 1,
+					ruleset, filter: 'open', sort: 'support', page: 1,
 				}} className='nomination__btn'>
 					Player requests
 				</Link>
@@ -196,11 +232,12 @@ export default function NominationPage() {
 					<NominationRow
 						key={row.id}
 						row={row}
+						ruleset={ruleset}
 						busy={busy}
 						onPatch={patch}
 						onToggleDiff={toggleDiff}
 						onTagDiff={tagDiff}
-						onDelete={remove}
+						onDelete={admin ? remove : undefined}
 					/>
 				))}
 			</div>

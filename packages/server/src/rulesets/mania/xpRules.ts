@@ -16,6 +16,8 @@ export type XpHistory = {
 	medals: number,
 	/** accuracy's bonus for a first X on the map */
 	firstX: number,
+	/** each skill's multiplier from the character's genetics */
+	genetics?: Readonly<Record<string, number>>,
 };
 
 /** A character state with no history: the sim API's. */
@@ -39,6 +41,7 @@ export const applyXpRules = <S extends string>(
 	if (history.mindblock < 1) scale(mindblock, history.mindblock);
 	scale(physical, fatigueXp(fatigue));
 	scale(Object.keys(skillXp) as S[], history.medals);
+	for (const [name, factor] of Object.entries(history.genetics ?? {})) scale([name as S], factor);
 	if (history.firstX) skillXp['accuracy' as S] += history.firstX;
 	for (const name of Object.keys(skillXp) as S[]) {
 		skillXp[name] = Math.floor(skillXp[name] * modMultipliers[name]);

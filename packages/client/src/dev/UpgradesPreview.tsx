@@ -9,7 +9,7 @@ export default function UpgradesPreview({
 	tab = 'upgrades',
 }: {
 	children: ReactNode,
-	tab?: 'skills' | 'upgrades' | 'prestige',
+	tab?: 'skills' | 'upgrades' | 'prestige' | 'genetics',
 }) {
 	return (
 		<div style={{
@@ -20,6 +20,12 @@ export default function UpgradesPreview({
 				onBack={() => undefined}
 				initialTab={tab}
 				tabs={[
+					{
+						id: 'genetics',
+						label: <Trans>Genetics</Trans>,
+						subtitle: <Trans>What your character was born good at, kept through prestige</Trans>,
+						render: () => tab === 'genetics' && children,
+					},
 					{
 						id: 'skills', label: <Trans>Skills</Trans>, render: () => tab === 'skills' && children,
 					},

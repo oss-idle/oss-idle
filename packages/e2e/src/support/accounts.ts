@@ -55,6 +55,7 @@ const TEST_USERS = {
 	bugs: [user(2_147_480_018, 'e2e Rita')],
 	downloads: [user(2_147_480_019, 'e2e Sam')],
 	library: [user(2_147_480_020, 'e2e Tara')],
+	genetics: [user(2_147_480_021, 'e2e Uma')],
 };
 
 // the dev server's Redis keys (redisKeyPrefix in packages/server/src/env.ts)
@@ -127,15 +128,15 @@ export const testAccounts = async (spec: keyof typeof TEST_USERS): Promise<Accou
 			await db.query('UPDATE user SET current_character = ? WHERE id = ?', [row.id, id]);
 			await db.query(
 				`UPDATE \`character\`
-				SET autopilot_mode = 'PLAYLIST', autopilot_delay = 3, play_rate = 1, play_mods = NULL,
+				SET autopilot_mode = 'PLAYLIST', autopilot_delay = 3,
 					ruleset = 'mania4k', ruleset_lock = NULL
 				WHERE id = ?`,
 				[row.id],
 			);
-			// its 4K profile: skills and fatigue are a ruleset's
+			// its 4K profile: skills, fatigue, rate and mods are a ruleset's
 			await db.query(
 				`INSERT INTO mania4k_character (id) VALUES (?)
-				ON DUPLICATE KEY UPDATE speed_upgrades = 0, fatigue = NULL`,
+				ON DUPLICATE KEY UPDATE speed_upgrades = 0, fatigue = NULL, play_rate = 1, play_mods = NULL`,
 				[row.id],
 			);
 			accounts.push({

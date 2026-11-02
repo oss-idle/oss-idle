@@ -42,7 +42,11 @@ import {
 	scorePage,
 	skillPage,
 } from '../rankings';
-import { rulesetQuery } from '../rulesets/request';
+import {
+	rulesetId,
+	rulesetParam,
+	rulesetQuery,
+} from '../rulesets/request';
 import {
 	column,
 	type ServerRuleset,
@@ -157,7 +161,9 @@ const topPlaysPage = ({ bestPP }: ServerRuleset, page: number, among?: number[])
 	.offset((page - 1) * PAGE_SIZE);
 
 /** `?friends=1` narrows a board to the signed-in player and their friends. */
-const friendsQuery = valid('query', z.object({ friends: z.literal('1').optional() }));
+const friendsQuery = valid('query', z.object({
+	friends: z.literal('1').optional(), ruleset: rulesetId.optional(),
+}));
 
 const amongFor = async (c: Context): Promise<number[] | undefined> => {
 	if (c.req.query('friends') !== '1') return undefined;
@@ -166,17 +172,17 @@ const amongFor = async (c: Context): Promise<number[] | undefined> => {
 };
 
 const progressQuery = valid('query', z.object({
-	friends: z.literal('1').optional(), country: z.string().optional(),
+	friends: z.literal('1').optional(), country: z.string().optional(), ruleset: rulesetId.optional(),
 }));
 
 export const rankingRoutes = new Hono()
-	.get('/country/:page', async c => c.json(
+	.get('/country/:page', rulesetParam, async c => c.json(
 		await countryPage(rulesetQuery(c), idParam.parse(c.req.param('page'))),
 	))
 	.get('/plays/:page', friendsQuery, async c => c.json(
 		await topPlaysPage(rulesetQuery(c), idParam.parse(c.req.param('page')), await amongFor(c)),
 	))
-	.get('/countries', async c => c.json(
+	.get('/countries', rulesetParam, async c => c.json(
 		await playerCountries(rulesetQuery(c)),
 	))
 	.get('/global/:page', friendsQuery, async c => c.json(await ppPage(
@@ -212,7 +218,7 @@ export const rankingRoutes = new Hono()
 			c.req.param('country'),
 			await amongFor(c)),
 	))
-	.get('/progress', async c => c.json(await progressOverview(rulesetQuery(c))))
+	.get('/progress', rulesetParam, async c => c.json(await progressOverview(rulesetQuery(c))))
 	.get('/progress/:line/:page', progressQuery, async c => {
 		const line = z.enum(ProgressLines).parse(c.req.param('line'));
 		return c.json(await progressPage(

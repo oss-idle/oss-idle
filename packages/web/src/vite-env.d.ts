@@ -5,6 +5,8 @@ interface ImportMetaEnv {
 	readonly VITE_API_URL?: string
 	/** Edges nearer some players, comma-separated: the game measures and picks. */
 	readonly VITE_API_EDGES?: string;
+	/** '1' in a build for the PBE. */
+	readonly VITE_PBE?: string;
 }
 
 interface ImportMeta {

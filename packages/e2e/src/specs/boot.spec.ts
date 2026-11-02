@@ -28,6 +28,7 @@ test.describe('boot', () => {
 		await expect(game.menuOption('Editor')).toHaveClass(/disabled/);
 		await game.menuOption('Play').click();
 		await page.locator('.play-choice__btn', { hasText: 'Play locally' }).click();
+		await game.pickGenetic();
 		await game.expectScene('SELECT');
 
 		const character = await game.character();

@@ -2,7 +2,10 @@ import './PlayerGrid.css';
 
 import { useLingui } from '@lingui/react/macro';
 
-import type { PresenceEntry } from '@oss-idle/shared/community/presence';
+import {
+	type PresenceEntry,
+	presenceKey,
+} from '@oss-idle/shared/community/presence';
 
 import PlayerCard from './PlayerCard';
 import { menuFor } from './state';
@@ -20,7 +23,7 @@ export default function PlayerGrid({ characters }: { characters: PresenceEntry[]
 	return (
 		<div className="community-grid">
 			{characters.map(c => <PlayerCard
-				key={c.characterId}
+				key={presenceKey(c)}
 				character={c}
 				onClick={openMenu}
 			/>)}

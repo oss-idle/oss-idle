@@ -32,6 +32,9 @@ export default function GroupPage({ group, filter, sort }: {
 			The <b>Global Moderation Team</b> keeps the community a fun and welcoming place: they
 			handle reports and moderate the chat, silencing or restricting players who break the rules.
 		</Trans>,
+		bn: <Trans>
+			The <b>Beatmap Nominators</b> review the maps players propose and rank them.
+		</Trans>,
 	};
 
 	if (!members) return <div className='page-contents'><Trans>Loading…</Trans></div>;

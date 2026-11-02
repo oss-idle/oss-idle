@@ -5,8 +5,12 @@ import {
 	inArray,
 	isNull,
 } from 'drizzle-orm';
-import { Hono } from 'hono';
+import {
+	type Context,
+	Hono,
+} from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { z } from 'zod';
 
 import { INTRO_SET_ID } from '@oss-idle/shared/beatmap';
 import {
@@ -15,11 +19,14 @@ import {
 	maxPendingRequests,
 	parseBeatmapsetId,
 } from '@oss-idle/shared/beatmapRequest';
-import { isAdmin } from '@oss-idle/shared/groups';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
 import { rulesetOf } from '@oss-idle/shared/rulesets/ids';
 
 import { requireActive } from '../auth/active';
-import { requireAdmin } from '../auth/admin';
+import {
+	mayNominateIn,
+	requireNominator,
+} from '../auth/admin';
 import {
 	requireAuth,
 	sessionUserId,
@@ -33,13 +40,17 @@ import {
 	getManiaSet,
 	searchManiaSets,
 } from '../db/stats';
-import { groupsOf } from '../groups';
 import {
 	fetchBeatmapset,
 	SchedulerError,
 } from '../osu/api';
-import { enabledRulesets } from '../rulesets/registry';
-import { rulesetQuery } from '../rulesets/request';
+import { ENABLED_RULESETS } from '../rulesets/enabled';
+import { queuedRulesets } from '../rulesets/registry';
+import {
+	queueQuery,
+	rulesetId,
+	rulesetParam,
+} from '../rulesets/request';
 import type { ServerRuleset } from '../rulesets/ruleset';
 import { isSupporter } from '../supporter';
 import {
@@ -48,9 +59,18 @@ import {
 } from '../validate';
 
 
+/** The ruleset a request is about; one players don't have yet only for its nominators. */
+const requestRuleset = async (c: Context): Promise<ServerRuleset> => {
+	const r = queueQuery(c);
+	if (ENABLED_RULESETS.includes(r.def.id) || await mayNominateIn(await sessionUserId(c), r.def.id)) {
+		return r;
+	}
+	throw new HTTPException(404, { message: 'No such ruleset' });
+};
+
 /** Metadata for a set nobody has requested yet: the stats mirror first (free,
  *  local), then osu! itself for anything it doesn't carry - which is also what
- *  proves the set exists and has a 4K mania difficulty. */
+ *  proves the set exists and has a difficulty in the ruleset. */
 const resolveSet = async (r: ServerRuleset, setId: number) => {
 	const local = await getManiaSet(r, setId);
 	if (local) return local;
@@ -69,7 +89,7 @@ const resolveSet = async (r: ServerRuleset, setId: number) => {
 	const diffs = (set.beatmaps ?? [])
 		.filter(b => rulesetOf(b.mode_int, Math.round(b.cs)) === r.def.id);
 	if (!diffs.length) {
-		throw new HTTPException(400, { message: 'Only osu!mania 4K maps can be ranked in oss!idle' });
+		throw new HTTPException(400, { message: `Only osu!mania ${rulesetLabel(r.def.id)} maps can be ranked here` });
 	}
 
 	const srs = diffs.map(b => b.difficulty_rating);
@@ -139,7 +159,7 @@ const listRequests = async (r: ServerRuleset, viewerId?: number) => {
  *  lands, whether it came from the mirror or an admin upload. */
 export const acceptRequestsForSet = async (setId: number, adminId?: number): Promise<void> => {
 	// the set lands in every ruleset's queue, so each ruleset's request is answered
-	for (const { requests } of enabledRulesets()) {
+	for (const { requests } of queuedRulesets()) {
 		await db
 			.update(requests)
 			.set({
@@ -155,17 +175,21 @@ export const acceptRequestsForSet = async (setId: number, adminId?: number): Pro
  * admin-only and feed straight into the nomination queue.
  */
 export const beatmapRequestRoutes = new Hono()
-	.get('/', async c => c.json(await listRequests(rulesetQuery(c), await sessionUserId(c))))
+	.get('/', rulesetParam, async c => c.json(
+		await listRequests(await requestRuleset(c), await sessionUserId(c)),
+	))
 
-	// Autocomplete over the ranked/loved mirror, so players pick a real 4K map.
-	.get('/search', async c => {
+	// Autocomplete over the ranked/loved mirror.
+	.get('/search', valid('query', z.object({
+		q: z.string().optional(), ruleset: rulesetId.optional(),
+	})), async c => {
 		const q = c.req.query('q') ?? '';
 		if (q.trim().length < 2) return c.json([] as Awaited<ReturnType<typeof searchManiaSets>>);
-		return c.json(await searchManiaSets(rulesetQuery(c), q));
+		return c.json(await searchManiaSets(await requestRuleset(c), q));
 	})
 
-	.post('/', requireActive, valid('json', beatmapRequestBody), async c => {
-		const r = rulesetQuery(c);
+	.post('/', rulesetParam, requireActive, valid('json', beatmapRequestBody), async c => {
+		const r = await requestRuleset(c);
 		const userId = c.get('userId');
 		const setId = parseBeatmapsetId(c.req.valid('json').map);
 		if (!setId || setId === INTRO_SET_ID) {
@@ -227,8 +251,8 @@ export const beatmapRequestRoutes = new Hono()
 	})
 
 	// Back a request (or take the backing away). Only while it's still open.
-	.post('/:setId/support', requireActive, async c => {
-		const r = rulesetQuery(c);
+	.post('/:setId/support', rulesetParam, requireActive, async c => {
+		const r = await requestRuleset(c);
 		const setId = idParam.parse(c.req.param('setId'));
 		const userId = c.get('userId');
 
@@ -254,9 +278,9 @@ export const beatmapRequestRoutes = new Hono()
 		return c.json({ supported: !deleted.affectedRows });
 	})
 
-	// Admin: accept or reject, with a reason players can read.
-	.patch('/:setId', requireAdmin, valid('json', beatmapRequestPatch), async c => {
-		const r = rulesetQuery(c);
+	// Nominators: accept or reject, with a reason players can read.
+	.patch('/:setId', rulesetParam, requireNominator, valid('json', beatmapRequestPatch), async c => {
+		const r = await requestRuleset(c);
 		const setId = idParam.parse(c.req.param('setId'));
 		const body = c.req.valid('json');
 
@@ -274,10 +298,10 @@ export const beatmapRequestRoutes = new Hono()
 		return c.json({ ok: true });
 	})
 
-	// Admin: pull the .osz from the mirror and run it through the normal ingest,
+	// Nominators: pull the .osz from the mirror and run it through the normal ingest,
 	// so an accepted request lands in the nomination queue in one click.
-	.post('/:setId/ingest', requireAdmin, async c => {
-		const r = rulesetQuery(c);
+	.post('/:setId/ingest', rulesetParam, requireNominator, async c => {
+		const r = await requestRuleset(c);
 		const setId = idParam.parse(c.req.param('setId'));
 
 		const [request] = await db
@@ -296,9 +320,9 @@ export const beatmapRequestRoutes = new Hono()
 		}
 	})
 
-	// The requester can withdraw an open request; an admin can drop any of them.
-	.delete('/:setId', requireAuth, async c => {
-		const r = rulesetQuery(c);
+	// The requester can withdraw an open request; a nominator can drop any of them.
+	.delete('/:setId', rulesetParam, requireAuth, async c => {
+		const r = await requestRuleset(c);
 		const setId = idParam.parse(c.req.param('setId'));
 		const userId = c.get('userId');
 
@@ -312,7 +336,7 @@ export const beatmapRequestRoutes = new Hono()
 		if (!request) throw new HTTPException(404, { message: 'No such request' });
 
 		const own = request.userId === userId && request.status === 'pending';
-		if (!own && !isAdmin(await groupsOf(userId))) throw new HTTPException(403, { message: 'Forbidden' });
+		if (!own && !await mayNominateIn(userId, r.def.id)) throw new HTTPException(403, { message: 'Forbidden' });
 
 		await db.delete(r.requestVotes).where(eq(r.requestVotes.setId, setId));
 		await db.delete(r.requests).where(eq(r.requests.setId, setId));

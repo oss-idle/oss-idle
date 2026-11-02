@@ -1,5 +1,10 @@
 import { CharacterDTO } from '@oss-idle/shared/character';
 import {
+	type Genetics,
+	NO_GENETICS,
+	readGenetics,
+} from '@oss-idle/shared/genetics';
+import {
 	mapped,
 	ValueIn,
 } from '@oss-idle/shared/helpers/mapped';
@@ -46,6 +51,8 @@ const t = table('character', {
 	memoryResetAt: integer().default(0),
 	// JSON list of when memory upgrades were bought: each forgets plays on every map
 	memoryForgetAt: text().default('[]'),
+	// 4K's genetic and genes, as JSON: every other ruleset keeps its own
+	geneticsJson: text().default(''),
 	local:       integer().default(0),
 	current:     integer().default(0),
 });
@@ -57,6 +64,7 @@ export default class Character extends DAO(t) {
 	/** The picked ruleset's skills (none while it loads, on the boot's placeholder). */
 	public readonly skills = (selectedDefLoaded()?.skills ?? []).map(name => new SkillState(name));
 	public readonly status = new Synced<CharacterStatus>(STATUS.IDLE);
+	public readonly genetics = new Synced<Genetics>(NO_GENETICS);
 	/** The picked ruleset's progress: this row for 4K, the ruleset's own row otherwise. */
 	public progress: Progress = this;
 
@@ -65,7 +73,18 @@ export default class Character extends DAO(t) {
 		this.readSkills();
 	}
 
+	/** Keep a local character's genetics in the picked ruleset. */
+	public async saveGenetics(next: Genetics): Promise<void> {
+		// shown before it is stored: what reads it next (song select asking for one) sees it
+		const shown = this.genetics.set(next);
+		this.progress.geneticsJson = JSON.stringify(next);
+		await this.progress.update();
+		await shown;
+	}
+
 	private readSkills(): void {
+		const json = this.progress.geneticsJson;
+		void this.genetics.set(readGenetics(json ? JSON.parse(json) as Partial<Genetics> : undefined));
 		const columns = this.skillColumns();
 		this.skills.forEach(skill => {
 			void skill.level.set(columns[skill.name] ?? 0);
@@ -165,6 +184,11 @@ export default class Character extends DAO(t) {
 		return this.skillColumns()[`${skill}LifetimeXp`] ?? 0;
 	}
 
+	/** What every skill's lifetime xp buys: the overall level shown and the rebirth gate. */
+	public overallLifetimeLevel(): number {
+		return xpGivesLevel(this.skills.reduce((sum, s) => sum + s.lifetimeXp.get(), 0)).level;
+	}
+
 	public memoryForgets(): number[] {
 		return JSON.parse(this.progress.memoryForgetAt) as number[];
 	}
@@ -257,7 +281,7 @@ export default class Character extends DAO(t) {
 	}
 	
 	static fromDTO(dto: CharacterDTO): Character {
-		const { skills, ...rest } = dto;
+		const { skills, genetics, ...rest } = dto;
 		const skillData = Object.fromEntries(
 			Object.entries(skills).flatMap(([name, {
 				level, xp, upgrades, overdrive, prestige, lifetimeXp,
@@ -280,6 +304,7 @@ export default class Character extends DAO(t) {
 			});
 			character.readSkills();
 		}
+		if (genetics) void character.genetics.set(genetics);
 		return character;
 	}
 

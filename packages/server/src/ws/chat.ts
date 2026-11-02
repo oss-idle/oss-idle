@@ -83,7 +83,7 @@ const timeoutKey = (userId: number): string => `${redisKeyPrefix}chat:timeout:${
 export const PLAYER_NAME_COLOR = '#feefb0';
 export const SUPPORTER_NAME_COLOR = '#fddf43';
 const GROUP_NAME_COLOR: Record<Group, string> = {
-	admin: GROUP_BADGE.admin.colour, gmt: '#ff4040',
+	admin: GROUP_BADGE.admin.colour, gmt: '#ff4040', bn: GROUP_BADGE.bn.colour,
 };
 /** `/announce` renders the whole line in this attention-grabbing red. */
 const ANNOUNCE_COLOR = '#ff6b6b';

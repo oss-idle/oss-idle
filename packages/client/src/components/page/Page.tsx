@@ -8,6 +8,7 @@ import {
 
 import {
 	type PageAction,
+	PageBackdropSlot,
 	PageBarSlot,
 } from './pageBar';
 import PageBarButton from './PageBarButton';
@@ -56,6 +57,7 @@ export default function Page(props: Props) {
 	const { title, subtitle, onBack } = props;
 	const tabs = props.tabs;
 	const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
+	const [backdrop, setBackdrop] = useState<HTMLElement>();
 	const [activeId, setActiveId] = useState(() => props.tabs && (
 		props.initialTab ?? props.tabs[0]?.id
 	));
@@ -79,6 +81,7 @@ export default function Page(props: Props) {
 
 	return (
 		<div className='page'>
+			<div className='page__backdrop' ref={el => el && setBackdrop(el)} />
 			{tabs && (
 				<nav className='page__tabs'>
 					{tabs.map(tab => (
@@ -101,9 +104,11 @@ export default function Page(props: Props) {
 			</div>
 
 			<main className='page__body'>
-				<PageBarSlot.Provider value={barSlot}>
-					{active ? active.render() : props.children}
-				</PageBarSlot.Provider>
+				<PageBackdropSlot.Provider value={backdrop}>
+					<PageBarSlot.Provider value={barSlot}>
+						{active ? active.render() : props.children}
+					</PageBarSlot.Provider>
+				</PageBackdropSlot.Provider>
 			</main>
 
 			<footer className='page__bottombar'>

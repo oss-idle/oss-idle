@@ -21,6 +21,7 @@ import {
 	env,
 	ITCH_REDIRECT_URI,
 } from './env';
+import { supporterEvent } from './events';
 import { tagStart } from './supporter';
 
 const API = 'https://api.itch.io';
@@ -135,5 +136,6 @@ export const claimItch = async (userId: number, itchUserId: number): Promise<num
 	if (!user || user.restricted) throw new Error(`itch.io claim for account ${userId}, missing or restricted`);
 	let seconds = 0;
 	for (const p of await purchasesOf(itchUserId)) seconds += await land(userId, itchUserId, p);
+	if (seconds) await supporterEvent(userId, false);
 	return seconds;
 };

@@ -11,6 +11,8 @@ const MOD_NAMES = defineMessages({
 	HR: 'Hard Rock',
 	SD: 'Sudden Death',
 	PF: 'Perfect',
+	JT: 'Justice',
+	RT: 'Right Thumb',
 } satisfies Record<Mod, string>);
 
 export const modName = (mod: Mod): string => __(MOD_NAMES[mod]);
@@ -31,5 +33,11 @@ export const MOD_LOOK = {
 	},
 	PF: {
 		glyph: 'sealCheck', tint: '#e2b81f',
+	},
+	JT: {
+		glyph: 'crosshair', tint: '#a3203e',
+	},
+	RT: {
+		glyph: 'handFist', tint: '#4f8fa8',
 	},
 } as const satisfies Record<Mod, { glyph: GlyphName, tint: string }>;

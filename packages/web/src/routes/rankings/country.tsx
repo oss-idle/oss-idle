@@ -9,7 +9,7 @@ import { pageSearch } from '../-rankingSearch';
 export const Route = createFileRoute('/rankings/country')({
 	validateSearch: zodValidator(pageSearch),
 	loaderDeps: ({ search }) => search,
-	loader: ({ deps }) => getCountryRanking(deps.page),
+	loader: ({ deps }) => getCountryRanking(deps.page, deps.ruleset),
 	component: CountryRoute,
 	staticData: { title: msg`rankings` },
 });

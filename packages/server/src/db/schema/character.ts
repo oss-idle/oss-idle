@@ -11,12 +11,17 @@ import {
 
 import type { CharacterDTO } from '@oss-idle/shared/character';
 import type { Fatigue } from '@oss-idle/shared/fatigue';
+import {
+	type Genetics,
+	readGenetics,
+} from '@oss-idle/shared/genetics';
 import type { Mod } from '@oss-idle/shared/mods';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 import type { PendingAction } from '@oss-idle/shared/pendingAction';
 import type { AutopilotMode } from '@oss-idle/shared/queue';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import type { RulesetDef } from '@oss-idle/shared/rulesets/ruleset';
+import { xpGivesLevel } from '@oss-idle/shared/xp';
 
 import { apiBaseUrl } from '../../env';
 import type { ServerRuleset } from '../../rulesets/ruleset';
@@ -94,9 +99,6 @@ export const characters = mysqlTable('character', {
 	/** The play queue's preferences (see shared/queue.ts). */
 	autopilotMode: varchar({ length: 10 }).$type<AutopilotMode>().notNull().default('NEXT'),
 	autopilotDelay: int().notNull().default(30),
-	/** Cleared when the ruleset changes: another ruleset's mods may not exist. */
-	playRate: double().notNull().default(1),
-	playMods: jsonColumn<Mod[]>(),
 });
 
 /** A character's progress in one ruleset: nothing in it carries over to another. */
@@ -122,6 +124,10 @@ export const profileTable = <S extends string>(
 	}).notNull().default('0'),
 	rankHistory: jsonColumn<RankHistory>(),
 	fatigue: jsonColumn<Fatigue>(),
+	/** The play queue's rate and mods in this ruleset (see shared/queue.ts). */
+	playRate: double().notNull().default(1),
+	playMods: jsonColumn<Mod[]>(),
+	genetics: jsonColumn<Genetics>(),
 });
 
 export type ProfileTable = ReturnType<typeof profileTable<never>>;
@@ -207,11 +213,15 @@ export function characterToDTO(
 		ruleset: def.id,
 		rulesetLock: row.rulesetLock ?? undefined,
 		generation: profile.generation,
-		overallLevel: profile.overallLevel,
+		overallLevel: xpGivesLevel(profile.overallLifetimeXp).level,
 		skills,
 		pendingActions: row.pendingAction ?? undefined,
+		...def.genetics ? { genetics: geneticsOf(profile) } : {},
 	};
 }
+
+/** A profile's genetics, empty until it picks a genetic. */
+export const geneticsOf = (profile: ProfileRow): Genetics => readGenetics(profile.genetics);
 
 /** The character's profile in a ruleset, made fresh the first time it is asked for. */
 export const profileOf = async (

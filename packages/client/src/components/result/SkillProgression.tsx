@@ -9,10 +9,10 @@ import SkillXPBar from '../SkillXPBar';
 /** The whole progression - every bar, however many levels each crosses - is done
  *  within this. Bars stagger inside the budget rather than each taking a fixed
  *  time, so a big multi-level play plays out faster, not longer. */
-/** Budget, not the ceiling: the real limit is 5s, and the last frame plus the
+/** Budget, not the ceiling: the real limit is 3s, and the last frame plus the
  *  animationend that starts each fill land a couple hundred ms past whatever we
- *  schedule. Measured at 5.2s when this was a flat 5000. */
-const TOTAL_MS = 4700;
+ *  schedule. */
+const TOTAL_MS = 2700;
 const START_MS = 300;
 const MAX_STAGGER_MS = 900;
 /** the row's CSS enter animation, which runs before its fill starts */

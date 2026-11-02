@@ -1,5 +1,9 @@
-import { ph } from '@lingui/core/macro';
 import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
+import {
+	Plural,
 	Trans,
 	useLingui,
 } from '@lingui/react/macro';
@@ -32,12 +36,24 @@ export default function EditorChecks({ session }: { session: EditorSession }) {
 		const text: Record<CheckId, string> = {
 			noNotes: t`No notes yet`,
 			noTiming: t`No timing point: the beat lines need one`,
-			beforeStart: t`${n} notes before the song starts`,
-			afterAudio: t`${n} notes after the song ends`,
-			overlap: t`${n} notes overlap another in their column`,
-			shortLong: t`${n} LN shorter than 1/8 of a beat`,
-			allColumns: t`${n} notes in chords across every column`,
-			unsnapped: t`${n} notes off the 1/16 and 1/12 beat lines`,
+			beforeStart: plural(ph({ n }), {
+				one: '# note before the song starts', other: '# notes before the song starts', 
+			}),
+			afterAudio: plural(ph({ n }), {
+				one: '# note after the song ends', other: '# notes after the song ends', 
+			}),
+			overlap: plural(ph({ n }), {
+				one: '# note overlaps another in its column', other: '# notes overlap another in their column', 
+			}),
+			shortLong: plural(ph({ n }), {
+				one: '# LN shorter than 1/8 of a beat', other: '# LN shorter than 1/8 of a beat', 
+			}),
+			allColumns: plural(ph({ n }), {
+				one: '# note in a chord across every column', other: '# notes in chords across every column', 
+			}),
+			unsnapped: plural(ph({ n }), {
+				one: '# note off the 1/16 and 1/12 beat lines', other: '# notes off the 1/16 and 1/12 beat lines', 
+			}),
 			longBreak: t`A break longer than 30 seconds`,
 			tooShort: t`Shorter than 30 seconds`,
 			noPreview: t`No preview point (Metadata tab)`,
@@ -61,7 +77,11 @@ export default function EditorChecks({ session }: { session: EditorSession }) {
 		<>
 			<button className={`editor__small editor__checks-toggle ${state}`} onClick={() => setOpen(o => !o)}>
 				{issues.length
-					? <Trans>Checks: {ph({ count: issues.length })} to look at</Trans>
+					? <Plural
+						value={ph({ count: issues.length })}
+						one='Checks: # to look at'
+						other='Checks: # to look at'
+					/>
 					: <Trans>Checks: nothing to fix</Trans>}
 			</button>
 			{open && issues.length > 0 && (

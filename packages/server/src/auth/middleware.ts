@@ -3,9 +3,10 @@ import { getCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
 
+import { env } from '../env';
 import { verifySession } from './jwt';
 
-export const SESSION_COOKIE = 'session';
+export const SESSION_COOKIE = env.SESSION_COOKIE_NAME;
 
 /** The session JWT, from the HttpOnly cookie (web) or a `Bearer` header (the
  *  desktop app, which can't ride a cross-origin cookie and holds the token

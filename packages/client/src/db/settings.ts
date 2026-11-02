@@ -127,7 +127,7 @@ const defaults = [
 	/** the last rate picked on each side, which turning that mod back on brings back */
 	option<number>()('fasterRate', 1.05),
 	option<number>()('slowerRate', 0.95),
-	/** the other mods picked in song select (EZ, NF, HR, SD, PF) */
+	/** the other mods picked in song select (EZ, NF, HR, SD, PF, JT) */
 	option<Mod[]>()('mods', []),
 	/** the ruleset a guest plays: a signed-in character's is the server's */
 	option<RulesetId>()('guestRuleset', 'mania4k'),
@@ -148,6 +148,8 @@ const defaults = [
 	option<boolean>()('parallax', true),
 	option<boolean>()('osuMusicTheme', true),
 	option<boolean>()('showThumbnails', true),
+	// song select grades: the best at any rate, as the profile counts them, not the picked rate's
+	option<boolean>()('bestGradeAnyRate', false),
 	// bundled maps not downloaded yet, listed in song select
 	option<boolean>()('showUndownloaded', true),
 	// with showUndownloaded, the approved maps that aren't bundled too

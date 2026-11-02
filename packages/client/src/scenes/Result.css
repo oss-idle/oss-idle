@@ -59,7 +59,9 @@ img.result__judge-label {
 	font-size: 3rem;
 	font-weight: 700;
 	color: #fff;
-	font-variant-numeric: tabular-nums;
+	/* Exo 2 has no tabular digits: the width comes from the final count, or the row rewraps while it ticks */
+	text-align: right;
+	white-space: nowrap;
 }
 
 /* combo + accuracy */
@@ -492,6 +494,9 @@ img.result__judge-label {
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+	}
+	.result__judge-count {
+		text-align: center;
 	}
 }
 

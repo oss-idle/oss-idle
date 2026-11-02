@@ -11,7 +11,7 @@ import Game from '../support/game';
 
 /**
  * osu!'s other mods: EZ and HR widen and tighten the hit windows, NF never fails
- * and is unranked, SD and PF play the map again until it passes.
+ * and is unranked, SD, PF and JT play the map again until it passes.
  */
 test.describe('mods', () => {
 	let kim: Account;
@@ -44,12 +44,14 @@ test.describe('mods', () => {
 		await expect(lit).toHaveText(['Hard Rock']);
 		await expect(xp).toContainText('Accuracy 1.10x');
 		await expect(page.getByText('Most medals can\'t be earned with these mods')).toHaveCount(0);
-		// SD and PF share a tile: off -> SD -> PF
-		const death = tile(/Sudden Death|Perfect/);
+		// SD, PF and JT share a tile: off -> SD -> PF -> JT
+		const death = tile(/Sudden Death|Perfect|Justice/);
 		await death.click();
 		await expect(lit).toHaveText(['Hard Rock', 'Sudden Death']);
 		await death.click();
 		await expect(lit).toHaveText(['Hard Rock', 'Perfect']);
+		await death.click();
+		await expect(lit).toHaveText(['Hard Rock', 'Justice']);
 		await tile('No Fail').click();
 		await expect(lit).toHaveText(['No Fail', 'Hard Rock']);
 		await expect(page.locator('.mod-select__unranked')).toBeVisible();

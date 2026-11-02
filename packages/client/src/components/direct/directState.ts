@@ -95,3 +95,10 @@ export const openDirect = () => {
 	}
 	void openPage.set({ page: 'direct' });
 };
+
+/** Ctrl+B: oss!direct for supporters; anyone else is only told so. */
+export const toggleDirect = () => {
+	if (openPage.get()?.page === 'direct') void openPage.set(undefined);
+	else if (Auth.user.get()?.supporter) void openPage.set({ page: 'direct' });
+	else void message.set(t`oss!direct is an oss!supporter feature`);
+};

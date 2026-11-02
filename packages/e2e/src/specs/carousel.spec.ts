@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test';
+
 import { testAccounts } from '../support/accounts';
 import { jpeg } from '../support/files';
 import {
@@ -9,6 +11,18 @@ import Game from '../support/game';
 /**
  * Song select's carousel: every row, group headers included, rides osu!'s arc.
  */
+/** The first group, open. The selection is random: its group can leave every header
+ *  unmounted, or be this one and already open. */
+const openFirstGroup = async (page: Page) => {
+	await expect(async () => {
+		await page.locator('.carousel').evaluate((el) => { el.scrollTop = 0; });
+		const first = page.locator('.bm-group').first();
+		await expect(first).toBeVisible({ timeout: 1000 });
+		if ((await first.getAttribute('class'))?.includes('is-collapsed')) await first.click();
+		await expect(page.locator('.bm-card[data-id]').first()).toBeVisible({ timeout: 1000 });
+	}).toPass({ timeout: 15_000 });
+};
+
 test.describe('carousel', () => {
 
 	test('with groups, every row sits on the arc', async ({ playerAs }) => {
@@ -19,8 +33,7 @@ test.describe('carousel', () => {
 
 		await page.locator('.game__group .dropdown__current').click();
 		await page.locator('.game__group .dropdown__option', { hasText: 'By Difficulty' }).click();
-		await page.locator('.bm-group').first().click();
-		await expect(page.locator('.bm-card[data-id]').first()).toBeVisible();
+		await openFirstGroup(page);
 		await page.locator('.carousel').evaluate((el) => { el.scrollTop = 300; });
 		await page.waitForTimeout(500);
 
@@ -97,8 +110,12 @@ test.describe('carousel', () => {
 		await game.start();
 		const active = page.locator('.bm-card.is-active');
 		await expect(active).toBeVisible();
-		await expect(page.locator('.score_entry__row').first()).toBeVisible();
-		await page.waitForTimeout(500);
+		// the selection is random, and many maps have no scores yet
+		await expect(async () => {
+			await page.keyboard.press('F2');
+			await expect(page.locator('.score_entry__row').first()).toBeVisible({ timeout: 3000 });
+		}).toPass({ timeout: 60_000 });
+		await page.waitForTimeout(1000);
 		const carousel = page.locator('.carousel');
 		const list = (await carousel.boundingBox())!;
 		const card = (await active.boundingBox())!;
@@ -166,8 +183,7 @@ test.describe('carousel', () => {
 		await page.locator('.game__group .dropdown__current').click();
 		await page.locator('.game__group .dropdown__option', { hasText: 'By Difficulty' }).click();
 		const groups = page.locator('.bm-group');
-		await groups.first().click();
-		await expect(page.locator('.bm-card[data-id]').first()).toBeVisible();
+		await openFirstGroup(page);
 		// scroll down to the next header, below the open group's cards
 		await page.locator('.carousel').evaluate((el) => { el.scrollTop = el.scrollHeight; });
 		await page.waitForTimeout(500);
@@ -199,7 +215,20 @@ test.describe('carousel', () => {
 
 		await expect(page.locator('.bm-card.is-remote[style*="blob:"]').first()).toBeVisible();
 		await page.waitForTimeout(1000);
-		expect(backgrounds).toEqual([]);
+		// the selected map's backdrop is the one full background
+		expect(new Set(backgrounds).size).toBeLessThanOrEqual(1);
+	});
+
+	test('a search from far down the list shows its results', async ({ game, page }) => {
+		await game.start();
+		const { set } = await game.easiestMap();
+		const carousel = page.locator('.carousel');
+		await expect(page.locator('.bm-card').first()).toBeVisible();
+		await carousel.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+		await page.waitForTimeout(500);
+
+		await game.search(set.title);
+		await expect(page.locator('.bm-card').first()).toBeVisible();
 	});
 
 	test('a cover baked once shows again without its background', async ({ playerAs }) => {
@@ -208,16 +237,20 @@ test.describe('carousel', () => {
 		const game = new Game(page);
 		await game.start();
 
-		const covered = page.locator('.bm-card[data-id][style*="blob:"]').first();
-		const title = await covered.locator('.bm-card__title-text').textContent();
-		await game.search(title!);
-		const id = Number(await covered.getAttribute('data-id'));
+		const covered = page.locator('.bm-card[data-id][style*="blob:"]');
+		await expect(covered.first()).toBeVisible();
+		// the longest title: a short one finds half the list, its card unmounted
+		const title = await covered.evaluateAll(cards => cards
+			.map(c => c.querySelector('.bm-card__title-text')?.textContent ?? '')
+			.sort((a, b) => b.length - a.length)[0]);
+		await game.search(title);
+		const id = Number(await covered.first().getAttribute('data-id'));
 		await page.screenshot({ path: test.info().outputPath('carousel-covers.png') });
 
 		// with no background to fetch, only the stored cover can show
 		await page.route(/\/beatmap\/preview\/.*\.(?!mp3$)[^.]+$/i, route => route.abort());
 		await game.start();
-		await game.search(title!);
+		await game.search(title);
 		await expect(game.card(id)).toHaveAttribute('style', /blob:/);
 	});
 

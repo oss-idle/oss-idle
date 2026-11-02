@@ -15,6 +15,7 @@ import {
 	useRatedVersion,
 } from '../../gameplay/rateStars';
 import { getMemoryPlays } from '../../online/services/characters';
+import { type ItemStatus } from '../../osu/beatmap/grouping';
 import LightBeatmap from '../../osu/beatmap/LightBeatmap';
 import { starsAt } from '../../osu/difficulty';
 import Leaderboard from '../leaderboard/Leaderboard';
@@ -24,10 +25,12 @@ import Leaderboard from '../leaderboard/Leaderboard';
  *  on screen. */
 export default function BeatmapInfo({
 	version,
+	status,
 	scoreView,
 	setScoreView,
 }: {
 	version: LightBeatmap;
+	status: ItemStatus | undefined;
 	scoreView: boolean;
 	setScoreView: (v: boolean) => void;
 }) {
@@ -54,7 +57,7 @@ export default function BeatmapInfo({
 	const totalLength = length(version.metadata.total_length / 1000 / rate);
 	const bpmText = bpm(version.metadata.bpm * rate);
 	const title = `${version.set.metadata.artist} - ${version.set.metadata.title} [${shownVersion}]`;
-	const icon = `url('${version.metadata.runtime ? '/ranked.png' : '/unknown.png'}')`;
+	const icon = `url('/${status === 'ranked' || status === 'loved' ? status : 'unknown'}.png')`;
 
 	return (
 		<div className="game__topinfo">

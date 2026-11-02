@@ -26,7 +26,8 @@ export const AUTOPILOT_MODE = mapped(AutopilotModes);
 export type AutopilotMode = ValueIn<typeof AUTOPILOT_MODE>;
 
 export const AUTOPILOT_DELAY = {
-	min: 3, max: 120, default: 30,
+	/** pbeMin: only the PBE goes below min */
+	min: 3, pbeMin: 1, max: 120, default: 30,
 } as const;
 
 export const MAX_QUEUE = 5000;
@@ -57,11 +58,13 @@ export type QueueEntryRef = z.infer<typeof queueEntryRefDTO>;
 
 export const queuePrefsDTO = z.object({
 	mode: z.enum(AutopilotModes),
-	delay: z.number().int().min(AUTOPILOT_DELAY.min).max(AUTOPILOT_DELAY.max),
+	delay: z.number().int().min(AUTOPILOT_DELAY.pbeMin).max(AUTOPILOT_DELAY.max),
 	rate: rateSchema,
 	mods: modsSchema,
 	/** the account's: the character plays on once the game is closed */
 	keepPlaying: z.boolean(),
+	/** PBE: the character's plays skip to the end */
+	autoSkip: z.boolean().optional(),
 });
 export type QueuePrefs = z.infer<typeof queuePrefsDTO>;
 

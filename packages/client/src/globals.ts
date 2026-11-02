@@ -25,6 +25,11 @@ export const isOptionsOpen = new Synced(false);
 export const isCommunityOpen = new Synced(false);
 /** Local or online play, asked before the first play on a device with no character. */
 export const isPlayChoiceOpen = new Synced(false);
+/** What you were born good at: picked right after the first character is made, or changed later.
+ *  `first` goes on to song select once picked. */
+export const geneticChoice = new Synced<'first' | 'change' | undefined>(undefined);
+/** which genetic it changes; none: the next free one */
+export const geneticChoiceSlot = new Synced<number | undefined>(undefined);
 /** The main menu closed itself after a while without input. */
 export const menuIdle = new Synced(false);
 export const webUrl = new Synced('/');
@@ -38,7 +43,10 @@ export type OpenPage =
 		page: 'skins' | 'addons',
 		view: 'manage' | 'browse',
 	}
-	| { page: 'character' }
+	| {
+		page: 'character',
+		tab?: string,
+	}
 	| { page: 'queue' }
 	| { page: 'direct' };
 export const openPage = new Synced<OpenPage | undefined>(undefined);

@@ -10,7 +10,7 @@ export default function LevelMapPickerHit({ hit, onPick }: {
 			className='level-map__cover'
 			style={{
 				backgroundImage: coverBackground({
-					id: hit.setId, osuId: hit.osuId, background: hit.background,
+					id: hit.setId, osuId: hit.osuId, osuCover: hit.osuCover, background: hit.background,
 				}, 'list'),
 			}}
 		/>

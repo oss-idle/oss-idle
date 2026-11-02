@@ -58,10 +58,10 @@ const openChannel = (channel: string): void => {
 const inFront = (): boolean => !document.hidden && document.hasFocus();
 
 /** On the desktop, outside the game: clicking it brings the game back on that channel. */
-const notify = (name: string, text: string, channel: string, icon?: string): void => {
+const notify = (title: string, text: string, channel: string, icon?: string): void => {
 	if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
 	try {
-		const n = new Notification(t`${name} mentioned you`, {
+		const n = new Notification(title, {
 			body: text, icon, tag: `mention:${channel}`,
 		});
 		n.onclick = () => {
@@ -74,10 +74,20 @@ const notify = (name: string, text: string, channel: string, icon?: string): voi
 	}
 };
 
-/** A line that mentions you, from someone else (not blocked), in a channel you have open. */
-const mentionsYou = (line: ChatLine): line is Extract<ChatLine, { kind: 'player' }> =>
-	line.kind === 'player' && line.channel !== ANNOUNCE_CHANNEL
-	&& line.from.userId !== Auth.user.get()?.id && !blocked.get().has(line.from.userId)
+/** The desktop notification for a mention, titled by who sent it. */
+const notifyMention = (line: ChatLine, text: string): void => {
+	const { channel } = line;
+	if (line.kind !== 'player') return notify(t`You were mentioned in ${channel}`, text, channel);
+	const { name, userId } = line.from;
+	const avatar = Socket.presence.get()?.find(p => p.userId === userId)?.avatarUrl;
+	notify(t`${name} mentioned you`, text, channel, avatar);
+};
+
+/** A line that mentions you in a channel you have open: someone else's (not blocked), or a server announcement. */
+const mentionsYou = (line: ChatLine): boolean =>
+	(line.kind === 'player'
+		? line.from.userId !== Auth.user.get()?.id && !blocked.get().has(line.from.userId)
+		: line.channel === ANNOUNCE_CHANNEL)
 	&& chatTabs.get().includes(line.channel) && mentionsMe(line.text);
 
 Socket.on('chat', ({ line }) => {
@@ -87,13 +97,10 @@ Socket.on('chat', ({ line }) => {
 	if (watching && inFront()) return;
 	const text = plainText(line.text);
 	if (mentionSound.get()) playPing();
-	if (!inFront() && mentionNotify.get()) {
-		const avatar = Socket.presence.get()?.find(p => p.userId === line.from.userId)?.avatarUrl;
-		notify(line.from.name, text, line.channel, avatar);
-	}
+	if (!inFront() && mentionNotify.get()) notifyMention(line, text);
 	if (watching) return;
 	Log.popup(
-		`${line.from.name}: ${text}`,
+		line.kind === 'player' ? `${line.from.name}: ${text}` : text,
 		POPUP_TYPE.chat,
 		false,
 		() => openChannel(line.channel),

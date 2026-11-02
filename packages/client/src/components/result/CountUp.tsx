@@ -3,7 +3,7 @@ import useSmoothNumber from '../../animations/useSmoothNumber';
 /**
  * how long the score / judgement counts take to tick up to their final value
  */
-export const COUNT_UP_MS = 3000;
+export const COUNT_UP_MS = 1000;
 
 /** A whole number that ticks up from 0 to `value` on mount. */
 export default function CountUp({ value }: { value: number }) {

@@ -12,6 +12,7 @@ import type { RulesetDef } from '@oss-idle/shared/rulesets/ruleset';
 
 import { ENABLED_RULESETS } from './enabled';
 import type {
+	ClientGenetics,
 	ClientProgression,
 	ClientRuleset,
 	ManiaPlayer,
@@ -73,6 +74,10 @@ export const selectedDefLoaded = (): RulesetDef | undefined =>
 /** The picked ruleset's {@link ClientProgression}, when it has one. */
 export const selectedProgression = (): ClientProgression | undefined =>
 	clientRuleset(selectedRuleset.get()).progression;
+
+/** The picked ruleset's genetics in its own words, when it has genetics. */
+export const selectedGenetics = (): ClientGenetics | undefined =>
+	loaded.get(played(selectedRuleset.get()))?.genetics;
 
 /** The def of the ruleset a chart is in, once it loaded (its player loads it). */
 export const chartDef = (mode: number, keys: number): RulesetDef =>

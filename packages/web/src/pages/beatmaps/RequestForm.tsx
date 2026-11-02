@@ -14,6 +14,7 @@ import {
 	maxPendingRequests,
 	parseBeatmapsetId,
 } from '@oss-idle/shared/beatmapRequest';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	type MapSearchHit,
@@ -26,7 +27,9 @@ const DEBOUNCE_MS = 250;
 
 /** Propose a map: search the beatmap mirror by name, or paste the link of one it
  *  doesn't carry. Both paths end in the same submit, keyed by beatmapset id. */
-export default function RequestForm({ pending, supporter, onSubmitted }: {
+export default function RequestForm({ ruleset, label, pending, supporter, onSubmitted }: {
+	ruleset?: RulesetId,
+	label: string,
 	pending: number,
 	supporter: boolean,
 	onSubmitted: () => Promise<void> | void,
@@ -50,7 +53,7 @@ export default function RequestForm({ pending, supporter, onSubmitted }: {
 		let live = true;
 		setSearching(true);
 		const timer = setTimeout(() => {
-			searchMapRequests(query)
+			searchMapRequests(query, ruleset)
 				.then(rows => { if (live) setHits(rows); })
 				.catch(() => { if (live) setHits([]); })
 				.finally(() => { if (live) setSearching(false); });
@@ -60,13 +63,13 @@ export default function RequestForm({ pending, supporter, onSubmitted }: {
 			live = false;
 			clearTimeout(timer);
 		};
-	}, [text, pasted]);
+	}, [text, pasted, ruleset]);
 
 	const submit = async (map: string) => {
 		setBusy(true);
 		setError(undefined);
 		try {
-			await submitMapRequest(map);
+			await submitMapRequest(map, ruleset);
 			setText('');
 			setHits([]);
 			await onSubmitted();
@@ -85,7 +88,7 @@ export default function RequestForm({ pending, supporter, onSubmitted }: {
 					className='request-form__input'
 					value={text}
 					disabled={busy || full}
-					placeholder={t`Search a 4K map, or paste its beatmapset link`}
+					placeholder={t`Search a ${ph({ label })} map, or paste its beatmapset link`}
 					onChange={e => setText(e.target.value)}
 					onKeyDown={e => { if (e.key === 'Enter' && pasted !== undefined) void submit(text); }}
 				/>
@@ -114,6 +117,7 @@ export default function RequestForm({ pending, supporter, onSubmitted }: {
 				<div className={`request-form__hits ${searching ? 'is-loading' : ''}`}>
 					{hits.map(hit => (
 						<RequestSearchHit
+							label={label}
 							key={hit.setId}
 							hit={hit}
 							disabled={busy || full}

@@ -17,6 +17,8 @@ import HeaderPlayfields from './components/HeaderPlayfields';
 import Link from './components/Link';
 import OutLink from './components/OutLink';
 import HeaderLinks from './HeaderLinks';
+import LocaleMenu from './LocaleMenu';
+import { PBE } from './pbe/pbe';
 import UserMenu from './UserMenu';
 
 export default function Header() {
@@ -90,11 +92,12 @@ export default function Header() {
 							<FontAwesomeIcon icon={faMagnifyingGlass} />
 						</Link>
 					</div>
-					<div className='topbar__link'>
+					{!PBE && <div className='topbar__link'>
 						<Link to='/store' className='link-icon' title={t`support the game`}>
 							<FontAwesomeIcon icon={faHeart} />
 						</Link>
-					</div>
+					</div>}
+					<LocaleMenu />
 					<div className='topbar__link for-avatar'>
 						<UserMenu open={userMenuActive} onOpenChange={setUserMenuActive} onOpen={() => setNavOpen(false)} />
 					</div>

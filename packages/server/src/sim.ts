@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import type { Sims } from '@oss-idle/shared/rulesets/mania/sim';
 import { publicSims } from '@oss-idle/shared/rulesets/mania/sims';
 import { VERSION } from '@oss-idle/shared/version';
@@ -43,6 +44,12 @@ export const sim = (): Loaded => {
 	return loaded;
 };
 
-/** The score version plays are simulated on now: a score stored on an older one is
- *  reprocessed (db/reprocess) until every score is on it. */
-export const SCORE_VERSION = 2;
+/** The score version each ruleset's plays are simulated on now: a score stored on an older
+ *  one is reprocessed (db/reprocess) until every score is on it. */
+export const SCORE_VERSIONS: Record<RulesetId, number> = {
+	mania4k: 3, mania7k: 1, osu: 1,
+};
+
+/** What an account's local scores are rebuilt against: moves with any ruleset's version
+ *  (3 when the versions split per ruleset, so no one rebuilds for that). */
+export const SCORE_SYNC_VERSION = Object.values(SCORE_VERSIONS).reduce((a, b) => a + b, 0) - 2;

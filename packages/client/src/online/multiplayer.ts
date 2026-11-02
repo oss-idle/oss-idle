@@ -25,6 +25,7 @@ import { selectedRate } from '../gameplay/playRate';
 import { beatmapsVersion } from '../osu/beatmap/beatmap_store';
 import { launchPlay } from '../scenes/launchPlay';
 import SceneManager, { SCENE } from '../scenes/SceneManager';
+import { followMatchSounds } from './matchSounds';
 import { restrictedMessage } from './play';
 import PlayManager from './playManager';
 import Socket from './socket';
@@ -77,6 +78,7 @@ export default class Multiplayer {
 		void Socket.connected.sync(open => { if (open) this.send({ type: 'mp:list' }); });
 
 		this.followHost();
+		followMatchSounds(this.current);
 		this.followChannel();
 		this.followRounds();
 		void Synced.all([this.current, beatmapsVersion], () => void this.reportMap());

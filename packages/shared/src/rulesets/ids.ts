@@ -33,6 +33,10 @@ export const PROD_RULESETS: readonly RulesetId[] = ['mania4k'];
 /** The rulesets a dev or staging build plays: every one that has an implementation. */
 export const DEV_RULESETS: readonly RulesetId[] = ['mania4k', 'mania7k', 'osu'];
 
+/** The rulesets nominators rank maps in, also before a release build plays them: the
+ *  catalogue is ready the day players get the ruleset. */
+export const NOMINATED_RULESETS: readonly RulesetId[] = ['mania4k', 'mania7k'];
+
 /** The osu! `Mode:` numbers of `rulesets`. */
 export const modesOf = (rulesets: readonly RulesetId[]): Set<number> =>
 	new Set(rulesets.map(id => OSU_MODE[RULESETS[id].mode]));

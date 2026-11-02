@@ -28,7 +28,7 @@ const check = async () => {
 			page: 'skins', view: 'manage', 
 		}),
 	);
-	if (await anyBehind(await Addon.getAll(), getAddon)) Log.popup(
+	if (await anyBehind((await Addon.getAll()).filter(a => !a.local), getAddon)) Log.popup(
 		t`Some of your add-ons have updates`, POPUP_TYPE.neutral, false,
 		() => openPage.set({
 			page: 'addons', view: 'manage', 

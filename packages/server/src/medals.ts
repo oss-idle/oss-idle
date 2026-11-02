@@ -11,6 +11,12 @@ import {
 } from 'drizzle-orm';
 
 import { medalXPMultiplier } from '@oss-idle/shared/achievements/catalogue';
+import {
+	geneticsCounts,
+	geneticSlots,
+	pickedSkills,
+	strength,
+} from '@oss-idle/shared/genetics';
 import { OWNER_ID } from '@oss-idle/shared/groups';
 import { NO_MEDALS } from '@oss-idle/shared/mods';
 import type { MedalBatch } from '@oss-idle/shared/play';
@@ -27,6 +33,7 @@ import { beatmaps } from './db/schema/beatmap';
 import {
 	type CharacterRow,
 	characters,
+	geneticsOf,
 	getCharacterById,
 	profileOf,
 	type ProfileRow,
@@ -254,6 +261,11 @@ const countersOf = (r: ServerRuleset): Record<string, (p: Live) => number> => ({
 		const { level, xp, lifetimeXp, prestige } = p.skills[s];
 		return Math.floor(playLevelOf(level, xp, lifetimeXp, prestige));
 	}])),
+	...Object.fromEntries((['tiers', 'maxed', 'climaxx', 'fullest', 'strongest', 'reached'] as const)
+		.map(count => [`gene-${count}`, (p: Live) => {
+			const def = r.def.genetics;
+			return def ? geneticsCounts(def, geneticsOf(p.profile))[count] : 0;
+		}])),
 	overall: p => xpGivesLevel(p.profile.overallLifetimeXp).level,
 	upgrades: p => r.def.skills.reduce((sum, s) => sum + p.skills[s].upgrades, 0),
 	ladders: p => r.def.skills.filter(s => p.skills[s].upgrades >= BASE_MAX_UPGRADES).length,
@@ -359,6 +371,17 @@ const fromScores = (rule: string, test: (p: Progress) => boolean): Rule => ({
 	test, rule, scores: true,
 });
 
+const againstNature = (r: ServerRuleset, { profile, skills }: Progress) => {
+	const def = r.def.genetics;
+	const g = geneticsOf(profile);
+	if (!def || g.picks.length < geneticSlots(profile.generation)) return false;
+	const picked = pickedSkills(g);
+	return r.def.skills.some(s => {
+		const { level, xp, lifetimeXp, prestige } = skills[s];
+		return !strength(def, picked, s) && playLevelOf(level, xp, lifetimeXp, prestige) >= 110;
+	});
+};
+
 const STAR_STEPS = Array.from({ length: 10 }, (_, i) => i + 1);
 const SKILL_STEPS = [50, 100, 105, 110];
 
@@ -434,6 +457,28 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 		...s('approved (ranked or loved) and live sets the account mapped', {
 			'mapper-1': 1, 'mapper-2': 2, 'mapper-5': 5, 'mapper-10': 10, 'mapper-50': 50, 'mapper-100': 100,
 		}, 'mapper'),
+		...s('gene tiers held', {
+			'genes-1': 1, 'genes-25': 25, 'genes-50': 50, 'genes-100': 100, 'genes-150': 150,
+		}, 'gene-tiers'),
+		...s('genes at their last tier', {
+			'maxed-1': 1, 'maxed-5': 5, 'maxed-15': 15,
+		}, 'gene-maxed'),
+		...s('most climaxx from overdrive on a skill', {
+			'climaxx-500': 500, 'climaxx-2k': 2_000, 'climaxx-5k': 5_000, 'climaxx-10k': 10_000,
+		}, 'gene-climaxx'),
+		...s('% of the tiers of the fullest tree', { 'half-tree': 50 }, 'gene-fullest'),
+		...s('% strength of the strongest tree', {
+			'twin-genes': 150, 'triple-helix': 200,
+		}, 'gene-strongest'),
+		...s('trees in reach', { genome: 11 }, 'gene-reached'),
+		'against-nature': one(
+			'every available genetic picked, and play level ≥ 110 in a skill out of their reach',
+			p => againstNature(r, p),
+		),
+		'identity-crisis': one('replaced a genetic ≥ 5 times',
+			p => (geneticsOf(p.profile).changes ?? 0) >= 5),
+		'buyers-remorse': one('sold a gene within a minute of learning it',
+			p => !!geneticsOf(p.profile).remorse),
 		'combo-727': fromScores('a stored score with max combo exactly 727', p => p.combo727),
 		'same-map-100': one('played a single map ≥ 100 times', p => p.mostReplays >= 100),
 		'fail-99': one('the shown play failed after ≥ 99% of the map', p => p.nearMiss),
@@ -650,11 +695,15 @@ export const recordProgress = async (r: ServerRuleset, characterId: number) => {
 };
 
 /** A set just went live, so its proposer's curator count rose (Adri's, if
- *  nobody proposed it). */
-export const recordCurators = async (r: ServerRuleset, osuSetId: number | null) => {
-	const [request] = osuSetId === null ? [] : await db.select({ userId: r.requests.userId })
+ *  nobody proposed it). Sets submitted to oss!idle directly have no proposer. */
+export const recordCurators = async (
+	r: ServerRuleset,
+	set: { osuId: number | null, ownerUserId: number | null },
+) => {
+	if (set.ownerUserId !== null) return;
+	const [request] = set.osuId === null ? [] : await db.select({ userId: r.requests.userId })
 		.from(r.requests)
-		.where(eq(r.requests.setId, osuSetId));
+		.where(eq(r.requests.setId, set.osuId));
 	const owners = await db.select({ id: users.currentCharacter })
 		.from(users)
 		.where(inArray(users.id, request ? [request.userId] : [OWNER_ID]));

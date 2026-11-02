@@ -2,7 +2,10 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '../db/client';
 import type { SetStatusRow } from '../db/schema/beatmapset';
-import { enabledRulesets } from '../rulesets/registry';
+import {
+	enabledRulesets,
+	queuedRulesets,
+} from '../rulesets/registry';
 import type { ServerRuleset } from '../rulesets/ruleset';
 
 type StatusFields = Partial<Omit<SetStatusRow, 'setId'>>;
@@ -25,9 +28,9 @@ export const writeStatus = async (
 	}).onDuplicateKeyUpdate({ set: fields });
 };
 
-/** A new set's status in every ruleset this server plays, kept where it has one already. */
+/** A new set's status in every ruleset with a queue here, kept where it has one already. */
 export const seedStatus = async (setId: number, fields: StatusFields) => {
-	for (const { setStatus } of enabledRulesets()) {
+	for (const { setStatus } of queuedRulesets()) {
 		await db.insert(setStatus).ignore().values({
 			setId, ...fields, 
 		});

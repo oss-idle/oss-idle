@@ -11,6 +11,7 @@ import {
 	GROUPS,
 	OWNER_ID,
 } from '@oss-idle/shared/groups';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { db } from './db/client';
 import {
@@ -18,7 +19,10 @@ import {
 	resolveAvatarUrl,
 } from './db/schema/character';
 import { users } from './db/schema/user';
-import { userGroups } from './db/schema/user_group';
+import {
+	userGroups,
+	userNominates,
+} from './db/schema/user_group';
 
 /** Each account's groups; the owner is always an admin. */
 export const groupsByUser = async (userIds: readonly number[]): Promise<Map<number, Group[]>> => {
@@ -53,8 +57,11 @@ export const teamMembers = async () => {
 		.innerJoin(users, eq(users.id, userGroups.userId))
 		.leftJoin(characters, eq(characters.id, users.currentCharacter))
 		.orderBy(asc(userGroups.createdAt));
+	const nominated = await db.select().from(userNominates);
 	return rows.map(({ userAvatarUrl, ...row }) => ({
-		...row, avatarUrl: resolveAvatarUrl(row.avatarUrl, userAvatarUrl),
+		...row,
+		avatarUrl: resolveAvatarUrl(row.avatarUrl, userAvatarUrl),
+		nominates: nominated.filter(n => n.userId === row.userId).map(n => n.ruleset),
 	}));
 };
 
@@ -74,6 +81,25 @@ export const addToGroup = async (userId: number, group: Group): Promise<void> =>
 	}).onDuplicateKeyUpdate({ set: { userId } });
 };
 
+/** The rulesets a Beatmap Nominator ranks maps in. */
+export const nominatesOf = async (userId: number): Promise<RulesetId[]> =>
+	(await db.select({ ruleset: userNominates.ruleset })
+		.from(userNominates)
+		.where(eq(userNominates.userId, userId)))
+		.map(row => row.ruleset);
+
+export const setNominates = async (
+	userId: number, rulesets: readonly RulesetId[],
+): Promise<void> => {
+	await db.delete(userNominates).where(eq(userNominates.userId, userId));
+	if (rulesets.length) {
+		await db.insert(userNominates).values(rulesets.map(ruleset => ({
+			userId, ruleset,
+		})));
+	}
+};
+
 export const removeFromGroup = async (userId: number, group: Group): Promise<void> => {
+	if (group === 'bn') await setNominates(userId, []);
 	await db.delete(userGroups).where(and(eq(userGroups.userId, userId), eq(userGroups.group, group)));
 };

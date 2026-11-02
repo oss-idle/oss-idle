@@ -21,6 +21,7 @@ import { loginWithOsu } from '../auth';
 import Link from '../components/Link';
 import NewsCard, { articleToCard } from '../components/NewsCard';
 import Footer from '../Footer';
+import LocaleMenu from '../LocaleMenu';
 import { Asset } from '../router';
 
 function formatCount(n: number): string {
@@ -71,6 +72,7 @@ export default function PublicLanding() {
 					<a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="landing__topnav-link">
 						<FontAwesomeIcon icon={faDiscord} />
 					</a>
+					<LocaleMenu />
 					<button type="button" className="landing__signin" onClick={loginWithOsu}>
 						<Trans>Sign in</Trans>
 					</button>

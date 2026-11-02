@@ -13,8 +13,8 @@ export const Route = createFileRoute('/rankings/global')({
 	validateSearch: zodValidator(pageCountrySearch),
 	loaderDeps: ({ search }) => search,
 	loader: ({ deps }) => deps.country ?
-		getCountryGlobalRanking(deps.country, deps.page, deps.friends) 
-		: getGlobalRanking(deps.page, deps.friends),
+		getCountryGlobalRanking(deps.country, deps.page, deps) 
+		: getGlobalRanking(deps.page, deps),
 	component: GlobalRoute,
 	staticData: { title: msg`rankings` },
 });

@@ -1,4 +1,5 @@
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import useSyncedSelect from '@oss-idle/shared/hooks/useSyncedSelect';
 
 import Entities from '../../../entity/entities';
 import {
@@ -20,12 +21,15 @@ type Split = (text: string) => ReturnType<ReturnType<typeof emoji.get>['split']>
 const withEmoji = (split: Split, text: string, key: number) => split(text).map((part, i) =>
 	typeof part === 'string' ? part : <ChatEmoji key={`${key}.${i}`} emoji={part} />);
 
-// one pattern per online list (every line shares it), rebuilt when someone comes or goes
-let cache: { key: unknown, me: string, pattern?: RegExp } | undefined;
+// one pattern per set of online names (every line shares it), rebuilt when someone comes or goes
+let cache: { key: unknown, names: string, me: string, pattern?: RegExp } | undefined;
 const patternFor = (presence: readonly { name: string }[], me: string) => {
 	if (cache?.key !== presence || cache.me !== me) {
+		const names = presence.map(p => p.name).sort().join('\n');
+		const same = cache?.names === names && cache.me === me;
+		const pattern = same ? cache?.pattern : mentionPattern([...presence.map(p => p.name), me]);
 		cache = {
-			key: presence, me, pattern: mentionPattern([...presence.map(p => p.name), me]),
+			key: presence, names, me, pattern,
 		};
 	}
 	return cache.pattern;
@@ -68,11 +72,11 @@ export default function ChatText({ text, link, senderId }: {
 	senderId?: number,
 }) {
 	const [matcher] = useSynced(emoji);
-	const [presence = []] = useSynced(Socket.presence);
 	const [character] = useSynced(Entities.character);
 	const split = (part: string) => matcher.split(part, senderId);
 	const me = character.name ?? '';
-	const pattern = patternFor(presence, me);
+	const pattern = useSyncedSelect(Socket.presence, presence =>
+		text.includes('@') ? patternFor(presence, me) : undefined);
 	const at = link ? text.indexOf(link.label) : -1;
 	if (!link || at < 0) return <span className="chat__text">{linked(split, text, pattern, me)}</span>;
 	const open = () => {

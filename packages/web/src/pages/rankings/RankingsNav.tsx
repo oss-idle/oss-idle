@@ -1,45 +1,44 @@
 import { useLingui } from '@lingui/react/macro';
 
-import { GOOD_GRADE } from '@oss-idle/shared/grade';
-
+import { useBoardRuleset } from '../../components/leaderboard/useBoardRuleset';
 import Link from '../../components/Link';
 import Nav from '../../components/Nav';
+import { BOARD_LINKS } from './boardLinks';
+import RankingsRulesetSwitch from './RankingsRulesetSwitch';
 
 export default function RankingsNav({ current }: {
 	current: string,
 }) {
 	const { t } = useLingui();
 
-	const item = (id: string) => `nav__item ${id === current ? 'current' : ''}`;
+	const ruleset = useBoardRuleset();
+	const labels: Record<typeof BOARD_LINKS[number]['id'], string> = {
+		global: t`global`,
+		skills: t`skills`,
+		lifetime: t`lifetime`,
+		prestige: t`prestige`,
+		grades: t`grades`,
+		medals: t`medals`,
+		country: t`country`,
+		'top plays': t`top plays`,
+	};
 
-	return (<Nav>
-		<Link to='/rankings/global' search={{ page: 1 }} className={item('global')}>{t`global`}</Link>
-		<Link to='/rankings/skills/$skill' 
-			params={{ skill: 'overall' }} 
-			search={{ page: 1 }} 
-			className={item('skills')}>
-			{t`skills`}
-		</Link>
-		<Link to='/rankings/lifetime/$skill'
-			params={{ skill: 'overall' }}
-			search={{ page: 1 }}
-			className={item('lifetime')}>
-			{t`lifetime`}
-		</Link>
-		<Link to='/rankings/prestige/$skill'
-			params={{ skill: 'overall' }}
-			search={{ page: 1 }}
-			className={item('prestige')}>
-			{t`prestige`}
-		</Link>
-		<Link to='/rankings/grades/$grade'
-			params={{ grade: GOOD_GRADE.X }} 
-			search={{ page: 1 }} 
-			className={item('grades')}>
-			{t`grades`}
-		</Link>
-		<Link to='/rankings/medals' search={{ page: 1 }} className={item('medals')}>{t`medals`}</Link>
-		<Link to='/rankings/country' search={{ page: 1 }} className={item('country')}>{t`country`}</Link>
-		<Link to='/rankings/plays' search={{ page: 1 }} className={item('top plays')}>{t`top plays`}</Link>
-	</Nav>);
+	return (<>
+		<Nav>
+			{BOARD_LINKS.map(board => (
+				<Link
+					key={board.id}
+					to={board.to}
+					params={'params' in board ? board.params : undefined}
+					search={{
+						page: 1, ruleset,
+					}}
+					className={`nav__item ${board.id === current ? 'current' : ''}`}
+				>
+					{labels[board.id]}
+				</Link>
+			))}
+		</Nav>
+		<RankingsRulesetSwitch current={current} />
+	</>);
 }

@@ -2,14 +2,22 @@ import { z } from 'zod';
 
 import { rateLabel } from './rate.js';
 
-/** osu!'s mods, the rate ones (Half/Double) left to rate.ts. In mod select order. */
-export const Mods = ['EZ', 'NF', 'HR', 'SD', 'PF'] as const;
+/** osu!'s mods plus our JT and RT, the rate ones (Half/Double) left to rate.ts. In mod select order. */
+export const Mods = ['EZ', 'NF', 'HR', 'SD', 'PF', 'JT', 'RT'] as const;
 export type Mod = typeof Mods[number];
 
 export const modsSchema = z.array(z.enum(Mods)).max(Mods.length);
 
 /** Mods that can't be on together, as in osu!. */
-const EXCLUSIVE: Mod[][] = [['EZ', 'HR'], ['NF', 'SD', 'PF']];
+const EXCLUSIVE: Mod[][] = [['EZ', 'HR'], ['NF', 'SD', 'PF', 'JT']];
+
+/** Mods one ruleset has: RT (Right Thumb) is 7K's middle key on the right hand's thumb;
+ *  it changes nothing but which hand the sim gives the key. */
+const RULESET_ONLY: Partial<Record<Mod, string>> = { RT: 'mania7k' };
+
+/** `mods` without the ones another ruleset owns. */
+export const modsFor = (mods: readonly Mod[], ruleset: string): Mod[] =>
+	mods.filter(m => (RULESET_ONLY[m] ?? ruleset) === ruleset);
 
 /** A play with one of these earns no xp and submits nothing. */
 const UNRANKED: Mod[] = ['NF'];
@@ -50,9 +58,9 @@ export const modsScoreMultiplier = (mods: readonly Mod[]): number =>
 export const windowScale = (mods: readonly Mod[]): number =>
 	mods.includes('EZ') ? WINDOW_FACTOR : mods.includes('HR') ? 1 / WINDOW_FACTOR : 1;
 
-/** SD and PF play the map again on a fail. */
+/** SD, PF and JT play the map again on a fail. */
 export const retriesOnFail = (mods: readonly Mod[]): boolean =>
-	mods.includes('SD') || mods.includes('PF');
+	mods.includes('SD') || mods.includes('PF') || mods.includes('JT');
 
 /** EZ's cut on every skill's xp. */
 export const EZ_XP = 0.5;

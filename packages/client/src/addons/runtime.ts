@@ -1,12 +1,19 @@
+import type { LibraryEntry } from '@oss-idle/shared/desktop';
+import { VERSION } from '@oss-idle/shared/version';
+
 import {
 	Addon,
 	addonsVersion,
 } from '../db/schema/addon';
 import { message } from '../globals';
 import {
+	entriesOf,
 	entryById,
+	idOf,
 	library,
 	onLibraryChanged,
+	ownsId,
+	writeEntry,
 } from '../library';
 import type { Addon as AddonDTO } from '../online/addons';
 import {
@@ -158,8 +165,9 @@ export const disableAddon = async (addon: Addon): Promise<void> => {
 /** Uninstall an add-on: unmount (if live) and drop its local row. */
 export const uninstallAddon = async (addon: Addon): Promise<void> => {
 	await unmount(addon.id, addon.name);
-	await addon.uninstall();
+	// the folder first: one left without its row would come back as a new add-on
 	await removeAddonFile(addon.id);
+	await addon.uninstall();
 };
 
 /** Swap a running add-on's source after an update: unmount old, mount new. */
@@ -196,8 +204,41 @@ export const applyAddonUpdate = async (local: Addon, remote: AddonDTO): Promise<
 	await remountAddon(local);
 };
 
+/** A folder the game did not make, as a local add-on. Its code stays off until the player
+ *  enables it. An id written in the folder may be another server's: it gets its own. */
+const adopt = async (entry: LibraryEntry, source: string): Promise<void> => {
+	const id = Math.min(0, ...(await Addon.getAll()).map(a => a.id)) - 1;
+	await writeEntry('addons', entry.name, {}, { id });
+	await new Addon({
+		id,
+		name: entry.name,
+		description: '',
+		version: '1.0.0',
+		gameVersion: VERSION,
+		source,
+		authorId: 0,
+		authorName: '',
+		tags: '',
+		types: '',
+		status: 'unpublished',
+		enabled: false,
+		installedAt: Date.now(),
+	}).add();
+	addonsVersion.set(addonsVersion.get() + 1);
+};
+
+const adoptFolders = async (): Promise<void> => {
+	const installed = new Set((await Addon.getAll()).map(a => a.id));
+	for (const entry of await entriesOf('addons')) {
+		const id = idOf(entry);
+		if (id !== undefined && installed.has(id) && await ownsId('addons', entry)) continue;
+		const source = await readAddonFile(entry);
+		if (source !== undefined) await adopt(entry, source);
+	}
+};
+
 /** On desktop the code lives in each add-on's folder: what changed there is taken in (and
- *  runs), and an add-on whose folder went is uninstalled. */
+ *  runs), an add-on whose folder went is uninstalled, and a new folder is a new add-on. */
 const syncFolders = async (): Promise<void> => {
 	const moved = addonsMoved();
 	for (const addon of await Addon.getAll()) {
@@ -214,6 +255,7 @@ const syncFolders = async (): Promise<void> => {
 		await remountAddon(addon);
 	}
 	markAddonsMoved();
+	await adoptFolders();
 };
 
 let queue: Promise<unknown> = Promise.resolve();

@@ -2,7 +2,7 @@
 [![CI](https://github.com/oss-idle/oss-idle/actions/workflows/ci.yml/badge.svg)](https://github.com/oss-idle/oss-idle/actions/workflows/ci.yml)
 [![AGPLv3 License](https://img.shields.io/badge/License-AGPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 [![CodeFactor](https://www.codefactor.io/repository/github/oss-idle/oss-idle/badge)](https://www.codefactor.io/repository/github/oss-idle/oss-idle)
-[![Crowdin](https://badges.crowdin.net/oss-idle/localized.svg)](https://crowdin.com/project/oss-idle)
+[![Translations](https://translate.oss.idle.rhythmgamers.net/widget/oss-idle/svg-badge.svg)](https://translate.oss.idle.rhythmgamers.net/engage/oss-idle/)
 ![GitHub contributors](https://img.shields.io/github/contributors/oss-idle/oss-idle)
 ![GitHub last commit](https://img.shields.io/github/last-commit/oss-idle/oss-idle)
 [![oss!idle discord](https://discordapp.com/api/guilds/1511463564135759954/widget.png?style=shield)](https://oss.idle.rhythmgamers.net/discord)
@@ -93,15 +93,8 @@ so change those for your own domain.
 
 ## Translations
 
-Translations are on [Crowdin](https://crowdin.com/project/oss-idle). Write new strings in
-English in the code; they are picked up from there.
-
-```sh
-# upload new english strings
-npm run i18n:upload
-# pull updated translations
-npm run i18n:download
-```
+Translations are on [Weblate](https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/). Write
+new strings in English in the code; they are picked up from there.
 
 ## License
 

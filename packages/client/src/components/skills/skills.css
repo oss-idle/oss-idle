@@ -128,6 +128,9 @@
 .is-prestige {
 	background: #b18cff;
 }
+.is-genetics {
+	background: #5ad1c4;
+}
 .is-medals {
 	background: var(--ladder-gold);
 }

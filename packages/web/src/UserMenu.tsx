@@ -6,6 +6,7 @@ import {
 
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 
+import CharacterSwitcher from './CharacterSwitcher';
 import Link from './components/Link';
 import { useCurrentCharacter } from './hooks/useCurrentCharacter';
 import { useCurrentUser } from './hooks/useCurrentUser';
@@ -44,11 +45,13 @@ export default function UserMenu({ open, onOpenChange, onOpen }: {
 	>
 		{open && <div className='usermenu'>
 			<div className='usermenu_profile'>{user?.username ?? 'Guest'}</div>
+			{user && <CharacterSwitcher />}
 			<div className='usermenu_links'>
 				{user && <>
 					{character && <Link to='/c/$id' params={{ id: String(character.id) }} className='usermenu__link'>
 						<Trans>My Profile</Trans>
 					</Link>}
+					<Link to='/bot' className='usermenu__link'><Trans>Your skillset</Trans></Link>
 					<Link to='/friends' className='usermenu__link'><Trans>Friends</Trans></Link>
 					<Link to='/settings' className='usermenu__link'><Trans>Settings</Trans></Link>
 					<Link to='/logout' className='usermenu__link'><Trans>Sign out</Trans></Link>

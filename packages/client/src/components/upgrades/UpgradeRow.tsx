@@ -14,14 +14,17 @@ import { useUpgrade } from './useUpgrade';
 export default function UpgradeRow({
 	skill,
 	locked,
+	overdriveBonus,
 	lifetimeXp,
 }: {
 	skill: SkillState,
 	locked: boolean,
+	/** what the genes add to each overdrive gain */
+	overdriveBonus?: number,
 	/** xp ever earned on the skill, shown as a level behind it on hover */
 	lifetimeXp?: number,
 }) {
-	const u = useUpgrade(skill, locked);
+	const u = useUpgrade(skill, locked, overdriveBonus);
 	const from = u.minLevel - u.cost;
 	const at = u.level + u.xp / SkillState.xpForLevel(u.level);
 	const progress = Math.min(1, Math.max(0, (at - from) / u.cost));
@@ -64,6 +67,7 @@ export default function UpgradeRow({
 			<UpgradeAction
 				progress={progress}
 				maxed={u.maxed}
+				overdrive={u.overdrive}
 				preview={u.preview}
 				busy={u.busy}
 				minLevel={u.minLevel}

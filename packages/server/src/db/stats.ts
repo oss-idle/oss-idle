@@ -144,7 +144,7 @@ export const searchManiaSets = async (
 	}));
 };
 
-/** The 4K mania difficulties of one set, cheapest source for a request preview. */
+/** The ruleset's difficulties of one set, cheapest source for a request preview. */
 export const getManiaSet = async (
 	r: ServerRuleset,
 	setId: number,

@@ -237,7 +237,7 @@
 	opacity: var(--stats-opacity);
 	overflow: hidden;
 	display: grid;
-	grid-template: "plays date" / auto auto;
+	grid-template: "favourites plays date" / auto auto auto;
 	width: max-content;
 	max-width: 100%;
 	white-space: nowrap;
@@ -317,6 +317,10 @@
 	align-items: center;
 	margin-right: 10px;
 	pointer-events: auto;
+}
+
+.list__beatmap_stat--favourites {
+	grid-area: favourites;
 }
 
 .list__beatmap_stat--plays {

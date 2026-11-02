@@ -15,6 +15,7 @@ import { warn } from '../discord/error';
 import {
 	clientUrl,
 	env,
+	isPbe,
 } from '../env';
 import {
 	claimItch,
@@ -41,6 +42,11 @@ const recipientQuery = z.object({ name: z.string().trim().min(1) });
 const settingsUrl = `${clientUrl}/web/settings`;
 
 export const storeRoutes = new Hono()
+	// no store on the PBE: the tag is a setting there (pbe/routes.ts)
+	.use(async (_c, next) => {
+		if (isPbe) throw new HTTPException(404, { message: 'Not found' });
+		await next();
+	})
 
 	.get('/me', requireAuth, async c => c.json(await supporterStatus(c.get('userId'))))
 

@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 
 import type { PendingAction } from '@oss-idle/shared/pendingAction';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { db } from '../db/client';
 import {
@@ -58,10 +59,14 @@ export const queuePendingAction = async (
 	await pushCharacter(characterId);
 };
 
-/** Read the parked actions and clear them in one locked transaction. Reading
- *  and clearing separately loses anything parked in between - the purchase is
- *  nulled without ever being applied, and the client has already spent it. */
-const takePendingActions = async (characterId: number): Promise<PendingAction[]> =>
+/** Read a ruleset's parked actions and clear them in one locked transaction.
+ *  Reading and clearing separately loses anything parked in between - the purchase
+ *  is nulled without ever being applied, and the client has already spent it. The
+ *  other rulesets' wait for their own plays. */
+const takePendingActions = async (
+	characterId: number,
+	ruleset: RulesetId,
+): Promise<PendingAction[]> =>
 	db.transaction(async tx => {
 		const [row] = await tx
 			.select({ pendingAction: characters.pendingAction })
@@ -69,11 +74,13 @@ const takePendingActions = async (characterId: number): Promise<PendingAction[]>
 			.where(eq(characters.id, characterId))
 			.limit(1)
 			.for('update');
-		const actions = row?.pendingAction ?? [];
+		const all = row?.pendingAction ?? [];
+		const actions = all.filter(a => a.ruleset === ruleset);
 		if (actions.length) {
+			const rest = all.filter(a => a.ruleset !== ruleset);
 			await tx
 				.update(characters)
-				.set({ pendingAction: null })
+				.set({ pendingAction: rest.length ? rest : null })
 				.where(eq(characters.id, characterId));
 		}
 		return actions;
@@ -94,8 +101,11 @@ const takePendingActions = async (characterId: number): Promise<PendingAction[]>
  * Returns the character to carry on with - a rebirth in the list moves the
  * account onto the one it created.
  */
-export const applyPendingAction = async (characterId: number): Promise<number> => {
-	const actions = await takePendingActions(characterId);
+export const applyPendingAction = async (
+	characterId: number,
+	ruleset: RulesetId,
+): Promise<number> => {
+	const actions = await takePendingActions(characterId, ruleset);
 	if (!actions.length) return characterId;
 
 	// a rebirth moves the account onto a character it creates, and everything

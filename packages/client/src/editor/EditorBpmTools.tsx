@@ -1,4 +1,7 @@
-import { ph } from '@lingui/core/macro';
+import {
+	ph,
+	plural,
+} from '@lingui/core/macro';
 import {
 	Trans,
 	useLingui,
@@ -78,7 +81,9 @@ export default function EditorBpmTools({ session }: { session: EditorSession }) 
 			{tapped !== undefined && (
 				<>
 					<span className='editor__hint'>
-						{t`Tapped ${ph({ bpm: Math.round(tapped) })} BPM over ${ph({ count: taps!.count })} taps`}
+						{t`Tapped ${ph({ bpm: Math.round(tapped) })} BPM over ${plural(ph({ count: taps!.count }), {
+							one: '# tap', other: '# taps', 
+						})}`}
 					</span>
 					{taps!.count >= TAPS_NEEDED && (
 						<span className='editor__divisors'>

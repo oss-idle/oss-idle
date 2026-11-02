@@ -19,6 +19,7 @@ export default function SupporterTag({ me, subscribed }: { me: UserDTO; subscrib
 	const character = useCurrentCharacter();
 	const [amount, setAmount] = useState(MIN_SUPPORT);
 	const [recipient, setRecipient] = useState<Recipient>();
+	const [recipientName, setRecipientName] = useState('');
 	const [recurring, setRecurring] = useState(false);
 	const [waiver, setWaiver] = useState(false);
 	const [busy, setBusy] = useState(false);
@@ -43,6 +44,7 @@ export default function SupporterTag({ me, subscribed }: { me: UserDTO; subscrib
 	const self: Recipient = {
 		userId: me.id, name: character?.name ?? me.username, avatarUrl: character?.avatarUrl ?? me.avatarUrl,
 	};
+	const nameNotFound = Boolean(recipientName.trim());
 
 	if (me.restricted) {
 		return <div className='store__product'>
@@ -65,7 +67,13 @@ export default function SupporterTag({ me, subscribed }: { me: UserDTO; subscrib
 			</ul>
 		</div>
 
-		<RecipientPicker self={self} recipient={recipient} onChange={setRecipient} />
+		<RecipientPicker
+			self={self}
+			recipient={recipient}
+			onChange={setRecipient}
+			name={recipientName}
+			onNameChange={setRecipientName}
+		/>
 		<SupportSlider amount={amount} onChange={setAmount} />
 
 		<div className='store__checkout'>
@@ -88,7 +96,7 @@ export default function SupporterTag({ me, subscribed }: { me: UserDTO; subscrib
 				<button
 					type='button'
 					className='store__buy'
-					disabled={!waiver || busy}
+					disabled={!waiver || busy || nameNotFound}
 					onClick={() => void go(() => startCheckout({
 						amount, recipientId: recipient?.userId, recurring, waiver: true,
 					}))}
@@ -104,6 +112,12 @@ export default function SupporterTag({ me, subscribed }: { me: UserDTO; subscrib
 					<Trans>Manage subscriptions</Trans>
 				</button>}
 			</div>
+			{nameNotFound && <div className='store__error'>
+				<Trans>
+					You typed a player name but didn't press find, so this isn't a gift yet.
+					Press find, or clear the name to buy the tag for yourself.
+				</Trans>
+			</div>}
 			{error && <div className='store__error'>{error}</div>}
 		</div>
 	</div>;

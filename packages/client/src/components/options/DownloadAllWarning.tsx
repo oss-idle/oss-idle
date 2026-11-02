@@ -1,5 +1,6 @@
 import './DownloadAllWarning.css';
 
+import { plural } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
 import { createPortal } from 'react-dom';
 
@@ -32,7 +33,9 @@ export default function DownloadAllWarning({ bundled, sets, onClose }: {
 
 	const title = bundled ? t`Download every bundled beatmap?` : t`Download every ranked beatmap?`;
 	const sub = [
-		t`This is a very big download: ${count} beatmap sets, taking about ${size} of disk space.`,
+		t`This is a very big download: ${plural(count, {
+			one: '# beatmap set', other: '# beatmap sets', 
+		})}, taking about ${size} of disk space.`,
 		...user?.supporter ? [] : [t`That's why downloading them all at once is an oss!supporter perk.`],
 		...desktop() ? [] : [
 			t`Here they are stored by your browser: the desktop app is better suited to keeping this many.`,

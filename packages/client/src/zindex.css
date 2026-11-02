@@ -49,7 +49,6 @@
 	--z-medal: 9800;
 	--z-restricted: 9900;
 	--z-options: 10000;
-	--z-volume: 10010;
 	--z-browser: 10020;
 	--z-floating-deltas: 10030;
 	--z-popups: 10040;
@@ -59,6 +58,9 @@
 	--z-tutorial: 15000;
 	--z-play-choice: 17000;
 	--z-onboarding: 20000;
+	--z-genetic-choice: 21000;
+	/* the volume shows over every full-screen overlay */
+	--z-volume: 22000;
 	--z-playground: 99990;
 	--z-fps: 99998;
 	--z-cursor-trail: 99999;

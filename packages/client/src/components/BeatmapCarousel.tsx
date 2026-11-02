@@ -15,6 +15,7 @@ import {
 
 import type { MapTag } from '@oss-idle/shared/beatmap';
 
+import { uiSound } from '../audio/uiSounds';
 import type { PlaylistSlot } from '../db/schema/playlist';
 import RightClick from '../input/RightClick';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
@@ -147,7 +148,11 @@ function GroupHeader({ label, count, collapsed, onToggle }: {
 	return (
 		<div 
 			className={`bm-card bm-group ${collapsed ? 'is-collapsed' : 'is-selected'}`} 
-			onClick={onToggle}
+			data-sound="hover"
+			onClick={() => {
+				uiSound('songselect/select-group');
+				onToggle();
+			}}
 		>
 			<span 
 				className="bm-group__label"
@@ -323,7 +328,12 @@ export default function BeatmapCarousel({
 		const scroller = scrollRef.current;
 		if (!scroller) return;
 		const { padTop: top, height } = geometry(scroller);
-		const first = Math.floor((posRef.current - top) / STRIDE);
+		let first = Math.floor((posRef.current - top) / STRIDE);
+		// the list shrank under the view (a search): the browser clamps once it has rendered
+		if (first >= rows.length) {
+			first = rows.length - 1;
+			targetRef.current = null;
+		}
 		const visible = Math.ceil(height / STRIDE);
 		const start = Math.max(0, first - OVERSCAN);
 		const end = Math.min(rows.length, Math.max(start, first + visible + OVERSCAN));

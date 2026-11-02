@@ -14,12 +14,18 @@ import {
 	useState,
 } from 'react';
 
-import { Grades } from '@oss-idle/shared/grade';
 import Log from '@oss-idle/shared/helpers/log';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
-import { music } from '../audio/MusicPlayer';
+import {
+	music,
+	trackOf,
+} from '../audio/MusicPlayer';
+import {
+	type UiSound,
+	uiSound,
+} from '../audio/uiSounds';
 import BeatmapCarousel, {
 	type CarouselItem,
 	type CarouselRow,
@@ -29,6 +35,7 @@ import IdleLogo from '../components/IdleLogo';
 import { modSelectOpen } from '../components/mods/modSelectOpen';
 import CardOverlays from '../components/songselect/CardOverlays';
 import { playFromList } from '../components/songselect/listPlay';
+import { randomSounds } from '../components/songselect/randomSounds';
 import {
 	queueSelection,
 	SelectionContext,
@@ -40,7 +47,6 @@ import TopBar from '../components/songselect/TopBar';
 import useQueueMode from '../components/songselect/useQueueMode';
 import UserCard from '../components/songselect/UserCard';
 import useSongSelectAudio from '../components/songselect/useSongSelectAudio';
-import Character from '../db/schema/character';
 import {
 	getPlaylistIndex,
 	playlistsVersion,
@@ -90,8 +96,8 @@ import {
 	type Group,
 	groupsOf,
 	itemStatus,
+	type PlayHistory,
 	type PlaylistsByBeatmap,
-	rankKey,
 } from '../osu/beatmap/grouping';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
@@ -104,6 +110,7 @@ import { getXPInsights } from '../xpInsights';
 import { launchPlay } from './launchPlay';
 import SceneManager, { SCENE } from './SceneManager';
 import { STRAIN_DEBUG_KEY } from './strainDebugKey';
+import usePlayHistory from './usePlayHistory';
 
 
 /** The group a play was launched from, kept across the gameplay scene so that
@@ -111,34 +118,10 @@ import { STRAIN_DEBUG_KEY } from './strainDebugKey';
  *  played map happens to belong to. Consumed once by the next mount. */
 let lastLaunchedGroupKey: string | null = null;
 
-const getHistory = async (character: Character) => {
-	const scores = await Score.query(
-		'SELECT * FROM score WHERE characterId = ?'
-		, [character.id]);
-	// the grade of the top score at each rate, as the map card shows it
-	const best = new Map<string, Score>();
-	const lastPlayed = new Map<number, number>();
-	for (const s of scores) {
-		const key = rankKey(s.beatmapId, s.rate);
-		const top = best.get(key);
-		if (!top || s.isHigherThan(top)) best.set(key, s);
-		lastPlayed.set(
-			s.beatmapId, 
-			Math.max(lastPlayed.get(s.beatmapId) ?? 0,
-				s.playedAt,
-			));
-	}
-	const bestRank = new Map([...best].map(([key, s]) => [key, Grades.indexOf(s.grade)]));
-	return {
-		bestRank, lastPlayed, 
-	};
-};
-type History = Awaited<ReturnType<typeof getHistory>>;
-
 const SORT_COMPARATORS: Record<SortOption, (
 	a: CarouselItem, 
 	b: CarouselItem, 
-	h: History
+	h: PlayHistory
 ) => number> = {
 	'By Artist': (a, b) => 
 		a.set.metadata.artist.localeCompare(b.set.metadata.artist),
@@ -183,7 +166,7 @@ type CarouselRows = {
 };
 
 function buildCarouselRows(
-	filteredItems: CarouselItem[], group: GroupOption, history: History | undefined,
+	filteredItems: CarouselItem[], group: GroupOption, history: PlayHistory | undefined,
 	expandedKey: string | null, playlistsByBeatmap: PlaylistsByBeatmap,
 	downloaded: ReadonlySet<number> | undefined,
 ): CarouselRows {
@@ -284,6 +267,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 		if (openPage.get()) { void openPage.set(undefined); return; }
 		if (clearSearch && SETTINGS.search.get()) { SETTINGS.search.set(''); return; }
 		SETTINGS.search.set('');
+		uiSound('ui/screen-back');
 		if (Multiplayer.picking.get()) Multiplayer.picked();
 		else SceneManager.set(SCENE.MENU);
 	};
@@ -396,7 +380,8 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	// history-based sorts. A score's `beatmapId` matches `beatmap.metadata.id`
 	// (the same key the leaderboard queries by).
 	const [scoresV] = useSynced(scoresVersion);
-	const history = useAsync(() => getHistory(character), [character, scoresV]);
+	// by id: the character is a new object on every server update, the plays are not
+	const history = usePlayHistory(character.id, scoresV);
 
 	// per-beatmap XP gain indicators, bulk-loaded so future group/sort modes can
 	// read the same map. Gated by the feature's unlock tier.
@@ -415,6 +400,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	const [ratedStars] = useSynced(rateStars);
 	// grades are per rate: the rank sort and groups follow the picked one
 	const [pickedRate] = useSynced(selectedRate);
+	const [anyRate] = useSynced(SETTINGS.bestGradeAnyRate);
 	const filteredItems = useMemo(() => {
 		if (!history) return [];
 		const filtered = search.trim() ? 
@@ -423,7 +409,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 		return comparator ? 
 			[...filtered].sort((a, b) => comparator(a, b, history)) 
 			: filtered;
-	}, [items, search, history, comparator, ratedStars, pickedRate]);
+	}, [items, search, history, comparator, ratedStars, pickedRate, anyRate]);
 
 	// accordion: at most one group open at a time (null = all collapsed). A fresh
 	// group mode resets it; the active group then re-opens via the effect below.
@@ -471,7 +457,9 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			downloadSnapshot,
 		)
 			.map((g) => g.key).join('\n');
-	}, [group, version, items, history, playlistsByBeatmap, downloadSnapshot, ratedStars, pickedRate]);
+	}, [
+		group, version, items, history, playlistsByBeatmap, downloadSnapshot, ratedStars, pickedRate, anyRate,
+	]);
 
 	// the selection's group opens automatically when the selection moves into it
 	// (closing any other) - but stays collapsible by hand, since we only re-open on
@@ -499,7 +487,9 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			playlistsByBeatmap, 
 			downloadSnapshot,
 		),
-		[filteredItems, group, history, expandedKey, playlistsByBeatmap, downloadSnapshot, pickedRate],
+		[
+			filteredItems, group, history, expandedKey, playlistsByBeatmap, downloadSnapshot, pickedRate, anyRate,
+		],
 	);
 
 	/**
@@ -509,8 +499,16 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	 * VersionMetadata). The MusicPlayer resolves the right source from whichever
 	 * it's handed; the backdrop is swapped per-difficulty too.
 	 */
-	const selectItem = useCallback(async (beatmap: LightBeatmap) => {
-		if (beatmap.is(selection.get())) return;
+	/** `auto`: osu!'s sound for a new set or another difficulty of the same one */
+	const selectItem = useCallback(async (
+		beatmap: LightBeatmap, sound: UiSound | 'auto' | 'silent' = 'auto',
+	) => {
+		const was = selection.get();
+		if (beatmap.is(was)) return;
+		if (sound === 'auto') {
+			const sameSet = was?.set.metadata.id === beatmap.set.metadata.id;
+			uiSound(sameSet ? 'songselect/select-difficulty' : 'songselect/select-expand');
+		} else if (sound !== 'silent') uiSound(sound);
 
 		console.log('selected', beatmap.metadata.version);
 		await selection.set(beatmap);
@@ -518,13 +516,23 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 
 	// Previewing follows the selection rather than the click that caused it, so
 	// the dock putting the list on the map being played sounds like picking it.
+	// another difficulty of the song playing goes on with it
+	const previewed = useRef<string>(undefined);
 	useEffect(() => {
 		if (!previews || !version) return;
-		void music.play(version.metadata.runtime ? version.metadata.previewTime : 0);
+		const track = trackOf(version);
+		const same = track === previewed.current && music.playing.get();
+		previewed.current = track;
+		if (!same) void music.play(version.metadata.runtime ? version.metadata.previewTime : 0);
 	}, [version, previews]);
 
 	// a playlist entry locked at a rate out of the character's reach is skipped
 	const [speedUpgrades] = useSynced(liveSpeedUpgrades);
+	const versionStatus = useMemo(() => {
+		const item = version && items.find(i => i.beatmap.is(version.metadata.id));
+		return item && itemStatus(item);
+	}, [version, items]);
+
 	const selectableItems = useMemo(
 		() => orderedItems.filter((i) => canPlayAt(i.beatmap.lockedRate)),
 		[orderedItems, speedUpgrades],
@@ -538,19 +546,20 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			? (step === 1 ? 0 : selectableItems.length - 1)
 			: Math.min(Math.max(current + step, 0), selectableItems.length - 1);
 		const item = selectableItems[next];
-		if (item) void selectItem(item.beatmap);
+		if (item) void selectItem(item.beatmap, 'songselect/select-difficulty');
 	}, [selectableItems, selectItem]);
 
 	// osu!'s F2: a random map of the list, never the one already selected
-	const random = useCallback(() => {
+	const random = useCallback((audible = true) => {
 		const others = selectableItems.filter(i => !i.beatmap.is(selection.get()));
 		const pick = others[Math.floor(Math.random() * others.length)];
-		if (pick) void selectItem(pick.beatmap);
+		if (audible) randomSounds(selectableItems.map(i => i.beatmap), selection.get(), pick?.beatmap);
+		if (pick) void selectItem(pick.beatmap, 'silent');
 	}, [selectableItems, selectItem, selection]);
 
 	// entered with the intro still playing: move on to a map of the list
 	useEffect(() => {
-		if (selection.get()?.inPickedRuleset() === false) random();
+		if (selection.get()?.inPickedRuleset() === false) random(false);
 	}, [random]);
 
 	// osu!'s F3: the selected card's menu
@@ -578,6 +587,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	 * never chain).
 	 */
 	const play = useCallback((beatmap: LightBeatmap, debug = false, arm = true) => {
+		uiSound('songselect/confirm-selection');
 		const groupKey = expanded?.group.key;
 		lastLaunchedGroupKey = groupKey ?? null;
 		if (!debug && arm) {
@@ -600,7 +610,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 		void playFromList.set((map: LightBeatmap) => {
 			const item = orderedItems.find((i) => i.beatmap.is(map));
 			if (!item?.beatmap.metadata.runtime) return false;
-			void selectItem(item.beatmap);
+			void selectItem(item.beatmap, 'silent');
 			// a queue the player arranged is theirs: only fill it from the listing
 			// when there is nothing in it to lose
 			play(item.beatmap, false, !PlayQueue.state.get()?.entries.length);
@@ -636,7 +646,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 			
 			const all = await loadLibrary();
 			const item = all.find((i) => i.beatmap.is(selection.get()));
-			if (item) void selectItem(item.beatmap);
+			if (item) void selectItem(item.beatmap, 'silent');
 		} catch (e) {
 			console.error('[download] failed', e);
 			setDownloads((d) => ({
@@ -758,6 +768,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 				<div ref={scrubRef} className="game__scrub">
 					<TopBar
 						version={version}
+						status={versionStatus}
 						scrollSpeed={scrollSpeed}
 						scoreView={scoreView}
 						setScoreView={setScoreView}
@@ -801,7 +812,9 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 							</div>
 							<div className="songsearch__count">
 								{search.trim()
-									? <Trans>{ph({ shown: filteredItems.length })} of {total} results</Trans>
+									? <Trans>
+										{ph({ shown: filteredItems.length })} of <Plural value={total} one='# result' other='# results' />
+									</Trans>
 									: <Plural value={ph({ results: items.length })} one="# result" other="# results" />}
 							</div>
 						</div>
@@ -811,10 +824,10 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 				{!overlay && (
 					<div className="game__botbar">
 						<div className="game__botbar-left">
-							<button className="game__exit" onClick={() => onBack(false)}>
+							<button className="game__exit" onClick={() => onBack(false)} data-sound="hover">
 								<Trans>BACK</Trans>
 							</button>
-							<SongSelectFooter onRandom={random} onOptions={beatmapOptions} />
+							<SongSelectFooter onRandom={() => random()} onOptions={beatmapOptions} />
 						</div>
 						<UserCard
 							character={character}

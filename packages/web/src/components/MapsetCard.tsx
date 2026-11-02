@@ -4,6 +4,7 @@ import {
 	faCircleCheck,
 	faCirclePlay,
 	faFileArrowDown,
+	faHeart,
 	faPause,
 	faPlay,
 } from '@fortawesome/free-solid-svg-icons';
@@ -55,6 +56,7 @@ export type Mapset = MapCover & {
 	/** the mapper's osu! id, once the set is credited to them */
 	ownerUserId?: number | null;
 	plays: string | null;
+	favouriteCount: number;
 	rankedAt: string | null;
 	/** the preview track */
 	audio?: string | null;
@@ -190,6 +192,10 @@ function MapsetCard({ mapset, ruleset = ENABLED_RULESETS[0] }: {
 						</span>
 					</div>
 					<div className='list__beatmap_row list__beatmap_row--stats'>
+						<span className='list__beatmap_stat list__beatmap_stat--favourites'>
+							<span className='list__beatmap_stat-icon'><FontAwesomeIcon icon={faHeart} /></span>
+							{bignum(mapset.favouriteCount)}
+						</span>
 						<span className='list__beatmap_stat list__beatmap_stat--plays'>
 							<span className='list__beatmap_stat-icon'><FontAwesomeIcon icon={faCirclePlay} /></span>
 							{bignum(mapset.plays)}

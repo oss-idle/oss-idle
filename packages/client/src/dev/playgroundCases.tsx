@@ -33,6 +33,7 @@ import AddonView, {
 	newAddonDetail,
 } from '../components/addons/AddonView';
 import InstalledAddonRow from '../components/addons/InstalledAddonRow';
+import PrestigeClimaxxPop from '../components/character/PrestigeClimaxxPop';
 import PrestigeView from '../components/character/PrestigeView';
 import ChannelPicker from '../components/community/chat/ChannelPicker';
 import Chat from '../components/community/chat/Chat';
@@ -45,6 +46,8 @@ import { directLink } from '../components/direct/directState';
 import DockPanel from '../components/dock/DockPanel';
 import DockPill from '../components/dock/DockPill';
 import PlayDock from '../components/dock/PlayDock';
+import GeneticChoice from '../components/genetic-choice/GeneticChoice';
+import GeneticsView from '../components/genetics/GeneticsView';
 import ShownMedals from '../components/medals/ShownMedals';
 import ModSelect from '../components/mods/ModSelect';
 import MatchScoreboard from '../components/multiplayer/MatchScoreboard';
@@ -68,7 +71,10 @@ import {
 	liveSpeedUpgrades,
 	selectedRate,
 } from '../gameplay/playRate';
-import { openPage } from '../globals';
+import {
+	geneticChoice,
+	openPage,
+} from '../globals';
 import { log } from '../logs';
 import {
 	closeMedals,
@@ -80,6 +86,7 @@ import PlayManager from '../online/playManager';
 import BeatmapAPI from '../osu/beatmap/beatmap_api';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
+import { selectedRuleset } from '../rulesets/registry';
 import Lobby from '../scenes/Lobby';
 import MatchSetup from '../scenes/MatchSetup';
 import Result from '../scenes/Result';
@@ -99,7 +106,11 @@ import {
 } from './medalSamples';
 import PlayHudPreview from './PlayHudPreview';
 import SkinPlayground from './SkinPlayground';
-import { sampleCharacter } from './upgradeSample';
+import {
+	REBORN_GENETICS,
+	sampleCharacter,
+	sampleGeneticCharacter,
+} from './upgradeSample';
 import UpgradesPreview from './UpgradesPreview';
 import WarmupGaugePreview from './WarmupGaugePreview';
 
@@ -453,9 +464,23 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		</UpgradesPreview>,
 	},
 	{
+		id: 'skills-genetics',
+		label: 'Skills - with genetics',
+		render: () => <UpgradesPreview tab="skills">
+			<SkillsView character={sampleGeneticCharacter(REBORN_GENETICS, 2)} />
+		</UpgradesPreview>,
+	},
+	{
 		id: 'upgrades',
 		label: 'Upgrades - every row state',
 		render: () => <UpgradesPreview><UpgradesView character={sampleCharacter()} /></UpgradesPreview>,
+	},
+	{
+		id: 'upgrades-genetics',
+		label: 'Upgrades - with overdrive genes',
+		render: () => <UpgradesPreview>
+			<UpgradesView character={sampleGeneticCharacter()} />
+		</UpgradesPreview>,
 	},
 	{
 		id: 'prestige',
@@ -463,6 +488,68 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		render: () => <UpgradesPreview tab="prestige">
 			<PrestigeView character={sampleCharacter()} />
 		</UpgradesPreview>,
+	},
+	{
+		id: 'genetics',
+		label: 'Genetics - a speed genetic with genes held',
+		render: () => <UpgradesPreview tab="genetics">
+			<GeneticsView character={sampleGeneticCharacter()} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'genetics-reborn',
+		label: 'Genetics - reborn once, two genetics side by side',
+		render: () => <UpgradesPreview tab="genetics">
+			<GeneticsView character={sampleGeneticCharacter(REBORN_GENETICS, 2)} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'prestige-climaxx',
+		label: 'Prestige - overdrive becoming climaxx',
+		render: () => (
+			<PrestigeClimaxxPop skill="accuracy" overdrive={5000} before={300} gain={498} onClose={() => {}} />
+		),
+	},
+	{
+		id: 'genetics-empty',
+		label: 'Genetics - no genetic picked yet',
+		render: () => <UpgradesPreview tab="genetics">
+			<GeneticsView character={sampleCharacter()} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'genetic-choice',
+		label: 'Character creation - the ring, the quiz a click away',
+		setup: () => {
+			Entities.character.set(sampleCharacter());
+			void geneticChoice.set('first');
+		},
+		render: () => <GeneticChoice />,
+	},
+	{
+		id: 'genetic-choice-another',
+		label: 'Character creation - reborn, the second genetic',
+		setup: () => {
+			Entities.character.set(sampleGeneticCharacter({
+				...REBORN_GENETICS, picks: [{ skill: 'speed' }], 
+			}, 2));
+			void geneticChoice.set('change');
+		},
+		render: () => <GeneticChoice />,
+	},
+	{
+		id: 'genetic-choice-replace',
+		label: 'Character creation - reborn twice, three genetics, choosing one to replace',
+		setup: () => {
+			Entities.character.set(sampleGeneticCharacter({
+				...REBORN_GENETICS,
+				picks: [{ skill: 'speed' }, {
+					skill: 'stamina', changedAt: Date.now() - 86_400_000, 
+				}, { skill: 'coordination' }],
+			}, 3));
+			void geneticChoice.set('change');
+		},
+		render: () => <GeneticChoice />,
 	},
 	{
 		id: 'confirm-rebirth',
@@ -686,6 +773,16 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		setup: () => {
 			void selectedMods.set(['HR', 'SD']);
 			void selectedRate.set(1.25);
+		},
+		render: () => <ModSelect onClose={() => {}} />,
+	},
+	{
+		id: 'mod-select-7k',
+		label: 'Mod select - 7K, with the Right Thumb',
+		setup: () => {
+			void selectedRuleset.set('mania7k');
+			void selectedMods.set(['RT']);
+			void selectedRate.set(1);
 		},
 		render: () => <ModSelect onClose={() => {}} />,
 	},

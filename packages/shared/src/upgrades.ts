@@ -23,8 +23,9 @@ export const PRESTIGE_MIN_LEVEL = 100;
 export const PRESTIGE_LEVEL_STEP = 1;
 /** Multiplicative xp bonus per prestige, in its own pool. */
 export const PRESTIGE_XP_BONUS = 0.1;
-/** Overall character level that unlocks rebirth. */
+/** Overall level the first rebirth needs; each generation raises it. */
 export const REBIRTH_MIN_OVERALL_LEVEL = 110;
+export const REBIRTH_LEVEL_STEP = 10;
 /** Effective-boost growth per overdrive decade: log10(2) doubles it. */
 export const OVERDRIVE_EXPONENT = Math.log10(2);
 export const OVERDRIVE_SCALE = 2.5;
@@ -74,8 +75,8 @@ export const canUpgrade = (
 	upgrades < maxUpgrades(prestige) && level >= upgradeMinLevel(upgrades);
 
 /** Buy the next upgrade: drop its cost in levels (partial keeps its fraction),
- *  add the overspend ratio to overdrive. */
-export const applyUpgrade = (state: UpgradeState): UpgradePurchase => {
+ *  add the overspend ratio to overdrive, raised by `overdriveBonus`. */
+export const applyUpgrade = (state: UpgradeState, overdriveBonus = 0): UpgradePurchase => {
 	if (!canUpgrade(state)) throw new Error('upgrade not purchasable');
 
 	const level = state.level - upgradeCost(state.upgrades);
@@ -87,7 +88,7 @@ export const applyUpgrade = (state: UpgradeState): UpgradePurchase => {
 		level,
 		xp,
 		upgrades: state.upgrades + 1,
-		overdrive: state.overdrive + (ratio > 1 ? ratio : 0),
+		overdrive: state.overdrive + (ratio > 1 ? ratio * (1 + overdriveBonus) : 0),
 		prestige: state.prestige,
 		spent,
 		ratio,
@@ -159,8 +160,11 @@ export const applyPrestige = (state: UpgradeState): UpgradeState & { spent: numb
 	};
 };
 
-export const canRebirth = (overallLevel: number): boolean =>
-	overallLevel >= REBIRTH_MIN_OVERALL_LEVEL;
+export const rebirthMinLevel = (generation: number): number =>
+	REBIRTH_MIN_OVERALL_LEVEL + (generation - 1) * REBIRTH_LEVEL_STEP;
+
+export const canRebirth = (overallLevel: number, generation: number): boolean =>
+	overallLevel >= rebirthMinLevel(generation);
 
 /** Effective boost of raw overdrive: degressive power law, floored at x1. */
 export const overdriveMultiplier = (overdrive: number): number =>

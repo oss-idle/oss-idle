@@ -12,6 +12,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { backgroundOf } from '@oss-idle/shared/rulesets/mania/editor/chart';
 
 import { music } from '../audio/MusicPlayer';
+import { uiSound } from '../audio/uiSounds';
 import ConfirmMenu from '../components/ConfirmMenu';
 import EditorNewMap from '../editor/EditorNewMap';
 import EditorView from '../editor/EditorView';
@@ -107,7 +108,10 @@ export default function Editor({ beatmap, resume, fresh }: Props) {
 		// Escape in a field ends the typing (the field keeps what was typed)
 		if (inTextBox(document.activeElement)) (document.activeElement as HTMLElement).blur();
 		else if (session?.selected.size) session.clearSelection();
-		else unlessUnsaved(leave);
+		else {
+			if (!session?.dirty) uiSound('ui/screen-back');
+			unlessUnsaved(leave);
+		}
 	};
 	const open = (other: LightBeatmap) => unlessUnsaved(() => {
 		if (!session?.sameTrack(other)) return SceneManager.set(SCENE.EDITOR, other);

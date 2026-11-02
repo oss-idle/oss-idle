@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import { Redis } from 'ioredis';
 
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
+
 import {
 	env,
 	redisDb,
@@ -33,7 +35,7 @@ redis.on('error', err => console.error('Redis error:', err.message));
 
 /** Where a booted server says which score version it simulates on (sim.ts SCORE_VERSION),
  *  for the score reprocessor. */
-export const versionKey = `${redisKeyPrefix}score-version`;
+export const versionKey = (ruleset: RulesetId) => `${redisKeyPrefix}score-version:${ruleset}`;
 
 const LOCK_MS = 5000;
 const UNLOCK = `

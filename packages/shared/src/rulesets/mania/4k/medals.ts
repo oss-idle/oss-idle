@@ -10,7 +10,7 @@ import { Skills } from './skills.js';
 const STAR_TIERS: MedalTier[] = ['bronze', 'bronze', 'silver', 'silver', 'gold', 'gold',
 	'platinum', 'platinum', 'divine', 'divine'];
 
-const SKILL_GLYPHS: Record<(typeof Skills)[number], GlyphName> = {
+export const SKILL_GLYPHS: Record<(typeof Skills)[number], GlyphName> = {
 	accuracy: 'target',
 	speed: 'lightning',
 	stamina: 'heartbeat',
@@ -83,6 +83,22 @@ export const MEDALS: MedalDef[] = [
 	def('prestige-25', 'mastery', 'platinum', 'crown'),
 	def('prestige-100', 'mastery', 'divine', 'crown'),
 	def('rebirth', 'mastery', 'divine', 'butterfly'),
+	def('genes-1', 'mastery', 'bronze', 'dna'),
+	def('genes-25', 'mastery', 'silver', 'dna'),
+	def('genes-50', 'mastery', 'gold', 'dna'),
+	def('genes-100', 'mastery', 'platinum', 'dna'),
+	def('genes-150', 'mastery', 'divine', 'dna'),
+	def('maxed-1', 'mastery', 'silver', 'dna'),
+	def('maxed-5', 'mastery', 'gold', 'dna'),
+	def('maxed-15', 'mastery', 'platinum', 'dna'),
+	def('climaxx-500', 'mastery', 'silver', 'dna'),
+	def('climaxx-2k', 'mastery', 'gold', 'dna'),
+	def('climaxx-5k', 'mastery', 'platinum', 'dna'),
+	def('climaxx-10k', 'mastery', 'divine', 'dna'),
+	def('half-tree', 'mastery', 'platinum', 'dna'),
+	def('twin-genes', 'mastery', 'platinum', 'dna'),
+	def('triple-helix', 'mastery', 'divine', 'dna'),
+	def('genome', 'mastery', 'divine', 'dna'),
 
 	def('first-1', 'ranked', 'silver', 'flag'),
 	def('first-10', 'ranked', 'gold', 'trophy'),
@@ -123,6 +139,9 @@ export const MEDALS: MedalDef[] = [
 	def('possessed', 'secret', 'silver', 'ghost'),
 	def('parallax', 'secret', 'silver', 'personSimpleRun'),
 	def('wonderful', 'secret', 'silver', 'butterfly'),
+	def('against-nature', 'secret', 'silver', 'dna'),
+	def('identity-crisis', 'secret', 'silver', 'dna'),
+	def('buyers-remorse', 'secret', 'silver', 'dna'),
 ];
 
 const STEPS = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -153,6 +172,10 @@ export const MEDAL_LINES: Record<MedalCategory, string[][]> = {
 		['overdrive-2', 'overdrive-10', 'overdrive-100', 'overdrive-1000'],
 		['prestige-1', 'prestige-5', 'prestige-25', 'prestige-100'],
 		['rebirth'],
+		['genes-1', 'genes-25', 'genes-50', 'genes-100', 'genes-150'],
+		['maxed-1', 'maxed-5', 'maxed-15'],
+		['climaxx-500', 'climaxx-2k', 'climaxx-5k', 'climaxx-10k'],
+		['half-tree', 'twin-genes', 'triple-helix', 'genome'],
 	],
 	ranked: [
 		['first-1', 'first-10', 'first-100', 'first-1000'],
@@ -163,6 +186,6 @@ export const MEDAL_LINES: Record<MedalCategory, string[][]> = {
 		['mapper-1', 'mapper-2', 'mapper-5', 'mapper-10', 'mapper-50', 'mapper-100'],
 	],
 	secret: [
-		['combo-727', 'same-map-100', 'fail-99', 'fail-10s', 'night-owl', 'first-chat', 'possessed', 'parallax', 'wonderful'],
+		['combo-727', 'same-map-100', 'fail-99', 'fail-10s', 'night-owl', 'first-chat', 'possessed', 'parallax', 'wonderful', 'against-nature', 'identity-crisis', 'buyers-remorse'],
 	],
 };

@@ -84,7 +84,7 @@ export const newsRoutes = new Hono()
 			.orderBy(desc(news.publishedAt))
 			.limit(1)
 		;
-		return c.json(await withAuthor(row));
+		return c.json(row ? await withAuthor(row) : null);
 	})
 
 	// Admin: every article including drafts, newest first.

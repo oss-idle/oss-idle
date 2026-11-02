@@ -10,7 +10,10 @@ import {
 import { OWNER_ID } from '@oss-idle/shared/groups';
 
 import { db } from '../db/client';
-import { profilePage } from '../db/profilePage';
+import {
+	MAP_PAGE,
+	profilePage,
+} from '../db/profilePage';
 import { beatmaps } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
 import type { ServerRuleset } from '../rulesets/ruleset';
@@ -21,11 +24,12 @@ import {
 	withStatus,
 } from './catalog';
 
-/** Ranked sets the account proposed. Adri also gets the ranked maps nobody proposed. */
+/** Ranked sets the account proposed. Adri also gets the sets nobody proposed (ranked
+ *  from the nomination panel); sets submitted to oss!idle directly have no proposer. */
 const curatedCondition = (r: ServerRuleset, userId: number) => and(
 	listedCondition(r),
 	userId === OWNER_ID
-		? or(eq(r.requests.userId, userId), isNull(r.requests.setId))
+		? or(eq(r.requests.userId, userId), and(isNull(r.requests.setId), isNull(beatmapset.ownerUserId)))
 		: eq(r.requests.userId, userId),
 );
 
@@ -54,4 +58,4 @@ export const getCurated = (r: ServerRuleset, userId: number, page: number) =>
 		.groupBy(beatmapset.id)
 		.orderBy(desc(r.setStatus.rankedAt), desc(beatmapset.id))
 		.offset(offset)
-		.limit(limit));
+		.limit(limit), MAP_PAGE);

@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import Synced from '@oss-idle/shared/helpers/synced';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { notchTick } from '../../../audio/uiSounds';
 import { isChanged } from '../../../db/settings';
 
 interface Props {
@@ -52,7 +53,12 @@ export default function Slider({
 				step={step}
 				value={current}
 				style={{ '--fill': `${pct}%` } as React.CSSProperties}
-				onChange={(e) => void value.set(Number(e.target.value))}
+				data-sound="default"
+				onChange={(e) => {
+					const next = Number(e.target.value);
+					if (next !== current) notchTick(max === min ? 0 : (next - min) / (max - min));
+					void value.set(next);
+				}}
 			/>
 		</label>
 	);

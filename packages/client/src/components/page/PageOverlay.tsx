@@ -9,6 +9,7 @@ import {
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { openPage } from '../../globals';
+import Controls from '../../input/Controls';
 import useKeyboardOwner, {
 	KeyboardLayer,
 	LAYER,
@@ -19,6 +20,7 @@ import Direct from '../../scenes/Direct';
 import { SongSelect } from '../../scenes/lazy';
 import SceneManager, { SCENE } from '../../scenes/SceneManager';
 import Skins from '../../scenes/Skins';
+import { toggleDirect } from '../direct/directState';
 
 /**
  * Hosts the full-screen pages (skins / add-ons / character / the play queue)
@@ -29,6 +31,8 @@ export default function PageOverlay() {
 	const [state] = useSynced(openPage);
 	const [scene] = useSynced(SceneManager.current);
 	const [shown, setShown] = useState(state);
+
+	Controls.direct.usePress(toggleDirect);
 
 	useEffect(() => {
 		if (state) setShown(state);
@@ -70,7 +74,7 @@ export default function PageOverlay() {
 				layer: LAYER.PAGE, open: !closing, 
 			}}>
 				{shown.page === 'character'
-					? <Character />
+					? <Character tab={shown.tab} />
 					: shown.page === 'direct'
 						? <Direct />
 						: shown.page === 'queue'

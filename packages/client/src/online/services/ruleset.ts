@@ -30,16 +30,15 @@ const pickLocally = async (character: Character, ruleset: RulesetId): Promise<bo
 	return true;
 };
 
-/** Pick the ruleset the character plays: the server clears mods and rate, and answers
- *  with the character in it. Refused mid-play, or for a reborn character's other rulesets. */
+/** Pick the ruleset the character plays: the server answers with the character in it,
+ *  and the socket reconnects onto it, bringing that ruleset's own rate and mods. The one
+ *  left keeps playing. Refused for a reborn character's other rulesets. */
 export const pickRuleset = async (ruleset: RulesetId): Promise<boolean> => {
 	const character = Entities.character.get();
 	if (character.isGuest()) return pickLocally(character, ruleset);
 	void loadRuleset(ruleset);
 	const res = await rpc.v1.me.ruleset.$put({ json: { ruleset } });
 	if (!res.ok) return false;
-	resetMods();
-	void SETTINGS.rate.set(1);
 	Account.character.set(await res.json());
 	return true;
 };

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 import {
 	STATUS,
@@ -9,6 +10,7 @@ import {
 	cleanMods,
 	isRankedMods,
 	type Mod,
+	modsFor,
 	modsKey,
 	parseMods,
 	retriesOnFail,
@@ -54,6 +56,7 @@ import {
 	xpGainsOf,
 } from './db/schema/xp_gain';
 import {
+	isPbe,
 	isProd,
 	redisKeyPrefix,
 } from './env';
@@ -79,9 +82,15 @@ import {
 import type { ServerRuleset } from './rulesets/ruleset';
 import {
 	applySkillXp,
+	rankEvent,
 	submitScore,
 } from './scores';
-import { SCORE_VERSION } from './sim';
+import { SCORE_VERSIONS } from './sim';
+import {
+	characterOfSlot,
+	parseSlot,
+	type Slot,
+} from './slot';
 import { hub } from './ws/hub';
 import { update as updatePresence } from './ws/presence';
 
@@ -174,11 +183,11 @@ const BEFORE_RULESETS = { ruleset: 'mania4k' } as const;
 
 const PLAYING_KEY = `${redisKeyPrefix}playing`;
 const ONLINE_KEY = `${redisKeyPrefix}online`;
-const playKey = (characterId: number) => `${redisKeyPrefix}play:${characterId}`;
-const resultKey = (characterId: number) => `${redisKeyPrefix}result:${characterId}`;
+const playKey = (slot: Slot) => `${redisKeyPrefix}play:${slot}`;
+const resultKey = (slot: Slot) => `${redisKeyPrefix}result:${slot}`;
 
 /**
- * Acquire the per-character start lock or refuse. A Lua script so the check and
+ * Acquire the per-slot start lock or refuse. A Lua script so the check and
  * the set are atomic across workers: two cold starts racing on different
  * processes can't both pass into simulation. The lock is a member of the
  * `playing` set scored by the time it stays held. Returns 1 if acquired, 0 if a
@@ -237,7 +246,7 @@ d.endsAt = d.endsAt - delta
 d.skipped = true
 local out = cjson.encode(d)
 redis.call('SET', KEYS[1], out)
-redis.call('ZADD', KEYS[2], d.endsAt, ARGV[1])
+redis.call('ZADD', KEYS[2], d.endsAt, ARGV[5])
 return out
 `;
 
@@ -262,7 +271,7 @@ d.endsAt = d.endsAt - delta
 d.skipped = true
 local out = cjson.encode(d)
 redis.call('SET', KEYS[1], out)
-redis.call('ZADD', KEYS[2], d.endsAt, ARGV[1])
+redis.call('ZADD', KEYS[2], d.endsAt, ARGV[4])
 return out
 `;
 
@@ -342,11 +351,11 @@ type StartPlayResult = RankedStartPlayResult
 	| { status: 'refused' }
 	| { status: 'restricted' };
 
-/** When each character's play ends - moved by a skip or a debug finish - or
+/** When each slot's play ends - moved by a skip or a debug finish - or
  *  undefined once it is over. */
-export const playEnds = async (characterIds: number[]): Promise<(number | undefined)[]> => {
-	if (!characterIds.length) return [];
-	const ends = await redis.zmscore(PLAYING_KEY, ...characterIds.map(String));
+export const playEnds = async (slots: Slot[]): Promise<(number | undefined)[]> => {
+	if (!slots.length) return [];
+	const ends = await redis.zmscore(PLAYING_KEY, ...slots);
 	const now = Date.now();
 	return ends.map(e => e !== null && Number(e) > now ? Number(e) : undefined);
 };
@@ -355,20 +364,20 @@ export const playEnds = async (characterIds: number[]): Promise<(number | undefi
 type Timeline = Pick<
 	Pending, 'ruleset' | 'startedAt' | 'endsAt' | 'samples' | 'draft' | 'failedAt'
 >;
-export const playTimeline = async (characterId: number): Promise<Timeline | undefined> =>
-	readPlay(characterId);
+export const playTimeline = async (slot: Slot): Promise<Timeline | undefined> =>
+	readPlay(slot);
 
 /** Read the active play (if any) without claiming it. */
-async function readPlay(characterId: number): Promise<Pending | undefined> {
-	const raw = await redis.get(playKey(characterId));
+async function readPlay(slot: Slot): Promise<Pending | undefined> {
+	const raw = await redis.get(playKey(slot));
 	return raw ? {
 		...BEFORE_RULESETS, ...JSON.parse(raw) as Pending, 
 	} : undefined;
 }
 
-/** True while the character has a live (not-yet-ended) play. */
-export const isPlaying = async (characterId: number): Promise<boolean> => {
-	const endsAt = Number(await redis.zscore(PLAYING_KEY, String(characterId)));
+/** True while the slot has a live (not-yet-ended) play. */
+export const isPlaying = async (slot: Slot): Promise<boolean> => {
+	const endsAt = Number(await redis.zscore(PLAYING_KEY, slot));
 	return endsAt > Date.now();
 };
 
@@ -377,10 +386,10 @@ export const isPlaying = async (characterId: number): Promise<boolean> => {
  *  fresh join() otherwise stores an idle entry and clobbers the server-set
  *  `playing`, so a player who reconnects mid-play shows idle. */
 export const livePlayPresence = async (
-	characterId: number,
+	slot: Slot,
 ): Promise<{ status: Status; nowPlaying: string } | null> => {
-	if (!(await isPlaying(characterId))) return null;
-	const play = await readPlay(characterId);
+	if (!(await isPlaying(slot))) return null;
+	const play = await readPlay(slot);
 	if (!play) return null;
 	const beatmap = await getBeatmap(play.beatmapId);
 	if (!beatmap) return null;
@@ -411,14 +420,14 @@ const joinResult = (p: Pending): StartPlayResult => ({
 	...chunkFrom(p, 0),
 });
 
-/** Join the play already in progress for this character (spectate), or null to
+/** Join the play already in progress in this slot (spectate), or null to
  *  start a fresh one. An overdue play (past its end, sweep hasn't run) is
  *  finalised first so a new play can begin. */
-async function joinExisting(characterId: number): Promise<StartPlayResult | null> {
-	const existing = await readPlay(characterId);
+async function joinExisting(slot: Slot): Promise<StartPlayResult | null> {
+	const existing = await readPlay(slot);
 	if (!existing) return null;
 	if (Date.now() < existing.endsAt) return joinResult(existing);
-	await finalizePlay(characterId);
+	await finalizePlay(slot);
 	return null;
 }
 
@@ -427,8 +436,8 @@ async function joinExisting(characterId: number): Promise<StartPlayResult | null
  *  - 'ranked'   - simulated (or joined); the offsets + start time let the client
  *                 reproduce the play seeked to its live position.
  *  - 'unranked' - the map isn't ingested; the client plays it locally.
- *  - 'refused'  - a cold-start race lost the lock and no record had landed yet;
- *                 the client retries (its spectate poll picks the play up too).
+ *  - 'refused'  - a cold-start race lost the lock and the winner's play never
+ *                 landed; the client retries (its spectate poll picks it up too).
  */
 export type PlayOptions = {
 	/** debug xp scaling; the ws handler pins it to 1 in production */
@@ -463,7 +472,25 @@ const whoPlays = async (character: CharacterRow, beatmapId: number) => {
 	};
 };
 
+/** How long a start that lost the lock waits for the winner's play: an SD / PF / JT
+ *  retry is started by both the queue and the watching client at once. */
+const RACE_WAIT_MS = 15_000;
+
+/** The play a concurrent start is simulating, once stored; none if it stops holding
+ *  the lock without one (it went local) or takes too long. */
+const awaitRacedPlay = async (slot: Slot): Promise<Pending | undefined> => {
+	const until = Date.now() + RACE_WAIT_MS;
+	for (;;) {
+		const raced = await readPlay(slot);
+		if (raced) return raced;
+		const held = Number(await redis.zscore(PLAYING_KEY, slot));
+		if (held <= Date.now() || Date.now() >= until) return undefined;
+		await sleep(100);
+	}
+};
+
 export async function startPlay(
+	slot: Slot,
 	character: CharacterRow,
 	beatmapId: number,
 	options: PlayOptions = {},
@@ -472,16 +499,18 @@ export async function startPlay(
 	await markOnline(character.id);
 
 	// Already playing? Join it (spectate) rather than starting a second.
-	const joined = await joinExisting(character.id);
+	const joined = await joinExisting(slot);
 	if (joined) return joined;
 
 	// a solo NF play is the client's own, like any unranked one
-	const mods = cleanMods(options.mods ?? []);
-	if (!options.round && !isRankedMods(mods)) return unranked(character);
+	const picked = cleanMods(options.mods ?? []);
+	if (!options.round && !isRankedMods(picked)) return unranked(character);
 
 	const who = await whoPlays(character, beatmapId);
 	if (!who) return unranked(character);
 	const { r, player } = who;
+	// a mod another ruleset owns (7K's RT) is dropped, not refused
+	const mods = modsFor(picked, r.def.id);
 
 	// Provisional 60s lock so a near-simultaneous cold start is held off while
 	// this one simulates. Atomic across workers (see ACQUIRE_PLAY).
@@ -490,21 +519,15 @@ export async function startPlay(
 		ACQUIRE_PLAY, 
 		1, 
 		PLAYING_KEY, 
-		String(character.id), 
+		slot, 
 		String(now),
 		String(now + 60000),
 	) as number;
 	if (acquired !== 1) {
-		// Someone else is mid-simulation; if their record has landed, join it.
-		const raced = await readPlay(character.id);
+		// Someone else is mid-simulation: join their play once it lands.
+		const raced = await awaitRacedPlay(slot);
 		if (raced) return joinResult(raced);
-		const held = Number(await redis.zscore(PLAYING_KEY, String(character.id)));
-		console.log(
-			character.id, 
-			character.name,
-			'tried playing at once. remaining cooldown: ',
-			held - now,
-		);
+		console.log(slot, character.name, 'tried playing at once; the other start never landed');
 		return { status: 'refused' };
 	}
 	const profile = await profileOf(r, player.id);
@@ -512,17 +535,17 @@ export async function startPlay(
 		...options, mods, rate: r.play.allowedRate(profile, options.rate ?? 1),
 	};
 	const beatmap = await getLiveBeatmap(r, beatmapId);
-	if (beatmap) return simulateAndStore(r, character, player, beatmapId, beatmap, play);
+	if (beatmap) return simulateAndStore(r, slot, character, player, beatmapId, beatmap, play);
 	// A player's unranked map with a leaderboard (or one a supporter opens) plays like a
 	// ranked one, onto that board only.
 	const board = await boardDifficulty(beatmapId, character.userId);
 	if (board) {
-		return simulateAndStore(r, character, player, beatmapId, board, {
+		return simulateAndStore(r, slot, character, player, beatmapId, board, {
 			...play, board: true,
 		});
 	}
 	// Any other unranked diff, or one whose set isn't live, plays like an unknown map: local play, no submit.
-	await redis.zrem(PLAYING_KEY, String(character.id));
+	await redis.zrem(PLAYING_KEY, slot);
 	return unranked(character, r);
 }
 
@@ -532,6 +555,7 @@ export async function startPlay(
  *  the account's characters when `character` doesn't play the ruleset. */
 async function simulateAndStore(
 	r: ServerRuleset,
+	slot: Slot,
 	character: CharacterRow,
 	player: CharacterRow,
 	beatmapId: number,
@@ -565,7 +589,7 @@ async function simulateAndStore(
 		rate: String(rate),
 		sr: String(stars),
 		mods: modsKey(mods),
-		version: SCORE_VERSION,
+		version: SCORE_VERSIONS[r.def.id],
 	};
 
 	const startedAt = Date.now();
@@ -598,20 +622,20 @@ async function simulateAndStore(
 		...board ? { board: 'unranked' as const } : { strain: played.strain },
 	};
 	if (!isRankedMods(mods)) entry.unranked = true;
-	await redis.set(playKey(character.id), JSON.stringify(entry));
+	await redis.set(playKey(slot), JSON.stringify(entry));
 
 	// Promote the provisional lock to the real end time (drives the sweep + count).
-	await redis.zadd(PLAYING_KEY, endsAt, String(character.id));
+	await redis.zadd(PLAYING_KEY, endsAt, slot);
 	count('activity', 'plays_started');
 
 	// Reflect the play on the community overlay (no-op if they have no live socket).
-	void updatePresence(character.id, {
+	void updatePresence(slot, {
 		status: STATUS.playing,
 		nowPlaying: `${beatmap.artist} - ${beatmap.title}`,
 	});
 
-	// Every device of this character learns the play started (resume / spectate).
-	hub.sendTo(character.id, {
+	// Every device watching the slot learns the play started (resume / spectate).
+	hub.sendTo(slot, {
 		type: 'play:state', state: activeState(entry),
 	});
 
@@ -637,12 +661,12 @@ async function simulateAndStore(
 /**
  * Obtain play data by deleting it so we can consume it without duplication
  */
-const getAndDeletePlay = async(characterId: number): Promise<Pending | undefined> => {
+const getAndDeletePlay = async(slot: Slot): Promise<Pending | undefined> => {
 	const result = await redis.eval(
 		TAKE_PLAY,
 		1, 
-		playKey(characterId),
-		String(characterId),
+		playKey(slot),
+		String(characterOfSlot(slot)),
 	) as string | undefined;
 	if (!result) return;
 	return {
@@ -737,6 +761,7 @@ const parsePlayResult = async (play: Pending, notify: boolean): Promise<ParsedRe
 	}
 	await reindexCharacter(r, characterId);
 	await reindexBeatmap(r, characterId, play.draft.beatmapId);
+	await rankEvent(r, row);
 
 	const after = await profileSnapshot(r, characterId);
 	const deltas: PlayDeltas = {
@@ -780,17 +805,18 @@ const profileSnapshot = async (r: ServerRuleset, characterId: number) => {
  *   client already saw on its result screen must not re-surface from idle polls.
  */
 export async function finalizePlay(
-	characterId: number, 
+	slot: Slot, 
 	serverSide: boolean = false,
 ): Promise<StoredResult | undefined> {
-	const play = await getAndDeletePlay(characterId);
+	const play = await getAndDeletePlay(slot);
 	if (!play) return;
+	const characterId = characterOfSlot(slot);
 
-	// Free up the character slot for playing again
-	await redis.zrem(PLAYING_KEY, String(characterId));
+	// Free up the slot for playing again
+	await redis.zrem(PLAYING_KEY, slot);
 
 	// Back to idle on the community overlay (no-op without a live socket).
-	void updatePresence(characterId, {
+	void updatePresence(slot, {
 		status: STATUS.idle, nowPlaying: undefined,
 	});
 
@@ -802,20 +828,18 @@ export async function finalizePlay(
 	// and whether or not it landed any (a failed play and an unranked-mid-play
 	// both return above without applying xp). The play record is already
 	// consumed, so a throw here would lose the result and the state push with it.
-	const live = await applyPendingAction(characterId).catch(e => {
-		console.error('[play] pending actions failed for', characterId, e);
-		return characterId;
-	});
+	await applyPendingAction(characterId, parseSlot(slot).ruleset).catch(e =>
+		console.error('[play] pending actions failed for', characterId, e));
 
-	await redis.set(resultKey(characterId), JSON.stringify(result), 'PX', RESULT_TTL_MS);
+	await redis.set(resultKey(slot), JSON.stringify(result), 'PX', RESULT_TTL_MS);
 
 	// the xp this play paid and whatever it deferred, both landed: hand the
 	// character over before the result, so every screen showing it is current
-	await pushCharacter(live).catch(e =>
-		console.error('[play] character push failed for', live, e));
+	await pushCharacter(characterId).catch(e =>
+		console.error('[play] character push failed for', characterId, e));
 
 	// Every device learns the play ended (clears banners, surfaces the result).
-	hub.sendTo(characterId, {
+	hub.sendTo(slot, {
 		type: 'play:state',
 		state: {
 			phase: 'finished', token: result.token, notify: result.notify, failed: result.failed,
@@ -823,12 +847,12 @@ export async function finalizePlay(
 	});
 
 	const again = result.failed && retriesOnFail(modsOf(play)) ? {
-		beatmapId: play.beatmapId, rate: rateOf(play),
+		beatmapId: play.beatmapId, rate: rateOf(play), mods: modsOf(play),
 	} : undefined;
-	await playEnded(live, again).catch(e => console.error('[queue] chain failed for', live, e));
+	await playEnded(slot, again).catch(e => console.error('[queue] chain failed for', slot, e));
 
 	count('activity', 'plays_finished');
-	console.log(characterId, 'finished. playing users:', await getPlaying());
+	console.log(slot, 'finished. playing users:', await getPlaying());
 	return result;
 }
 
@@ -874,20 +898,20 @@ const resultWithMedals = async (
 };
 
 export async function fetchResult(
-	characterId: number,
+	slot: Slot,
 	token: string,
 	forceSee: boolean = false,
 	medals: boolean = false,
 ): Promise<PlayResult> {
 
-	const cached = await redis.get(resultKey(characterId));
+	const cached = await redis.get(resultKey(slot));
 	if (cached) {
 		const result = {
-			...BEFORE_RULESETS, player: characterId, ...JSON.parse(cached) as object,
+			...BEFORE_RULESETS, player: characterOfSlot(slot), ...JSON.parse(cached) as object,
 		} as StoredResult;
 		if (!result.notify && !forceSee) return CacheMissResult;
 		else if (result.notify) {
-			redis.set(resultKey(characterId), JSON.stringify({
+			redis.set(resultKey(slot), JSON.stringify({
 				...result, notify: false, 
 			}), 'KEEPTTL');
 		}
@@ -896,59 +920,58 @@ export async function fetchResult(
 		}
 	}
 
-	const play = await readPlay(characterId);
+	const play = await readPlay(slot);
 	if (!play || play.token !== token) return UnknownResult;
-	if (isProd && Date.now() < play.endsAt) return TooSoonResult;
+	if (isProd && !isPbe && Date.now() < play.endsAt) return TooSoonResult;
 
-	const result = (await finalizePlay(characterId));
+	const result = (await finalizePlay(slot));
 	
 	return result ? resultWithMedals(result, medals) : UnfinalizedResult;
 }
 
 /** Player quit: drop the play without submitting (token must match). Every
  *  device is told, so spectating tabs stop too. */
-export async function abortPlay(characterId: number, token: string): Promise<{ ok: boolean }> {
+export async function abortPlay(slot: Slot, token: string): Promise<{ ok: boolean }> {
+	const characterId = characterOfSlot(slot);
 	const raw = await redis.eval(
 		ABORT_PLAY,
 		1,
-		playKey(characterId),
+		playKey(slot),
 		String(characterId),
 		token,
 	) as string | null;
 	if (raw) {
-		await redis.zrem(PLAYING_KEY, String(characterId));
+		await redis.zrem(PLAYING_KEY, slot);
 		// an abort ends the play without ever finalising it; without this the
 		// action it deferred would stay parked forever - and a throw must not cost
 		// the clients their abort notice
-		const live = await applyPendingAction(characterId).catch(e => {
-			console.error('[play] pending actions failed for', characterId, e);
-			return characterId;
-		});
-		await pushCharacter(live).catch(e =>
-			console.error('[play] character push failed for', live, e));
-		hub.sendTo(characterId, {
+		await applyPendingAction(characterId, parseSlot(slot).ruleset).catch(e =>
+			console.error('[play] pending actions failed for', characterId, e));
+		await pushCharacter(characterId).catch(e =>
+			console.error('[play] character push failed for', characterId, e));
+		hub.sendTo(slot, {
 			type: 'play:aborted', token,
 		});
-		await playEnded(live).catch(e => console.error('[queue] chain failed for', live, e));
+		await playEnded(slot).catch(e => console.error('[queue] chain failed for', slot, e));
 	}
 	return { ok: raw !== null };
 }
 
 /** Player skipped the lead-in: shift the play's timeline so it finalises earlier
  *  (token must match). */
-export async function skipPlay(characterId: number, token: string): Promise<{ ok: boolean }> {
+export async function skipPlay(slot: Slot, token: string): Promise<{ ok: boolean }> {
 	const raw = await redis.eval(
-		SKIP_PLAY, 2, playKey(characterId), PLAYING_KEY,
-		String(characterId), token, String(Date.now()), String(LEAD_IN_MS),
+		SKIP_PLAY, 2, playKey(slot), PLAYING_KEY,
+		String(characterOfSlot(slot)), token, String(Date.now()), String(LEAD_IN_MS), slot,
 	) as string | null;
 	return { ok: raw !== null };
 }
 
 /** Debug: end the play now (see FINISH_PLAY). */
-export async function finishPlayNow(characterId: number, token: string): Promise<{ ok: boolean }> {
+export async function finishPlayNow(slot: Slot, token: string): Promise<{ ok: boolean }> {
 	const raw = await redis.eval(
-		FINISH_PLAY, 2, playKey(characterId), PLAYING_KEY,
-		String(characterId), token, String(Date.now()),
+		FINISH_PLAY, 2, playKey(slot), PLAYING_KEY,
+		String(characterOfSlot(slot)), token, String(Date.now()), slot,
 	) as string | null;
 	return { ok: raw !== null };
 }
@@ -957,11 +980,11 @@ export async function finishPlayNow(characterId: number, token: string): Promise
  *  client never holds more than a few seconds of the play's future. Returns an
  *  empty done chunk for an unknown/foreign token (the play already finished). */
 export async function streamOffsets(
-	characterId: number,
+	slot: Slot,
 	token: string,
 	from: number,
 ): Promise<OffsetChunk> {
-	const play = await readPlay(characterId);
+	const play = await readPlay(slot);
 	if (!play || play.token !== token) {
 		return {
 			offsets: [], next: from, done: true,
@@ -997,15 +1020,15 @@ const activeState = (play: Pending): Extract<PlayState, { phase: 'active' }> => 
 };
 
 /** Current play state for resume-after-refresh / cross-tab spectating. */
-export async function playState(characterId: number): Promise<PlayState> {
-	const play = await readPlay(characterId);
+export async function playState(slot: Slot): Promise<PlayState> {
+	const play = await readPlay(slot);
 	// While the play record exists it's still live (or overdue awaiting finalise).
 	// Never finalise here: finalising would terminate the play out from under its
 	// spectator, ejecting it before the result screen. An overdue play is
 	// finalised server-side by the sweep (ephemeral result) or by the finishing
 	// client itself via fetchResult.
 	if (play) return activeState(play);
-	const result = await redis.get(resultKey(characterId));
+	const result = await redis.get(resultKey(slot));
 	if (result) {
 		const stored = JSON.parse(result) as StoredResult;
 		return {
@@ -1018,10 +1041,12 @@ export async function playState(characterId: number): Promise<PlayState> {
 /** Finalise every play whose end time has passed, so abandoned plays still
  *  submit. Safe to run on every worker - the atomic claim guards single submit. */
 export async function sweepDuePlays(): Promise<void> {
-	const due = await redis.zrangebyscore(PLAYING_KEY, '-inf', Date.now() - RESULT_BREATH_TTL_MS);
+	const due = await redis.zrangebyscore(
+		PLAYING_KEY, '-inf', Date.now() - RESULT_BREATH_TTL_MS,
+	) as Slot[];
 	for (const id of due) {
 		try {
-			await finalizePlay(Number(id), true);
+			await finalizePlay(id, true);
 		} catch (e) {
 			console.error('[play] sweep finalize failed for', id, e);
 		}

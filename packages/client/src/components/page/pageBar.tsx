@@ -19,6 +19,9 @@ export type PageAction = {
  *  (via PageBarActions) so they share the one real bottom bar. */
 export const PageBarSlot = createContext<HTMLElement | null>(null);
 
+/** Behind a page's tabs, title and body: a sub-view's backdrop reaches every edge from here. */
+export const PageBackdropSlot = createContext<HTMLElement | undefined>(undefined);
+
 type EditorBarOpts = {
 	editing?: boolean,
 	busy: boolean,

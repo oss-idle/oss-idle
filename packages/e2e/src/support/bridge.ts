@@ -92,6 +92,7 @@ export type TestBridge = {
 	sessionReady: () => boolean;
 	noCharacter: () => boolean;
 	playLocally: () => Promise<void>;
+	skipGeneticAsks: () => void;
 	character: () => CharacterView;
 	saved: () => Promise<void>;
 	play: () => PlayView | undefined;

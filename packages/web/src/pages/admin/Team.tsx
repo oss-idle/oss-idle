@@ -17,6 +17,7 @@ import {
 	addToGroup,
 	getTeam,
 	removeFromGroup,
+	setNominates,
 } from '../../api/team';
 import TeamGroup from './TeamGroup';
 import TeamSearch from './TeamSearch';
@@ -40,8 +41,10 @@ export default function Team() {
 		<p className='admin-medals__meta'>
 			Admins ({GROUP_BADGE.admin.short}) manage the team and every admin page. The Global
 			Moderation Team ({GROUP_BADGE.gmt.short}) silences, restricts and handles reports from the
-			chat console, the restricted accounts page and a profile's ⋮ menu. Both show their badge on
-			their profile and their colour in chat; admins can't be sanctioned.
+			chat console, the restricted accounts page and a profile's ⋮ menu. Beatmap Nominators
+			({GROUP_BADGE.bn.short}) review requests and rank maps in the rulesets ticked beside their
+			name. All show their badge on their profile and their colour in chat; admins can't be
+			sanctioned.
 		</p>
 		{error && <p>{error}</p>}
 		{!team && <p>Loading…</p>}
@@ -52,6 +55,7 @@ export default function Team() {
 			members={team.members.filter(m => m.group === group)}
 			busy={busy}
 			onRemove={userId => run(() => removeFromGroup(group, userId))}
+			onNominates={(userId, rulesets) => run(() => setNominates(userId, rulesets))}
 		/>)}
 	</main>;
 }

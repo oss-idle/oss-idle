@@ -12,13 +12,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { moveHost } from '@oss-idle/shared/hostMove';
-import { detectBrowserLocale } from '@oss-idle/shared/i18n/locales';
 
 import PageError from './components/PageError';
 import {
 	activateLocale,
 	i18n,
 } from './i18n';
+import { savedLocale } from './locale';
 import { routeTree } from './routeTree.gen';
 
 await moveHost();
@@ -34,9 +34,8 @@ window.addEventListener('vite:preloadError', (event) => {
 	window.location.reload();
 });
 
-// Load the catalog for the browser's language before first render so the UI
-// never flashes message keys. A saved user preference can override this later.
-await activateLocale(detectBrowserLocale());
+// Load the catalog before first render so the UI never flashes message keys.
+await activateLocale(savedLocale());
 
 const router = createRouter({
 	routeTree,

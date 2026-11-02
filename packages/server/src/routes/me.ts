@@ -11,7 +11,15 @@ import {
 	debugSimBody,
 } from '@oss-idle/shared/debug';
 import { restedFatigue } from '@oss-idle/shared/fatigue';
-import { editsCharacter } from '@oss-idle/shared/groups';
+import {
+	convertBody,
+	geneBody,
+	pickBody,
+} from '@oss-idle/shared/genetics';
+import {
+	editsCharacter,
+	renamesCharacter,
+} from '@oss-idle/shared/groups';
 import {
 	characterNameBody,
 	onboardingBody,
@@ -41,6 +49,12 @@ import {
 	performUpgrade,
 } from '../character/actions';
 import { characterDTOOf } from '../character/dto';
+import {
+	performConvert,
+	performLearn,
+	performPick,
+	performSell,
+} from '../character/genetics';
 import { assertNameAvailable } from '../character/names';
 import {
 	applyPendingAction,
@@ -64,9 +78,12 @@ import {
 	env,
 } from '../env';
 import { isProd } from '../env';
+import { addEvent } from '../events';
+import { groupsOf } from '../groups';
 import { pushMedals } from '../medals';
 import { count } from '../metrics';
 import { isPlaying } from '../play';
+import { leaveOrPlayOn } from '../queue';
 import { reindexCharacter } from '../rankings';
 import { rateLimit } from '../rateLimit';
 import { ENABLED_RULESETS } from '../rulesets/enabled';
@@ -76,6 +93,7 @@ import {
 } from '../rulesets/mania/4k/debug';
 import {
 	enabledRulesets,
+	rulesetFor,
 	rulesetOfBeatmap,
 	selectedRuleset,
 } from '../rulesets/registry';
@@ -83,6 +101,10 @@ import {
 	accountScores,
 	scoreSyncState,
 } from '../scoreSync';
+import {
+	slotOf,
+	watchedSlot,
+} from '../slot';
 import { isSupporter } from '../supporter';
 import { saveUploadedImage } from '../uploads';
 import {
@@ -90,6 +112,7 @@ import {
 	userPageOf,
 } from '../userPage';
 import { valid } from '../validate';
+import { hub } from '../ws/hub';
 
 const characterId = z.number().int().positive();
 const characterRenameBody = characterNameBody.extend({ characterId: characterId.optional() });
@@ -116,6 +139,25 @@ const editableCharacter = async (userId: number, characterId: number) => {
 		.where(eq(characters.id, characterId))
 		.limit(1);
 	if (!row || !editsCharacter(userId, row.character)) {
+		throw new HTTPException(404, { message: 'Character not found' });
+	}
+	return row;
+};
+
+/** A character the account may rename (see renamesCharacter). */
+const renamableCharacter = async (userId: number, characterId: number) => {
+	const [row] = await db.select().from(characters)
+		.innerJoin(users, eq(users.id, characters.userId))
+		.where(eq(characters.id, characterId))
+		.limit(1);
+	if (!row || !renamesCharacter(
+		{
+			id: userId, groups: await groupsOf(userId), 
+		},
+		{
+			...row.character, groups: await groupsOf(row.user.id), 
+		},
+	)) {
 		throw new HTTPException(404, { message: 'Character not found' });
 	}
 	return row;
@@ -195,8 +237,8 @@ export const meRoutes = new Hono()
 		return c.json(await characterDTOOf(row!, user), 201);
 	})
 
-	// Rename the account's current character (same rules as creation). The old
-	// name is kept permanently in the character's name history.
+	// Rename the account's current character (same rules as creation), or any
+	// character as a moderator. The old name is kept in the name history.
 	.post('/username', requireActive, valid('json', characterRenameBody), async c => {
 		const userId = c.get('userId');
 		const {
@@ -207,14 +249,19 @@ export const meRoutes = new Hono()
 		const target = characterId ?? user?.currentCharacter;
 		if (!user || !target) throw new HTTPException(409, { message: 'No character' });
 
-		const { character: row, user: owner } = await editableCharacter(userId, target);
+		const { character: row, user: owner } = await renamableCharacter(userId, target);
 
 		if (name !== row.name) {
-			await assertNameAvailable(userId, name, user.username, row.id);
+			await assertNameAvailable(owner.id, name, owner.username, row.id);
 			await db.insert(characterNameHistory).values({
 				characterId: row.id, name: row.name,
 			});
 			await db.update(characters).set({ name }).where(eq(characters.id, row.id));
+			await addEvent({
+				userId: owner.id, characterId: row.id,
+			}, {
+				type: 'usernameChange', previousUsername: row.name, username: name,
+			});
 			row.name = name;
 		}
 
@@ -326,6 +373,32 @@ export const meRoutes = new Hono()
 		});
 	})
 
+	// Genetics: pick or change the genetic, learn or sell a gene's tiers, turn overdrive into
+	// climaxx. None waits for a running play: its result is already decided.
+	.post('/genetics/pick', requireAuth, valid('json', pickBody), async c => {
+		const { user, row } = await currentCharacter(c.get('userId'));
+		const { skill, slot } = c.req.valid('json');
+		await performPick(selectedRuleset(row), row.id, skill, slot);
+		return c.json({ character: await characterById(row.id, user) });
+	})
+	.post('/genetics/learn', requireAuth, valid('json', geneBody), async c => {
+		const { user, row } = await currentCharacter(c.get('userId'));
+		await performLearn(selectedRuleset(row), row.id, c.req.valid('json').gene);
+		return c.json({ character: await characterById(row.id, user) });
+	})
+	.post('/genetics/sell', requireAuth, valid('json', geneBody), async c => {
+		const { user, row } = await currentCharacter(c.get('userId'));
+		await performSell(selectedRuleset(row), row.id, c.req.valid('json').gene);
+		return c.json({ character: await characterById(row.id, user) });
+	})
+	.post('/genetics/convert', requireAuth, valid('json', convertBody), async c => {
+		const { user, row } = await currentCharacter(c.get('userId'));
+		const r = selectedRuleset(row);
+		await performConvert(r, row.id, c.req.valid('json').skill);
+		await reindexCharacter(r, row.id);
+		return c.json({ character: await characterById(row.id, user) });
+	})
+
 	// Debug mode on a dev server: the fatigue as it stands now, to start from.
 	.get('/debug/character', requireAuth, async c => {
 		if (isProd) throw new HTTPException(404, { message: 'Not found' });
@@ -406,13 +479,24 @@ export const meRoutes = new Hono()
 			.limit(1);
 		if (!row) throw new HTTPException(404, { message: 'Character not found' });
 
-		if (user.currentCharacter) await assertNotPlaying(user.currentCharacter);
+		const [left] = user.currentCharacter === undefined || user.currentCharacter === null ? [] : await db
+			.select()
+			.from(characters)
+			.where(eq(characters.id, user.currentCharacter))
+			.limit(1);
 
 		await db.update(users)
 			.set({ currentCharacter: characterId })
 			.where(eq(users.id, userId));
+		// the one left behind keeps playing its queue
+		if (left && left.id !== row.id) await leaveOrPlayOn(watchedSlot(left));
 
-		return c.json(await characterDTOOf(row, user));
+		const dto = await characterDTOOf(row, user);
+		// a game still watching the one left (a switch from the web) follows
+		if (left && left.id !== row.id) hub.sendTo(left.id, {
+			type: 'character', character: dto,
+		});
+		return c.json(dto);
 	})
 
 	// Prestige one skill: its level, xp, upgrades and overdrive go, and it keeps a
@@ -436,37 +520,15 @@ export const meRoutes = new Hono()
 
 	// Rebirth: the account starts a fresh character one generation up, which owns
 	// one more unlock. The previous one stays playable, ranked, and keeps its
-	// progress - it just gives up the name, osu!-style.
+	// progress - it just gives up the name, osu!-style. It never waits for a play:
+	// the one running carries on, on the character it started on.
 	.post('/rebirth', requireAuth, valid('json', rebirthBody), async c => {
 		const { user, row } = await currentCharacter(c.get('userId'));
 		const { name } = c.req.valid('json');
 
-		// Checked here, not only inside performRebirth: parked, that check would
-		// not run until the play ended, where a taken name is a 403 swallowed into
-		// a log - after the player was told the rebirth would happen. Keeping your
-		// own name displaces the old character instead, so it needs no check.
-		if (name !== row.name) await assertNameAvailable(user.id, name, user.username);
 		const r = selectedRuleset(row);
 		if (!r.def.rebirth) throw new HTTPException(409, { message: 'No rebirth in this ruleset' });
 		await assertNewestGeneration(r, row, (await profileOf(r, row.id)).generation);
-
-		const deferred = await queueWhilePlaying(row, {
-			type: 'rebirth', ruleset: r.def.id, name, requestedAt: Date.now(),
-		});
-		// nothing was created yet: the answer is the character they still have
-		if (deferred === 'queued') {
-			return c.json({
-				queued: true, character: await characterById(row.id, user),
-			});
-		}
-		// it already happened while we were parking it: answer with what it made,
-		// or the client keeps the character the rebirth just renamed
-		if (deferred === 'applied') {
-			const { row: live } = await currentCharacter(user.id);
-			return c.json({
-				queued: false, character: await characterById(live.id, user),
-			}, 201);
-		}
 
 		const created = await performRebirth(r, user, row, name);
 		return c.json({
@@ -475,7 +537,7 @@ export const meRoutes = new Hono()
 	})
 
 	// Pick the ruleset the character plays: song select, the profile and the level shown
-	// everywhere follow it. Mods and rate may not exist in the other one, so they clear.
+	// everywhere follow it. Each ruleset keeps its own rate and mods.
 	.put('/ruleset', requireAuth, valid('json', rulesetBody), async c => {
 		const { user, row } = await currentCharacter(c.get('userId'));
 		const { ruleset } = c.req.valid('json');
@@ -483,12 +545,9 @@ export const meRoutes = new Hono()
 		if (row.rulesetLock && row.rulesetLock !== ruleset) {
 			throw new HTTPException(409, { message: 'This character only plays the ruleset it was reborn in' });
 		}
-		await assertNotPlaying(row.id);
-		await db.update(characters)
-			.set({
-				ruleset, playMods: null, playRate: 1,
-			})
-			.where(eq(characters.id, row.id));
+		await db.update(characters).set({ ruleset }).where(eq(characters.id, row.id));
+		// the ruleset left behind keeps playing its queue
+		if (ruleset !== row.ruleset) await leaveOrPlayOn(watchedSlot(row));
 		return c.json(await characterById(row.id, user));
 	})
 
@@ -520,11 +579,13 @@ const queueWhilePlaying = async (
 	row: CharacterRow,
 	action: PendingAction,
 ): Promise<'queued' | 'applied' | 'none'> => {
-	if (!(await isPlaying(row.id))) return 'none';
+	// only a play in the action's ruleset reads what it changes
+	const slot = slotOf(row.id, action.ruleset);
+	if (!(await isPlaying(slot))) return 'none';
 	// checked against the character as it will be - what is already parked spends
 	// first - and checked inside the lock that appends, so two clicks in the same
 	// breath cannot both pass
-	const r = selectedRuleset(row);
+	const r = rulesetFor(action.ruleset);
 	const profile = await profileOf(r, row.id);
 	await queuePendingAction(row.id, action, (_locked, parked) =>
 		assertActionAvailable(r, profile, action, parked));
@@ -534,8 +595,8 @@ const queueWhilePlaying = async (
 	// Nothing else would run this one until some later play ends - so it runs
 	// here, and the caller answers with what happened rather than promising it
 	// for an ending that is already past.
-	if (await isPlaying(row.id)) return 'queued';
-	await applyPendingAction(row.id);
+	if (await isPlaying(slot)) return 'queued';
+	await applyPendingAction(row.id, action.ruleset);
 	return 'applied';
 };
 
@@ -546,14 +607,6 @@ const currentCharacter = async (userId: number) => {
 	return {
 		user: found.user, row: found.character,
 	};
-};
-
-/** A running play reads the character mid-flight, so anything that rewrites its
- *  progression waits for the play to end. */
-const assertNotPlaying = async (characterId: number) => {
-	if (await isPlaying(characterId)) {
-		throw new HTTPException(409, { message: 'A play is in progress' });
-	}
 };
 
 /** Set the account's current character avatar or banner and return the resolved character DTO. */

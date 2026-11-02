@@ -431,3 +431,7 @@
 		flex: 1;
 	}
 }
+
+.requests__tab--mode {
+	text-transform: none;
+}
