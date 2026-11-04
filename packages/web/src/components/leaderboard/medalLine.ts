@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import { overdriveText } from '@oss-idle/shared/display/overdrive';
 
 export type Goal = { id: string, goal: number };
@@ -20,8 +20,8 @@ export const LINE_NAMES: Record<string, MessageDescriptor> = {
 
 export const lineValue = (line: string, value: number): string =>
 	line === 'overdrive' ? overdriveText(value)
-		: line === 'time' ? `${num(value)}h`
-			: num(value);
+		: line === 'time' ? `${bignum(value)}h`
+			: bignum(value);
 
 /** The furthest medal a value reached on its line, and the next one. */
 export const lineStanding = (goals: Goal[], value: number) => ({

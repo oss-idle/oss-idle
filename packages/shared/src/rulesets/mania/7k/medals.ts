@@ -17,7 +17,7 @@ import {
 /** 7K's ids: they never collide with another ruleset's (a title stores only the id). */
 export const MEDAL_PREFIX_7K = '7k-';
 
-const SKILL_GLYPHS: Record<SkillName7k, GlyphName> = {
+export const SKILL_GLYPHS_7K: Record<SkillName7k, GlyphName> = {
 	accuracy: 'target',
 	speed: 'lightning',
 	stamina: 'heartbeat',
@@ -51,7 +51,7 @@ export const MEDALS_7K: MedalDef[] = [
 		.filter(m => !LEFT_OUT.has(m.id) && !isSkillMedal(m.id))
 		.map(m => def(at(m.id), m.category, m.tier, m.glyph)),
 	...Skills7k.flatMap(skill => SKILL_STEPS.map(([n, tier]) =>
-		def(at(`${skill}-${n}`), 'mastery', tier, SKILL_GLYPHS[skill]))),
+		def(at(`${skill}-${n}`), 'mastery', tier, SKILL_GLYPHS_7K[skill]))),
 ];
 
 export const MEDAL_LINES_7K: Record<MedalCategory, string[][]> = Object.fromEntries(

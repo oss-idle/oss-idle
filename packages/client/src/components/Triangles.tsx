@@ -15,6 +15,7 @@ interface Triangle {
 	depth: number // 0 (far) .. 1 (near) - drives parallax + colour
 	spin: number
 	rot: number
+	fill: string
 }
 
 interface Props {
@@ -31,6 +32,11 @@ const PINKS = [
 	[255, 166, 208],
 	[180, 70, 120],
 ];
+
+const fillOf = (depth: number) => {
+	const [r, g, b] = PINKS[Math.floor(depth * PINKS.length) % PINKS.length];
+	return `rgba(${r}, ${g}, ${b}, ${0.05 + depth * 0.16})`;
+};
 
 /**
  * The osu! signature: soft triangles slowly drifting upward. Nearer triangles
@@ -54,28 +60,30 @@ export default function Triangles({
 		let raf = 0;
 		let w = 0;
 		let h = 0;
+		let dpr = 1;
 		const resize = () => {
 			w = window.innerWidth;
 			h = window.innerHeight;
-			sizeCanvas(canvas, ctx, w, h);
+			dpr = sizeCanvas(canvas, ctx, w, h);
 		};
 		resize();
 		window.addEventListener('resize', resize);
 
-		const spawn = (initial: boolean): Triangle => {
+		// in place: a new triangle per respawn is garbage
+		const spawn = (t: Triangle, initial: boolean): Triangle => {
 			const depth = Math.random();
-			return {
-				x: Math.random(),
-				y: initial ? Math.random() * h : h + Math.random() * 120,
-				size: 24 + depth * 150,
-				speed: 14 + depth * 46,
-				depth,
-				spin: (Math.random() - 0.5) * 0.4,
-				rot: Math.random() * Math.PI * 2,
-			};
+			t.x = Math.random();
+			t.y = initial ? Math.random() * h : h + Math.random() * 120;
+			t.size = 24 + depth * 150;
+			t.speed = 14 + depth * 46;
+			t.depth = depth;
+			t.spin = (Math.random() - 0.5) * 0.4;
+			t.rot = Math.random() * Math.PI * 2;
+			t.fill = fillOf(depth);
+			return t;
 		};
 
-		trianglesRef.current = Array.from({ length: count }, () => spawn(true));
+		trianglesRef.current = Array.from({ length: count }, () => spawn({} as Triangle, true));
 
 		let last = performance.now();
 		const draw = (now: number) => {
@@ -87,35 +95,32 @@ export default function Triangles({
 			const py = parallaxRef.current.y;
 			const boost = intensityRef.current;
 
-			for (const t of trianglesRef.current) {
+			const triangles = trianglesRef.current;
+			for (let i = 0; i < triangles.length; i++) {
+				const t = triangles[i];
 				t.y -= t.speed * dt * boost;
 				t.rot += t.spin * dt;
-				if (t.y + t.size < -40) {
-					Object.assign(t, spawn(false));
-				}
+				if (t.y + t.size < -40) spawn(t, false);
 
 				// parallax: nearer triangles shift more
 				const shift = 40 * t.depth;
 				const screenX = t.x * w - px * shift;
 				const screenY = t.y - py * shift * 0.6;
 
-				const [r, g, b] = PINKS[Math.floor(t.depth * PINKS.length) % PINKS.length];
-				const alpha = 0.05 + t.depth * 0.16;
-
-				ctx.save();
-				ctx.translate(screenX, screenY);
-				ctx.rotate(t.rot);
+				const c = Math.cos(t.rot) * dpr;
+				const s = Math.sin(t.rot) * dpr;
+				ctx.setTransform(c, s, -s, c, screenX * dpr, screenY * dpr);
 				ctx.beginPath();
-				const s = t.size;
+				const size = t.size;
 				// equilateral-ish triangle centred on origin
-				ctx.moveTo(0, -s * 0.6);
-				ctx.lineTo(s * 0.52, s * 0.4);
-				ctx.lineTo(-s * 0.52, s * 0.4);
+				ctx.moveTo(0, -size * 0.6);
+				ctx.lineTo(size * 0.52, size * 0.4);
+				ctx.lineTo(-size * 0.52, size * 0.4);
 				ctx.closePath();
-				ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+				ctx.fillStyle = t.fill;
 				ctx.fill();
-				ctx.restore();
 			}
+			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 			raf = requestAnimationFrame(draw);
 		};

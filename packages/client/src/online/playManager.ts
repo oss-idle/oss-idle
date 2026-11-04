@@ -822,15 +822,15 @@ export default class PlayManager {
 		if (token === this.completedToken || scene === SCENE.GAME) return;
 		const res = await fetchPlayResult(token, false, false).catch(() => null);
 		if (!res || res.failed || !res.score) return;
+		const dto = res.score;
 
 		// the one started keeps its playlist's locked rate and mods
-		const beatmap = this.known.get(token) ?? await this.findDownloaded(res.score.beatmapId);
+		const beatmap = this.known.get(token) ?? await this.findDownloaded(dto.beatmapId);
 		if (!beatmap) return;
 
 		// a fresh board for the leaderboard the save refreshes, so the score arrives on it live
-		await flushBeatmapScores(res.score.beatmapId);
-		const score = Score.fromDTO(res.score);
-		const saved = await score.add().catch(() => score);
+		await flushBeatmapScores(dto.beatmapId);
+		const [saved] = await Score.addServerScores([dto]).catch(() => [Score.fromDTO(dto)]);
 		void ScoreXP.record(saved, res.gains);
 		logPlayFinished(saved, beatmap, res.gains);
 	}

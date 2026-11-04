@@ -44,7 +44,6 @@ export class MusicPlayer {
 	public readonly muted = new Synced(false);
 	
 	private _playing = false;
-	private raf = new Listener<() => void>();
 
 	private readonly audioSource = new Synced<string | undefined>(undefined);
 	/** the track the source was last asked for */
@@ -104,7 +103,6 @@ export class MusicPlayer {
 		});
 
 		this.initBeatDetection();
-		this.initRaf();
 		this.initSampleScheduler();
 	}
 
@@ -253,7 +251,8 @@ export class MusicPlayer {
 	private currentBeatmapId = -1;
 	private currentBeatmap?: Beatmap;
 	private initBeatDetection() {
-		this.raf.on(() => {
+		const tick = () => {
+			requestAnimationFrame(tick);
 			const beatmap = this.beatmap.get();
 
 			if (!beatmap || !beatmap.metadata.runtime) {
@@ -280,7 +279,8 @@ export class MusicPlayer {
 
 			this.lastBeat = beat;
 			this.listeners.beat.trigger(beat, ms);
-		});
+		};
+		requestAnimationFrame(tick);
 	}
 
 	/** Fully buffer the current streaming track and pre-seek it to `atMs` so a
@@ -674,6 +674,7 @@ export class MusicPlayer {
 		this.disposeGameSource();
 		this.gameBuffer = undefined;
 		this.gameStartCtx = undefined;
+		this.decoded = undefined;
 	}
 
 	private disposeGameSource(): void {
@@ -723,14 +724,6 @@ export class MusicPlayer {
 
 	private volume(): number {
 		return this.muted.get() ? 0 : SETTINGS.musicVolume.get() * SETTINGS.mainVolume.get();
-	}
-
-	private initRaf() {
-		const tick = async () => {
-			await this.raf.trigger();
-			requestAnimationFrame(tick);
-		};
-		requestAnimationFrame(tick);
 	}
 
 	restart() {

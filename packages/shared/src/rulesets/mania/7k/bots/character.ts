@@ -110,12 +110,16 @@ export default class Bot7k extends Bot {
 		/** debug xp scaling for local plays; the server scales its own */
 		xpMultiplier = 1,
 		mods: readonly Mod[] = [],
+		/** each skill's own scaling */
+		perSkill: Readonly<Record<string, number>> = {},
 	): SkillGain[] {
 		if (this.progression) return this.progression;
 		const xp = this.getSkillsXP(length, score);
 		const multipliers = modXpMultipliers7k(mods);
 		this.progression = this.skills.map(skill => {
-			const gained = Math.floor(xp[skill.name] * multipliers[skill.name] * Math.max(1, xpMultiplier));
+			const gained = Math.floor(
+				xp[skill.name] * multipliers[skill.name] * Math.max(1, xpMultiplier) * (perSkill[skill.name] ?? 1),
+			);
 			const fromLevel = skill.level.get();
 			const fromXp = skill.xp.get();
 			const levels = skill.gainXP(gained);

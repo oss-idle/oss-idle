@@ -21,7 +21,7 @@ msgstr ""
 msgid "(only admins can see this)"
 msgstr ""
 
-#. placeholder {0}: num(plays)
+#. placeholder {0}: bignum(plays)
 #: src/pages/bot/BotLive.tsx
 msgid "{0} plays so far"
 msgstr ""
@@ -269,7 +269,7 @@ msgstr ""
 
 #: src/components/leaderboard/PlayerGradesLeaderboard.tsx
 #: src/components/leaderboard/PlayerLeaderboard.tsx
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 #: src/pages/beatmaps/TopScoreCard.tsx
 #: src/pages/rankings/Country.tsx
 #: src/pages/scores/ScorePage.tsx
@@ -1201,7 +1201,7 @@ msgstr ""
 msgid "Max combo"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 #: src/pages/scores/ScorePage.tsx
 msgid "Max Combo"
 msgstr ""
@@ -1263,7 +1263,7 @@ msgstr ""
 msgid "Moderator"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Mods"
 msgstr ""
 
@@ -1606,7 +1606,7 @@ msgstr ""
 msgid "Played by"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Player"
 msgstr ""
 
@@ -1706,7 +1706,7 @@ msgid "Proposed maps ranked"
 msgstr ""
 
 #: src/components/UserList.tsx
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Rank"
 msgstr ""
 
@@ -1972,7 +1972,7 @@ msgstr ""
 msgid "score"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Score"
 msgstr ""
 
@@ -2044,6 +2044,10 @@ msgstr ""
 
 #: src/pages/bugs/NewBug.tsx
 msgid "Sent with it: version {version} and your desktop app."
+msgstr ""
+
+#: src/components/character/RulesetSwitch.tsx
+msgid "Set as main mode"
 msgstr ""
 
 #: src/pages/bugs/BugMessage.tsx
@@ -2271,6 +2275,10 @@ msgstr ""
 msgid "Thank you! Your donations gave you {days, plural, one {# day} other {# days}} of oss!supporter."
 msgstr ""
 
+#: src/pages/beatmaps/MapRequests.tsx
+msgid "That .osz is another set: it went to the nomination queue, this request stays open"
+msgstr ""
+
 #: src/pages/groups/GroupPage.tsx
 msgid "The <0>Administrators</0> run oss!idle: they develop the game, rank the maps and manage the team."
 msgstr ""
@@ -2339,7 +2347,7 @@ msgstr ""
 msgid "This request has been answered"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Time"
 msgstr ""
 
@@ -2433,6 +2441,10 @@ msgstr ""
 
 #: src/pages/settings/OAuthClientDialog.tsx
 msgid "Update"
+msgstr ""
+
+#: src/pages/beatmaps/RequestActions.tsx
+msgid "Upload .osz"
 msgstr ""
 
 #: src/pages/store/SupporterPerks.tsx
@@ -2560,7 +2572,7 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
-#. placeholder {0}: num(ranks.performance)
+#. placeholder {0}: bignum(ranks.performance)
 #. placeholder {1}: num(result.performance)
 #: src/pages/bot/BotTopScores.tsx
 msgid "Would be <0>#{0}</0> on oss!idle, with <1>{1}pp</1>"

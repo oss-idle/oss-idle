@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -31,7 +31,7 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>Best Performance</Trans>
 				<div className='character__block-section-title-count'>
-					{num(Math.min(200, countplayed ?? 0))}
+					{bignum(Math.min(200, countplayed ?? 0))}
 				</div>
 			</div>
 			<div className='character__best_pp'>
@@ -45,7 +45,7 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>First Place Ranks</Trans>
 				<div className='character__block-section-title-count'
-				>{num(countfirstplaces)}
+				>{bignum(countfirstplaces)}
 				</div>
 			</div>
 			<div className='character__first_places'>
@@ -62,7 +62,7 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>Recent scores</Trans>
 				<div className='character__block-section-title-count'>
-					{num(recentscores.items?.length)}
+					{bignum(recentscores.items?.length)}
 				</div>
 			</div>
 			<div className='character__first_places'>

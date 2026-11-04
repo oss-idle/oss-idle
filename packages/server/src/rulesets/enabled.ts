@@ -11,6 +11,7 @@ import {
 	modesOf,
 	NOMINATED_RULESETS,
 	OSU_MODE,
+	PBE_RULESETS,
 	PROD_RULESETS,
 	RULESET_IDS,
 	type RulesetId,
@@ -18,10 +19,13 @@ import {
 	RULESETS,
 } from '@oss-idle/shared/rulesets/ids';
 
-import { isProd } from '../env';
+import {
+	isPbe,
+	isProd,
+} from '../env';
 
 /** The rulesets this server plays; the others' handlers are never loaded. */
-export const ENABLED_RULESETS = isProd ? PROD_RULESETS : DEV_RULESETS;
+export const ENABLED_RULESETS = isPbe ? PBE_RULESETS : isProd ? PROD_RULESETS : DEV_RULESETS;
 
 /** The rulesets whose queue this server keeps: the ones it plays and the nominated ones. */
 export const QUEUED_RULESETS = [...new Set([...ENABLED_RULESETS, ...NOMINATED_RULESETS])];

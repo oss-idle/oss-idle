@@ -683,8 +683,24 @@ export default class BeatmapStore {
 		return LightBeatmapSet.fromMetadata(meta);
 	}
 
-	public static async getAllSets(): Promise<LightBeatmapSet[]> {
-		const metas = await onDisk() ? await diskAllMeta() : (await request('meta', 'readonly', 
+	// every play reads the whole library a few times: it is built once per library version
+	private static allSets?: { version: number, sets: Promise<LightBeatmapSet[]> };
+
+	public static getAllSets(): Promise<LightBeatmapSet[]> {
+		const version = beatmapsVersion.get();
+		if (this.allSets?.version === version) return this.allSets.sets;
+		const sets = this.readAllSets();
+		this.allSets = {
+			version, sets,
+		};
+		sets.catch(() => {
+			if (this.allSets?.sets === sets) this.allSets = undefined;
+		});
+		return sets;
+	}
+
+	private static async readAllSets(): Promise<LightBeatmapSet[]> {
+		const metas = await onDisk() ? await diskAllMeta() : (await request('meta', 'readonly',
 			(s) => s.getAll(),
 		)) as RuntimeMetadata[];
 		return metas.map(meta => LightBeatmapSet.fromMetadata(meta));

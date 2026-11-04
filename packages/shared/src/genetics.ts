@@ -28,6 +28,24 @@ export type Gene = {
 	per?: number,
 };
 
+type GeneRow = [id: string, parent: string, max: number, effect?: GeneEffect, per?: number];
+
+/** A skill's tree: every tree starts with an XP gene and its overdrive gene. */
+export const geneTree = (skill: string, xp: string, overdrive: string, rows: GeneRow[]): Gene[] =>
+	([
+		[xp, '', 5, 'xp', 0.05],
+		[overdrive, xp, 5, 'overdrive', 0.05],
+		...rows,
+	] satisfies GeneRow[]).map(([id, parent, max, effect, per]: GeneRow) => ({
+		id,
+		skill,
+		max,
+		...parent ? { parent } : {},
+		...effect ? {
+			effect, per,
+		} : {},
+	}));
+
 export type GeneticsDef = {
 	/** every skill, in ring order: a skill's neighbours are the ones either side */
 	ring: readonly string[],
@@ -125,6 +143,10 @@ export const tierOf = (g: Genetics, id: string): number => g.genes[id] ?? 0;
 export const tiersHeld = (def: GeneticsDef, g: Genetics, skill: string): number =>
 	def.genes.reduce((sum, gene) => sum + (gene.skill === skill ? tierOf(g, gene.id) : 0), 0);
 
+/** Every tier a skill's genes can hold. */
+export const tiersMax = (def: GeneticsDef, skill: string): number =>
+	def.genes.reduce((sum, gene) => sum + (gene.skill === skill ? gene.max : 0), 0);
+
 /** What the skill's next tier costs, on any of its genes. */
 export const nextTierPrice = (def: GeneticsDef, g: Genetics, skill: string): number =>
 	tierPrice(tiersHeld(def, g, skill));
@@ -140,6 +162,23 @@ export const climaxxOf = (
 	+ tiersPrice(milestonesAt(playLevel))
 	- (g.fees[skill] ?? 0)
 	- tiersPrice(tiersHeld(def, g, skill));
+
+/** The overdrive, to a tenth, that buys just the climaxx the skill's next tier lacks; none when
+ *  the skill already has it or holds every tier. */
+export const overdriveForNextTier = (
+	def: GeneticsDef,
+	g: Genetics,
+	skill: string,
+	playLevel: number,
+): number | undefined => {
+	const short = nextTierPrice(def, g, skill) - climaxxOf(def, g, skill, playLevel);
+	if (short <= 0 || tiersHeld(def, g, skill) >= tiersMax(def, skill)) return undefined;
+	const converted = g.converted[skill] ?? 0;
+	const total = ((climaxxOfOverdrive(converted) + short) / CLIMAXX_SCALE) ** (1 / CLIMAXX_EXPONENT);
+	let tenths = Math.ceil((total - converted) * 10);
+	while (conversionGain(converted, tenths / 10) < short) tenths++;
+	return tenths / 10;
+};
 
 /** A character gets one genetic per generation. */
 export const geneticSlots = (generation: number): number => Math.max(1, generation);
@@ -198,7 +237,7 @@ export const geneticsCounts = (def: GeneticsDef, g: Genetics) => {
 	const picked = pickedSkills(g);
 	const trees = def.ring.map(skill => ({
 		held: tiersHeld(def, g, skill),
-		total: def.genes.reduce((sum, gene) => sum + (gene.skill === skill ? gene.max : 0), 0),
+		total: tiersMax(def, skill),
 		power: strength(def, picked, skill),
 		climaxx: climaxxOfOverdrive(g.converted[skill] ?? 0),
 	}));
@@ -339,7 +378,7 @@ export const pickRefusal = (
 	return undefined;
 };
 
-/** Pick a genetic, or change one: genes of trees now out of reach drop, so their climaxx comes back in full. */
+/** Pick a genetic, or change one: genes and fees of trees now out of reach drop, so their climaxx comes back in full. */
 export const pick = (
 	def: GeneticsDef,
 	g: Genetics,
@@ -356,13 +395,15 @@ export const pick = (
 		skill, ...g.picks[slot] ? { changedAt: now } : {},
 	};
 	const picked = picks.map(p => p.skill);
+	const inReach = (skill: string) => strength(def, picked, skill) > 0;
 	return {
 		...g,
 		picks,
 		genes: Object.fromEntries(Object.entries(g.genes).filter(([id]) => {
 			const gene = geneOf(def, id);
-			return gene && strength(def, picked, gene.skill) > 0;
+			return gene && inReach(gene.skill);
 		})),
+		fees: Object.fromEntries(Object.entries(g.fees).filter(([skill]) => inReach(skill))),
 	};
 };
 

@@ -61,6 +61,7 @@ import { betterScore } from '@oss-idle/shared/scoreOrder';
 import { redisKeyPrefix } from '../../env';
 import { activateServerI18n } from '../../i18n';
 import {
+	forgetScoreFacts,
 	type MedalChanges,
 	recalculateMedals,
 	scoreMedalChanges,
@@ -414,6 +415,7 @@ const store = async (ch: Character, replayed: ScoreRow[], gone: ScoreRow[]) => {
 		}
 	}
 	await refreshCharacterTotals(r, ch.id);
+	await forgetScoreFacts(r, ch.id);
 	await recomputePP(r, ch.id);
 	await reindexCharacter(r, ch.id);
 	for (const beatmapId of maps) {

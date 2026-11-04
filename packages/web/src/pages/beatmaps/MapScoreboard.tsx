@@ -8,8 +8,7 @@ import useAsync from '@oss-idle/shared/hooks/useAsync';
 import { getMapBoard } from '../../api/maps';
 import Link from '../../components/Link';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { JUDGEMENT_COLUMNS } from './judgementColumns';
-import ScoreboardRow from './ScoreboardRow';
+import MapScoreTable from './MapScoreTable';
 import TopScoreCard from './TopScoreCard';
 
 export type Board = 'global' | 'country' | 'friends';
@@ -61,25 +60,7 @@ export default function MapScoreboard({ setId, beatmapId, board, loved }: {
 		</p>}
 		{!signedOut && !!rows?.length && <>
 			<TopScoreCard row={rows[0]} loved={loved} />
-			<table className='mapset__table'>
-				<thead>
-					<tr>
-						<th><Trans>Rank</Trans></th>
-						<th />
-						<th><Trans>Score</Trans></th>
-						<th><Trans>Accuracy</Trans></th>
-						<th><Trans>Player</Trans></th>
-						<th><Trans>Max Combo</Trans></th>
-						{JUDGEMENT_COLUMNS.map(j => <th key={j.judgement}>{j.label}</th>)}
-						{!loved && <th>pp</th>}
-						<th><Trans>Time</Trans></th>
-						<th><Trans>Mods</Trans></th>
-					</tr>
-				</thead>
-				<tbody>
-					{rows.map((row, i) => <ScoreboardRow key={row.score.id} row={row} rank={i + 1} loved={loved} />)}
-				</tbody>
-			</table>
+			<MapScoreTable rows={rows} loved={loved} />
 		</>}
 	</section>;
 }

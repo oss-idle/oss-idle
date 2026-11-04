@@ -139,7 +139,7 @@ const runAction = async (
 			await performUpgrade(r, row.id, action.skill);
 			return undefined;
 		case 'prestige':
-			await performPrestige(r, row.id, action.skill);
+			await performPrestige(r, row.id, action.skill, action.force);
 			return undefined;
 		case 'rebirth': {
 			const [user] = await db

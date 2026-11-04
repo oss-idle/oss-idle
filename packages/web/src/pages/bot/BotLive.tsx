@@ -11,7 +11,7 @@ import {
 	type BotMatchStep,
 	botOverall,
 } from '@oss-idle/shared/botMatch';
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 
 import BotGraph from './BotGraph';
 import BotLiveStep from './BotLiveStep';
@@ -38,7 +38,7 @@ export default function BotLive({ live }: { live: BotMatchLive }) {
 							one: 'About # minute left', other: 'About # minutes left', 
 						})}
 				</div>
-				<div className='bot-live__plays'>{t`${num(plays)} plays so far`}</div>
+				<div className='bot-live__plays'>{t`${bignum(plays)} plays so far`}</div>
 				<BotPlayCta />
 			</div>
 			{BOT_FIRST_STEPS.map((name, i) => <BotLiveStep

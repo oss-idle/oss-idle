@@ -24,7 +24,15 @@ const t = table('score_xp', {
 });
 
 /** Bumped on every gain write so live views (song select indicators) re-query. */
-export const xpGainsVersion = new Synced(0);
+export const xpGainsVersion = new Synced<XPGainsChange>({ n: 0 });
+
+/** A change to the stored gains: `beatmapId` when only that map's changed. */
+export type XPGainsChange = { n: number, beatmapId?: number };
+
+export const xpGainsChanged = (beatmapId?: number) =>
+	void xpGainsVersion.set({
+		n: xpGainsVersion.get().n + 1, beatmapId,
+	});
 
 /** One play's per-skill XP gains, keyed by its local score row. */
 export class ScoreXP extends DAO(t) {
@@ -36,7 +44,7 @@ export class ScoreXP extends DAO(t) {
 
 	async add() {
 		await super.add();
-		void xpGainsVersion.set(xpGainsVersion.get() + 1);
+		xpGainsChanged(this.beatmapId);
 		return this;
 	}
 
@@ -59,15 +67,20 @@ export class ScoreXP extends DAO(t) {
 		}).add();
 	}
 
-	/** The most recent play's gains per beatmap - the bulk shape the song select
-	 *  indicators (and future group/sort modes) read. */
+	/** The most recent play's gains per beatmap (or only `beatmapId`'s) - the bulk shape
+	 *  the song select indicators (and future group/sort modes) read. */
 	static async latestByBeatmap(
 		characterId: number,
+		beatmapId?: number,
 	): Promise<Map<number, ScoreXP>> {
-		const rows = await this.query(
-			'SELECT * FROM score_xp WHERE characterId = ? ORDER BY playedAt ASC',
-			[characterId],
-		);
+		const where = beatmapId === undefined ? '' : ' AND beatmapId = ?';
+		const params = beatmapId === undefined ? [characterId] : [characterId, beatmapId];
+		const rows = await this.query(`SELECT * FROM score_xp WHERE scoreId IN (
+			SELECT scoreId FROM (
+				SELECT scoreId, ROW_NUMBER() OVER (PARTITION BY beatmapId ORDER BY playedAt DESC) AS n
+				FROM score_xp WHERE characterId = ?${where}
+			) WHERE n = 1
+		)`, params);
 		const latest = new Map<number, ScoreXP>();
 		for (const row of rows) latest.set(row.beatmapId, row);
 		return latest;

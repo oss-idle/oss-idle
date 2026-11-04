@@ -1,5 +1,6 @@
 import { OVERDRIVE_SYMBOL } from '../upgrades.js';
+import { bignum } from './num.js';
 
-/** The player-facing form of an overdrive value: "3.4ω". */
+/** The player-facing form of an overdrive value: "3.4σ", "2.41kσ". */
 export const overdriveText = (value: number): string =>
-	value.toFixed(1) + OVERDRIVE_SYMBOL;
+	bignum(value, 1) + OVERDRIVE_SYMBOL;

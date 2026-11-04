@@ -1,5 +1,5 @@
 import { levelNode } from '@oss-idle/shared/display/levelDisplay';
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 
 /** A skill's level where it sits on the graph, and the rank it would take. */
 export default function BotGraphLevel({ level, left, top, rank, rough }: {
@@ -18,6 +18,6 @@ export default function BotGraphLevel({ level, left, top, rank, rough }: {
 		}}
 	>
 		<div className='bot-graph__number'>{levelNode(shown, shown - Math.floor(shown))}</div>
-		{rank && <div className='bot-graph__rank'>#{num(rank)}</div>}
+		{rank && <div className='bot-graph__rank'>#{bignum(rank)}</div>}
 	</div>;
 }

@@ -12,12 +12,12 @@ import { useState } from 'react';
 
 import { osuSetUrl } from '@oss-idle/shared/beatmap';
 import { dateAgo } from '@oss-idle/shared/display/ago';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	difficultyColor,
 	difficultyTextColor,
 	starsText,
 } from '@oss-idle/shared/display/difficulty';
-import { bignum } from '@oss-idle/shared/display/num';
 
 import {
 	coverBackground,
@@ -60,10 +60,10 @@ export default function BeatmapsetHeader({ mapset, diff }: { mapset: Mapset; dif
 			</div>
 			<div className='mapset__counts'>
 				<span className='mapset__plays' title={t`plays`}>
-					<FontAwesomeIcon icon={faPlayCircle} /> {bignum(diff.plays)}
+					<FontAwesomeIcon icon={faPlayCircle} /> <BigNum value={Number(diff.plays)} theme='cold' />
 				</span>
 				<span className='mapset__plays'>
-					<FontAwesomeIcon icon={faHeart} /> {bignum(favourite.count)}
+					<FontAwesomeIcon icon={faHeart} /> <BigNum value={Number(favourite.count)} theme='aurora' />
 				</span>
 			</div>
 			<div className='mapset__title'>{set.title}</div>

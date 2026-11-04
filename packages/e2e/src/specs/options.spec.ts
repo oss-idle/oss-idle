@@ -43,7 +43,7 @@ test.describe('options', () => {
 
 		const search = page.locator('.options__search_input');
 		await search.fill('fps');
-		await expect(page.locator('.opt-checkbox', { hasText: 'FPS' })).toBeVisible();
+		await expect(page.locator('.opt-checkbox', { hasText: 'Show FPS counter' })).toBeVisible();
 
 		await search.fill('nothing matches this');
 		await expect(page.locator('.options__empty')).toBeVisible();
@@ -55,7 +55,7 @@ test.describe('options', () => {
 
 		await open(page);
 		await page.locator('.options__search_input').fill('fps');
-		const checkbox = page.locator('.opt-checkbox', { hasText: 'FPS' });
+		const checkbox = page.locator('.opt-checkbox', { hasText: 'Show FPS counter' });
 		await checkbox.click();
 		await expect(checkbox).toHaveClass(/is-on/);
 		await expect.poll(async () => game.setting('showFps')).toBe(true);

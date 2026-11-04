@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	CLIMAXX_SYMBOL,
 	conversionGain,
@@ -9,9 +10,9 @@ import {
 	geneticsXpParts,
 	MILESTONES,
 } from '@oss-idle/shared/genetics';
-import { OVERDRIVE_SYMBOL } from '@oss-idle/shared/upgrades';
 
 import { uiSound } from '../../audio/uiSounds';
+import ConvertText from './ConvertText';
 import type { GeneActions } from './GeneticsCards';
 import GeneticsXpRows from './GeneticsXpRows';
 
@@ -24,11 +25,10 @@ type Props = {
 
 /** What a character holds in a skill: its climaxx, its next free tier, and turning overdrive into climaxx. */
 export default function SkillCardBalance({
-	def, genetics, skill, actions: { levels, climaxx, overdrive, busy, onConvert },
+	def, genetics, skill, actions: { levels, climaxx, overdrive, need, busy, onConvert },
 }: Props) {
 	const next = MILESTONES.find(level => level > (levels[skill] ?? 0));
-	const amount = climaxx.toLocaleString(), od = overdrive.toFixed(1);
-	const gain = conversionGain(genetics.converted[skill] ?? 0, overdrive);
+	const amount = <BigNum value={climaxx} theme="royal" />;
 	const boosted = geneticsXpMultiplier(def, genetics, skill) > 1;
 	return (
 		<>
@@ -43,16 +43,20 @@ export default function SkillCardBalance({
 			{next !== undefined && (
 				<div className="gene-card__next"><Trans>Next free upgrade at level {next}</Trans></div>
 			)}
-			{overdrive > 0 && gain > 0 && (
+			{need !== undefined && (
 				<div className="gene-card__acts">
 					<button
 						className="gene-card__sell"
-						disabled={busy}
+						disabled={busy || overdrive < need}
 						onMouseEnter={() => uiSound('ui/default-hover')}
 						onClick={onConvert}
 					>
 						<span>
-							<Trans>Turn {OVERDRIVE_SYMBOL}{od} overdrive into {CLIMAXX_SYMBOL}{gain}</Trans>
+							<ConvertText
+								need={need}
+								overdrive={overdrive}
+								gain={conversionGain(genetics.converted[skill] ?? 0, need)}
+							/>
 						</span>
 					</button>
 				</div>

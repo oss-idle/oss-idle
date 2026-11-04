@@ -2,7 +2,7 @@ import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
 import HoverCard from '@oss-idle/shared/display/HoverCard';
-import { overdriveText } from '@oss-idle/shared/display/overdrive';
+import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import useShiftHeld from '@oss-idle/shared/hooks/useShiftHeld';
 import type { UpgradePurchase } from '@oss-idle/shared/upgrades';
 
@@ -36,7 +36,7 @@ export default function UpgradeAction({
 }) {
 	const instant = useShiftHeld();
 	const gain = preview ? preview.overdrive - overdrive : 0;
-	const gainText = overdriveText(gain);
+	const gainText = <OverdriveNum value={gain} />;
 	const required = minLevel;
 
 	const button = () => {

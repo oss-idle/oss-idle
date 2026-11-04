@@ -25,6 +25,7 @@ export const pendingActionDTO = z.discriminatedUnion('type', [
 		type: z.literal('prestige'),
 		ruleset,
 		skill: z.string(),
+		force: z.boolean().optional(),
 		requestedAt: z.number().int(),
 	}),
 	z.object({

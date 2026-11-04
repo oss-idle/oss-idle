@@ -6,6 +6,7 @@ import {
 } from '@lingui/react/macro';
 
 import accuracy from '@oss-idle/shared/display/accuracy';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import num from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 import {
@@ -118,14 +119,14 @@ export default function PlayerGradesLeaderboard({ sort, country, page, players }
 							<Link to='/c/$id' params={{ id: String(player.character.id) }}>{player.character.name}</Link>
 						</div></td>
 						<td className='dimmed extra'>{accuracy(hitAccuracy(countsOf(player.totals)))}</td>
-						<td className='dimmed extra'>{num(player.totals.playCount)}</td>
+						<td className='dimmed extra'><BigNum value={player.totals.playCount} theme='ocean' /></td>
 						<td className='dimmed extra'>{num(player.totals.rankedScore)}</td>
 						<td className='dimmed extra'>{num(int(player.profile.pp) ?? 0)}</td>
 						{...GoodGrades.map(type => <td key={type} className={sort === type ? 'current' : 'dimmed'}>
-							{num(player.totals[type])}
+							<BigNum value={player.totals[type]} theme='ocean' />
 						</td>)}
 						<td className={sort === 'all' ? 'current' : 'dimmed'}>
-							{num(sum(GoodGrades.map(g => player.totals[g])))}
+							<BigNum value={sum(GoodGrades.map(g => player.totals[g]))} theme='ocean' />
 						</td>
 					</tr>)}
 				</tbody>

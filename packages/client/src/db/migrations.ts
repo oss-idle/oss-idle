@@ -448,6 +448,13 @@ const addGenetics: Migration = db => {
 	}
 };
 
+/** Server copies say which kind of score their onlineId counts: unranked boards' ids
+ *  started at 1.5e9 to stay clear of ranked ones. */
+const addScoreUnranked: Migration = db => {
+	if (!addColumn(db, 'score', 'unranked', 'INTEGER NOT NULL DEFAULT 0')) return;
+	db.run('UPDATE score SET unranked = 1 WHERE onlineId >= 1500000000');
+};
+
 const migrations: Migration[] = [
 	recomputeBests,
 	addOnlineId,
@@ -476,6 +483,7 @@ const migrations: Migration[] = [
 	rename7kJacks,
 	playlistCharacter,
 	addGenetics,
+	addScoreUnranked,
 ];
 
 /** A database just created from the live schema already is what every migration makes. */

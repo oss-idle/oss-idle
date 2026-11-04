@@ -1,8 +1,6 @@
-import {
-	Trans,
-	useLingui,
-} from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	difficultyColor,
 	difficultyTextColor,
@@ -19,7 +17,6 @@ const length = (ms: number) => {
 
 /** The selected set: its cover, details and difficulties. */
 export default function DirectPanel({ set }: { set?: Metadata }) {
-	const { i18n } = useLingui();
 	if (!set) return (
 		<aside className='direct-panel is-empty'>
 			<Trans>Pick a beatmap to see it here.</Trans>
@@ -29,7 +26,7 @@ export default function DirectPanel({ set }: { set?: Metadata }) {
 	const versions = [...set.versions].sort((a, b) => a.difficulty - b.difficulty);
 	const longest = length(Math.max(...versions.map(v => v.total_length)));
 	const bpm = versions[0]?.bpm ?? 0;
-	const plays = set.plays.toLocaleString(i18n.locale);
+	const plays = <BigNum value={set.plays} theme="cold" />;
 	const size = (set.size / 1024 / 1024).toFixed(1);
 	const mapper = set.creator;
 

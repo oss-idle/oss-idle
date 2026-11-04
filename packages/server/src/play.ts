@@ -691,7 +691,7 @@ const parseUnrankedResult = async (
 	return {
 		token: play.token,
 		failed: false,
-		score: scoreRowToDTO(r, row),
+		score: scoreRowToDTO(r, row, true),
 		gains: [],
 		deltas: {
 			rank: 0, rankedScore: 0, pp: 0,
@@ -1053,9 +1053,9 @@ export async function sweepDuePlays(): Promise<void> {
 	}
 }
 
-function scoreRowToDTO(r: ServerRuleset, row: ScoreRow): ScoreDTO {
+function scoreRowToDTO(r: ServerRuleset, row: ScoreRow, unranked = false): ScoreDTO {
 	return {
-		...toScoreDTO(row, r.def),
+		...toScoreDTO(row, r.def, unranked),
 		playedAt: (row.playedAt ?? new Date()).getTime(),
 	};
 }

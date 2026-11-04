@@ -5,7 +5,7 @@ import {
 import { useState } from 'react';
 
 export default function RequestActions({
-	setId, mine, admin, open, busy, onResolve, onIngest, onDelete,
+	setId, mine, admin, open, busy, onResolve, onIngest, onUpload, onDelete,
 }: {
 	setId: number,
 	mine: boolean,
@@ -14,6 +14,7 @@ export default function RequestActions({
 	busy: boolean,
 	onResolve: (setId: number, status: 'accepted' | 'rejected', note?: string) => void,
 	onIngest: (setId: number) => void,
+	onUpload: (setId: number, file: File) => void,
 	onDelete: (setId: number) => void,
 }) {
 	const { t } = useLingui();
@@ -37,6 +38,20 @@ export default function RequestActions({
 				>
 					<Trans>Ingest</Trans>
 				</button>
+				<label className={`request__btn ${busy ? 'is-disabled' : ''}`}>
+					<Trans>Upload .osz</Trans>
+					<input
+						type='file'
+						accept='.osz'
+						hidden
+						disabled={busy}
+						onChange={e => {
+							const file = e.target.files?.[0];
+							if (file) onUpload(setId, file);
+							e.target.value = '';
+						}}
+					/>
+				</label>
 				<button
 					className='request__btn'
 					disabled={busy}

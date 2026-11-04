@@ -63,7 +63,9 @@ export const roundScoreDTO = z.object({
 	failed: z.boolean(),
 	accuracy: z.number().optional(),
 	/** the full play, once the round is over: what its result screen shows, failed or not */
-	result: scoreDTO.omit({ id: true }).optional(),
+	result: scoreDTO.omit({
+		id: true, unranked: true, 
+	}).optional(),
 });
 export type RoundScore = z.infer<typeof roundScoreDTO>;
 

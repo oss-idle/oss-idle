@@ -3,8 +3,9 @@ import '../../components/leaderboard/PlayerLeaderboard.css';
 import { Trans } from '@lingui/react/macro';
 
 import accuracy from '@oss-idle/shared/display/accuracy';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import { countryName } from '@oss-idle/shared/display/country';
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 import { PAGE_SIZE } from '@oss-idle/shared/rankings';
 import hitAccuracy from '@oss-idle/shared/rulesets/mania/hitAccuracy';
@@ -50,11 +51,13 @@ export default function CountryRankings({ page, countries }: {
 										page: 1, country: country.country,
 									}}>{countryName(country.country, i18n.locale)}</Link>
 								</div></td>
-								<td className='dimmed'>{num(country.players)}</td>
-								<td className='dimmed'>{num(country.playCount)}</td>
+								<td className='dimmed'>{bignum(country.players)}</td>
+								<td className='dimmed'><BigNum value={country.playCount} theme='ocean' /></td>
 								<td className='dimmed'>{accuracy(hitAccuracy(countsOf(country)))}</td>
 								<td className='dimmed'>{num(country.rankedScore)}</td>
-								<td className='dimmed'>{num(Math.round(country.pp / country.players))}</td>
+								<td className='dimmed'>
+									{num(Math.round(country.pp / country.players))}
+								</td>
 								<td className='current'>{num(Math.round(country.pp))}</td>
 							</tr>)}
 						</tbody>

@@ -17,6 +17,8 @@ export interface DropdownOption<T> {
 	value: T;
 	label: ReactNode;
 	disabled?: boolean;
+	/** Shown grayed out; picking it runs this instead of selecting it. */
+	locked?: () => void;
 }
 
 interface DropdownProps<T> {
@@ -91,10 +93,12 @@ export default function Dropdown<T>({
 						role="option"
 						data-sound="hover"
 						aria-selected={o.value === selected}
-						className={`dropdown__option ${o.value === selected ? 'is-selected' : ''}`}
+						className={`dropdown__option ${o.value === selected ? 'is-selected' : ''} ${
+							o.locked ? 'is-locked' : ''}`}
 						disabled={o.disabled}
 						onClick={() => {
-							void value.set(o.value);
+							if (o.locked) o.locked();
+							else void value.set(o.value);
 							setOpen(false);
 						}}
 					>

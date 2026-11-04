@@ -18,6 +18,7 @@ import {
 	canRebirth,
 	canUpgrade,
 	maxUpgrades,
+	prestigeOverdrive,
 	revertUpgrade,
 	type UpgradeState,
 } from '@oss-idle/shared/upgrades';
@@ -120,7 +121,7 @@ const projectSkill = (
 	for (const action of parked) {
 		if (action.type === 'rebirth' || action.ruleset !== r.def.id || action.skill !== skill) continue;
 		try {
-			state = action.type === 'upgrade' ? applyUpgrade(state) : applyPrestige(state);
+			state = action.type === 'upgrade' ? applyUpgrade(state) : applyPrestige(state, action.force);
 		} catch {
 			// one that will not apply leaves the projection where it was
 		}
@@ -150,7 +151,7 @@ export const assertActionAvailable = (
 			}
 			return;
 		case 'prestige':
-			if (!canPrestige(projectSkill(r, row, parked, action.skill))) {
+			if (!action.force && !canPrestige(projectSkill(r, row, parked, action.skill))) {
 				throw new HTTPException(409, { message: 'Prestige not available' });
 			}
 			return;
@@ -300,11 +301,13 @@ export const performUpgradeRevert = async (
 
 /** Prestige one skill: its level, xp, upgrades and overdrive go, and it keeps a
  *  bonus level, an extra gear tier and a bigger multiplier. Lifetime totals and
- *  the ranking metrics are deliberately left alone. */
+ *  the ranking metrics are deliberately left alone. `force` resets a skill that
+ *  is not ready: no prestige counted, no climaxx. */
 export const performPrestige = async (
 	r: ServerRuleset,
 	characterId: number,
 	skill: string,
+	force = false,
 ): Promise<void> => {
 	assertSkill(r, skill);
 	await profileOf(r, characterId);
@@ -312,10 +315,14 @@ export const performPrestige = async (
 	await db.transaction(async tx => {
 		const current = await lockProfile(tx, r, characterId);
 		const state = skillState(current, skill);
-		if (!canPrestige(state)) {
+		const ready = canPrestige(state);
+		if (!ready && !force) {
 			throw new HTTPException(409, { message: 'Prestige not available' });
 		}
-		const next = applyPrestige(state);
+		const next = applyPrestige(state, force);
+		const genetics = r.def.genetics;
+		const held = geneticsOf(current);
+		const bonus = genetics ? effectOf(genetics, held, 'overdrive', skill) : 0;
 
 		// the levels it just reset stop counting toward the overall level too,
 		// so prestiging everything actually walks the character back down.
@@ -332,7 +339,7 @@ export const performPrestige = async (
 			}),
 			...spendTotals(current, skill, spent),
 			// what overdrive is left becomes climaxx instead of being lost
-			...r.def.genetics ? { genetics: convert(geneticsOf(current), skill, state.overdrive) } : {},
+			...genetics && ready ? { genetics: convert(held, skill, prestigeOverdrive(state, bonus)) } : {},
 		};
 
 		await tx.update(r.profile).set(updates).where(eq(r.profile.id, characterId));

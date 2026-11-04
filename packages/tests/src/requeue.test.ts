@@ -19,6 +19,11 @@ describe('requeue', () => {
 		expect(ids(requeue(pool, [e('c'), e('a'), e('b')], same))).toEqual(['c', 'd', 'x', 'a', 'b']);
 	});
 
+	it('played once, carries on from the next queued map to the playlist end', () => {
+		const pool = ['a', 'b', 'c', 'd', 'x'].map(id => e(id));
+		expect(ids(requeue(pool, [e('c'), e('d')], same, undefined, true))).toEqual(['c', 'd', 'x']);
+	});
+
 	it('keeps a map partway through its repeats at the head', () => {
 		const pool = ['a', 'b', 'c'].map(id => e(id));
 		expect(ids(requeue(pool, [e('b', 1), e('c'), e('a')], same))).toEqual(['b+1', 'c', 'a']);

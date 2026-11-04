@@ -4,6 +4,7 @@ import {
 	desc,
 	eq,
 	gt,
+	gte,
 	inArray,
 	isNull,
 	max,
@@ -46,15 +47,21 @@ import {
 } from './db/schema/character_medal';
 import { getCharacterTotals } from './db/schema/character_totals';
 import { users } from './db/schema/user';
+import { redisKeyPrefix } from './env';
 import {
 	ppTopPercent,
 	reindexCharacter,
 } from './rankings';
+import { redis } from './redis';
 import { enabledRulesets } from './rulesets/registry';
 import {
 	column,
 	type ServerRuleset,
 } from './rulesets/ruleset';
+import {
+	mergeFacts,
+	type ScoreFacts,
+} from './scoreFacts';
 import { followerCount } from './social';
 import { hasChatted } from './ws/chat';
 import { hub } from './ws/hub';
@@ -83,8 +90,12 @@ const AIAE_ID = 421066;
 const medalPlay = ({ score: scores }: ServerRuleset) =>
 	and(...NO_MEDALS.map(mod => sql`find_in_set(${mod}, ${scores.mods}) = 0`));
 
-/** Best star rating passed and full-combo'd, and the one-off score feats. */
-const scoreFacts = async (r: ServerRuleset, characterId: number) => {
+const playedSince = (playedAt: ServerRuleset['score']['playedAt'], since?: Date) =>
+	since && gte(playedAt, since);
+
+/** Best star rating passed and full-combo'd, and the one-off score feats, over the
+ *  scores played at or after `since` (all of them without). */
+const scoreFactsRow = async (r: ServerRuleset, characterId: number, since?: Date) => {
 	const { score: scores } = r;
 	// the stars a play was actually played at: a rate changes them
 	const playedStars = sql`coalesce(${scores.sr}, ${beatmaps.sr})`;
@@ -103,24 +114,27 @@ const scoreFacts = async (r: ServerRuleset, characterId: number) => {
 			and ${scores.grade} in ('XX', 'X', 'SS', 'S')`),
 		wonderful: max(sql<number>`${scores.beatmapId} = ${AIAE_ID}
 			and ${scores.grade} in ('XX', 'X', 'SS') and ${scores.rate} >= 1`),
+		last: max(scores.playedAt),
 	})
 		.from(scores)
 		.innerJoin(beatmaps, eq(beatmaps.id, scores.beatmapId))
 		.innerJoin(r.setStatus, eq(r.setStatus.setId, beatmaps.setId))
-		.where(and(eq(scores.characterId, characterId), medalPlay(r)));
-	// no scores yet: every aggregate is null
-	return {
-		pass: Number(row?.pass ?? 0),
-		fc: Number(row?.fc ?? 0),
-		topPlay: Number(row?.topPlay ?? 0),
-		rice: Number(row?.rice) > 0,
-		ln: Number(row?.ln) > 0,
-		combo727: Number(row?.combo727) > 0,
-		possessed: Number(row?.possessed) > 0,
-		parallax: Number(row?.parallax) > 0,
-		wonderful: Number(row?.wonderful) > 0,
-	};
+		.where(and(eq(scores.characterId, characterId), medalPlay(r), playedSince(scores.playedAt, since)));
+	return row;
 };
+
+// no scores: every aggregate is null
+const factsOf = (row: Awaited<ReturnType<typeof scoreFactsRow>>): Omit<ScoreFacts, 'grades'> => ({
+	pass: Number(row?.pass ?? 0),
+	fc: Number(row?.fc ?? 0),
+	topPlay: Number(row?.topPlay ?? 0),
+	rice: Number(row?.rice) > 0,
+	ln: Number(row?.ln) > 0,
+	combo727: Number(row?.combo727) > 0,
+	possessed: Number(row?.possessed) > 0,
+	parallax: Number(row?.parallax) > 0,
+	wonderful: Number(row?.wonderful) > 0,
+});
 
 /** #1s held on ranked maps (loved ones don't count). */
 const firstPlaces = async ({ firstPlace, setStatus }: ServerRuleset, characterId: number) => {
@@ -133,11 +147,51 @@ const firstPlaces = async ({ firstPlace, setStatus }: ServerRuleset, characterId
 };
 
 /** The grades set at 1.0x or faster: a slowed play's cut score is no grade. */
-const fullRateGrades = async (r: ServerRuleset, characterId: number) => new Set<string>((await db
+const fullRateGrades = async (r: ServerRuleset, characterId: number, since?: Date) => (await db
 	.selectDistinct({ grade: r.score.grade })
 	.from(r.score)
-	.where(and(eq(r.score.characterId, characterId), medalPlay(r), sql`${r.score.rate} >= 1`)))
-	.map(row => row.grade));
+	.where(and(
+		eq(r.score.characterId, characterId), medalPlay(r), sql`${r.score.rate} >= 1`,
+		playedSince(r.score.playedAt, since),
+	)))
+	.map(row => row.grade);
+
+const FACTS_TTL_S = 6 * 3600;
+// bump the version with every new fact: the old keys lack it, so every score is read again
+const factsKey = (r: ServerRuleset, characterId: number) =>
+	`${redisKeyPrefix}scoreFacts:1:${r.def.id}:${characterId}`;
+
+/** For anything that deletes or rewrites a character's scores. */
+export const forgetScoreFacts = async (r: ServerRuleset, characterId: number) => {
+	await redis.del(factsKey(r, characterId));
+};
+
+/** The score facts as last read, topped up with the scores played since: a play reads
+ *  its own score, not all those before it. A map's status or stars changing shows once
+ *  the key expires, at most FACTS_TTL_S after the last full read. */
+const storedScoreFacts = async (r: ServerRuleset, characterId: number): Promise<ScoreFacts> => {
+	const key = factsKey(r, characterId);
+	const cached = await redis.get(key);
+	const before = cached ? JSON.parse(cached) as ScoreFacts & { at: string } : undefined;
+	// ponytail: a score committed after a read but played before its newest score waits for the expiry
+	const since = before && new Date(before.at);
+	const [row, grades] = await Promise.all([
+		scoreFactsRow(r, characterId, since), fullRateGrades(r, characterId, since),
+	]);
+	const now = {
+		...factsOf(row), grades,
+	};
+	const facts = before ? mergeFacts(before, now) : now;
+	const at = row?.last?.toISOString() ?? before?.at;
+	if (!at) return facts;
+	const value = JSON.stringify({
+		...facts, at,
+	});
+	// the expiry runs from the full read: a character always playing still gets one
+	if (before) await redis.set(key, value, 'KEEPTTL');
+	else await redis.set(key, value, 'EX', FACTS_TTL_S);
+	return facts;
+};
 
 /** Most plays of any single map. */
 const mostReplays = async ({ played }: ServerRuleset, characterId: number) => {
@@ -205,11 +259,10 @@ const live = async (
 ) => {
 	const id = character.id;
 	const [
-		facts, grades, firsts, replays, curatedMaps, mappedMaps, followers, totals, chatted, rebirthed,
+		facts, firsts, replays, curatedMaps, mappedMaps, followers, totals, chatted, rebirthed,
 		nightOwl, topPercent,
 	] = await Promise.all([
-		scoreFacts(r, id),
-		fullRateGrades(r, id),
+		storedScoreFacts(r, id),
 		firstPlaces(r, id),
 		mostReplays(r, id),
 		countCurated(r, character.userId),
@@ -225,7 +278,7 @@ const live = async (
 	const skills = r.def.skills.map(s => skillOf(profile, s));
 	return {
 		...facts,
-		grades,
+		grades: new Set(facts.grades),
 		character,
 		profile,
 		skills: Object.fromEntries(r.def.skills.map((s, i) => [s, skills[i]])),
@@ -534,6 +587,7 @@ export const earnedMedals = async (
 export const earnedWithLive = async (
 	r: ServerRuleset, character: CharacterRow, lines: string[],
 ): Promise<string[]> => {
+	await forgetScoreFacts(r, character.id);
 	const now = await live(r, character, await profileOf(r, character.id), {});
 	const stored = await db.select()
 		.from(r.progress)
@@ -624,6 +678,7 @@ export const recalculateMedals = async (
 	if (!character) return {
 		added: [], removed: [],
 	};
+	await forgetScoreFacts(r, characterId);
 	await recordProgress(r, characterId);
 	const changes = await scoreMedalChanges(r, character);
 	const { progress: lines } = r;

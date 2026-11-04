@@ -28,8 +28,8 @@ import {
 	type PanelDiff,
 } from '@oss-idle/shared/beatmap';
 import { dateAgo } from '@oss-idle/shared/display/ago';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import { difficultyColor } from '@oss-idle/shared/display/difficulty';
-import { bignum } from '@oss-idle/shared/display/num';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -194,11 +194,11 @@ function MapsetCard({ mapset, ruleset = ENABLED_RULESETS[0] }: {
 					<div className='list__beatmap_row list__beatmap_row--stats'>
 						<span className='list__beatmap_stat list__beatmap_stat--favourites'>
 							<span className='list__beatmap_stat-icon'><FontAwesomeIcon icon={faHeart} /></span>
-							{bignum(mapset.favouriteCount)}
+							<BigNum value={mapset.favouriteCount} theme='aurora' />
 						</span>
 						<span className='list__beatmap_stat list__beatmap_stat--plays'>
 							<span className='list__beatmap_stat-icon'><FontAwesomeIcon icon={faCirclePlay} /></span>
-							{bignum(mapset.plays)}
+							<BigNum value={Number(mapset.plays)} theme='cold' />
 						</span>
 						<span className='list__beatmap_stat list__beatmap_stat--date'>
 							<span className='list__beatmap_stat-icon'><FontAwesomeIcon icon={faCircleCheck} /></span>

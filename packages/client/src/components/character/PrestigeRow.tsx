@@ -8,9 +8,9 @@ import {
 } from '@lingui/react/macro';
 import { useState } from 'react';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import HoverCard from '@oss-idle/shared/display/HoverCard';
 import HoverCardRow from '@oss-idle/shared/display/HoverCardRow';
-import num from '@oss-idle/shared/display/num';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import {
 	CLIMAXX_SYMBOL,
@@ -22,12 +22,14 @@ import {
 	canPrestige,
 	maxUpgrades,
 	prestigeMinLevel,
+	prestigeOverdrive,
 	prestigeXPMultiplier,
 	UPGRADES_PER_PRESTIGE,
 } from '@oss-idle/shared/upgrades';
 import { levelProgress } from '@oss-idle/shared/xp';
 import { xpToLevel } from '@oss-idle/shared/xp';
 
+import Controls from '../../input/Controls';
 import { selectedDef } from '../../rulesets/registry';
 import ConfirmMenu, { type Confirm } from '../ConfirmMenu';
 import PrestigeAction from './PrestigeAction';
@@ -39,6 +41,7 @@ export default function PrestigeRow({
 	skill,
 	locked,
 	converted,
+	overdriveBonus,
 	climaxxNow,
 	lifetimeXp,
 }: {
@@ -46,6 +49,8 @@ export default function PrestigeRow({
 	locked: boolean,
 	/** the skill's overdrive already turned into climaxx; none without genetics */
 	converted?: number,
+	/** the genes' raise on overdrive an upgrade adds */
+	overdriveBonus?: number,
 	/** the skill's climaxx, read when the prestige starts */
 	climaxxNow?: () => number,
 	/** xp ever earned on the skill, shown as a level behind it on hover */
@@ -55,13 +60,17 @@ export default function PrestigeRow({
 	const [level] = useSynced(skill.level);
 	const [xp] = useSynced(skill.xp);
 	const [prestige] = useSynced(skill.prestige);
-	const [overdrive] = useSynced(skill.overdrive);
+	const [upgrades] = useSynced(skill.upgrades);
+	const [held] = useSynced(skill.overdrive);
+	const [shift] = useSynced(Controls.mode_Shift);
 	const [confirming, setConfirming] = useState<Confirm | undefined>(undefined);
 
 	const required = prestigeMinLevel(prestige);
 	const ready = !locked && canPrestige({
 		level, prestige,
 	});
+	// a way out of a bad build: the reset without the prestige
+	const forcing = !locked && !ready && shift;
 	const multiplier = prestigeXPMultiplier(prestige);
 	const factor = multiplier.toFixed(2);
 	const next = prestigeXPMultiplier(prestige + 1);
@@ -69,15 +78,32 @@ export default function PrestigeRow({
 	const earned = xpToLevel(level) + xp;
 	const needed = xpToLevel(required);
 	const progress = Math.min(1, earned / needed);
+	const overdrive = prestigeOverdrive({
+		level, xp, upgrades, overdrive: held, prestige,
+	}, overdriveBonus);
 	const gain = converted === undefined ? 0 : conversionGain(converted, overdrive);
 	const {
 		busy, run, transfer, closeTransfer,
-	} = usePrestige(skill, gain, climaxxNow);
+	} = usePrestige(skill.name, overdrive, gain, climaxxNow);
 
 	const confirm = () => {
-		if (!ready || busy) return;
+		if (busy) return;
 		const name = selectedDef().skillName(skill.name);
 		const note = selectedDef().prestigeNote(skill.name);
+		if (forcing) {
+			setConfirming({
+				title: t`Force prestige ${name}?`,
+				sub: [
+					t`XP Lv${level} → XP Lv0 · Loses every upgrade and all Overdrive · No prestige and no Climaxx`,
+					...note ? [note] : [],
+				].join(' · '),
+				confirmLabel: t`Force prestige`,
+				color: '#ff4089',
+				onConfirm: () => void run(true),
+			});
+			return;
+		}
+		if (!ready) return;
 		setConfirming({
 			title: t`Prestige ${name}?`,
 			sub: [
@@ -97,13 +123,13 @@ export default function PrestigeRow({
 
 	const card = <>
 		<HoverCardRow label={<Trans>XP</Trans>}>
-			{num(Math.floor(earned))} / {num(needed)}
+			<BigNum value={Math.floor(earned)} theme="heat" /> / <BigNum value={needed} theme="heat" />
 		</HoverCardRow>
 		{!ready && <HoverCardRow label={<Trans>To go</Trans>}>
-			{num(Math.ceil(needed - earned))}
+			<BigNum value={Math.ceil(needed - earned)} theme="heat" />
 		</HoverCardRow>}
 		{gain > 0 && <HoverCardRow label={<Trans>Climaxx</Trans>}>
-			+{CLIMAXX_SYMBOL}{gain.toLocaleString()}
+			+{CLIMAXX_SYMBOL}<BigNum value={gain} theme="royal" />
 		</HoverCardRow>}
 	</>;
 
@@ -136,6 +162,7 @@ export default function PrestigeRow({
 			</HoverCard>
 			<PrestigeAction
 				ready={ready}
+				forcing={forcing}
 				busy={busy}
 				required={required}
 				gain={gain}

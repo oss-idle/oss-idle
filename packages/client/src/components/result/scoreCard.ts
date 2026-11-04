@@ -8,6 +8,7 @@ import {
 	GLYPHS,
 } from '@oss-idle/shared/achievements/glyphs';
 import accuracy from '@oss-idle/shared/display/accuracy';
+import { bigStyle } from '@oss-idle/shared/display/bigTheme';
 import { MOD_LOOK } from '@oss-idle/shared/display/mods';
 import num, { bignum } from '@oss-idle/shared/display/num';
 import type { Mod } from '@oss-idle/shared/mods';
@@ -309,7 +310,13 @@ const drawGains = (ctx: CanvasRenderingContext2D, gains: Gain[], top: number) =>
 		}
 		ctx.textAlign = 'right';
 		ctx.fillStyle = PINK;
-		ctx.fillText(`+${bignum(g.gained)}xp`, W - PAD, y);
+		ctx.fillText('xp', W - PAD, y);
+		const at = W - PAD - ctx.measureText('xp').width;
+		const amount = bignum(g.gained);
+		ctx.fillStyle = bigStyle(g.gained, 'heat')?.color ?? PINK;
+		ctx.fillText(amount, at, y);
+		ctx.fillStyle = PINK;
+		ctx.fillText('+', at - ctx.measureText(amount).width, y);
 		ctx.textAlign = 'left';
 	});
 };

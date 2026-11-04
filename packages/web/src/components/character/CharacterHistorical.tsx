@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { getCharacterMostPlayed } from '../../api/characters';
@@ -25,7 +25,7 @@ export default function CharacterHistorical({ id, ruleset, countplayed }: {
 		<div className='character__block-section'>
 			<div className='character__block-section-title'>
 				<Trans>Most Played Beatmaps</Trans>
-				<div className='character__block-section-title-count'>{num(countplayed)}
+				<div className='character__block-section-title-count'>{bignum(countplayed)}
 				</div>
 			</div>
 			<div className='character__mostplayed'>

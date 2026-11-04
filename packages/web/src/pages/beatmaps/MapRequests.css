@@ -92,9 +92,11 @@
 }
 
 .request-form__submit:disabled,
-.request__btn:disabled {
+.request__btn:disabled,
+.request__btn.is-disabled {
 	cursor: default;
 	opacity: 0.5;
+	pointer-events: none;
 }
 
 .request-form__submit {

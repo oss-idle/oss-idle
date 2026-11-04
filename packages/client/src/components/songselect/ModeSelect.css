@@ -30,11 +30,9 @@
 	background: var(--hover);
 }
 
-.mode-select__row:disabled,
-.mode-select__row.is-locked {
+.mode-select__row.is-locked > :not(.mode-select__variants),
+.mode-select__variant.is-locked {
 	opacity: 0.3;
-	cursor: default;
-	pointer-events: none;
 }
 
 .mode-select__icon {
@@ -82,9 +80,4 @@
 
 .mode-select__variant:hover {
 	background: rgba(255, 255, 255, 0.25);
-}
-
-.mode-select__variant:disabled {
-	opacity: 0.3;
-	cursor: default;
 }

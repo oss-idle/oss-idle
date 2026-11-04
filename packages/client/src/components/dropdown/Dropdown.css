@@ -96,3 +96,6 @@
 	opacity: 0.4;
 	cursor: default;
 }
+.dropdown.is-open .dropdown__option.is-locked {
+	opacity: 0.4;
+}

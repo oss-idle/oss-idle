@@ -109,6 +109,9 @@ export interface OssIdleDesktop {
 	/** Subscribe to window fullscreen changes (F11 / OS), so the setting stays
 	 *  truthful; returns an unsubscribe fn. */
 	onFullscreenChanged(cb: (fullscreen: boolean) => void): () => void;
+	/** Subscribe to the window being minimized or hidden and back; returns an
+	 *  unsubscribe fn. Absent on desktop builds older than it. */
+	onMinimizedChanged?(cb: (minimized: boolean) => void): () => void;
 	/** Discord Rich Presence: reflect the current scene / playing map. Pass null
 	 *  to clear. No-op when Discord isn't running or no client id was built in. */
 	setPresence(presence: DesktopPresence | null): void;

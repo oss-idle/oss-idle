@@ -49,6 +49,7 @@ import PlayDock from '../components/dock/PlayDock';
 import GeneticChoice from '../components/genetic-choice/GeneticChoice';
 import GeneticsView from '../components/genetics/GeneticsView';
 import ShownMedals from '../components/medals/ShownMedals';
+import Message from '../components/Message';
 import ModSelect from '../components/mods/ModSelect';
 import MatchScoreboard from '../components/multiplayer/MatchScoreboard';
 import PlaylistOverlay from '../components/PlaylistOverlay';
@@ -73,6 +74,7 @@ import {
 } from '../gameplay/playRate';
 import {
 	geneticChoice,
+	isOptionsOpen,
 	openPage,
 } from '../globals';
 import { log } from '../logs';
@@ -89,6 +91,7 @@ import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
 import { selectedRuleset } from '../rulesets/registry';
 import Lobby from '../scenes/Lobby';
 import MatchSetup from '../scenes/MatchSetup';
+import Options from '../scenes/Options';
 import Result from '../scenes/Result';
 import SceneManager, { SCENE } from '../scenes/SceneManager';
 import Skins from '../scenes/Skins';
@@ -97,6 +100,7 @@ import {
 	sampleInstalledAddons,
 	sampleRepoAddon,
 } from './addonSamples';
+import BigNumbersChips from './BigNumbersChips';
 import MedalCatalogue from './MedalCatalogue';
 import {
 	MEDALS_BACKFILL,
@@ -107,7 +111,10 @@ import {
 import PlayHudPreview from './PlayHudPreview';
 import SkinPlayground from './SkinPlayground';
 import {
+	bigNumbersCharacter,
+	convertingCharacter,
 	REBORN_GENETICS,
+	SAMPLE_GENETICS_7K,
 	sampleCharacter,
 	sampleGeneticCharacter,
 } from './upgradeSample';
@@ -135,6 +142,12 @@ const spread = (count: number, levels: number): SkillProgress[] =>
 		'consistency', 'concentration', 'speedjam', 'memory']
 		.slice(0, count)
 		.map((s, i) => gain(s, 0, Math.max(1, levels - i * 2), 1000 * (count - i)));
+
+const BIG_SKILLS = [
+	'accuracy', 'speed', 'stamina', 'jackspeed', 'coordination', 'release', 'reading',
+];
+const BIG_GAINS = [812, 14_230, 420_000, 2_810_000, 95_000_000, 4_200_000_000, 1.3e12]
+	.map((xp, i) => gain(BIG_SKILLS[i], 0, 3 + i * 4, xp));
 
 /** A queue of maps that were never downloaded - enough for the dock and the
  *  rail to render, which is all these cases need. */
@@ -219,6 +232,7 @@ const lockedSongSelect = async () => {
 
 const sampleScore = (): ScoreDTO => ({
 	id: 1,
+	unranked: false,
 	characterId: resultPlayer(),
 	beatmapId: 1,
 	score: 912_345,
@@ -422,6 +436,12 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		</div>,
 	},
 	{
+		id: 'options',
+		label: 'Options - the whole panel, open',
+		setup: () => void isOptionsOpen.set(true),
+		render: () => <Options />,
+	},
+	{
 		id: 'skins-browse',
 		label: 'Skins - the catalog',
 		render: () => <Skins view='browse' />,
@@ -440,6 +460,35 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		id: 'xpbar-past-100',
 		label: 'XP bar - 98 to 104, coloured decimals',
 		render: () => <SkillXPBar progress={gain('accuracy', 98, 104, 90_000_000, 0.45)} />,
+	},
+	{
+		id: 'big-xp',
+		label: 'Big numbers - XP gains from hundreds to trillions',
+		render: () => <SkillProgression progression={BIG_GAINS} gains={BIG_GAINS} />,
+	},
+	{
+		id: 'big-chips',
+		label: 'Big numbers - song select XP chips',
+		render: () => <BigNumbersChips />,
+	},
+	{
+		id: 'big-upgrades',
+		label: 'Big numbers - overdrive from σ4 to millions',
+		render: () => <UpgradesPreview><UpgradesView character={bigNumbersCharacter()} /></UpgradesPreview>,
+	},
+	{
+		id: 'big-genetics',
+		label: 'Big numbers - a large climaxx balance',
+		render: () => <UpgradesPreview tab="genetics">
+			<GeneticsView character={bigNumbersCharacter()} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'big-prestige',
+		label: 'Big numbers - prestige with large overdrive',
+		render: () => <UpgradesPreview tab="prestige">
+			<PrestigeView character={bigNumbersCharacter()} />
+		</UpgradesPreview>,
 	},
 	{
 		id: 'progression-one',
@@ -497,6 +546,44 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		</UpgradesPreview>,
 	},
 	{
+		id: 'genetics-overdrive',
+		label: 'Genetics - speed overdrive to turn into climaxx',
+		render: () => {
+			const character = convertingCharacter(1.5);
+			return <UpgradesPreview tab="genetics">
+				<GeneticsView character={character} />
+			</UpgradesPreview>;
+		},
+	},
+	{
+		id: 'genetics-overdrive-short',
+		label: 'Genetics - too little speed overdrive for the next tier',
+		render: () => {
+			const character = convertingCharacter(0.4);
+			return <UpgradesPreview tab="genetics">
+				<GeneticsView character={character} />
+			</UpgradesPreview>;
+		},
+	},
+	{
+		id: 'genetics-7k',
+		label: 'Genetics - 7K, a speed genetic with genes held',
+		setup: () => void selectedRuleset.set('mania7k'),
+		render: () => <UpgradesPreview tab="genetics">
+			<GeneticsView character={sampleGeneticCharacter(SAMPLE_GENETICS_7K)} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'genetic-choice-7k',
+		label: 'Character creation - 7K\'s ring',
+		setup: () => {
+			void selectedRuleset.set('mania7k');
+			Entities.character.set(sampleCharacter());
+			void geneticChoice.set('first');
+		},
+		render: () => <GeneticChoice />,
+	},
+	{
 		id: 'genetics-reborn',
 		label: 'Genetics - reborn once, two genetics side by side',
 		render: () => <UpgradesPreview tab="genetics">
@@ -508,6 +595,15 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		label: 'Prestige - overdrive becoming climaxx',
 		render: () => (
 			<PrestigeClimaxxPop skill="accuracy" overdrive={5000} before={300} gain={498} onClose={() => {}} />
+		),
+	},
+	{
+		id: 'genetics-climaxx',
+		label: 'Genetics - part of the overdrive becoming climaxx',
+		render: () => (
+			<PrestigeClimaxxPop
+				skill="speed" overdrive={12.4} kept={30.1} before={60} gain={48} onClose={() => {}}
+			/>
 		),
 	},
 	{
@@ -657,6 +753,19 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		render: () => (<>
 			<SongSelect />
 			<ModeSelect anchor={new DOMRect(200, 970, 105, 110)} onClose={() => {}} />
+		</>),
+	},
+	{
+		id: 'mode-select-reborn',
+		label: 'Song select - the Mode menu for a reborn character, held to 4K: click 7K for why',
+		setup: () => {
+			void SceneManager.current.set(SCENE.SELECT);
+			Entities.character.set(sampleGeneticCharacter(REBORN_GENETICS, 2));
+		},
+		render: () => (<>
+			<SongSelect />
+			<ModeSelect anchor={new DOMRect(200, 970, 105, 110)} onClose={() => {}} />
+			<Message />
 		</>),
 	},
 	{

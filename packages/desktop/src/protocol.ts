@@ -6,6 +6,7 @@ import { protocol } from 'electron';
 import {
 	APP_HOST,
 	APP_SCHEME,
+	PBE,
 	rendererDir,
 	STAGING,
 } from './config';
@@ -51,8 +52,8 @@ const notFound = () => new Response('Not found', { status: 404 });
 
 function headersFor(file: string): Record<string, string> {
 	const type = MIME[path.extname(file).toLowerCase()] ?? 'application/octet-stream';
-	// a staging build's frame profiler runs Chromium's JS sampler
-	return STAGING && type === 'text/html'
+	// a staging or PBE build's frame profiler runs Chromium's JS sampler
+	return (STAGING || PBE) && type === 'text/html'
 		? {
 			'content-type': type, 'document-policy': 'js-profiling',
 		}

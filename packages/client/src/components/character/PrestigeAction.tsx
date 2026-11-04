@@ -1,12 +1,14 @@
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import HoverCard from '@oss-idle/shared/display/HoverCard';
 import { CLIMAXX_SYMBOL } from '@oss-idle/shared/genetics';
 
 /** The climaxx a prestige would earn, then its button. */
 export default function PrestigeAction({
 	ready,
+	forcing,
 	busy,
 	required,
 	gain,
@@ -14,6 +16,8 @@ export default function PrestigeAction({
 	onConfirm,
 }: {
 	ready: boolean,
+	/** shift held on a skill that is not ready: offers the reset anyway */
+	forcing: boolean,
 	busy: boolean,
 	required: number,
 	/** climaxx earned by prestiging now */
@@ -21,7 +25,7 @@ export default function PrestigeAction({
 	card: ReactNode,
 	onConfirm: () => void,
 }) {
-	const climaxx = gain.toLocaleString();
+	const climaxx = <BigNum value={gain} theme='royal' />;
 	const shown = ready && gain > 0;
 	return (
 		<div className="ladder-act">
@@ -29,9 +33,9 @@ export default function PrestigeAction({
 				{shown && <Trans>Climaxx +{CLIMAXX_SYMBOL}{climaxx}</Trans>}
 			</span>
 			<HoverCard className="ladder-act__main prestige-act" card={card}>
-				{ready
+				{ready || forcing
 					? <button className="ladder-act__buy" disabled={busy} onClick={onConfirm}>
-						<span><Trans>Prestige</Trans></span>
+						<span>{ready ? <Trans>Prestige</Trans> : <Trans>Force prestige</Trans>}</span>
 					</button>
 					: <span className="ladder-act__state"><span><Trans>Requires XP Lv{required}</Trans></span></span>}
 			</HoverCard>

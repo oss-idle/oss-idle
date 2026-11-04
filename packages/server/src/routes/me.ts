@@ -167,7 +167,9 @@ const renamableCharacter = async (userId: number, characterId: number) => {
 
 const scoresQuery = z.object({
 	ruleset: z.enum(RULESET_IDS),
+	unranked: z.literal('1').optional(),
 	after: z.coerce.number().int().min(0).default(0),
+	playedAfter: z.coerce.number().int().min(0).optional(),
 });
 export const meRoutes = new Hono()
 	// The account's character, or null when onboarding is still needed.
@@ -418,7 +420,7 @@ export const meRoutes = new Hono()
 		return c.json({ character });
 	})
 
-	// The account's scores, for a client to rebuild its local copy of them
+	// The account's scores, for a client to keep its local copy of them
 	.get('/scores/state', requireAuth, async c => c.json(await scoreSyncState(c.get('userId'))))
 	.get(
 		'/scores',
@@ -426,10 +428,12 @@ export const meRoutes = new Hono()
 		rateLimit('me-scores', 120, c => String(c.get('userId'))),
 		valid('query', scoresQuery),
 		async c => {
-			const { ruleset, after } = c.req.valid('query');
+			const {
+				ruleset, unranked, after, playedAfter,
+			} = c.req.valid('query');
 			const r = enabledRulesets().find(e => e.def.id === ruleset);
 			if (!r) throw new HTTPException(404, { message: 'This server does not play that ruleset' });
-			return c.json(await accountScores(r, c.get('userId'), after));
+			return c.json(await accountScores(r, c.get('userId'), !!unranked, after, playedAfter));
 		},
 	)
 
@@ -504,13 +508,13 @@ export const meRoutes = new Hono()
 	// the ranking metrics are deliberately left alone.
 	.post('/prestige', requireAuth, valid('json', prestigeBody), async c => {
 		const { user, row } = await currentCharacter(c.get('userId'));
-		const { skill } = c.req.valid('json');
+		const { skill, force } = c.req.valid('json');
 
 		const r = selectedRuleset(row);
 		const deferred = await queueWhilePlaying(row, {
-			type: 'prestige', ruleset: r.def.id, skill, requestedAt: Date.now(),
+			type: 'prestige', ruleset: r.def.id, skill, force, requestedAt: Date.now(),
 		});
-		if (deferred === 'none') await performPrestige(r, row.id, skill);
+		if (deferred === 'none') await performPrestige(r, row.id, skill, force);
 
 		return c.json({
 			queued: deferred === 'queued',

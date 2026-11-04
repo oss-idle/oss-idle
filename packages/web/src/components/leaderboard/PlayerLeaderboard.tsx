@@ -6,6 +6,7 @@ import {
 } from '@lingui/react/macro';
 
 import accuracy from '@oss-idle/shared/display/accuracy';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import num from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 import int from '@oss-idle/shared/math/int';
@@ -70,15 +71,17 @@ export default function PlayerLeaderboard({ sort, country, page, players }: {
 							<Link to='/c/$id' params={{ id: String(player.character.id) }}>{player.character.name}</Link>
 						</div></td>
 						<td className='dimmed'>{accuracy(hitAccuracy(countsOf(player.totals)))}</td>
-						<td className='dimmed'>{num(player.totals.playCount)}</td>
+						<td className='dimmed'><BigNum value={player.totals.playCount} theme='ocean' /></td>
 						<td className={`${sort === 'rankedScore' ? 'current' : 'dimmed'}`}>
 							{num(player.totals.rankedScore)}
 						</td>
-						<td className={`${sort === 'pp' ? 'current' : 'dimmed'}`}>{num(int(player.profile.pp) ?? 0)}</td>
-						<td className='dimmed extra'>{num(player.totals.X)}</td>
-						<td className='dimmed extra'>{num(player.totals.SS)}</td>
-						<td className='dimmed extra'>{num(player.totals.S)}</td>
-						<td className='dimmed extra'>{num(player.totals.A)}</td>
+						<td className={`${sort === 'pp' ? 'current' : 'dimmed'}`}>
+							{num(int(player.profile.pp) ?? 0)}
+						</td>
+						<td className='dimmed extra'><BigNum value={player.totals.X} theme='ocean' /></td>
+						<td className='dimmed extra'><BigNum value={player.totals.SS} theme='ocean' /></td>
+						<td className='dimmed extra'><BigNum value={player.totals.S} theme='ocean' /></td>
+						<td className='dimmed extra'><BigNum value={player.totals.A} theme='ocean' /></td>
 					</tr>)}
 				</tbody>
 			</table>

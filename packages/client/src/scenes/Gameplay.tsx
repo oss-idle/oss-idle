@@ -513,9 +513,9 @@ export default function Gameplay({
 		} catch (e) {
 			console.warn('[play] play log failed', e);
 		}
-		const saved = await score.add().catch((e) => {
+		const [saved] = await Score.addServerScores([result.score]).catch((e) => {
 			console.warn('[score] local mirror failed', e);
-			return score;
+			return [score];
 		});
 		void ScoreXP.record(saved, result.gains);
 		serverScoreRef.current = {

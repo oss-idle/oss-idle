@@ -29,6 +29,8 @@ export type GeneActions = {
 	levels: PlayLevels,
 	climaxx: number,
 	overdrive: number,
+	/** overdrive the next tier needs; none when there is nothing to convert */
+	need?: number,
 	local: boolean,
 	busy: boolean,
 	onLearn: (gene: string) => void,

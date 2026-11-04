@@ -1,9 +1,15 @@
 import './ModeSelect.css';
 
+import {
+	ph,
+	t,
+} from '@lingui/core/macro';
+
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import {
 	MODE_GLYPH,
 	MODE_NAMES,
+	rulesetLabel,
 	type RulesetMode,
 	variantName,
 } from '@oss-idle/shared/rulesets/display';
@@ -18,6 +24,7 @@ import {
 	uiSound,
 } from '../../audio/uiSounds';
 import Entities from '../../entity/entities';
+import { message } from '../../globals';
 import useKeyboardOwner from '../../input/keyboardOwner';
 import Account from '../../online/account';
 import {
@@ -53,6 +60,13 @@ export default function ModeSelect({ anchor, onClose }: {
 
 	const pick = (id: RulesetId) => {
 		onClose();
+		if (locked(id)) {
+			const mode = rulesetLabel(id);
+			void message.set(
+				t`The previous generation needs to rebirth in ${ph({ mode })} to unlock this generation of ${ph({ mode })} player.`,
+			);
+			return;
+		}
 		if (id === current) return;
 		const sound = RULESET_SOUND[RULESETS[id].mode];
 		if (sound) uiSound(sound);

@@ -27,6 +27,9 @@ const metaOf = (entry: LibraryEntry) => entry.info as RuntimeMetadata;
 
 const isSet = (entry: LibraryEntry) => Array.isArray(metaOf(entry)?.versions);
 
+/** A file's name as Windows takes it: some .osz entry names hold `?` and the like. */
+const diskName = (name: string) => name.replace(/[<>:"|?*\u0000-\u001f]/g, '_');
+
 const setEntry = async (id: number) => {
 	const entry = await entryById('maps', id);
 	return entry && isSet(entry) ? entry : undefined;
@@ -34,7 +37,7 @@ const setEntry = async (id: number) => {
 
 /** The file's path in the folder, for a name the way charts refer to it. */
 const pathIn = (entry: LibraryEntry, name: string) => {
-	const key = normalizeName(name);
+	const key = normalizeName(diskName(name));
 	return entry.files.find(file => normalizeName(file.path) === key)?.path;
 };
 
@@ -62,7 +65,8 @@ export const putDiskSet = async (
 ): Promise<void> => {
 	const name = (await entryById('maps', meta.id))?.name
 		?? await freeName('maps', `${meta.id} ${meta.artist} - ${meta.title}`);
-	await writeEntry('maps', name, files, meta, replace);
+	const onDisk = Object.entries(files).map(([file, data]) => [diskName(file), data]);
+	await writeEntry('maps', name, Object.fromEntries(onDisk), meta, replace);
 };
 
 /** The set's new metadata, and its files `dropped` gone. */

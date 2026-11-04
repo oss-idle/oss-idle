@@ -22,6 +22,7 @@ import {
 	learnRefusal,
 	milestonesAt,
 	NO_GENETICS,
+	overdriveForNextTier,
 	pick,
 	pickRefusal,
 	quizResult,
@@ -108,6 +109,22 @@ describe('climaxx', () => {
 		let split = NO_GENETICS;
 		for (let i = 0; i < 100; i++) split = convert(split, 'speed', 1);
 		expect(left(split)).toBe(left(convert(NO_GENETICS, 'speed', 100)));
+	});
+
+	it('asks just the overdrive, to a tenth, that the next tier lacks', () => {
+		const poor = pick(def, NO_GENETICS, 'speed', 0, 1);
+		expect(overdriveForNextTier(def, poor, 'speed', 0)).toBeUndefined();
+		for (const converted of [0, 3.7, 250, 1e5]) {
+			const g = {
+				...convert(learn(def, poor, 'pacing', levels), 'speed', converted),
+				fees: { speed: climaxxOfOverdrive(converted) + 1 },
+			};
+			const short = tierPrice(1) - left(g);
+			const need = overdriveForNextTier(def, g, 'speed', 0)!;
+			expect(conversionGain(converted, need)).toBeGreaterThanOrEqual(short);
+			expect(conversionGain(converted, need - 0.1)).toBeLessThan(short);
+			expect(overdriveForNextTier(def, convert(g, 'speed', need), 'speed', 0)).toBeUndefined();
+		}
 	});
 
 	it('pays one tier per milestone reached', () => {
@@ -244,6 +261,12 @@ describe('picking a genetic', () => {
 		// speed stays in reach from stamina, beside it
 		const changed = pick(def, g, 'stamina', 10, 2, 0);
 		expect(changed.genes.pacing).toBe(1);
+	});
+
+	it('resets the fees of trees now out of reach', () => {
+		const sold = sell(def, learn(def, speed, 'pacing', levels), 'pacing', levels);
+		expect(pick(def, sold, 'memory', 10, 1, 0).fees).toEqual({});
+		expect(pick(def, pick(def, sold, 'memory', 0, 2), 'stamina', 10, 2, 1).fees).toEqual(sold.fees);
 	});
 
 	it('lets the first pick change at once', () => {

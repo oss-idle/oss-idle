@@ -27,6 +27,7 @@ import {
 	resolveMapRequest,
 	toggleMapSupport,
 } from '../../api/mapRequests';
+import { uploadBeatmap } from '../../api/maps';
 import Link from '../../components/Link';
 import { useNominator } from '../../hooks/useAdmin';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -79,6 +80,14 @@ export default function MapRequests({ ruleset: asked, filter, sort, page }: {
 	useEffect(() => { void refresh(); }, [refresh]);
 
 	const run = (action: () => Promise<unknown>) => runAction(action, refresh);
+
+	// The mirror can't serve every set: an .osz fetched by hand goes the same way.
+	const upload = (setId: number, file: File) => run(async () => {
+		const { osuSetId } = await uploadBeatmap(file, ruleset);
+		if (osuSetId !== setId) {
+			throw new Error(t`That .osz is another set: it went to the nomination queue, this request stays open`);
+		}
+	});
 
 	// One at a time, so the mirror is not hit with every download at once.
 	const bulk = (fn: (setId: number) => Promise<unknown>) => runAction(async () => {
@@ -239,6 +248,7 @@ export default function MapRequests({ ruleset: asked, filter, sort, page }: {
 							onSupport={setId => void run(() => toggleMapSupport(setId, ruleset))}
 							onResolve={(setId, status, note) => void run(() => resolveMapRequest(setId, status, note, ruleset))}
 							onIngest={setId => void run(() => ingestMapRequest(setId, ruleset))}
+							onUpload={(setId, file) => void upload(setId, file)}
 							onDelete={setId => confirm(t`Drop this request?`)
 								&& void run(() => deleteMapRequest(setId, ruleset))}
 						/>

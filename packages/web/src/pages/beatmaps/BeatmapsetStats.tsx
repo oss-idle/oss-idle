@@ -8,7 +8,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Trans } from '@lingui/react/macro';
 
 import { length } from '@oss-idle/shared/display/length';
-import num, { bpm } from '@oss-idle/shared/display/num';
+import {
+	bignum,
+	bpm,
+} from '@oss-idle/shared/display/num';
 
 import {
 	type MapDiff,
@@ -26,10 +29,10 @@ export default function BeatmapsetStats({ setId, diff }: { setId: number; diff: 
 			icon: faMusic, label: <Trans>BPM</Trans>, value: bpm(diff.bpm),
 		},
 		{
-			icon: faDrum, label: <Trans>Notes</Trans>, value: num(diff.rice),
+			icon: faDrum, label: <Trans>Notes</Trans>, value: bignum(diff.rice),
 		},
 		{
-			icon: faGripLines, label: <Trans>Long notes</Trans>, value: num(diff.ln),
+			icon: faGripLines, label: <Trans>Long notes</Trans>, value: bignum(diff.ln),
 		},
 	];
 	const bars = [

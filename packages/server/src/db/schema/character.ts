@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import {
 	bigint,
+	boolean,
 	decimal,
 	double,
 	int,
@@ -99,6 +100,7 @@ export const characters = mysqlTable('character', {
 	/** The play queue's preferences (see shared/queue.ts). */
 	autopilotMode: varchar({ length: 10 }).$type<AutopilotMode>().notNull().default('NEXT'),
 	autopilotDelay: int().notNull().default(30),
+	queuePlayOnce: boolean().notNull().default(false),
 });
 
 /** A character's progress in one ruleset: nothing in it carries over to another. */

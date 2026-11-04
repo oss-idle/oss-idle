@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
-import num from '@oss-idle/shared/display/num';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 
 import {
@@ -54,7 +54,7 @@ export default function FriendButton({ userId, interactive }: {
 			onClick={() => void toggle()}
 		>
 			<FontAwesomeIcon icon={faUserPlus} />
-			{num(relation.followers)}
+			<BigNum value={relation.followers} theme='aurora' />
 		</button>
 	);
 }

@@ -7,6 +7,7 @@ import {
 	geneticSlots,
 	geneticsXpMultiplier,
 	learn,
+	overdriveForNextTier,
 	pick,
 	type PlayLevels,
 	sell,
@@ -91,16 +92,17 @@ export const sellGene = (gene: string) => change(
 	() => rpc.v1.me.genetics.sell.$post({ json: { gene } }),
 );
 
-/** Turn all of a skill's overdrive into climaxx. */
+/** Turn just the overdrive the skill's next tier needs into climaxx. */
 export const convertOverdrive = (skillName: string) => change(
 	'Overdrive',
-	(_def, g, character) => {
+	(def, g, character) => {
 		const skill = character.skills.find(s => s.name === skillName);
 		const overdrive = skill?.overdrive.get() ?? 0;
-		if (!skill || overdrive <= 0) throw new Error('no overdrive');
-		void skill.overdrive.set(0);
+		const need = skill && overdriveForNextTier(def, g, skillName, skill.playLevel());
+		if (!skill || need === undefined || overdrive < need) throw new Error('not enough overdrive');
+		void skill.overdrive.set(Math.max(0, overdrive - need));
 		if (character.isGuest()) void character.persistSkills();
-		return convert(g, skillName, overdrive);
+		return convert(g, skillName, need);
 	},
 	() => rpc.v1.me.genetics.convert.$post({ json: { skill: skillName } }),
 );

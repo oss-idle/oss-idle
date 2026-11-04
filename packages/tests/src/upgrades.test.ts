@@ -16,6 +16,7 @@ import {
 	overdriveMultiplier,
 	PRESTIGE_XP_BONUS,
 	prestigeMinLevel,
+	prestigeOverdrive,
 	prestigeXPMultiplier,
 	REBIRTH_MIN_OVERALL_LEVEL,
 	revertUpgrade,
@@ -135,10 +136,33 @@ describe('prestige', () => {
 		expect(part.spent).toBeCloseTo(xpToLevel(100) + 5000, 5);
 	});
 
+	it('converts the overdrive the next upgrade would add, without buying it', () => {
+		const ready = {
+			level: 120, xp: 0, upgrades: 9, overdrive: 2, prestige: 0,
+		};
+		expect(prestigeOverdrive(ready, 0.5)).toBe(applyUpgrade(ready, 0.5).overdrive);
+		expect(prestigeOverdrive(ready)).toBeGreaterThan(2);
+		expect(prestigeOverdrive({
+			...ready, upgrades: maxUpgrades(0),
+		})).toBe(2);
+	});
+
 	it('refuses below the requirement', () => {
 		expect(() => applyPrestige({
 			level: 99, xp: 0, ...fresh,
 		})).toThrow();
+	});
+
+	it('forced below the requirement, wipes the same without counting up', () => {
+		expect(applyPrestige({
+			level: 60, xp: 500, upgrades: 7, overdrive: 3.5, prestige: 2,
+		}, true)).toEqual({
+			level: 0, xp: 0, upgrades: 0, overdrive: 0, prestige: 2,
+			spent: xpToLevel(60) + 500,
+		});
+		expect(applyPrestige({
+			level: 100, xp: 0, ...fresh,
+		}, true).prestige).toBe(1);
 	});
 
 	it('multiplies its own pool on top of the upgrade bonus', () => {

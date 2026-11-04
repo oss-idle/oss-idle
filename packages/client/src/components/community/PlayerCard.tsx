@@ -14,8 +14,10 @@ import {
 
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
 import accuracyText from '@oss-idle/shared/display/accuracy';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import { statusName } from '@oss-idle/shared/display/community';
 import { countryName } from '@oss-idle/shared/display/country';
+import num from '@oss-idle/shared/display/num';
 import {
 	isFirst,
 	rankTier,
@@ -71,9 +73,9 @@ function PlayerCard({ character, onClick, className = '' }: {
 		? character.nowPlaying
 		: statusName(character.status);
 
-	const pp = Math.round(character.pp).toLocaleString(i18n.locale);
+	const pp = num(Math.round(character.pp));
 	const accuracy = accuracyText(character.accuracy);
-	const playCount = character.playCount.toLocaleString(i18n.locale);
+	const playCount = <BigNum value={character.playCount} theme="ocean" />;
 	const level = character.level;
 	const tier = rankTier(character.rank, character.rankPercent);
 	const first = !!tier && isFirst(character.rank);

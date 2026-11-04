@@ -4,6 +4,7 @@ import {
 	it,
 } from 'vitest';
 
+import { bigStyle } from '@oss-idle/shared/display/bigTheme';
 import { bignum } from '@oss-idle/shared/display/num';
 
 describe('bignum', () => {
@@ -29,9 +30,29 @@ describe('bignum', () => {
 		expect(bignum(1_999)).toBe('1.99k');
 	});
 
-	it('scales through k, M and B', () => {
+	it('scales through k, M, B and T', () => {
 		expect(bignum(1_000_000)).toBe('1.00M');
 		expect(bignum(1_000_000_000)).toBe('1.00B');
-		expect(bignum(1_000_000_000_000)).toBe('a lot');
+		expect(bignum(1_000_000_000_000)).toBe('1.00T');
+		expect(bignum(4_200_000_000_000_000)).toBe('4200.00T');
+	});
+
+	it('keeps decimals under 1000 only', () => {
+		expect(bignum(3.46, 1)).toBe('3.4');
+		expect(bignum(3, 1)).toBe('3.0');
+		expect(bignum(2410.5, 1)).toBe('2.41k');
+	});
+});
+
+describe('bigStyle', () => {
+	it('leaves numbers under 1000 alone', () => {
+		expect(bigStyle(999, 'heat')).toBeUndefined();
+	});
+
+	it('lands on the theme colour at each suffix', () => {
+		expect(bigStyle(1_000, 'heat')).toEqual({ color: 'rgb(255, 234, 160)' });
+		expect(bigStyle(1_000_000, 'heat')).toEqual({ color: 'rgb(255, 193, 74)' });
+		expect(bigStyle(1e12, 'heat')?.color).toBe('rgb(255, 79, 110)');
+		expect(bigStyle(1e15, 'heat')?.color).toBe('rgb(255, 79, 110)');
 	});
 });

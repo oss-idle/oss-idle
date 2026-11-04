@@ -4,7 +4,7 @@ import {
 } from '@lingui/react/macro';
 
 import HoverCard from '@oss-idle/shared/display/HoverCard';
-import { overdriveText } from '@oss-idle/shared/display/overdrive';
+import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 
 import PrestigeDiamonds from '../character/PrestigeDiamonds';
 import GeneticsXpRows from '../genetics/GeneticsXpRows';
@@ -18,7 +18,7 @@ import {
  *  A part that changes nothing is dimmed. */
 export default function SkillEquation({ s }: { s: SkillStats }) {
 	const { upgrades, max, medals } = s;
-	const od = overdriveText(s.overdrive);
+	const od = <OverdriveNum value={s.overdrive} />;
 	const held = medals?.held ?? 0;
 
 	return (

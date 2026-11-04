@@ -11,6 +11,7 @@ import type { PresenceEntry } from '@oss-idle/shared/community/presence';
 import accuracyText from '@oss-idle/shared/display/accuracy';
 import { statusName } from '@oss-idle/shared/display/community';
 import { countryName } from '@oss-idle/shared/display/country';
+import num, { bignum } from '@oss-idle/shared/display/num';
 import {
 	rankTier,
 	rankTierGradient,
@@ -30,7 +31,7 @@ export default function NameCard({ p, offline = false, color, bannerUrl, friends
 }) {
 	const { i18n } = useLingui();
 	const tier = rankTier(p.rank, p.rankPercent);
-	const pp = Math.round(p.pp).toLocaleString(i18n.locale);
+	const pp = num(Math.round(p.pp));
 	const playing = !offline && p.status === 'playing' && p.nowPlaying;
 	return (<>
 		{bannerUrl && <div className="name-card__bg" style={{ backgroundImage: `url("${bannerUrl}")` }} />}
@@ -47,7 +48,7 @@ export default function NameCard({ p, offline = false, color, bannerUrl, friends
 					<span
 						className="name-card__rank"
 						style={tier ? { backgroundImage: rankTierGradient(tier) } : undefined}
-					>#{p.rank.toLocaleString(i18n.locale)}</span>
+					>#{bignum(p.rank)}</span>
 				) : undefined}
 			</div>
 			<div className="name-card__status" data-status={offline ? 'offline' : p.status}>

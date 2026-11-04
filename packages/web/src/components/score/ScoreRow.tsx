@@ -51,7 +51,10 @@ export default function ScoreRow({
 			<div className='score__pp-flow'>
 				<div className='score__pp-container'>
 					<div className='score__pp'>
-						{loved ? '—' : <>{num(score.pp)}<span className="score__pp_unit">pp</span></>}
+						{loved ? '—' : <>
+							{num(Number(score.pp))}
+							<span className="score__pp_unit">pp</span>
+						</>}
 					</div>
 				</div>
 			</div>

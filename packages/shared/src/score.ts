@@ -11,6 +11,8 @@ export type JudgementCounts = z.infer<typeof judgementCountsDTO>;
 export const scoreDTO = z.object({
 	// 0: never submitted (an NF match round)
 	id: z.number().int().min(0),
+	// an unranked map's board keeps its plays apart: `id` counts in its own table
+	unranked: z.boolean(),
 	characterId: z.number().int().positive(),
 	beatmapId: z.number().int(),
 	score: z.number().int().min(0),

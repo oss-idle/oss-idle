@@ -11,6 +11,7 @@ import {
 	useState,
 } from 'react';
 
+import { bignum } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import { DISCORD_URL } from '@oss-idle/shared/links';
 import type { NewsDTO } from '@oss-idle/shared/news';
@@ -24,9 +25,7 @@ import Footer from '../Footer';
 import LocaleMenu from '../LocaleMenu';
 import { Asset } from '../router';
 
-function formatCount(n: number): string {
-	return n.toLocaleString('en-US');
-}
+const formatCount = (n: number): string => bignum(n);
 
 export default function PublicLanding() {
 	const { t } = useLingui();

@@ -43,7 +43,9 @@ import {
 	skillOf,
 } from './db/schema/character';
 import {
+	addScoreToTotals,
 	getCharacterTotals,
+	refreshBestTotals,
 	refreshCharacterTotals,
 } from './db/schema/character_totals';
 import {
@@ -64,6 +66,7 @@ import {
 	characterEvent,
 	playcountEvent,
 } from './events';
+import { forgetScoreFacts } from './medals';
 import { calculatePP } from './pp';
 import {
 	beatmapPageIds,
@@ -127,6 +130,7 @@ export async function purgeBeatmapScores(beatmapId: number): Promise<void> {
 	await unindexBeatmap(ruleset, beatmapId);
 	for (const row of perCharacter) {
 		await refreshCharacterTotals(ruleset, row.characterId);
+		await forgetScoreFacts(ruleset, row.characterId);
 		await recomputePP(ruleset, row.characterId);
 		await reindexCharacter(ruleset, row.characterId);
 	}
@@ -147,9 +151,13 @@ export const isLovedBeatmap = async ({ setStatus }: ServerRuleset, beatmapId: nu
 export async function submitScore(ruleset: ServerRuleset, draft: NewScoreRow) {
 	const loved = await isLovedBeatmap(ruleset, draft.beatmapId);
 	await addBeatmapPlayed(ruleset, draft.characterId, draft.beatmapId);
-	const [ins] = await db.insert(ruleset.score).values(loved ? {
-		...draft, pp: '0',
-	} : draft);
+	const ins = await db.transaction(async tx => {
+		const [row] = await tx.insert(ruleset.score).values(loved ? {
+			...draft, pp: '0',
+		} : draft);
+		await addScoreToTotals(ruleset, row.insertId, tx);
+		return row;
+	});
 	const score = (await getScoreById(ruleset, ins.insertId))!;
 	const dethroned = await onSubmitScore(ruleset, score, true, loved);
 	await playcountEvent(ruleset.def.id, score.beatmapId);
@@ -168,7 +176,7 @@ export const onSubmitScore = async (
 ) => {
 	const before = (await getCharacterTotals(ruleset, score.characterId)).rankedScore;
 	await checkNewBest(ruleset, score);
-	await refreshCharacterTotals(ruleset, score.characterId);
+	await refreshBestTotals(ruleset, score.characterId);
 	const after = (await getCharacterTotals(ruleset, score.characterId)).rankedScore;
 	if (Math.floor(after / 1_000_000_000) > Math.floor(before / 1_000_000_000)) {
 		await announceBillions(score, after);

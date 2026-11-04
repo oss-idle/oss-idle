@@ -232,7 +232,7 @@ export default function Result({ score, game, progression, failed, beatmap, meda
 								<div className="result__total">
 									<span className="result__total-label"><Trans>Performance</Trans></span>
 									<span className="result__total-value">
-										{loved ? '—' : `${num(score.pp)}pp`}
+										{loved ? '—' : <>{num(score.pp)}pp</>}
 									</span>
 								</div>
 								<div className="result__total">

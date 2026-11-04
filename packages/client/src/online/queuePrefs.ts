@@ -19,7 +19,7 @@ const UPLOADED = 'queuePrefsUploaded';
 type Key = keyof QueuePrefs;
 
 /** The defaults from before the move: a value still at one was never picked. */
-const OLD_DEFAULTS: Omit<QueuePrefs, 'keepPlaying' | 'autoSkip'> = {
+const OLD_DEFAULTS: Omit<QueuePrefs, 'keepPlaying' | 'playOnce' | 'autoSkip'> = {
 	mode: 'PLAYLIST', delay: 30, rate: 1, mods: [],
 };
 
@@ -32,6 +32,7 @@ const VALUE: { [K in Key]: Synced<QueuePrefs[K]> } = {
 	rate: SETTINGS.rate,
 	mods: SETTINGS.mods,
 	keepPlaying,
+	playOnce: SETTINGS.queuePlayOnce,
 	autoSkip: autoSkip as Synced<boolean | undefined>,
 };
 
@@ -87,9 +88,9 @@ export const resetPrefs = (): void => {
 
 /** A value this device picked before the preferences moved to the server: sent
  *  up the first time, instead of being replaced. */
-const pickedHere = (k: Key): boolean => k !== 'keepPlaying' && k !== 'autoSkip'
+const pickedHere = (k: Key): boolean => k in OLD_DEFAULTS
 	&& wasStored((VALUE[k] as typeof SETTINGS.rate).key)
-	&& !same(VALUE[k].get(), OLD_DEFAULTS[k]);
+	&& !same(VALUE[k].get(), OLD_DEFAULTS[k as keyof typeof OLD_DEFAULTS]);
 
 /** The character's autopilot mode, delay, rate and mods, and the account's
  *  keep playing, as the server pushed them. A value changed here moments ago

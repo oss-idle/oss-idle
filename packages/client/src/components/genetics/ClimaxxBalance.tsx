@@ -1,15 +1,19 @@
 import { Trans } from '@lingui/react/macro';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	CLIMAXX_SYMBOL,
 	conversionGain,
 } from '@oss-idle/shared/genetics';
-import { OVERDRIVE_SYMBOL } from '@oss-idle/shared/upgrades';
+
+import ConvertText from './ConvertText';
 
 type Props = {
 	skill: string,
 	climaxx: number,
 	overdrive: number,
+	/** overdrive the next tier needs; none when there is nothing to convert */
+	need?: number,
 	/** overdrive the skill already turned into climaxx */
 	converted: number,
 	busy: boolean,
@@ -18,21 +22,17 @@ type Props = {
 
 /** The shown skill's climaxx, and turning its overdrive into more. */
 export default function ClimaxxBalance({
-	skill, climaxx, overdrive, converted, busy, onConvert,
+	skill, climaxx, overdrive, need, converted, busy, onConvert,
 }: Props) {
-	const gain = conversionGain(converted, overdrive);
-	const amount = overdrive.toFixed(1);
 	return (
 		<div className="climaxx">
 			<div className="climaxx__amount">
-				<b>{CLIMAXX_SYMBOL}{climaxx.toLocaleString()}</b> <Trans>{skill} climaxx</Trans>
+				<b>{CLIMAXX_SYMBOL}<BigNum value={climaxx} theme="royal" /></b> <Trans>{skill} climaxx</Trans>
 			</div>
-			{overdrive > 0 && gain > 0 && (
-				<button className="climaxx__convert" disabled={busy} onClick={onConvert}>
+			{need !== undefined && (
+				<button className="climaxx__convert" disabled={busy || overdrive < need} onClick={onConvert}>
 					<span>
-						<Trans>
-							Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}
-						</Trans>
+						<ConvertText need={need} overdrive={overdrive} gain={conversionGain(converted, need)} />
 					</span>
 				</button>
 			)}

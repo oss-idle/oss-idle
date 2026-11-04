@@ -1,6 +1,6 @@
-import { useLingui } from '@lingui/react/macro';
 
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
+import num from '@oss-idle/shared/display/num';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 
 import { linear } from '../../animations/smoothNumber';
@@ -21,7 +21,6 @@ export default function MatchScoreCard({ player, score, combo, position, failed,
 	self: boolean,
 	onClick?: () => void,
 }) {
-	const { i18n } = useLingui();
 	const shown = useSmoothNumber(score, SCORE_GLIDE);
 	return (
 		<button
@@ -34,7 +33,7 @@ export default function MatchScoreCard({ player, score, combo, position, failed,
 			<span className="mp-score__main">
 				<span className="mp-score__name">{player?.name ?? '...'}</span>
 				<span className="mp-score__line">
-					<span>{Math.round(shown).toLocaleString(i18n.locale)}</span>
+					{num(Math.round(shown))}
 					<span className="mp-score__combo">{combo}x</span>
 				</span>
 			</span>

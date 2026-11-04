@@ -8,7 +8,7 @@ import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 
 import { dateAgo } from '@oss-idle/shared/display/ago';
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 
 import {
 	coverBackground,
@@ -56,11 +56,11 @@ export default function Home({ articles, stats, recent, recentMaps }: {
 					<div className='dashboard__stats_n'>
 						<div className='dashboard__stats_g'>
 							<div className='dashboard__stats_g-title'><Trans>Online Users</Trans></div>
-							<div className='dashboard__stats_g-num'>{num(stats.online)}</div>
+							<div className='dashboard__stats_g-num'>{bignum(stats.online)}</div>
 						</div>
 						<div className='dashboard__stats_g'>
 							<div className='dashboard__stats_g-title'><Trans>Playing</Trans></div>
-							<div className='dashboard__stats_g-num'>{num(stats.playing)}</div>
+							<div className='dashboard__stats_g-num'>{bignum(stats.playing)}</div>
 						</div>
 
 					</div>

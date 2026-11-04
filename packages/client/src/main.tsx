@@ -45,6 +45,18 @@ desktop()?.saveBeforeClose?.(() => DB.saved());
 // loads after the frame limiter so it times every rAF.
 if (DEV_TOOLS && devTools.testBridge) void import('./dev/testBridge');
 if (DEV_TOOLS && devTools.profiler) void import('./dev/profiler');
+// not picked at launch, or a release build: Ctrl+Shift+F11 loads it, with the JS
+// sampler where the page allows it, from then on
+if (!devTools.profiler) {
+	const load = (e: KeyboardEvent) => {
+		if (e.key !== 'F11' || !e.ctrlKey || !e.shiftKey || e.altKey) return;
+		e.preventDefault();
+		window.removeEventListener('keydown', load, { capture: true });
+		devTools.profiler = devTools.sampler = true;
+		void import('./dev/profiler').then(({ show }) => show(true));
+	};
+	window.addEventListener('keydown', load, { capture: true });
+}
 
 // Load the saved language's catalog before first render so the UI never flashes
 // message keys, and re-activate whenever the picker changes it. `sync` fires

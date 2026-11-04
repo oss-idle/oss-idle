@@ -23,7 +23,11 @@ export const downloadOsz = async (setId: number): Promise<Buffer> => {
 
 	if (!res.ok) throw new Error(`Mirror returned ${res.status} for set ${setId}`);
 
-	const buffer = Buffer.from(await res.arrayBuffer());
+	// `terminated`: the mirror closed the connection before the end of the file
+	const body = await res.arrayBuffer().catch(() => {
+		throw new Error('The mirror cut the download short - try again, or download the .osz yourself and upload it here');
+	});
+	const buffer = Buffer.from(body);
 	if (buffer.length > MAX_BYTES) throw new Error('Downloaded file is too large');
 	// A mirror that 200s an HTML error page would otherwise reach the parser.
 	if (buffer.subarray(0, 2).toString() !== 'PK') {

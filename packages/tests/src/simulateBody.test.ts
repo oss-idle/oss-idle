@@ -8,7 +8,7 @@ import {
 import { simulateBody } from '../../server/src/api/simulate';
 
 vi.mock('../../server/src/env', () => ({
-	env: {}, isProd: false,
+	env: {}, isProd: false, isPbe: false,
 }));
 vi.mock('../../server/src/beatmaps', () => ({}));
 vi.mock('../../server/src/db/client', () => ({}));

@@ -14,6 +14,7 @@ import {
 	upgradeDescription7k,
 	upgradeLabel7k,
 } from './display.js';
+import { GENETICS_7K } from './genes.js';
 import {
 	MEDAL_LINES_7K,
 	MEDAL_PREFIX_7K,
@@ -50,6 +51,7 @@ export const mania7k = {
 	rateSkill: SKILL_7K.speed,
 	warmupSkill: SKILL_7K.stamina,
 	performanceArgs,
+	genetics: GENETICS_7K,
 	medals: {
 		medals: MEDALS_7K,
 		lines: MEDAL_LINES_7K,

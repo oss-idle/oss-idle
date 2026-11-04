@@ -10,7 +10,7 @@ const builds = vi.fn(async () => []);
 const broadcast = vi.fn();
 
 vi.mock('../../server/src/env', () => ({
-	env: {}, redisKeyPrefix: 'test:', isProd: false,
+	env: {}, redisKeyPrefix: 'test:', isProd: false, isPbe: false,
 }));
 // one ruleset: a build is two queries, its sets and the intro
 vi.mock('../../server/src/rulesets/registry', () => ({

@@ -6,7 +6,8 @@ import {
 	useRef,
 } from 'react';
 
-import { overdriveText } from '@oss-idle/shared/display/overdrive';
+import BigNum from '@oss-idle/shared/display/BigNum';
+import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import { CLIMAXX_SYMBOL } from '@oss-idle/shared/genetics';
 
 import { uiSound } from '../../audio/uiSounds';
@@ -18,6 +19,8 @@ export type ClimaxxTransfer = {
 	skill: string,
 	/** what the prestige turned into climaxx */
 	overdrive: number,
+	/** the overdrive left after, when the genetics tab turned just part of it */
+	kept?: number,
 	/** the skill's climaxx before it, and what it earned */
 	before: number,
 	gain: number,
@@ -34,7 +37,7 @@ const segmentClass = (i: number, lit: number, done: boolean) => {
 
 /** A prestige's overdrive draining into the skill's climaxx, shown as it happens. */
 export default function PrestigeClimaxxPop({
-	skill, overdrive, before, gain, onClose,
+	skill, overdrive, kept, before, gain, onClose,
 }: ClimaxxTransfer & { onClose: () => void }) {
 	const progress = useTransfer(DELAY_MS, LENGTH_MS);
 	const done = progress >= 1;
@@ -45,17 +48,19 @@ export default function PrestigeClimaxxPop({
 	}, [done]);
 
 	const name = selectedDef().skillName(skill);
-	const earned = gain.toLocaleString();
-	const climaxx = Math.round(before + gain * progress).toLocaleString();
+	const earned = <BigNum value={gain} theme="royal" />;
+	const climaxx = <BigNum value={Math.round(before + gain * progress)} theme="royal" />;
 	return (
 		<div className="climaxx-pop" onClick={e => e.stopPropagation()}>
 			<div className="climaxx-pop__card">
-				<div className="climaxx-pop__kicker"><Trans>{name} · Prestige</Trans></div>
+				<div className="climaxx-pop__kicker">
+					{kept === undefined ? <Trans>{name} · Prestige</Trans> : <Trans>{name} · Genetics</Trans>}
+				</div>
 				<h3 className="climaxx-pop__title"><Trans>Overdrive becomes climaxx</Trans></h3>
 				<div className="climaxx-pop__swap">
-					<div className={done ? 'is-empty' : undefined}>
+					<div className={done && !kept ? 'is-empty' : undefined}>
 						<small><Trans>Overdrive</Trans></small>
-						<b>{overdriveText(overdrive * (1 - progress))}</b>
+						<b><OverdriveNum value={(kept ?? 0) + overdrive * (1 - progress)} /></b>
 					</div>
 					<div className={`climaxx-pop__to${done ? '' : ' is-rising'}`}>
 						<small><Trans>{name} climaxx</Trans></small>

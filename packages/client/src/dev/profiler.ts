@@ -1,7 +1,9 @@
 /**
- * Dev-only frame profiler. Ctrl+F11 toggles the overlay, Ctrl+Shift+F11 resets the totals,
+ * Frame profiler. Ctrl+F11 toggles the overlay, Ctrl+Shift+F11 resets the totals
+ * (or, when it isn't loaded, loads it with the JS sampler and shows it),
  * Ctrl+Alt+F11 (or `__profiler.report()`) prints a report to the console and uploads
- * it to the dev server, which keeps it in profiles/ at the repo root.
+ * it to the dev server, which keeps it in profiles/ at the repo root. A release build
+ * saves it as a file instead.
  *
  * - every requestAnimationFrame callback is timed and labelled by the call site
  *   that queued it; callbacks over 4ms also land in the DevTools Performance
@@ -12,15 +14,18 @@
  * - the browser's long-animation-frame entries (Chromium, over 50ms only)
  * - what the game was doing (profileContext.ts)
  *
- * Loaded from main.tsx behind `DEV_TOOLS` (dev, or a staging build's menu), so a
- * release build never contains it.
+ * Loaded from main.tsx at launch in dev or when a staging build's menu picks it, and
+ * otherwise only once Ctrl+Shift+F11 asks for it.
  */
 
 import { VERSION } from '@oss-idle/shared/version';
 
 import { SETTINGS } from '../db/settings';
 import { SITE_URL } from '../globals';
-import { devTools } from './devTools';
+import {
+	DEV_TOOLS,
+	devTools,
+} from './devTools';
 import { flash } from './flash';
 import {
 	context,
@@ -251,10 +256,14 @@ graph.height = 60;
 const info = document.createElement('pre');
 info.style.margin = '4px 0 0';
 const send = document.createElement('button');
-send.textContent = 'send report';
+send.textContent = DEV_TOOLS ? 'send report' : 'save report';
 send.style.cssText = 'pointer-events:auto;display:block;margin-top:4px;font:inherit';
 send.addEventListener('click', () => void report());
-overlay.append(graph, info, send);
+const keys = document.createElement('div');
+keys.style.cssText = 'margin-top:4px;opacity:.7';
+keys.textContent = 'Ctrl+F11 hide · Ctrl+Shift+F11 reset · Ctrl+Alt+F11 '
+	+ (DEV_TOOLS ? 'send report' : 'save report · off at the next restart');
+overlay.append(graph, info, send, keys);
 
 /** One bar per frame: full height is 50ms, green is rAF work, red a dropped gap. */
 const draw = () => {
@@ -273,7 +282,7 @@ const draw = () => {
 };
 
 let timer = 0;
-const show = (visible: boolean) => {
+export const show = (visible: boolean) => {
 	try { localStorage.setItem(VISIBLE_KEY, visible ? '1' : ''); } catch { /* private mode */ }
 	clearInterval(timer);
 	if (!visible) return overlay.remove();
@@ -379,13 +388,27 @@ const snapshot = async () => {
 	};
 };
 
+/** The browser's download, or the desktop app's save dialog. */
+const save = (body: Awaited<ReturnType<typeof snapshot>>) => {
+	const link = document.createElement('a');
+	link.href = URL.createObjectURL(new Blob([JSON.stringify(body)], { type: 'application/json' }));
+	link.download = `oss-idle-profile-${body.at.replace(/[:.]/g, '-')}.json`;
+	link.click();
+	setTimeout(() => URL.revokeObjectURL(link.href), 60_000);
+};
+
 const report = async () => {
-	flash('Sending the profiler report...');
+	flash(DEV_TOOLS ? 'Sending the profiler report...' : 'Saving the profiler report...');
 	try {
 		const body = await snapshot();
 		console.log(body.text);
 		console.table(body.callbacks);
 		console.table(body.drops);
+		if (!DEV_TOOLS) {
+			save(body);
+			flash(`Profiler report saved (${body.summary.drops} drops)`);
+			return;
+		}
 		// a plain text POST needs no CORS preflight; the reply can't be read, only the send
 		await fetch(`${SITE_URL}/__profile`, {
 			method: 'POST', mode: 'no-cors', body: JSON.stringify(body),

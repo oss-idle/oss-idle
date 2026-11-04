@@ -63,6 +63,8 @@ export const queuePrefsDTO = z.object({
 	mods: modsSchema,
 	/** the account's: the character plays on once the game is closed */
 	keepPlaying: z.boolean(),
+	/** a map that played leaves the queue: it stops after the last one */
+	playOnce: z.boolean(),
 	/** PBE: the character's plays skip to the end */
 	autoSkip: z.boolean().optional(),
 });
@@ -190,10 +192,14 @@ export const sameEntry = (a: QueueEntry, b: QueueEntry) =>
 
 type Repeats = Pick<QueueEntry, 'repeat' | 'played'>;
 
+/** A LOOP queue is one map played forever: it loops either way. */
+export const playsOnce = (playOnce: boolean, mode?: AutopilotMode): boolean =>
+	playOnce && mode !== AUTOPILOT_MODE.LOOP;
+
 /** The map at `at` just started: it stays where it is until its repeats are
- *  done, then goes to the back. */
+ *  done, then goes to the back - or out, with `once`. */
 export const advanceQueue = <T extends Repeats>(
-	entries: T[], at: number,
+	entries: T[], at: number, once = false,
 ): T[] => {
 	const entry = entries[at];
 	if (!entry) return entries;
@@ -201,6 +207,7 @@ export const advanceQueue = <T extends Repeats>(
 	if (played < (entry.repeat ?? 1)) return entries.map((e, i) => i === at ? {
 		...e, played, 
 	} : e);
+	if (once) return [...entries.slice(0, at), ...entries.slice(at + 1)];
 	return [...entries.slice(0, at), ...entries.slice(at + 1), {
 		...entry, played: undefined, 
 	}];
@@ -208,8 +215,10 @@ export const advanceQueue = <T extends Repeats>(
 
 /** Named rather than assumed to be the head: the queue may have been edited
  *  while it started. */
-export const rotateQueue = (entries: QueueEntry[], played: QueueEntry): QueueEntry[] =>
-	advanceQueue(entries, entries.findIndex(e => sameEntry(e, played)));
+export const rotateQueue = (
+	entries: QueueEntry[], played: QueueEntry, once = false,
+): QueueEntry[] =>
+	advanceQueue(entries, entries.findIndex(e => sameEntry(e, played)), once);
 
 /** When the head starts, `ms` from now - or never, while something holds the queue. */
 export const nextStart = (

@@ -8,6 +8,7 @@ import {
 	applyQueueEdit,
 	AUTOPILOT_MODE,
 	nextStart,
+	playsOnce,
 	rotateQueue,
 } from '@oss-idle/shared/queue';
 
@@ -22,6 +23,17 @@ describe('server play queue', () => {
 
 	it('rotates the played map even when it is no longer the head', () => {
 		expect(rotateQueue([b, a, c], a)).toEqual([b, c, a]);
+	});
+
+	it('drops the map that started when played once, but a LOOP still loops', () => {
+		expect(rotateQueue([a, b], a, true)).toEqual([b]);
+		expect(rotateQueue([b], b, true)).toEqual([]);
+		expect(rotateQueue([{
+			...a, repeat: 2,
+		}, b], a, true)).toEqual([{
+			...a, repeat: 2, played: 1,
+		}, b]);
+		expect(playsOnce(true, AUTOPILOT_MODE.LOOP)).toBe(false);
 	});
 
 	it('leaves the queue alone when the played map was removed meanwhile', () => {

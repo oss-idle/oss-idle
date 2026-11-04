@@ -4,8 +4,10 @@ import {
 	count,
 	eq,
 	gt,
+	gte,
 	inArray,
 	lt,
+	min,
 } from 'drizzle-orm';
 
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
@@ -52,32 +54,35 @@ export const scoreSyncState = async (userId: number) => {
 	};
 };
 
-/** A page of every score the account's characters ever stored in `r`, after the score id
- *  `after`: ranked ones, then unranked ones, whose ids start past every ranked id. */
+/** A page of the scores the account's characters stored in `r` after the score id
+ *  `after`, oldest first: its ranked scores, or its unranked boards' plays. With
+ *  `playedAfter` (epoch ms), from the first one played at or after it instead. */
 export const accountScores = async (
 	r: ServerRuleset,
 	userId: number,
+	unranked: boolean,
 	after: number,
+	playedAfter?: number,
 ): Promise<{ scores: ScoreDTO[], next?: number }> => {
 	const ids = await accountCharacters(userId);
 	if (!ids.length) return { scores: [] };
-	const ranked = await db
+	const t = unranked ? r.unrankedScores : r.score;
+	if (playedAfter !== undefined) {
+		const [first] = await db
+			.select({ id: min(t.id) })
+			.from(t)
+			.where(and(inArray(t.characterId, ids), gte(t.playedAt, new Date(playedAfter))));
+		if (!first?.id) return { scores: [] };
+		after = first.id - 1;
+	}
+	const rows = await db
 		.select()
-		.from(r.score)
-		.where(and(inArray(r.score.characterId, ids), gt(r.score.id, after)))
-		.orderBy(asc(r.score.id))
+		.from(t)
+		.where(and(inArray(t.characterId, ids), gt(t.id, after)))
+		.orderBy(asc(t.id))
 		.limit(SCORE_PAGE);
-	const unranked = ranked.length < SCORE_PAGE
-		? await db
-			.select()
-			.from(r.unrankedScores)
-			.where(and(inArray(r.unrankedScores.characterId, ids), gt(r.unrankedScores.id, after)))
-			.orderBy(asc(r.unrankedScores.id))
-			.limit(SCORE_PAGE - ranked.length)
-		: [];
-	const rows = [...ranked, ...unranked];
 	return {
-		scores: rows.map(row => toScoreDTO(row, r.def)),
+		scores: rows.map(row => toScoreDTO(row, r.def, unranked)),
 		...rows.length === SCORE_PAGE && { next: rows[rows.length - 1].id },
 	};
 };

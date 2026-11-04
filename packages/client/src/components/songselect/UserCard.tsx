@@ -38,7 +38,7 @@ export default function UserCard({
 }) {
 	const { t } = useLingui();
 	const overall = online_character && xpGivesLevel(online_character.profile.overallLifetimeXp);
-	const pp = num(online_character?.profile.pp);
+	const pp = num(Number(online_character?.profile.pp ?? 0));
 	const accuracy = online_stats && accuracyText(hitAccuracy(countsOf(online_stats)));
 	const level = num(overall?.level);
 	const progress = overall ? levelProgress(overall.level, overall.xp) : 0;

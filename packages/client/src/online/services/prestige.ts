@@ -1,7 +1,12 @@
-import { convert } from '@oss-idle/shared/genetics';
+import {
+	convert,
+	effectOf,
+} from '@oss-idle/shared/genetics';
 import {
 	applyPrestige,
+	canPrestige,
 	canRebirth,
+	prestigeOverdrive,
 } from '@oss-idle/shared/upgrades';
 
 import Character from '../../db/schema/character';
@@ -14,21 +19,26 @@ import { rpc } from '../client';
 import { sendCharacterAction } from './characterAction';
 
 /** Prestige one skill of the live character: guests locally, signed-in via the
- *  server. Returns true when it landed. */
-export const prestigeSkill = async (skillName: string): Promise<boolean> => {
+ *  server. Returns true when it landed. `force` resets a skill that is not
+ *  ready: no prestige counted, no climaxx. */
+export const prestigeSkill = async (skillName: string, force = false): Promise<boolean> => {
 	const character = Entities.character.get();
 	if (character.id === 0 || !selectedDef().rebirth) return false;
 
 	// a guest's play is already resolved, so nothing it does now can reach it
-	if (character.isGuest()) return prestigeLocally(character, skillName);
+	if (character.isGuest()) return prestigeLocally(character, skillName, force);
 
 	// parked behind a running play: spend it here now, exactly as the server
 	// will when the play ends. Without this the button looks broken - and gets
 	// pressed again, parking a second prestige nobody asked for.
 	return sendCharacterAction(
 		'Prestige',
-		rpc.v1.me.prestige.$post({ json: { skill: skillName } }),
-		() => prestigeLocally(character, skillName),
+		rpc.v1.me.prestige.$post({
+			json: {
+				skill: skillName, force, 
+			}, 
+		}),
+		() => prestigeLocally(character, skillName, force),
 	);
 };
 
@@ -36,23 +46,27 @@ export const prestigeSkill = async (skillName: string): Promise<boolean> => {
 const prestigeLocally = async (
 	character: Character,
 	skillName: string,
+	force: boolean,
 ): Promise<boolean> => {
 	const skill = character.skills.find(s => s.name === skillName);
 	if (!skill) return false;
+	const ready = canPrestige(skill.state());
 	let spent = 0;
-	const overdrive = skill.overdrive.get();
+	const genetics = selectedDef().genetics;
+	const bonus = genetics ? effectOf(genetics, character.genetics.get(), 'overdrive', skillName) : 0;
+	const overdrive = prestigeOverdrive(skill.state(), bonus);
 	try {
-		const next = applyPrestige(skill.state());
+		const next = applyPrestige(skill.state(), force);
 		skill.apply(next);
 		spent = next.spent;
 	} catch {
 		return false;
 	}
 	// what overdrive is left becomes climaxx instead of being lost
-	if (selectedDef().genetics) {
-		const genetics = convert(character.genetics.get(), skillName, overdrive);
-		if (character.isGuest()) await character.saveGenetics(genetics);
-		else await character.genetics.set(genetics);
+	if (genetics && ready) {
+		const next = convert(character.genetics.get(), skillName, overdrive);
+		if (character.isGuest()) await character.saveGenetics(next);
+		else await character.genetics.set(next);
 	}
 	selectedProgression()?.afterPrestige(character, skillName);
 	// and the levels it reset stop counting toward the overall level, the

@@ -2,7 +2,10 @@ import '../upgrades/ladder.css';
 
 import { Trans } from '@lingui/react/macro';
 
-import { climaxxOf } from '@oss-idle/shared/genetics';
+import {
+	climaxxOf,
+	effectOf,
+} from '@oss-idle/shared/genetics';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { PRESTIGE_MIN_LEVEL } from '@oss-idle/shared/upgrades';
 
@@ -27,6 +30,7 @@ export default function PrestigeView({ character }: { character: Character }) {
 						skill={skill}
 						locked={locked}
 						converted={genetics ? held.converted[skill.name] ?? 0 : undefined}
+						overdriveBonus={genetics && effectOf(genetics, held, 'overdrive', skill.name)}
 						climaxxNow={genetics && (() => climaxxOf(
 							genetics, character.genetics.get(), skill.name, playLevels(character)[skill.name] ?? 0,
 						))}

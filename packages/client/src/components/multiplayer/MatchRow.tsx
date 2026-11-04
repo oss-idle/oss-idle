@@ -1,10 +1,8 @@
 import { ph } from '@lingui/core/macro';
-import {
-	Trans,
-	useLingui,
-} from '@lingui/react/macro';
+import { Trans } from '@lingui/react/macro';
 
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
+import { bignum } from '@oss-idle/shared/display/num';
 import {
 	type Match,
 	matchPlayers,
@@ -20,11 +18,10 @@ export default function MatchRow({ match, players, onClick }: {
 	players: Map<number, PresenceEntry>,
 	onClick: () => void,
 }) {
-	const { i18n } = useLingui();
 	const seated = matchPlayers(match);
 	const ranks = seated.map(s => players.get(s.characterId)?.rank);
 	const known = ranks.filter((r): r is number => r !== undefined);
-	const rank = (r: number | undefined) => r === undefined ? '?' : r.toLocaleString(i18n.locale);
+	const rank = (r: number | undefined) => r === undefined ? '?' : bignum(r);
 	const low = known.length ? Math.min(...known) : undefined;
 	const high = known.length < ranks.length || !known.length ? undefined : Math.max(...known);
 	const host = players.get(match.hostId);

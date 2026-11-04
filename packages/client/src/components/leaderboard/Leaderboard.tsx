@@ -8,7 +8,6 @@ import {
 	useState,
 } from 'react';
 
-import { countryName } from '@oss-idle/shared/display/country';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
@@ -17,18 +16,18 @@ import { uiSound } from '../../audio/uiSounds';
 import { scoresVersion } from '../../db/schema/score';
 import {
 	SCORE_TAB,
-	ScoreTab,
 	SETTINGS,
 } from '../../db/settings';
-import { i18n } from '../../i18n';
 import Account from '../../online/account';
+import Auth from '../../online/auth';
 import {
 	type BoardRow,
 	boardScores,
+	boardTab,
 } from '../../online/services/scores';
 import BeatmapAPI from '../../osu/beatmap/beatmap_api';
 import { beatmapsVersion } from '../../osu/beatmap/beatmap_store';
-import Dropdown, { DropdownOption } from '../dropdown/Dropdown';
+import LeaderboardFilters from './LeaderboardFilters';
 import PersonalBest from './PersonalBest';
 import ScoreEntry from './ScoreEntry';
 import UpdateButton from './UpdateButton';
@@ -41,29 +40,17 @@ const NO_ROWS: BoardRow[] = [];
 const tops = (list: HTMLElement | null) =>
 	new Map([...list?.children ?? []].map((el) => [el, (el as HTMLElement).offsetTop]));
 
-/** Local and Global, and the signed-in player's own country. */
-const tabOptions = (country?: string): DropdownOption<ScoreTab>[] => [
-	{
-		value: SCORE_TAB.LOCAL, label: 'Local', 
-	},
-	{
-		value: SCORE_TAB.GLOBAL, label: 'Global', 
-	},
-	...(country ? [{
-		value: SCORE_TAB.COUNTRY, 
-		label: countryName(country, i18n.locale), 
-	}] : []),
-];
-
 /**
- * Score leaderboard for the currently-selected difficulty. The category is
- * switchable between Local (from SQLite), Global, and Country (the signed-in
- * player's own country - only offered while signed in).
+ * Score leaderboard for the currently-selected difficulty, by score or by pp. The
+ * category is switchable between Local and Mine (from SQLite), Friends, Country (the
+ * signed-in player's own country - only offered while signed in) and Global.
  */
 export default function Leaderboard() {
 	const [beatmap] = useSynced(music.beatmap);
 	const [account] = useSynced(Account.character);
+	const [user] = useSynced(Auth.user);
 	const [category] = useSynced(SETTINGS.leaderboard);
+	const [sort] = useSynced(SETTINGS.leaderboardSort);
 	const [scoresV] = useSynced(scoresVersion);
 	const [library] = useSynced(beatmapsVersion);
 	// The board on screen and which map + tab it is. A re-fetch of the same board keeps
@@ -74,10 +61,9 @@ export default function Leaderboard() {
 
 	const country = account?.country;
 
-	// The Country tab needs a signed-in country; fall back to Global without it.
-	const invalidCountryTab = category === SCORE_TAB.COUNTRY && !country;
-	const effective = invalidCountryTab ? SCORE_TAB.GLOBAL : category;
-	const key = `${beatmap?.metadata.id}:${effective}:${country}`;
+	const effective = boardTab(category, country, user?.supporter);
+	const local = effective === SCORE_TAB.LOCAL || effective === SCORE_TAB.MINE;
+	const key = `${beatmap?.metadata.id}:${effective}:${sort}:${country}`;
 	const loading = board.key !== key;
 	const scores = loading ? NO_ROWS : board.scores;
 	const show = (rows: BoardRow[]) => {
@@ -90,7 +76,7 @@ export default function Leaderboard() {
 
 	// an online board learns whether the stored chart is the server's (osu!'s update button)
 	const outdatedKey = useAsync(async () => {
-		if (!beatmap || effective === SCORE_TAB.LOCAL) return undefined;
+		if (!beatmap || local) return undefined;
 		return await BeatmapAPI.isOutdated(beatmap).catch(() => false) ? key : undefined;
 	}, [key, library]);
 
@@ -104,14 +90,13 @@ export default function Leaderboard() {
 		}
 		let cancelled = false;
 
-		const local = effective === SCORE_TAB.LOCAL;
-		boardScores(id, local, effective === SCORE_TAB.COUNTRY ? country : undefined)
+		boardScores(id, effective, sort, country)
 			.then((s) => !cancelled && show(s))
 			.catch(() => !cancelled && show([]));
 		return () => {
 			cancelled = true;
 		};
-	}, [beatmap, effective, country, scoresV, key]);
+	}, [beatmap, effective, sort, country, scoresV, key]);
 
 	// A new board's scores arrive one after the other: each is mounted on its turn, so a
 	// map switch renders and lays out one row at a time instead of the whole board at once.
@@ -153,11 +138,7 @@ export default function Leaderboard() {
 
 	return (
 		<aside className="lb">
-			<Dropdown 
-				className="lb__select" 
-				value={SETTINGS.leaderboard} 
-				options={tabOptions(country)} 
-			/>
+			<LeaderboardFilters country={country} supporter={user?.supporter} />
 
 			<div className="lb__body">
 				{beatmap === undefined ? (
@@ -183,18 +164,20 @@ export default function Leaderboard() {
 								player={player}
 								rank={i + 1}
 								previous={scores[i + 1]?.score}
+								pp={sort === 'pp'}
 							/>
 						))}
 					</ol>
 				)}
 			</div>
 
-			{effective !== SCORE_TAB.LOCAL && beatmap?.metadata.id !== undefined && (
-				<PersonalBest 
-					beatmapId={beatmap.metadata.id} 
-					country={effective === SCORE_TAB.COUNTRY ? country : undefined} 
-				/>
-			)}
+			<PersonalBest 
+				beatmapId={beatmap?.metadata.id} 
+				tab={effective}
+				sort={sort}
+				country={country} 
+				board={loading ? undefined : scores}
+			/>
 		</aside>
 	);
 }

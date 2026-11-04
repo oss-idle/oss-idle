@@ -23,15 +23,15 @@ type XPInsightProvider = {
 	source: XPInsightSource;
 	/** the unlock tier this provider's data needs */
 	tier: XPInsightTier;
-	load: (characterId: number) => Promise<Map<number, BeatmapXPInsight>>;
+	load: (characterId: number, beatmapId?: number) => Promise<Map<number, BeatmapXPInsight>>;
 };
 
 const historyProvider: XPInsightProvider = {
 	source: 'history',
 	tier: XP_INSIGHT_TIER.HISTORY,
-	load: async (characterId) => {
+	load: async (characterId, only) => {
 		const insights = new Map<number, BeatmapXPInsight>();
-		for (const [beatmapId, row] of await ScoreXP.latestByBeatmap(characterId)) {
+		for (const [beatmapId, row] of await ScoreXP.latestByBeatmap(characterId, only)) {
 			const bySkill: Record<string, number> = {};
 			let total = 0;
 			let top: BeatmapXPInsight['top'];
@@ -61,16 +61,17 @@ const historyProvider: XPInsightProvider = {
 // simulation) overrides the stored history per beatmap
 const providers: XPInsightProvider[] = [historyProvider];
 
-/** Bulk XP insights for every beatmap the character has data on, gated by the
- *  current unlock tier. Bulk by design so group/sort modes can reuse it. */
+/** Bulk XP insights for every beatmap the character has data on (or only `beatmapId`),
+ *  gated by the current unlock tier. Bulk by design so group/sort modes can reuse it. */
 export const getXPInsights = async (
 	characterId: number,
+	beatmapId?: number,
 ): Promise<Map<number, BeatmapXPInsight>> => {
 	const tier = UNLOCKS.xpInsight.get();
 	const insights = new Map<number, BeatmapXPInsight>();
 	for (const provider of providers) {
 		if (tier < provider.tier) continue;
-		for (const [id, insight] of await provider.load(characterId)) {
+		for (const [id, insight] of await provider.load(characterId, beatmapId)) {
 			insights.set(id, insight);
 		}
 	}

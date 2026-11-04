@@ -5,6 +5,7 @@ import {
 	advanceQueue,
 	AUTOPILOT_MODE,
 	type AutopilotMode,
+	playsOnce,
 	type QueueEdit,
 	type QueueEntry,
 	type QueueSource,
@@ -16,6 +17,7 @@ import {
 	Playlist,
 	PlaylistEntry,
 } from '../db/schema/playlist';
+import { SETTINGS } from '../db/settings';
 import Entities from '../entity/entities';
 import Socket from '../online/socket';
 import BeatmapAPI from '../osu/beatmap/beatmap_api';
@@ -91,6 +93,8 @@ export const fillQueue = (beatmap: LightBeatmap, from: {
 	}, pool, index);
 };
 
+const once = (mode?: AutopilotMode): boolean => playsOnce(SETTINGS.queuePlayOnce.get(), mode);
+
 /** Only a downloaded map can be played, so only a downloaded map can wait in
  *  the queue - that is what keeps "the head is next" honest. */
 const playable = (entries: Queued[]): Queued[] =>
@@ -159,7 +163,8 @@ const resolve = async (entries: QueueEntry[]): Promise<Queued[]> => {
  *
  * It cycles rather than draining: a map that starts goes to the back, so a
  * playlist loops the way autopilot always has. Emptying it is what stops the
- * loop - "stop after this play".
+ * loop - "stop after this play". With play once, a map that starts leaves it
+ * instead, and the queue stops after its last map.
  *
  * Signed in, it lives on the server, which chains it whether or not the game is
  * open (spec/queue.md §9): every edit goes there, and `state` is what the
@@ -199,7 +204,8 @@ export default class PlayQueue {
 	/**
 	 * Fill the queue from a pool, with `index` the map being launched right now:
 	 * it drops to the back, and everything after it comes first. Shuffle
-	 * reorders it once, here.
+	 * reorders it once, here. Played once, it stops at the pool's end; shuffled,
+	 * every other map plays once.
 	 */
 	public static start(
 		source: QueueSource,
@@ -207,15 +213,17 @@ export default class PlayQueue {
 		index: number,
 	): void {
 		const launched = pool[index];
+		const shuffle = source.mode === AUTOPILOT_MODE.SHUFFLE;
+		const playOnce = once(source.mode);
 		const rest = playable([
 			...pool.slice(index + 1),
-			...pool.slice(0, index),
+			...playOnce && !shuffle ? [] : pool.slice(0, index),
 		]);
-		const ordered = source.mode === AUTOPILOT_MODE.SHUFFLE ? shuffled(rest) : rest;
+		const ordered = shuffle ? shuffled(rest) : rest;
 		this.queued = undefined;
 		// the launched map comes round again at the back, so a single-map queue
 		// (LOOP) repeats and a playlist wraps
-		const entries = launched?.beatmap.metadata.runtime ? [...ordered, launched] : ordered;
+		const entries = launched?.beatmap.metadata.runtime && !playOnce ? [...ordered, launched] : ordered;
 		void this.state.set({
 			...source, entries,
 		});
@@ -263,6 +271,7 @@ export default class PlayQueue {
 		const entries = requeue(
 			pool, s.entries, (a, b) => a.beatmap.is(b.beatmap),
 			s.mode === AUTOPILOT_MODE.SHUFFLE ? shuffled : undefined,
+			once(s.mode),
 		);
 		const source: QueueSource = {
 			label: playlist.name, mode: s.mode, groupKey: s.groupKey,
@@ -292,8 +301,8 @@ export default class PlayQueue {
 	}
 
 	/**
-	 * A guest's play just started: move it to the back, so the queue cycles. The
-	 * server does this itself for a signed-in character.
+	 * A guest's play just started: move it to the back, so the queue cycles, or
+	 * out when played once. The server does this itself for a signed-in character.
 	 *
 	 * `played` names it rather than assuming it is still the head: starting takes
 	 * a round trip or a whole simulation, and editing the queue meanwhile is the
@@ -306,7 +315,7 @@ export default class PlayQueue {
 		const at = s.entries.findIndex(e => e.beatmap.is(played));
 		if (at < 0) return;
 		void this.state.set({
-			...s, entries: advanceQueue(s.entries, at),
+			...s, entries: advanceQueue(s.entries, at, once(s.mode)),
 		});
 	}
 

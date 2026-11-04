@@ -18,7 +18,7 @@ import {
 } from './requestPhase';
 
 export default function RequestRow({
-	row, mine, admin, busy, selected, onSelect, onSupport, onResolve, onIngest, onDelete,
+	row, mine, admin, busy, selected, onSelect, onSupport, onResolve, onIngest, onUpload, onDelete,
 }: {
 	row: MapRequest,
 	mine: boolean,
@@ -29,6 +29,7 @@ export default function RequestRow({
 	onSupport: (setId: number) => void,
 	onResolve: (setId: number, status: 'accepted' | 'rejected', note?: string) => void,
 	onIngest: (setId: number) => void,
+	onUpload: (setId: number, file: File) => void,
 	onDelete: (setId: number) => void,
 }) {
 	const { t, i18n } = useLingui();
@@ -97,6 +98,7 @@ export default function RequestRow({
 					busy={busy}
 					onResolve={onResolve}
 					onIngest={onIngest}
+					onUpload={onUpload}
 					onDelete={onDelete}
 				/>
 			)}

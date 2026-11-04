@@ -60,6 +60,13 @@ ipcRenderer.on('oss-idle:fullscreen', (_event, on: boolean) => {
 	}
 });
 
+const minimizedListeners = new Set<(minimized: boolean) => void>();
+ipcRenderer.on('oss-idle:minimized', (_event, minimized: boolean) => {
+	for (const cb of minimizedListeners) {
+		try { cb(minimized); } catch (e) { console.error('[desktop] minimized listener threw', e); }
+	}
+});
+
 const deepLinkListeners = new Set<(link: string) => void>();
 ipcRenderer.on('oss-idle:deep-link', (_event, link: string) => {
 	for (const cb of deepLinkListeners) {
@@ -107,6 +114,10 @@ const bridge: OssIdleDesktop = {
 	onFullscreenChanged: cb => {
 		fullscreenListeners.add(cb);
 		return () => { fullscreenListeners.delete(cb); };
+	},
+	onMinimizedChanged: cb => {
+		minimizedListeners.add(cb);
+		return () => { minimizedListeners.delete(cb); };
 	},
 	update: {
 		check: () => ipcRenderer.invoke('oss-idle:update-check'),

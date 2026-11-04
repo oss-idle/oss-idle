@@ -152,6 +152,17 @@ function createWindow(): void {
 	mainWindow.on('leave-full-screen', 
 		() => mainWindow?.webContents.send('oss-idle:fullscreen', false),
 	);
+	// backgroundThrottling: false keeps the page "visible" when minimized, so it would
+	// draw every frame no one sees: tell it, and it stops drawing
+	const sendMinimized = () => {
+		if (!mainWindow) return;
+		const minimized = mainWindow.isMinimized() || !mainWindow.isVisible();
+		mainWindow.webContents.send('oss-idle:minimized', minimized);
+	};
+	mainWindow.on('minimize', sendMinimized);
+	mainWindow.on('restore', sendMinimized);
+	mainWindow.on('hide', sendMinimized);
+	mainWindow.on('show', sendMinimized);
 }
 
 /** the longest a closing window waits for the game's save */

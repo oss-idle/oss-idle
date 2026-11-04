@@ -2,6 +2,7 @@
 import initSqlJs, {
 	type Database,
 	type SqlValue,
+	type Statement,
 } from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
@@ -233,6 +234,35 @@ export class Table<C extends Columns> {
 			keys.map(k => this.columns[k].encode(row[k])),
 		);
 		return db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0] as number;
+	}
+
+	/** {@link insert} for many rows in one write: each set of columns is prepared once.
+	 *  Free it before the write ends (a save frees every statement). */
+	inserter(db: Database) {
+		const stmts = new Map<string, Statement>();
+		const rowid = db.prepare('SELECT last_insert_rowid()');
+		return {
+			insert: (value: Insert<C>): number => {
+				const row = value as Record<string, unknown>;
+				const keys = Object.keys(this.columns).filter(k => row[k] !== undefined);
+				const cols = keys.join(', ');
+				let stmt = stmts.get(cols);
+				if (!stmt) {
+					stmt = db.prepare(`INSERT OR REPLACE INTO ${this.name} (${cols})
+						VALUES (${keys.map(() => '?').join(', ')})`);
+					stmts.set(cols, stmt);
+				}
+				stmt.run(keys.map(k => this.columns[k].encode(row[k])));
+				rowid.step();
+				const id = rowid.get()[0] as number;
+				rowid.reset();
+				return id;
+			},
+			free: () => {
+				for (const stmt of stmts.values()) stmt.free();
+				rowid.free();
+			},
+		};
 	}
 
 	/** Decode a raw sql.js row object into a typed row. */

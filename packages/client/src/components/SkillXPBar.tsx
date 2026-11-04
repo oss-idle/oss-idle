@@ -3,7 +3,7 @@ import {
 	useState,
 } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import type { SkillGain } from '@oss-idle/shared/play';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
@@ -146,7 +146,7 @@ export default function SkillXPBar({
 				<div className="skillxp__fill" style={{ width: `${state.fill * 100}%` }} />
 			</div>
 			<span className="skillxp__gain">
-				{gained > 0 ? `+${bignum(gained)}xp` : '--'}
+				{gained > 0 ? <span>+<BigNum value={gained} theme="heat" />xp</span> : '--'}
 			</span>
 		</div>
 	);

@@ -1,3 +1,4 @@
+import { showsDivine } from '@oss-idle/shared/rebirth';
 import {
 	JUDGEMENT,
 	type Judgement,
@@ -24,3 +25,11 @@ export const JUDGEMENT_COLUMNS: { judgement: Judgement; label: string }[] = [
 		judgement: JUDGEMENT.MISS, label: 'MISS',
 	},
 ];
+
+/** The columns with DIVINE first when any of these scores has one. */
+export const judgementColumns = (divineCounts: number[]) =>
+	divineCounts.some(count => showsDivine(count))
+		? [{
+			judgement: JUDGEMENT.DIVINE, label: 'DIVINE',
+		}, ...JUDGEMENT_COLUMNS]
+		: JUDGEMENT_COLUMNS;

@@ -1,7 +1,7 @@
-import type {
-	Gene,
-	GeneEffect,
-	GeneticsDef,
+import {
+	type Gene,
+	type GeneticsDef,
+	geneTree as tree,
 } from '../../../genetics.js';
 import {
 	SKILL,
@@ -22,24 +22,6 @@ export const RING: readonly SkillName[] = [
 	SKILL.memory,
 	SKILL.concentration,
 ];
-
-type Row = [id: string, parent: string, max: number, effect?: GeneEffect, per?: number];
-
-/** Every tree starts with an XP gene and its overdrive gene. */
-const tree = (skill: SkillName, xp: string, overdrive: string, rows: Row[]): Gene[] =>
-	([
-		[xp, '', 5, 'xp', 0.05],
-		[overdrive, xp, 5, 'overdrive', 0.05],
-		...rows,
-	] satisfies Row[]).map(([id, parent, max, effect, per]: Row) => ({
-		id,
-		skill,
-		max,
-		...parent ? { parent } : {},
-		...effect ? {
-			effect, per, 
-		} : {},
-	}));
 
 export const GENES: readonly Gene[] = [
 	...tree(SKILL.accuracy, 'talented', 'perfectPitch', [

@@ -124,9 +124,10 @@ export type NewScoreRow = ScoreTable['$inferInsert'];
 export const judgementsOf = (row: ScoreRow, def: RulesetDef) =>
 	Object.fromEntries(def.judgements.map(j => [j, (row as Record<string, unknown>)[j] as number]));
 
-export function toScoreDTO(row: ScoreRow, def: RulesetDef): ScoreDTO {
+export function toScoreDTO(row: ScoreRow, def: RulesetDef, unranked = false): ScoreDTO {
 	return {
 		id: row.id,
+		unranked,
 		beatmapId: row.beatmapId,
 		characterId: row.characterId,
 		grade: row.grade,

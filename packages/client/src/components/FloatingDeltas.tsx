@@ -2,7 +2,7 @@ import './FloatingDeltas.css';
 
 import { useEffect } from 'react';
 
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { playDeltas } from '../globals';
@@ -32,7 +32,7 @@ export default function FloatingDeltas() {
 		<div className="floating-deltas" key={shown.at}>
 			{rank !== 0 && (
 				<span className="floating-deltas__rank">
-					{signed(rank, num(Math.abs(rank)))}
+					{signed(rank, bignum(Math.abs(rank)))}
 				</span>
 			)}
 			{rankedScore !== 0 && (

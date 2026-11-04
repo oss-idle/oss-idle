@@ -287,3 +287,10 @@ button {
 		transform: translateY(var(--bounce-to));
 	}
 }
+
+/* a minimized desktop window draws nothing (see frameLimiter.ts) */
+html.is-minimized *,
+html.is-minimized *::before,
+html.is-minimized *::after {
+	animation-play-state: paused !important;
+}

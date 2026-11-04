@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
-import { overdriveText } from '@oss-idle/shared/display/overdrive';
+import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 
@@ -43,7 +43,7 @@ export default function UpgradeRow({
 				<span className={`ladder-row__mult ${u.multiplier > 1 ? '' : 'is-base'}`}>
 					<Trans>x{factor} XP</Trans>
 				</span>
-				{u.overdrive > 0 && <span className="ladder-row__od">{overdriveText(u.overdrive)}</span>}
+				{u.overdrive > 0 && <span className="ladder-row__od"><OverdriveNum value={u.overdrive} /></span>}
 			</div>
 			<div className="ladder-row__ladder" title={selectedDef().upgradeDescription(skill.name)}>
 				<div className="ladder-row__gear">

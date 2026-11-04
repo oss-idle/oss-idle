@@ -102,15 +102,12 @@ import {
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
 import { selectedRuleset } from '../rulesets/registry';
-import {
-	UNLOCKS,
-	XP_INSIGHT_TIER,
-} from '../unlocks';
-import { getXPInsights } from '../xpInsights';
+import { UNLOCKS } from '../unlocks';
 import { launchPlay } from './launchPlay';
 import SceneManager, { SCENE } from './SceneManager';
 import { STRAIN_DEBUG_KEY } from './strainDebugKey';
 import usePlayHistory from './usePlayHistory';
+import useXPInsights from './useXPInsights';
 
 
 /** The group a play was launched from, kept across the gameplay scene so that
@@ -387,12 +384,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 	// read the same map. Gated by the feature's unlock tier.
 	const [xpTier] = useSynced(UNLOCKS.xpInsight);
 	const [xpVersion] = useSynced(xpGainsVersion);
-	const xpInsights = useAsync(
-		async () => xpTier === XP_INSIGHT_TIER.LOCKED
-			? undefined
-			: getXPInsights(character.id),
-		[character, xpTier, xpVersion],
-	);
+	const xpInsights = useXPInsights(character.id, xpTier, xpVersion);
 
 	// the carousel shows the search-filtered, sort-ordered subset; selection logic
 	// keeps using the full `items` so a search never loses the current selection

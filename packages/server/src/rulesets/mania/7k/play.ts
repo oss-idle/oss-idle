@@ -4,6 +4,7 @@ import { BeatmapDecoder } from 'osu-parsers';
 
 import { warmupTrend } from '@oss-idle/shared/fatigue';
 import { allowedRate } from '@oss-idle/shared/rate';
+import { GENETICS_7K } from '@oss-idle/shared/rulesets/mania/7k/genes';
 import { modXpMultipliers7k } from '@oss-idle/shared/rulesets/mania/7k/modXp';
 import {
 	MINDBLOCK_SKILLS_7K,
@@ -13,6 +14,10 @@ import {
 } from '@oss-idle/shared/rulesets/mania/7k/skills';
 import { xpScore } from '@oss-idle/shared/rulesets/mania/xpScore';
 
+import {
+	geneInput,
+	geneticsXp,
+} from '../../../character/genetics';
 import { getPlays } from '../../../db/schema/beatmaps_played';
 import { skillOf } from '../../../db/schema/character';
 import { sim } from '../../../sim';
@@ -34,7 +39,7 @@ export const STRAINED_7K = Object.fromEntries(PHYSICAL_SKILLS_7K.map(skill => [s
 
 /** 7K's play: its own bot and skills, mania's engine, the shared fatigue and xp rules. */
 export const play: RulesetPlay = {
-	tiredness: tiredness(SKILL_7K.stamina),
+	tiredness: tiredness(SKILL_7K.stamina, GENETICS_7K),
 	allowedRate: (profile, rate) => allowedRate(rate, skillOf(profile, SKILL_7K.speed).upgrades),
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
@@ -53,7 +58,9 @@ export const play: RulesetPlay = {
 				xpScore: score, skillXp, rawXp, strainedShare, totalLength, ...played
 			} = native({
 				chart: text,
-				play: simPlay,
+				play: {
+					...simPlay, ...await geneInput(r, profile, beatmapId),
+				},
 				rate, mods, divine: false, round, strained: STRAINED_7K, gauged: r.def.gauged as SkillName7k[],
 			});
 			if (board) return {
@@ -68,6 +75,7 @@ export const play: RulesetPlay = {
 					grade: score.grade,
 					stars: sr,
 					fatigue,
+					genetics: await geneticsXp(r, profile, beatmapId),
 				}),
 				rawXp,
 				strain: {
@@ -98,6 +106,7 @@ export const play: RulesetPlay = {
 				grade: score.grade,
 				stars: sr,
 				fatigue,
+				genetics: await geneticsXp(r, profile, beatmapId),
 			}),
 			strain: {
 				minutes: length / 60_000,

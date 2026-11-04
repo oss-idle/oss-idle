@@ -8,7 +8,7 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-02 09:28+0000\n"
+"PO-Revision-Date: 2026-11-04 07:23+0000\n"
 "Last-Translator: konjihi <ladafilo25@gmail.com>\n"
 "Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/web/ru/>\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
@@ -21,10 +21,10 @@ msgstr "(игра в процессе)"
 msgid "(only admins can see this)"
 msgstr "(видно только администраторам)"
 
-#. placeholder {0}: num(plays)
+#. placeholder {0}: bignum(plays)
 #: src/pages/bot/BotLive.tsx
 msgid "{0} plays so far"
-msgstr ""
+msgstr "{0} раз(а) сыграно"
 
 #: src/components/character/MedalTip.tsx
 msgid "{category} ({tier})"
@@ -76,19 +76,19 @@ msgstr ""
 
 #: src/components/character/AccountStanding.tsx
 msgid "{name} is silenced until a moderator lifts it."
-msgstr ""
+msgstr "{name} заглушен, пока модератор не снимет ограничение."
 
 #: src/components/character/AccountStanding.tsx
 msgid "{name} will be able to speak again in <0/>."
-msgstr ""
+msgstr "{name} сможет говорить через <0/>."
 
 #: src/components/character/AccountStanding.tsx
 msgid "{name}'s account is not in a good standing."
-msgstr ""
+msgstr "Аккаунт {name} в нехорошем положении."
 
 #: src/components/character/MedalProgressBar.tsx
 msgid "{now} / {goal} (best {best})"
-msgstr ""
+msgstr "{now}/{goal}(лучшее{best})"
 
 #: src/pages/changelog/UpdateStreams.tsx
 msgid "{online, plural, one {# user online} other {# users online}}"
@@ -96,15 +96,15 @@ msgstr ""
 
 #: src/components/character/RecentEvent.tsx
 msgid "{set} by {user} has been loved!"
-msgstr ""
+msgstr "{set} от {user} стала любимой!"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{set} by {user} has been ranked!"
-msgstr ""
+msgstr "{set} от {user} стала ранговой!"
 
 #: src/components/character/CharacterRanks.tsx
 msgid "{skill} Ranking"
-msgstr ""
+msgstr "Ранг по {skill}"
 
 #: src/pages/beatmaps/RequestBulkBar.tsx
 msgid "{step}/{total} · {current} · {spent} elapsed · ~{left} left"
@@ -112,63 +112,63 @@ msgstr ""
 
 #: src/components/character/CharacterHistorical.tsx
 msgid "{title} [{version}] by {artist}"
-msgstr ""
+msgstr "{title} [{version}] от {artist}"
 
 #: src/components/character/CharacterMedals.tsx
 msgid "{unlocked} / {total} unlocked"
-msgstr ""
+msgstr "{unlocked}/{total} получено"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} achieved rank #{rank} on {map} ({mode})"
-msgstr ""
+msgstr "{user} занял #{rank} место на {map} ({mode})"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has become an oss!supporter - thanks for your generosity!"
-msgstr ""
+msgstr "{user} стал oss!supporter - спасибо за вашу щедрость!"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has lost first place on {map} ({mode})"
-msgstr ""
+msgstr "{user} потерял первое место на {map} ({mode})"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has once again chosen to support oss!idle - thanks for your generosity!"
-msgstr ""
+msgstr "{user} в очередной раз решил поддержать oss!idle - спасибо за вашу щедрость!"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has received the gift of oss!supporter!"
-msgstr ""
+msgstr "{user} получил oss!supporter в подарок!"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has submitted a new beatmap \"{set}\""
-msgstr ""
+msgstr "{user} опубликовал новую карту \"{set}\""
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has updated the beatmap \"{set}\""
-msgstr ""
+msgstr "{user} обновил карту \"{set}\""
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} unlocked the \"{medal}\" medal!"
-msgstr ""
+msgstr "{user} разблокировал медаль \"{medal}\"!"
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "{who} became the host"
-msgstr ""
+msgstr "{who} стал хостом"
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "{who} created the match"
-msgstr ""
+msgstr "{who} создал матч"
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "{who} has been kicked from the match"
-msgstr ""
+msgstr "{who} был кикнут из матча"
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "{who} joined the match"
-msgstr ""
+msgstr "{who} присоединился к матчу"
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "{who} left the match"
-msgstr ""
+msgstr "{who} покинул матч"
 
 #: src/pages/store/SupportDuration.tsx
 msgid "{years, plural, one {# year} other {# years}}"
@@ -176,11 +176,11 @@ msgstr ""
 
 #: src/components/leaderboard/medalLine.ts
 msgid "#1 ranks"
-msgstr ""
+msgstr "#1 места"
 
 #: src/pages/levels/LevelVoterRow.tsx
 msgid "±{offset} from the median"
-msgstr ""
+msgstr "±{offset} от медианы"
 
 #: src/pages/store/SupporterStatus.tsx
 msgid "<0>{amount}</0> of it went to <1>{players, plural, one {# other player} other {# other players}}</1>, covering <2><3/></2>."
@@ -188,7 +188,7 @@ msgstr ""
 
 #: src/pages/oauth/Authorize.tsx
 msgid "<0>{app}</0> is requesting permission to access your account."
-msgstr ""
+msgstr "<0>{app}</0> запрашивает доступ к вашему аккаунту."
 
 #: src/components/character/RecentEvent.tsx
 msgid "<0>{previous}</0> has changed their username to <1>{username}</1>!"
@@ -208,11 +208,11 @@ msgstr ""
 
 #: src/pages/store/Store.tsx
 msgid "<0>Sign in</0> to support oss!idle."
-msgstr ""
+msgstr "<0>Войдите</0>, чтобы поддержать oss!idle."
 
 #: src/pages/levels/LevelVotes.tsx
 msgid "<0>Sign in</0> to vote."
-msgstr ""
+msgstr "<0>Войдите</0>, чтобы проголосовать."
 
 #: src/pages/help/FAQ.tsx
 msgid "<0>Unranked:</0> signed in, on a map or difficulty that isn't ranked. Saved in your browser only, with no experience."
@@ -220,164 +220,164 @@ msgstr ""
 
 #: src/pages/bot/BotLanding.tsx
 msgid "A bot tries to match your scores by finding the closest skillset."
-msgstr ""
+msgstr "Бот пробует повторить ваши результаты путем поиска подходящего скиллсета."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A heart in the corner of the main menu, to thank you every time you start the game."
-msgstr ""
+msgstr "Сердце в углу главного меню чтобы благодарить вас при каждом запуске игры."
 
 #: src/components/character/MedalTip.tsx
 msgid "A hidden medal"
-msgstr ""
+msgstr "Скрытая медаль"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A pink heart next to your name on your profile. It grows more hearts the longer you support."
-msgstr ""
+msgstr "Розовое сердце рядом с вашим именем в профиле. Чем дольше вы поддерживаете, тем больше сердец становится."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A pink Supporter role on our Discord server, once you link your Discord account in the options."
-msgstr ""
+msgstr "Розовая роль Supporter в нашем Discord сервере, после как вы привяжете свой Discord аккаунт в настройках."
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "a player"
-msgstr ""
+msgstr "Игрок"
 
 #: src/pages/bugs/NewBug.tsx
 msgid "A short summary"
-msgstr ""
+msgstr "Краткое пояснение"
 
 #: src/pages/beatmaps/RequestActions.tsx
 msgid "Accept"
-msgstr ""
+msgstr "Одобрить"
 
 #: src/pages/beatmaps/RequestBulkBar.tsx
 msgid "Accept selected"
-msgstr ""
+msgstr "Одобрить выбранное"
 
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/requestPhase.ts
 msgid "accepted"
-msgstr ""
+msgstr "Одобрено"
 
 #: src/components/character/AccountStanding.tsx
 msgid "Account Standing"
-msgstr ""
+msgstr "Положение Аккаунта"
 
 #: src/pages/matches/MatchGameScore.tsx
 msgid "accuracy"
-msgstr ""
+msgstr "Точность"
 
 #: src/components/leaderboard/PlayerGradesLeaderboard.tsx
 #: src/components/leaderboard/PlayerLeaderboard.tsx
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 #: src/pages/beatmaps/TopScoreCard.tsx
 #: src/pages/rankings/Country.tsx
 #: src/pages/scores/ScorePage.tsx
 msgid "Accuracy"
-msgstr ""
+msgstr "Точность"
 
 #: src/pages/beatmaps/TopScoreCard.tsx
 msgid "achieved {when}"
-msgstr ""
+msgstr "достигнуто {when}"
 
 #: src/components/character/ProfileMedal.tsx
 msgid "Achieved on {date}"
-msgstr ""
+msgstr "Получено {date}"
 
 #: src/pages/help/FAQ.tsx
 msgid "Achievements for skill levels, dedication, mastery and ranked play, plus a few secret ones. They are awarded on the result screen of a ranked play. Each medal permanently raises your experience gain, from {bronzeBonus}% for a bronze one to {divineBonus}% for a divine one, and the bonuses stack."
-msgstr ""
+msgstr "Достижения за уровни навыков, преданность, мастерство и ранговые игры, также несколько секретных. Они присваиваются после завершения рейтинговой игры. Каждая медаль навсегда увеличивает получаемый опыт, от {bronzeBonus}% за бронзовую, до {divineBonus}% за божественную, бонусы складываются."
 
 #: src/components/character/AccountStanding.tsx
 msgid "Action"
-msgstr ""
+msgstr "Действие"
 
 #: src/pages/rankings/Country.tsx
 msgid "Active Players"
-msgstr ""
+msgstr "Активных игроков"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Add a chat emote of your own from your settings, and share it with everyone if you like."
-msgstr ""
+msgstr "Добавьте собственную эмоцию в чат через настройки и поделитесь ей со всеми."
 
 #: src/pages/levels/LevelMapPicker.tsx
 msgid "Add a map: search a title, artist, mapper or difficulty"
-msgstr ""
+msgstr "Добавьте карту: найдите по названию, исполнителю, создателю или сложности"
 
 #: src/components/character/FriendButton.tsx
 msgid "add friend"
-msgstr ""
+msgstr "добавить друга"
 
 #: src/pages/bugs/BugReport.tsx
 msgid "Add more details"
-msgstr ""
+msgstr "Дополнительные сведения"
 
 #: src/pages/bugs/BugImagesField.tsx
 msgid "Add screenshots"
-msgstr ""
+msgstr "Добавьте скриншоты"
 
 #: src/routes/docs_.addons.tsx
 msgid "Add-on documentation"
-msgstr ""
+msgstr "Документация по аддонам"
 
 #: src/pages/admin/AdminNav.tsx
 #: src/routes/admin/addons.tsx
 msgid "add-ons"
-msgstr ""
+msgstr "аддоны"
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "Adding or renaming it needs an <0>oss!supporter</0> tag. You keep it even if your supporter tag ends."
-msgstr ""
+msgstr "Для добавления или переименования необходим тег <0>oss!supporter</0>. Вы не потеряете доступ когда тег истечет."
 
 #: src/HeaderLinks.tsx
 msgid "admin"
-msgstr ""
+msgstr "админ"
 
 #: src/routes/admin/index.tsx
 msgid "admin dashboard"
-msgstr ""
+msgstr "Панель управления администратора"
 
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "all"
-msgstr ""
+msgstr "все"
 
 #: src/components/leaderboard/CountryFilter.tsx
 #: src/components/leaderboard/useFriendsFilter.ts
 #: src/components/UserList.tsx
 msgid "All"
-msgstr ""
+msgstr "Все"
 
 #: src/pages/bugs/NewBug.tsx
 msgid "Also your add-ons and skins."
-msgstr ""
+msgstr "Также ваши аддоны и скины."
 
 #: src/pages/store/OrderHistory.tsx
 msgid "Amount"
-msgstr ""
+msgstr "Количество"
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "An emoji of your own for the chat, typed as :name:. Only you can use it unless you share it with everyone."
-msgstr ""
+msgstr "Ваше эмодзи для чата, используемое как :название:. Пока не поделитесь со всеми, использовать его можете только вы."
 
 #: src/pages/AuthError.tsx
 msgid "An error occurred when communicating with osu! ... if your osu! account is valid, please try again"
-msgstr ""
+msgstr "Произошла ошибка при попытке обращения к osu! ... если ваш аккаунт osu! действителен, попробуйте ещё раз"
 
 #: src/pages/help/FAQ.tsx
 msgid "An idle game built on osu!mania {modes}. You don't press the keys: your character plays the maps for you. Every play earns experience in its skills, better skills mean better plays, and better plays climb the rankings."
-msgstr ""
+msgstr "Idle-игра, сделанная на базе osu!mania {modes}. Вам не надо нажимать кнопки: ваш персонаж играет карты за вас. Каждая карта зарабатывает опыт в ее направлении. Улучшение навыка означает лучшие результаты, а лучшие результаты двигают вас выше в рейтинге."
 
 #: src/pages/beatmaps/RankedMaps.tsx
 msgid "Any"
-msgstr ""
+msgstr "Любые"
 
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "Anyone can propose a map for ranking in oss!idle - osu!mania {label} only. Support the ones you want to play so it shows what people are after. Accepted maps join the nomination queue and are ranked from there."
-msgstr ""
+msgstr "Кто угодно может предложить карту для получения статуса ранговой в oss!idle - только osu!mania{label}. Поддержите те, которые вы хотите играть, так будет видно чего хотят люди. Одобренные карты поступают в очередь на номинацию, откуда и становятся ранговыми."
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "Anyone can use it"
-msgstr ""
+msgstr "Доступно для всех"
 
 #: src/pages/settings/OAuthSettings.tsx
 #: src/routes/docs.tsx
@@ -386,7 +386,7 @@ msgstr ""
 
 #: src/routes/legal/api.tsx
 msgid "API terms of use"
-msgstr ""
+msgstr "Правила использования API"
 
 #: src/pages/settings/OAuthClientDialog.tsx
 #: src/pages/settings/OAuthNewClientDialog.tsx
@@ -395,20 +395,20 @@ msgstr ""
 
 #: src/pages/settings/OAuthNewClientDialog.tsx
 msgid "Application Name"
-msgstr ""
+msgstr "Название Приложения"
 
 #: src/pages/help/FAQ.tsx
 msgid "At overall level {REBIRTH_MIN_OVERALL_LEVEL}, you can start a brand new character one generation up. Each rebirth needs {REBIRTH_LEVEL_STEP} more levels than the last. Each generation unlocks something new; the first is the Divine judgement. Your old character is not deleted: it stays playable, ranked and keeps all its progress. If the new one takes its name, the old one is renamed with _old, like on osu!."
-msgstr ""
+msgstr "При достижении общего уровня {REBIRTH_MIN_OVERALL_LEVEL}, вы можете создать нового персонажа на поколение выше. Каждое перерождение требует на {REBIRTH_LEVEL_STEP} выше, чем предыдущее. Каждое поколение разблокирует что-то новое; первое это оценка Divine. Старый персонаж не удаляется, прогресс сохраняется и остаётся доступным для игры. Если новый берет его имя, старый будет переименован с отметкой _old, как в osu!."
 
 #: src/routes/oauth/authorize.tsx
 msgid "authorization request"
-msgstr ""
+msgstr "Запрос на авторизацию"
 
 #: src/pages/oauth/Authorize.tsx
 #: src/pages/oauth/Authorize.tsx
 msgid "Authorization Request"
-msgstr ""
+msgstr "Запрос на Авторизацию"
 
 #: src/pages/oauth/Authorize.tsx
 msgid "Authorize"
@@ -420,47 +420,47 @@ msgstr ""
 
 #: src/pages/rankings/Country.tsx
 msgid "Avg. Performance"
-msgstr ""
+msgstr "Ср. Производительность"
 
 #: src/pages/bugs/BugList.tsx
 msgid "awaiting reply"
-msgstr ""
+msgstr "ожидание ответа"
 
 #: src/pages/DesktopDone.tsx
 msgid "Back in oss!idle already? You can close this tab."
-msgstr ""
+msgstr "Уже возвращаетесь в oss!idle? Можете закрыть эту вкладку."
 
 #: src/routes/maps/$id.tsx
 msgid "beatmap info"
-msgstr ""
+msgstr "Информация о карте"
 
 #: src/HeaderLinks.tsx
 #: src/pages/beatmaps/MapsNav.tsx
 #: src/routes/maps/index.tsx
 msgid "beatmap listing"
-msgstr ""
+msgstr "список карт"
 
 #: src/routes/admin/nomination.tsx
 msgid "beatmap nomination"
-msgstr ""
+msgstr "номинация карт"
 
 #: src/HeaderLinks.tsx
 #: src/pages/PublicLanding.tsx
 msgid "beatmaps"
-msgstr ""
+msgstr "карты"
 
 #: src/components/character/CharacterBeatmaps.tsx
 #: src/pages/search/Search.tsx
 msgid "Beatmaps"
-msgstr ""
+msgstr "Карты"
 
 #: src/pages/Login.tsx
 msgid "Become a legendary mania player"
-msgstr ""
+msgstr "Станьте легендарным игроком в mania"
 
 #: src/pages/levels/SkillVoteField.tsx
 msgid "below dan 1"
-msgstr ""
+msgstr "Ниже чем dan 1"
 
 #: src/pages/PlayOssIdle.tsx
 msgid "Best for performance and idling."
@@ -468,15 +468,15 @@ msgstr ""
 
 #: src/components/character/CharacterTopRanks.tsx
 msgid "Best Performance"
-msgstr ""
+msgstr "Лучшие"
 
 #: src/pages/bot/BotTopScores.tsx
 msgid "Best scores"
-msgstr ""
+msgstr "Лучшие результаты"
 
 #: src/components/character/ProfileMenu.tsx
 msgid "Block"
-msgstr ""
+msgstr "В блок"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Bold"
@@ -846,87 +846,87 @@ msgstr ""
 
 #: src/pages/bugs/useBugStatusLabels.ts
 msgid "Fixed"
-msgstr ""
+msgstr "Исправлено"
 
 #: src/components/leaderboard/medalLine.ts
 msgid "Followers"
-msgstr ""
+msgstr "Подписчики"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Font Size"
-msgstr ""
+msgstr "Размер шрифта"
 
 #: src/pages/store/OrderHistory.tsx
 msgid "For"
-msgstr ""
+msgstr "Для"
 
 #: src/pages/store/RecipientPicker.tsx
 msgid "for yourself instead"
-msgstr ""
+msgstr "Для себя"
 
 #: src/components/FormerNames.tsx
 msgid "formerly known as {names}"
-msgstr ""
+msgstr "Раньше известен как {names}"
 
 #: src/pages/beatmaps/MapScoreboard.tsx
 msgid "Friend Ranking"
-msgstr ""
+msgstr "Рейтинг Друзей"
 
 #: src/routes/friends.tsx
 msgid "friends"
-msgstr ""
+msgstr "друзья"
 
 #: src/components/leaderboard/useFriendsFilter.ts
 #: src/UserMenu.tsx
 msgid "Friends"
-msgstr ""
+msgstr "Друзья"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Get every ranked beatmap in one go from the game's options."
-msgstr ""
+msgstr "Скачайте все рейтинговые карты за раз из настроек игры."
 
 #: src/pages/bot/BotStatus.tsx
 msgid "Getting started…"
-msgstr ""
+msgstr "Начинаем…"
 
 #: src/pages/store/RecipientPicker.tsx
 msgid "gift"
-msgstr ""
+msgstr "подарок"
 
 #: src/pages/store/OrderHistory.tsx
 msgid "gift from {name}"
-msgstr ""
+msgstr "подарок от {name}"
 
 #: src/pages/store/RecipientPicker.tsx
 msgid "gift to player"
-msgstr ""
+msgstr "подарить игроку"
 
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
 msgid "global"
-msgstr ""
+msgstr "глобальный"
 
 #: src/pages/scores/ScorePage.tsx
 msgid "Global Rank"
-msgstr ""
+msgstr "Глобальный Ранг"
 
 #: src/components/character/CharacterRanks.tsx
 #: src/components/character/RankGraph.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
 msgid "Global Ranking"
-msgstr ""
+msgstr "Глобальный Рейтинг"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Golden name"
-msgstr ""
+msgstr "Золотое имя"
 
 #: src/pages/rankings/RankingsNav.tsx
 msgid "grades"
-msgstr ""
+msgstr "оценки"
 
 #: src/routes/groups/$group.tsx
 msgid "groups"
-msgstr ""
+msgstr "группы"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Heading"
@@ -935,91 +935,91 @@ msgstr ""
 #: src/HeaderLinks.tsx
 #: src/pages/PublicLanding.tsx
 msgid "help"
-msgstr ""
+msgstr "помощь"
 
 #: src/routes/auth/callback.tsx
 msgid "hi !"
-msgstr ""
+msgstr "привет!"
 
 #: src/components/leaderboard/medalLine.ts
 msgid "Highest overdrive"
-msgstr ""
+msgstr "Наивысший овердрайв"
 
 #: src/components/character/RankArea.tsx
 msgid "Highest rank: {rank} on {date}"
-msgstr ""
+msgstr "Наивысший ранг: {rank} достигнут {date}"
 
 #: src/pages/matches/MatchGame.tsx
 msgid "Highest Score"
-msgstr ""
+msgstr "Лучший Результат"
 
 #: src/components/character/CharacterHistorical.tsx
 msgid "Historical"
-msgstr ""
+msgstr "Хронология"
 
 #: src/pages/characters/CharacterFigures.tsx
 msgid "Hit Accuracy"
-msgstr ""
+msgstr "Точность попаданий"
 
 #: src/HeaderLinks.tsx
 msgid "home"
-msgstr ""
+msgstr "главная"
 
 #: src/components/leaderboard/medalLine.ts
 msgid "Hours played"
-msgstr ""
+msgstr "Часов наиграно"
 
 #: src/pages/help/FAQ.tsx
 msgid "How do I earn experience?"
-msgstr ""
+msgstr "Как мне заработать опыт?"
 
 #: src/pages/help/FAQ.tsx
 msgid "How do I get a map ranked?"
-msgstr ""
+msgstr "Как мне сделать карту рейтинговой?"
 
 #: src/pages/PlayOssIdle.tsx
 msgid "How do you want to play?"
-msgstr ""
+msgstr "Как вы хотите играть?"
 
 #: src/pages/help/FAQ.tsx
 msgid "How is pp calculated?"
-msgstr ""
+msgstr "Как считается pp?"
 
 #: src/pages/store/SupporterTag.tsx
 msgid "I accept the <0>terms of sale</0>, I want the supporter tag to start right away, and I give up my 14-day withdrawal right."
-msgstr ""
+msgstr "Я согласен с <0>условиями продажи</0>, я хочу чтобы тег supporter начался сразу и отказываюсь от своего права на возврат в течении 14 дней."
 
 #: src/pages/settings/OAuthNewClientDialog.tsx
 msgid "I agree to the <0>API Terms of Use</0>"
-msgstr ""
+msgstr "Я согласен с <0>Правилами использования API</0>"
 
 #: src/pages/oauth/scopes.ts
 msgid "Identify you and read your public profile."
-msgstr ""
+msgstr "Идентифицировать вас и читать ваш публичный профиль."
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Image"
-msgstr ""
+msgstr "Изображение"
 
 #: src/pages/beatmaps/requestPhase.ts
 msgid "in nomination"
-msgstr ""
+msgstr "на номинации"
 
 #: src/pages/beatmaps/RequestActions.tsx
 msgid "Ingest"
-msgstr ""
+msgstr "Проверить"
 
 #: src/pages/beatmaps/RequestBulkBar.tsx
 msgid "Ingest selected"
-msgstr ""
+msgstr "Проверить выбранное"
 
 #: src/pages/oauth/Authorize.tsx
 msgid "Invalid authorization request."
-msgstr ""
+msgstr "Неверный запрос на авторизацию."
 
 #: src/pages/bot/BotStatus.tsx
 msgid "It should start in about {minutes} min."
-msgstr ""
+msgstr "Должны начать примерно через {minutes} минут."
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Italic"
@@ -1027,15 +1027,15 @@ msgstr ""
 
 #: src/pages/help/FAQ.tsx
 msgid "Its scores, pp and ranking progress are removed. The experience your skills earned on it stays."
-msgstr ""
+msgstr "Её рекорды, pp и процесс рейтинга удаляются. Опыт полученный на этой карте остаётся."
 
 #: src/pages/PublicLanding.tsx
 msgid "Join the community"
-msgstr ""
+msgstr "Присоединится к сообществу"
 
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
-msgstr ""
+msgstr "Кнопок"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Large"
@@ -1043,53 +1043,53 @@ msgstr ""
 
 #: src/pages/PublicLanding.tsx
 msgid "Latest news"
-msgstr ""
+msgstr "Последние новости"
 
 #: src/routes/legal/notice.tsx
 msgid "legal notice"
-msgstr ""
+msgstr "юридическая пометка"
 
 #: src/Footer.tsx
 msgid "Legal notice"
-msgstr ""
+msgstr "Юр. пометка"
 
 #: src/components/character/AccountStanding.tsx
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Length"
-msgstr ""
+msgstr "Длительность"
 
 #: src/pages/bot/BotLive.tsx
 msgid "Less than a minute left"
-msgstr ""
+msgstr "Осталось менее минуты"
 
 #: src/components/DashboardCharacter.tsx
 msgid "level"
-msgstr ""
+msgstr "уровень"
 
 #: src/pages/beatmaps/MapsNav.tsx
 #: src/routes/maps/levels.tsx
 msgid "level calibration"
-msgstr ""
+msgstr "калибровка уровней"
 
 #: src/pages/rankings/RankingsNav.tsx
 msgid "lifetime"
-msgstr ""
+msgstr "за все время"
 
 #: src/components/character/SanctionItems.tsx
 msgid "Lift restriction"
-msgstr ""
+msgstr "Убрать ограничение"
 
 #: src/components/character/SanctionItems.tsx
 msgid "Lift silence"
-msgstr ""
+msgstr "Убрать silence"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "Link"
-msgstr ""
+msgstr "Ссылка"
 
 #: src/pages/bot/BotShare.tsx
 msgid "Link copied"
-msgstr ""
+msgstr "Ссылка скопирована"
 
 #: src/components/character/BBCodeToolbar.tsx
 msgid "List"
@@ -1097,7 +1097,7 @@ msgstr ""
 
 #: src/pages/changelog/ChangelogNav.tsx
 msgid "listing"
-msgstr ""
+msgstr "список"
 
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
@@ -1110,121 +1110,121 @@ msgstr ""
 #: src/pages/settings/TitleSettings.tsx
 #: src/pages/store/OrderHistory.tsx
 msgid "Loading…"
-msgstr ""
+msgstr "Загрузка…"
 
 #: src/routes/logout.tsx
 msgid "logging out..."
-msgstr ""
+msgstr "выходим из аккаунта..."
 
 #: src/routes/login.tsx
 msgid "login"
-msgstr ""
+msgstr "войти"
 
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Long notes"
-msgstr ""
+msgstr "Длинные ноты"
 
 #: src/pages/beatmaps/BeatmapsetHeader.tsx
 #: src/pages/beatmaps/requestPhase.ts
 msgid "loved"
-msgstr ""
+msgstr "любимая"
 
 #: src/components/MapsetCard.tsx
 #: src/pages/beatmaps/RankedMaps.tsx
 #: src/pages/beatmaps/RankedMaps.tsx
 msgid "Loved"
-msgstr ""
+msgstr "Любимая"
 
 #: src/components/character/CharacterBeatmaps.tsx
 msgid "Loved Beatmaps"
-msgstr ""
+msgstr "Любимые Карты"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Main menu heart"
-msgstr ""
+msgstr "Сердце в главном меню"
 
 #: src/routes/news/admin.tsx
 msgid "manage news"
-msgstr ""
+msgstr "управлять новостями"
 
 #: src/pages/store/SupporterTag.tsx
 msgid "Manage subscriptions"
-msgstr ""
+msgstr "Управлять подписками"
 
 #: src/pages/admin/AdminNav.tsx
 msgid "map nomination"
-msgstr ""
+msgstr "номинация карт"
 
 #: src/HeaderLinks.tsx
 #: src/pages/beatmaps/MapsNav.tsx
 #: src/routes/maps/requests.tsx
 msgid "map requests"
-msgstr ""
+msgstr "запросы карт"
 
 #: src/pages/beatmaps/RequestRow.tsx
 #: src/pages/beatmaps/RequestSearchHit.tsx
 msgid "mapped by {creator}"
-msgstr ""
+msgstr "создано {creator}"
 
 #: src/components/character/CharacterHistorical.tsx
 #: src/components/MapsetCard.tsx
 #: src/pages/beatmaps/BeatmapsetHeader.tsx
 #: src/pages/scores/ScorePage.tsx
 msgid "mapped by <0>{creator}</0>"
-msgstr ""
+msgstr "создано <0>{creator}</0>"
 
 #: src/components/leaderboard/medalLine.ts
 msgid "Mapped sets ranked or loved"
-msgstr ""
+msgstr "Создано любимых или рейтинговых карт"
 
 #: src/pages/help/FAQ.tsx
 msgid "Maps and rankings"
-msgstr ""
+msgstr "Карты и рейтинг"
 
 #: src/pages/help/FAQ.tsx
 msgid "Maps the team loves that aren't ranked. They play like ranked maps: the server decides the score, which counts for ranked score, grades, leaderboards and experience, but gives no pp. They don't count for the star rating and #1 medals either."
-msgstr ""
+msgstr "Карты которые понравились команде, но не стали рейтинговыми. Они играются как рейтинговые: получаемый результат считается за рейтинговый, оценки и таблицы лидеров, но без получения pp. Они также не считаются в прогресс медалей за #1 места и уровни сложности."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Maps you upload always have a leaderboard, and playing any unranked map opens its leaderboard for everyone."
-msgstr ""
+msgstr "Карты которые вы загружаете будут всегда иметь таблицу лидеров, а сыграв любую не ранговую карту вы откроете её таблицу лидеров для всех."
 
 #: src/routes/matches/$id.tsx
 msgid "match history"
-msgstr ""
+msgstr "история матча"
 
 #: src/pages/matches/MatchHistory.tsx
 msgid "match in progress"
-msgstr ""
+msgstr "матч в процессе"
 
 #: src/pages/beatmaps/TopScoreCard.tsx
 msgid "Max combo"
-msgstr ""
+msgstr "Макс. комбо"
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 #: src/pages/scores/ScorePage.tsx
 msgid "Max Combo"
-msgstr ""
+msgstr "Макс. Комбо"
 
 #: src/components/character/UserPage.tsx
 msgid "me!"
-msgstr ""
+msgstr "обо мне!"
 
 #: src/components/leaderboard/PlayerMedalLeaderboard.tsx
 msgid "Medal Score"
-msgstr ""
+msgstr "Рейтинг Медалей"
 
 #: src/pages/admin/AdminNav.tsx
 #: src/pages/rankings/RankingsNav.tsx
 #: src/routes/admin/medals.tsx
 msgid "medals"
-msgstr ""
+msgstr "медали"
 
 #: src/components/character/CharacterMedals.tsx
 #: src/components/leaderboard/MedalBoardTabs.tsx
 #: src/components/leaderboard/PlayerMedalLeaderboard.tsx
 msgid "Medals"
-msgstr ""
+msgstr "Медали"
 
 #: src/pages/levels/SkillVoteField.tsx
 msgid "median <0>{median}</0> · {votes, plural, one {# vote} other {# votes}}"
@@ -1236,11 +1236,11 @@ msgstr ""
 
 #: src/Header.tsx
 msgid "menu"
-msgstr ""
+msgstr "меню"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Menu background"
-msgstr ""
+msgstr "Фон в меню"
 
 #: src/pages/levels/LevelChartLegend.tsx
 msgid "middle half of votes"
@@ -1248,7 +1248,7 @@ msgstr ""
 
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "mine"
-msgstr ""
+msgstr "мои"
 
 #: src/pages/beatmaps/RankedMaps.tsx
 #: src/pages/beatmaps/RequestModeTabs.tsx
@@ -1263,7 +1263,7 @@ msgstr ""
 msgid "Moderator"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Mods"
 msgstr ""
 
@@ -1606,7 +1606,7 @@ msgstr ""
 msgid "Played by"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Player"
 msgstr ""
 
@@ -1706,7 +1706,7 @@ msgid "Proposed maps ranked"
 msgstr ""
 
 #: src/components/UserList.tsx
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Rank"
 msgstr ""
 
@@ -1972,7 +1972,7 @@ msgstr ""
 msgid "score"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Score"
 msgstr ""
 
@@ -2044,6 +2044,10 @@ msgstr ""
 
 #: src/pages/bugs/NewBug.tsx
 msgid "Sent with it: version {version} and your desktop app."
+msgstr ""
+
+#: src/components/character/RulesetSwitch.tsx
+msgid "Set as main mode"
 msgstr ""
 
 #: src/pages/bugs/BugMessage.tsx
@@ -2271,6 +2275,10 @@ msgstr ""
 msgid "Thank you! Your donations gave you {days, plural, one {# day} other {# days}} of oss!supporter."
 msgstr ""
 
+#: src/pages/beatmaps/MapRequests.tsx
+msgid "That .osz is another set: it went to the nomination queue, this request stays open"
+msgstr ""
+
 #: src/pages/groups/GroupPage.tsx
 msgid "The <0>Administrators</0> run oss!idle: they develop the game, rank the maps and manage the team."
 msgstr ""
@@ -2339,7 +2347,7 @@ msgstr ""
 msgid "This request has been answered"
 msgstr ""
 
-#: src/pages/beatmaps/MapScoreboard.tsx
+#: src/pages/beatmaps/MapScoreTable.tsx
 msgid "Time"
 msgstr ""
 
@@ -2433,6 +2441,10 @@ msgstr ""
 
 #: src/pages/settings/OAuthClientDialog.tsx
 msgid "Update"
+msgstr ""
+
+#: src/pages/beatmaps/RequestActions.tsx
+msgid "Upload .osz"
 msgstr ""
 
 #: src/pages/store/SupporterPerks.tsx
@@ -2560,7 +2572,7 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
-#. placeholder {0}: num(ranks.performance)
+#. placeholder {0}: bignum(ranks.performance)
 #. placeholder {1}: num(result.performance)
 #: src/pages/bot/BotTopScores.tsx
 msgid "Would be <0>#{0}</0> on oss!idle, with <1>{1}pp</1>"

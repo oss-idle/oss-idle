@@ -1,11 +1,10 @@
-import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import {
 	useRef,
 	useState,
 } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import BigNum from '@oss-idle/shared/display/BigNum';
 
 import { selectedDef } from '../rulesets/registry';
 import type { BeatmapXPInsight } from '../xpInsights';
@@ -25,6 +24,7 @@ export default function BeatmapCardXP({ insight }: {
 
 	const open = () => setAnchor(ref.current?.getBoundingClientRect());
 	const close = () => setAnchor(undefined);
+	const xp = <BigNum value={insight.total} theme="heat" />;
 
 	return (
 		<div
@@ -42,11 +42,11 @@ export default function BeatmapCardXP({ insight }: {
 			{insight.top && (
 				<span className="bm-card__xp-chip bm-card__xp-skill">
 					{selectedDef().skillName(insight.top.skill)}
-					<em>{bignum(insight.top.gained)}xp</em>
+					<em><BigNum value={insight.top.gained} theme="heat" />xp</em>
 				</span>
 			)}
 			<span className="bm-card__xp-chip bm-card__xp-total">
-				<Trans>Total {ph({ xp: bignum(insight.total) })}xp</Trans>
+				<Trans>Total {xp}xp</Trans>
 			</span>
 			{anchor && (
 				<BeatmapXPBreakdown insight={insight} anchor={anchor} onClose={close} />

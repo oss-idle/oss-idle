@@ -6,6 +6,7 @@ import {
 import {
 	DEV_RULESETS,
 	NOMINATED_RULESETS,
+	PBE_RULESETS,
 	PROD_RULESETS,
 	type RulesetId,
 	RULESETS,
@@ -15,10 +16,12 @@ import { mania7k } from '@oss-idle/shared/rulesets/mania/7k/index';
 import { osu } from '@oss-idle/shared/rulesets/osu/index';
 import type { RulesetDef } from '@oss-idle/shared/rulesets/ruleset';
 
+import { PBE } from './pbe/pbe';
+
 /** The rulesets this build shows: a release build folds the dev ones out, like the game. */
 export const ENABLED_RULESETS = import.meta.env.DEV || import.meta.env.MODE === 'staging'
 	? DEV_RULESETS
-	: PROD_RULESETS;
+	: PBE ? PBE_RULESETS : PROD_RULESETS;
 
 /** The rulesets with a nomination queue here, played yet or not. */
 export const QUEUED_RULESETS = [...new Set([...ENABLED_RULESETS, ...NOMINATED_RULESETS])];

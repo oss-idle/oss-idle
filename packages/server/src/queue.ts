@@ -7,6 +7,7 @@ import {
 	AUTOPILOT_MODE,
 	AWAY_HOURS,
 	nextStart,
+	playsOnce,
 	type QueueEdit,
 	type QueueEntry,
 	type QueuePrefs,
@@ -127,6 +128,7 @@ const prefsOf = async (slot: Slot, row: CharacterRow, user: UserRow): Promise<Qu
 	delay: row.autopilotDelay,
 	...await playPrefs(slot),
 	keepPlaying: user.keepPlaying,
+	playOnce: row.queuePlayOnce,
 	...isPbe && { autoSkip: await autoSkipOf(row.id) },
 });
 
@@ -193,8 +195,8 @@ const schedule = (s: Stored, row: CharacterRow, ms: number): void => {
 	s.nextAt = at === undefined ? undefined : Math.max(at, s.holdUntil ?? 0);
 };
 
-const rotate = (s: Stored, played: QueueEntry): void => {
-	s.entries = rotateQueue(s.entries, played);
+const rotate = (s: Stored, played: QueueEntry, row: CharacterRow): void => {
+	s.entries = rotateQueue(s.entries, played, playsOnce(row.queuePlayOnce, s.mode));
 };
 
 // --- client edits ---------------------------------------------------------
@@ -282,6 +284,7 @@ export const setPrefs = async (slot: Slot, prefs: Partial<QueuePrefs>): Promise<
 	const own = {
 		autopilotMode: prefs.mode,
 		autopilotDelay: prefs.delay && Math.max(prefs.delay, MIN_DELAY),
+		queuePlayOnce: prefs.playOnce,
 	};
 	if (Object.values(own).some(v => v !== undefined)) {
 		await db.update(characters).set(own).where(eq(characters.id, characterId));
@@ -307,11 +310,13 @@ export const setPrefs = async (slot: Slot, prefs: Partial<QueuePrefs>): Promise<
 };
 
 export const claimOffer = async (slot: Slot, serial: number): Promise<boolean> => {
+	const row = await getCharacterById(characterOfSlot(slot));
+	if (!row) return false;
 	let ok = false;
 	await change(slot, s => {
 		if (s.offer?.serial !== serial) return;
 		ok = true;
-		rotate(s, s.offer.entry);
+		rotate(s, s.offer.entry, row);
 		s.offer = undefined;
 		s.failures = 0;
 		// if the client never says it started, carry on without it
@@ -420,7 +425,7 @@ const tryHead = async (
 		case 'ranked':
 			if (!result.joined) {
 				await change(slot, s => {
-					rotate(s, head);
+					rotate(s, head, row);
 					s.failures = 0;
 				});
 			}
@@ -430,7 +435,7 @@ const tryHead = async (
 				await offer(slot, head);
 				return 'done';
 			}
-			await change(slot, s => rotate(s, head));
+			await change(slot, s => rotate(s, head, row));
 			return 'next';
 		case 'refused':
 			await startFailed(slot);
@@ -457,11 +462,11 @@ const retry = async (slot: Slot, row: CharacterRow, again: QueueEntry): Promise<
 };
 
 /** Nobody took the unranked head: play on without it. */
-const dropOffer = async (slot: Slot, s: Stored): Promise<Stored> => {
+const dropOffer = async (slot: Slot, s: Stored, row: CharacterRow): Promise<Stored> => {
 	if (!s.offer) return s;
 	const skipped = s.offer.entry;
 	return change(slot, s => {
-		rotate(s, skipped);
+		rotate(s, skipped, row);
 		s.offer = undefined;
 	});
 };
@@ -500,7 +505,7 @@ const runNext = async (slot: Slot): Promise<void> => {
 		await halt(slot);
 		return;
 	}
-	const s = await dropOffer(slot, await read(slot));
+	const s = await dropOffer(slot, await read(slot), row);
 	if (await busy(slot, s)) {
 		// a client already started the retry itself
 		if (s.again) await change(slot, s => void (s.again = undefined));

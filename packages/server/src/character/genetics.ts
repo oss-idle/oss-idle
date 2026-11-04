@@ -13,6 +13,7 @@ import {
 	heldGenes,
 	learn,
 	learnRefusal,
+	overdriveForNextTier,
 	pick,
 	pickRefusal,
 	type PlayLevels,
@@ -118,16 +119,18 @@ export const performSell = (r: ServerRuleset, characterId: number, gene: string)
 		};
 	});
 
-/** Turn all of a skill's overdrive into climaxx: its XP boost goes with it. */
+/** Turn just the overdrive a skill's next tier needs into climaxx: that much XP boost goes with it. */
 export const performConvert = (r: ServerRuleset, characterId: number, skill: string) =>
 	changeGenetics(r, characterId, (g, profile) => {
-		defOf(r);
+		const def = defOf(r);
 		if (!r.def.skills.includes(skill)) throw new HTTPException(400, { message: 'No such skill' });
+		const need = overdriveForNextTier(def, g, skill, playLevels(r, profile)[skill] ?? 0);
+		if (need === undefined) throw new HTTPException(409, { message: 'Nothing to convert' });
 		const { overdrive } = skillOf(profile, skill);
-		if (overdrive <= 0) throw new HTTPException(409, { message: 'No overdrive' });
+		if (overdrive < need) throw new HTTPException(409, { message: 'Not enough overdrive' });
 		return {
-			genetics: convert(g, skill, overdrive),
-			extra: skillColumnsFor(skill, { overdrive: 0 }),
+			genetics: convert(g, skill, need),
+			extra: skillColumnsFor(skill, { overdrive: Math.max(0, overdrive - need) }),
 		};
 	});
 

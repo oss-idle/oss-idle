@@ -813,6 +813,20 @@
       "when": 1798156800000,
       "tag": "0124_bot_match",
       "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "5",
+      "when": 1798243200000,
+      "tag": "0125_checksum_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "5",
+      "when": 1798329600000,
+      "tag": "0126_queue_play_once",
+      "breakpoints": true
     }
   ]
 }

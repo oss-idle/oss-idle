@@ -54,7 +54,7 @@ const database = (live = false): Database => {
 			memoryForgetAt TEXT NOT NULL DEFAULT '[]', current INTEGER DEFAULT 0` : ''}
 	);`);
 	db.run(`CREATE TABLE score (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INTEGER PRIMARY KEY AUTOINCREMENT, onlineId INTEGER DEFAULT -1,
 		characterId INTEGER, beatmapId INTEGER, score INTEGER, accuracy REAL,
 		grade TEXT, pp REAL, playedAt INTEGER
 	);`);
@@ -210,5 +210,16 @@ describe('client database migrations', () => {
 			accuracy: 120.5, speedjam: 30, 
 		});
 		expect(gains(2)).toEqual({});
+	});
+
+	it('marks the copies of unranked boards\' plays by the id range they came from', () => {
+		const db = oldDatabase();
+		db.run(`INSERT INTO score (characterId, beatmapId, onlineId)
+			VALUES (5, 10, -1), (5, 11, 42), (5, 12, 1500000007);`);
+
+		migrate(db);
+
+		expect(db.exec('SELECT onlineId, unranked FROM score ORDER BY id')[0].values)
+			.toEqual([[-1, 0], [42, 0], [1500000007, 1]]);
 	});
 });

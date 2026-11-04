@@ -4,6 +4,8 @@ import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 type Variant = { id: RulesetId, label?: string, locked: boolean };
 
+const lockedClass = (v: Variant) => v.locked ? ' is-locked' : '';
+
 /** One mode of the mode menu: picked at once, or, with several variants, split into
  *  them while hovered. */
 export default function ModeRow({ icon, name, variants, current, onPick }: {
@@ -18,7 +20,7 @@ export default function ModeRow({ icon, name, variants, current, onPick }: {
 	const [only] = variants;
 	if (variants.length === 1) {
 		return (
-			<button type="button" className={className} disabled={only.locked} onClick={() => onPick(only.id)}>
+			<button type="button" className={className + lockedClass(only)} onClick={() => onPick(only.id)}>
 				{icon}
 				<span className="mode-select__name">{name}</span>
 			</button>
@@ -33,8 +35,7 @@ export default function ModeRow({ icon, name, variants, current, onPick }: {
 					<button
 						key={v.id}
 						type="button"
-						className={`mode-select__variant${v.id === current ? ' is-current' : ''}`}
-						disabled={v.locked}
+						className={`mode-select__variant${v.id === current ? ' is-current' : ''}${lockedClass(v)}`}
 						onClick={() => onPick(v.id)}
 					>
 						{v.label}

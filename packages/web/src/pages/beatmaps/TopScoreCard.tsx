@@ -3,7 +3,7 @@ import { Trans } from '@lingui/react/macro';
 
 import accuracy from '@oss-idle/shared/display/accuracy';
 import { dateAgo } from '@oss-idle/shared/display/ago';
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 
 import type { BoardRow } from '../../api/maps';
 import Flag from '../../components/Flag';
@@ -11,7 +11,7 @@ import Link from '../../components/Link';
 import ProfilePicture from '../../components/ProfilePicture';
 import Grade from '../../components/score/Grade';
 import ScoreLink from '../../components/score/ScoreLink';
-import { JUDGEMENT_COLUMNS } from './judgementColumns';
+import { judgementColumns } from './judgementColumns';
 
 /** osu!'s card for the map's #1, above the table. */
 export default function TopScoreCard({ row, loved }: { row: BoardRow; loved: boolean }) {
@@ -24,10 +24,10 @@ export default function TopScoreCard({ row, loved }: { row: BoardRow; loved: boo
 			label: <Trans>Accuracy</Trans>, value: accuracy(score.accuracy),
 		},
 		{
-			label: <Trans>Max combo</Trans>, value: `${num(score.maxCombo)}x`,
+			label: <Trans>Max combo</Trans>, value: `${bignum(score.maxCombo)}x`,
 		},
-		...JUDGEMENT_COLUMNS.map(j => ({
-			label: j.label, value: num(score.judgements[j.judgement]),
+		...judgementColumns([score.judgements.DIVINE]).map(j => ({
+			label: j.label, value: bignum(score.judgements[j.judgement]),
 		})),
 		...loved ? [] : [{
 			label: 'pp', value: num(score.pp),

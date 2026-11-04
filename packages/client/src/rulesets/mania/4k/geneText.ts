@@ -7,12 +7,12 @@ import {
 import type { GeneText } from '../../ruleset';
 
 
-const r = (v: number) => Math.round(v * 100) / 100;
+export const r = (v: number) => Math.round(v * 100) / 100;
 
-const xp = (name: () => string, skill: () => string): GeneText => ({
+export const xp = (name: () => string, skill: () => string): GeneText => ({
 	name, does: n => t`${ph({ value: r(5 * n) })}% ${ph({ skill: skill() })} XP bonus`,
 });
-const overdrive = (name: () => string): GeneText => ({
+export const overdrive = (name: () => string): GeneText => ({
 	name, does: n => t`${ph({ value: r(5 * n) })}% overdrive bonus`,
 });
 

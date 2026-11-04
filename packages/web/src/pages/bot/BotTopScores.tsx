@@ -4,7 +4,7 @@ import type {
 	BotMatchRanks,
 	BotMatchResult,
 } from '@oss-idle/shared/botMatch';
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 
 import BotScore from './BotScore';
 
@@ -16,7 +16,7 @@ export default function BotTopScores({ result, ranks }: {
 	return <div className='bot-side'>
 		{ranks && <div className='bot-side__would'>
 			<Trans>
-				Would be <b className='is-rank'>#{num(ranks.performance)}</b> on oss!idle,
+				Would be <b className='is-rank'>#{bignum(ranks.performance)}</b> on oss!idle,
 				with <b>{num(result.performance)}pp</b>
 			</Trans>
 		</div>}

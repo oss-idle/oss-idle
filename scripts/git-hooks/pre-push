@@ -1,8 +1,13 @@
 #!/bin/sh
-# Runs CI's lint and test steps before a version branch is pushed. Enabled by
-# `git config core.hooksPath scripts/git-hooks`.
+# Runs CI's lint and test steps before a version branch is pushed, and refuses pbe commits that
+# aren't merges of a version branch. Enabled by `git config core.hooksPath scripts/git-hooks`.
 # ponytail: checks the working tree, not the pushed commit; fine while version branches are pushed clean.
-grep -qE ' refs/heads/(build|patch|minor|major) ' || exit 0
+refs=$(cat)
+printf '%s\n' "$refs" | while read -r _ local remote base; do
+	[ "$remote" = refs/heads/pbe ] || continue
+	case $base in *[!0]*) scripts/pbe-check.sh "$base..$local" || exit 1 ;; esac
+done || exit 1
+printf '%s\n' "$refs" | grep -qE ' refs/heads/(build|patch|minor|major) ' || exit 0
 npm run lint --silent && npm test --silent && exit 0
 echo 'Push blocked: CI would fail. Fix lint (npm run lint:fix) / tests on the branch, commit, push again.' >&2
 exit 1

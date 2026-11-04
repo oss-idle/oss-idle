@@ -1,7 +1,7 @@
 /**
  * The frame profiler's view of everything outside rAF callbacks: Chromium's JS
  * self-profiling sampler, which needs the page served with
- * `Document-Policy: js-profiling` (the dev server and the staging app do).
+ * `Document-Policy: js-profiling` (the dev server and the staging and PBE apps do).
  */
 
 type Trace = {

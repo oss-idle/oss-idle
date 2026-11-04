@@ -85,7 +85,7 @@ export const uploadBeatmap = async (file: File, ruleset?: RulesetId) => {
 	const res = await fetch(apiUrl(`/v1/beatmap/nomination${rulesetSuffix(ruleset)}`), withAuth({
 		method: 'POST', body: form, 
 	}));
-	return json<{ setId: number; difficulties: number }>(res);
+	return json<{ setId: number; osuSetId?: number; difficulties: number }>(res);
 };
 
 export type NominationPatch = {

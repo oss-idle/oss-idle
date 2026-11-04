@@ -12,7 +12,7 @@ import {
 } from 'react';
 
 import { countryName } from '@oss-idle/shared/display/country';
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import {
 	editsCharacter,
 	GROUP_BADGE,
@@ -126,7 +126,12 @@ export default function CharacterPage({ id, character, stats }: {
 	return (
 		<main>
 			<RestrictedProfileNotice restricted={character.restricted} isSelf={isSelf} />
-			<RulesetSwitch id={id} shown={character.ruleset} picked={character.picked} />
+			<RulesetSwitch
+				id={id}
+				characterId={character.id}
+				shown={character.ruleset}
+				picked={character.picked}
+			/>
 			<ProfileBanner
 				key={id}
 				characterId={character.id}
@@ -195,7 +200,7 @@ export default function CharacterPage({ id, character, stats }: {
 						.map(j => (
 							<div key={j} className='character__stats-area'>
 								<div className={`character__stats-label character__stats-judge judge-${j}`}>{j}</div>
-								<div className='character__stats-num'>{num(countsOf(stats)[j])}</div>
+								<div className='character__stats-num'>{bignum(countsOf(stats)[j])}</div>
 							</div>
 						))}
 				</CharacterFigures>

@@ -5,7 +5,7 @@ import {
 
 import type { ChatLine } from '@oss-idle/shared/community/wire';
 import accuracyText from '@oss-idle/shared/display/accuracy';
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import type { Grade } from '@oss-idle/shared/grade';
 import Synced from '@oss-idle/shared/helpers/synced';
 import type { SkillGain } from '@oss-idle/shared/play';
@@ -44,7 +44,7 @@ const gainsSummary = (progression?: SkillGain[]): string => {
 	const gains = (progression ?? [])
 		.filter(g => g.gained > 0)
 		.sort((a, b) => b.gained - a.gained)
-		.map(g => `+${num(Math.round(g.gained))} ${selectedDef().skillName(g.skill)}`
+		.map(g => `+${bignum(g.gained)} ${selectedDef().skillName(g.skill)}`
 			+ (g.toLevel > g.fromLevel ? ` (lv${g.fromLevel} to lv${g.toLevel})` : ''));
 	return gains.length ? gains.join(', ') : t`No XP gained.`;
 };

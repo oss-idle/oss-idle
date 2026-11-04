@@ -2,7 +2,7 @@ import './PlayerLeaderboard.css';
 
 import { Trans } from '@lingui/react/macro';
 
-import num from '@oss-idle/shared/display/num';
+import BigNum from '@oss-idle/shared/display/BigNum';
 import rank from '@oss-idle/shared/display/rank';
 import { PAGE_SIZE } from '@oss-idle/shared/rankings';
 
@@ -44,9 +44,9 @@ export default function PlayerMedalLeaderboard({ page, players }: {
 							<Flag country={player.user.country} />
 							<Link to='/c/$id' params={{ id: String(player.character.id) }}>{player.character.name}</Link>
 						</div></td>
-						<td className='dimmed'>{num(player.totals.playCount)}</td>
+						<td className='dimmed'><BigNum value={player.totals.playCount} theme='ocean' /></td>
 						<td className='dimmed'>{player.medals.held} / {medalCount}</td>
-						<td className='current'>{num(player.medals.score, 2)}</td>
+						<td className='current'><BigNum value={player.medals.score} theme='ocean' decimals={2} /></td>
 					</tr>)}
 				</tbody>
 			</table>

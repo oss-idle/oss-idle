@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import BigNum from '@oss-idle/shared/display/BigNum';
 
 import { selectedDef } from '../rulesets/registry';
 import type { BeatmapXPInsight } from '../xpInsights';
@@ -55,7 +55,7 @@ export default function BeatmapXPBreakdown({ insight, anchor, onClose }: {
 			{rows.map(([skill, gained]) => (
 				<div key={skill} className="xp-breakdown__row">
 					<span>{selectedDef().skillName(skill)}</span>
-					<em>+{bignum(gained)}xp</em>
+					<em>+<BigNum value={gained} theme="heat" />xp</em>
 				</div>
 			))}
 		</div>,

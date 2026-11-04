@@ -63,8 +63,14 @@
    context for its options panel, which is absolutely placed at left/right:0 -
    i.e. the padding box - so padding here would let the panel overhang the
    trigger. Margin spaces the whole box and keeps them aligned. */
-.lb__select {
+.lb__filters {
+	display: flex;
+	gap: 10px;
 	margin: 10px;
+}
+.lb__select {
+	flex: 1;
+	min-width: 0;
 }
 
 .lb__row {

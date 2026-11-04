@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/react/macro';
+import type { ReactNode } from 'react';
 
 import {
 	CLIMAXX_SYMBOL,
@@ -11,7 +12,7 @@ import GeneRefusalText from './GeneRefusalText';
 type Props = {
 	tier: number,
 	maxed: boolean,
-	price: string,
+	price: ReactNode,
 	learnable?: GeneRefusal,
 	sellable?: GeneRefusal,
 	parent?: string,

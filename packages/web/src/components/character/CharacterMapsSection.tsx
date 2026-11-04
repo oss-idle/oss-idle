@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -25,7 +25,7 @@ export default function CharacterMapsSection({ title, ruleset, count, page, deps
 	return <div className='character__block-section'>
 		<div className='character__block-section-title'>
 			{title}
-			<div className='character__block-section-title-count'>{num(total)}</div>
+			<div className='character__block-section-title-count'>{bignum(total)}</div>
 		</div>
 		<div className='list__beatmap-container'>
 			{maps.items?.map(mapset => <MapsetCard key={mapset.id} mapset={mapset} ruleset={ruleset} />)}

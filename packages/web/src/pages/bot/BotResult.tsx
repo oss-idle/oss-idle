@@ -4,7 +4,7 @@ import type {
 	BotMatchRanks,
 	BotMatchResult,
 } from '@oss-idle/shared/botMatch';
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
 
 import { Asset } from '../../router';
@@ -26,7 +26,7 @@ export default function BotResult({ result, ranks, children }: {
 			/>
 			<div className='bot-head__name'>{result.username}</div>
 			{result.rank && <div className='bot-head__rank'>
-				#{num(result.rank)}{result.pp ? <>, {num(result.pp)}pp</> : undefined}
+				#{bignum(result.rank)}{result.pp ? <>, {num(result.pp)}pp</> : undefined}
 			</div>}
 			{children}
 		</div>

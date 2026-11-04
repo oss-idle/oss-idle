@@ -13,7 +13,8 @@ import {
 const PICKS_KEY = 'dev-tools';
 
 const TOOLS: [DevTool, string, string][] = [
-	['profiler', 'Profiler', 'Frame profiler: Ctrl+F11 overlay, Ctrl+Alt+F11 sends a report'],
+	['profiler', 'Profiler',
+		'Frame profiler: Ctrl+F11 overlay, Ctrl+Alt+F11 sends a report; else Ctrl+Shift+F11 loads it'],
 	['sampler', 'JS sampler', 'Stacks in profiler reports; its sampling makes frames stutter'],
 	['traceLaunch', 'Trace from launch', 'Chromium trace of the next 10s (Ctrl+Shift+F12 sends early)'],
 	['debug', 'Debug mode', 'Debug plays, strain debug, gameplay debug controls, XP multiplier'],

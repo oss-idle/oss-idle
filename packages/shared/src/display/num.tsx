@@ -31,18 +31,16 @@ export const levelText = (level: number, xp: number): string => {
 /** A skill or overall level. The drawing rules live in levelDisplay. */
 export const level = (level: number, xp: number): ReactNode => levelFromXp(level, xp);
 
-export const bignum = (n?: number | string | null): string => {
-	n = Math.floor(ensureNum(n ?? '0'));
+const SUFFIXES = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'k']] as const;
 
-	// a suffixed value always carries exactly two decimals (10.45k, 102.12k,
-	// 2.82M), truncated rather than rounded so it never reads higher than it is
-	const transform = (n: number) => (Math.floor(n * 100) / 100).toFixed(2);
-
-	if (n < 1000) return String(n);
-	if (n < 1000000) return `${transform(n / 1000)}k`;
-	if (n < 1000000000) return `${transform(n / 1000000)}M`;
-	if (n < 1000000000000) return `${transform(n / 1000000000)}B`;
-	return 'a lot';
+/** Short form: 742, 10.45k, 2.82M. `decimals` only applies under 1000. */
+export const bignum = (n?: number | string | null, decimals = 0): string => {
+	const v = ensureNum(n ?? '0');
+	// truncated rather than rounded so it never reads higher than it is
+	const cut = (x: number, d: number) =>
+		(Math.floor(x * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+	const suffix = SUFFIXES.find(([at]) => v >= at);
+	return suffix ? `${cut(v / suffix[0], 2)}${suffix[1]}` : cut(v, decimals);
 };
 
 export default num;

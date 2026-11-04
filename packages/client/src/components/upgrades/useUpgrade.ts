@@ -5,7 +5,7 @@ import {
 	useState,
 } from 'react';
 
-import num from '@oss-idle/shared/display/num';
+import { bignum } from '@oss-idle/shared/display/num';
 import { overdriveText } from '@oss-idle/shared/display/overdrive';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
@@ -60,7 +60,7 @@ export const useUpgrade = (skill: SkillState, locked: boolean, overdriveBonus = 
 		if (!preview || busy) return;
 		const name = selectedDef().skillName(skill.name);
 		const nextGear = selectedDef().upgradeLabel(skill.name, upgrades + 1);
-		const spent = num(Math.round(preview.spent));
+		const spent = bignum(Math.round(preview.spent));
 		const odText = overdriveText(overdrive);
 		const boost = upgradeXPMultiplier(preview.upgrades, preview.overdrive).toFixed(2);
 		const odSegment = preview.overdrive !== overdrive

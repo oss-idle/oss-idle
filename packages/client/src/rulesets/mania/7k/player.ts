@@ -13,10 +13,12 @@ import type {
 } from '../../ruleset';
 
 class PlayBot7k extends Bot7k implements PlayBot {
-	gains({ chart, game, length, rate, mods, divine, multiplier }: FinishedPlay): SkillGain[] {
+	gains({
+		chart, game, length, rate, mods, divine, multiplier, genetics,
+	}: FinishedPlay): SkillGain[] {
 		return this.applyProgression(length, xpScore(chart, game, {
 			divine, rate, mods,
-		}), multiplier, mods);
+		}), multiplier, mods, genetics);
 	}
 }
 

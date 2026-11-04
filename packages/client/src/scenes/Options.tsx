@@ -22,6 +22,7 @@ import BackgroundDim from '../components/options/BackgroundDim';
 import BestGradeAnyRate from '../components/options/BestGradeAnyRate';
 import BrowseAddons from '../components/options/BrowseAddons';
 import BrowseSkins from '../components/options/BrowseSkins';
+import CapUnfocused from '../components/options/CapUnfocused';
 import CursorSize from '../components/options/CursorSize';
 import DeleteAllBeatmaps from '../components/options/DeleteAllBeatmaps';
 import DownloadAllBundled from '../components/options/DownloadAllBundled';
@@ -45,6 +46,7 @@ import OsuMusicTheme from '../components/options/OsuMusicTheme';
 import ParallaxMode from '../components/options/ParallaxMode';
 import PitchFollowsRate from '../components/options/PitchFollowsRate';
 import PmFromAnyone from '../components/options/PmFromAnyone';
+import QueuePlayOnce from '../components/options/QueuePlayOnce';
 import RecreateDatabase from '../components/options/RecreateDatabase';
 import ReportBug from '../components/options/ReportBug';
 import RightClickHold from '../components/options/RightClickHold';
@@ -173,6 +175,10 @@ export default function Options() {
 							component: () => FrameLimiter,
 						},
 						{
+							search: t`fps|frame|rate|limit|focus|unfocused|background`,
+							component: () => CapUnfocused,
+						},
+						{
 							search: t`fps|frame|rate|refresh|hz`,
 							component: () => ShowFPS,
 						},
@@ -244,6 +250,10 @@ export default function Options() {
 						{
 							search: t`autopilot|mode|playlist|loop|next|song|disabled`,
 							component: () => AutopilotMode,
+						},
+						{
+							search: t`autopilot|queue|once|loop|stop|last`,
+							component: () => QueuePlayOnce,
 						},
 						{
 							search: t`autopilot|queue|offline|closed|keep|playing`,

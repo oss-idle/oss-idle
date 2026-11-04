@@ -34,6 +34,10 @@ export const getMyCharacter = () =>
 export const getMyCharacters = () =>
 	unwrap(rpc.v1.me.characters.$get());
 
+/** The ruleset the signed-in account's character plays, its profile's main mode. */
+export const setMyRuleset = (ruleset: RulesetId) =>
+	unwrap(rpc.v1.me.ruleset.$put({ json: { ruleset } }));
+
 /** Make one of the account's characters live. */
 export const selectMyCharacter = (characterId: number) =>
 	unwrap(rpc.v1.me.character.select.$post({ json: { characterId } }));

@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	geneOf,
 	type Genetics,
@@ -59,7 +60,7 @@ export default function GeneCard({
 				<GeneCardActions
 					tier={tier}
 					maxed={tier >= max}
-					price={nextTierPrice(def, genetics, info.skill).toLocaleString()}
+					price={<BigNum value={nextTierPrice(def, genetics, info.skill)} theme="royal" />}
 					learnable={learnRefusal(def, genetics, gene, actions.levels)}
 					sellable={sellRefusal(def, genetics, gene, actions.levels)}
 					parent={parent}

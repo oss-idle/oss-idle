@@ -1,5 +1,6 @@
 import './SkillBar.css';
 
+import { bignum } from '@oss-idle/shared/display/num';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import { xpForLevel } from '@oss-idle/shared/xp';
@@ -26,7 +27,7 @@ export function SkillBar({ ruleset, skill, progress: {
 			<div
 				className='skill__track'
 				title={
-					`${Math.round(xp).toLocaleString()} / ${Math.round(toNext).toLocaleString()} XP to next level`
+					`${bignum(xp)} / ${bignum(toNext)} XP to next level`
 				}
 			>
 				<div className='skill__fill' style={{ width: `${percent*100}%` }} />

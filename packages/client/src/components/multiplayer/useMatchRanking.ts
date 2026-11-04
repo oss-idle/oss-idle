@@ -39,7 +39,7 @@ export default function useMatchRanking(score: Played): Ranking | undefined {
 	const view = (characterId: number) => {
 		const theirs = final ? round.results.find(r => r.characterId === characterId) : undefined;
 		if (theirs?.result) SceneManager.set(SCENE.RESULT, {
-			id: 0, ...theirs.result,
+			id: 0, unranked: false, ...theirs.result,
 		}, undefined, undefined, theirs.failed);
 	};
 	return {

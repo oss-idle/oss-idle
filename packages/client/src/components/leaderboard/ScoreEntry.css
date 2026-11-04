@@ -123,3 +123,14 @@
 	align-items: center;
 	gap: 3px;
 }
+.score_entry__pp {
+	flex-shrink: 0;
+	min-width: 4.5rem;
+	text-align: right;
+	font-size: 1.35rem;
+	font-weight: 700;
+	color: var(--osu-pink-light);
+}
+.score_entry__pp small {
+	font-size: 0.8rem;
+}

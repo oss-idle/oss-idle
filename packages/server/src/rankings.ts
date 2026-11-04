@@ -14,7 +14,11 @@ import {
 	GoodGrades,
 } from '@oss-idle/shared/grade';
 import { MAKISEBOT_ID } from '@oss-idle/shared/groups';
-import { PAGE_SIZE } from '@oss-idle/shared/rankings';
+import {
+	BOARD_SORTS,
+	type BoardSort,
+	PAGE_SIZE,
+} from '@oss-idle/shared/rankings';
 import { rankValue } from '@oss-idle/shared/scoreOrder';
 import { playLevelOf } from '@oss-idle/shared/xp';
 
@@ -72,7 +76,7 @@ const NEXT_ROOT = `${redisKeyPrefix}rankingnext:`;
 // in parallel).
 const META = `${redisKeyPrefix}rankmeta:`;
 // Bump when the set layout changes so the next deploy rebuilds from MySQL.
-const SCHEMA = 14;  // skill boards on the shown level, overall on lifetime xp
+const SCHEMA = 15;  // beatmap boards by pp
 const builtKey = (r: ServerRuleset) => `${META}built:v${SCHEMA}:${r.def.id}`;
 const lockKey = (r: ServerRuleset) => `${META}lock:v${SCHEMA}:${r.def.id}`;
 // The characters and beatmaps whose boards changed lately: a rebuild re-indexes
@@ -93,17 +97,23 @@ const keysOf = (r: ServerRuleset, root = ROOT) => {
 		// then accuracy. Score alone is not enough now that divine exists: it is capped
 		// at 1M and raises accuracy instead, so every top play would tie on score and
 		// the earlier one would keep the place forever.
-		beatmapKey: (beatmapId: number, country?: string) => `${PREFIX}bm:${beatmapId}${suffix(country)}`,
+		// The pp boards (`:pp`) hold each character's best_pp row the same way, by pp.
+		beatmapKey: (beatmapId: number, country?: string, sort: BoardSort = 'score') =>
+			`${PREFIX}bm:${beatmapId}${sort === 'pp' ? ':pp' : ''}${suffix(country)}`,
 		// Reverse index: the score id currently in the set for each character on a
 		// beatmap. Lets a re-index ZREM the now-stale member, and a rank query rebuild
 		// the member without a DB hit. Wiped/rebuilt with the sets (shares PREFIX).
-		beatmapIds: (beatmapId: number) => `${PREFIX}bm:${beatmapId}:ids`,
+		beatmapIds: (beatmapId: number, sort: BoardSort = 'score') =>
+			`${PREFIX}bm:${beatmapId}:${sort === 'pp' ? 'ppids' : 'ids'}`,
 	};
 };
 
 // The sort value comes from shared/scoreOrder, the same rule that decides which
 // of two plays is a character's best - they have to agree, so they are one thing.
 const beatmapScore = rankValue;
+const boardValue = (sort: BoardSort, row: { score: number, accuracy: string, pp: string }) =>
+	sort === 'pp' ? Number(row.pp) : beatmapScore(row.score, row.accuracy);
+const boardTable = (r: ServerRuleset, sort: BoardSort) => sort === 'pp' ? r.bestPP : r.best;
 
 // Equal scores tiebreak on the winning score's id - the earlier (lower id) play
 // ranks higher, matching compareScores. The id can't ride in the float64 set
@@ -514,82 +524,86 @@ export const beatmapPageIds = async (
 	beatmapId: number,
 	page: number,
 	country?: string,
+	sort: BoardSort = 'score',
 ): Promise<number[]> => {
 	const start = (page - 1) * PAGE_SIZE;
 	const members = await redis.zrevrange(
-		keysOf(r).beatmapKey(beatmapId, country), start, start + PAGE_SIZE - 1,
+		keysOf(r).beatmapKey(beatmapId, country, sort), start, start + PAGE_SIZE - 1,
 	);
 	return members.map(memberCharacterId);
 };
 
+/** `scoreId`: the character's best on that board, when the caller already has it
+ *  (saves looking it up). */
 export async function beatmapRank(
 	r: ServerRuleset,
 	beatmapId: number,
 	characterId: number,
 	country?: string,
+	sort: BoardSort = 'score',
+	scoreId?: number,
 ): Promise<number | undefined> {
 	const { beatmapKey, beatmapIds } = keysOf(r);
-	const id = await redis.hget(beatmapIds(beatmapId), String(characterId));
+	const id = scoreId ?? await redis.hget(beatmapIds(beatmapId, sort), String(characterId));
 	if (id === null) return undefined;
 	const rank = await redis.zrevrank(
-		beatmapKey(beatmapId, country),
+		beatmapKey(beatmapId, country, sort),
 		beatmapMember(characterId, BigInt(id)),
 	);
 	return rank === null ? undefined : rank + 1;
 }
 
-/** Re-index a character's best on one beatmap after a play improves it. */
-/** Off a map's boards: a character with no best on it any more. */
-const unindexFromBeatmap = async (
-	r: ServerRuleset, characterId: number, beatmapId: number, scoreId: bigint,
-) => {
-	const { beatmapKey, beatmapIds } = keysOf(r);
-	const [user] = await db.select({ country: users.country })
-		.from(characters)
-		.innerJoin(users, eq(users.id, characters.userId))
-		.where(eq(characters.id, characterId))
-		.limit(1);
-	const stale = beatmapMember(characterId, scoreId);
-	const pipeline = redis.pipeline()
-		.zrem(beatmapKey(beatmapId), stale)
-		.hdel(beatmapIds(beatmapId), String(characterId));
-	if (user) pipeline.zrem(beatmapKey(beatmapId, user.country), stale);
-	await pipeline.exec();
-};
-
+/** Re-index a character's bests on one beatmap (by score and by pp) after a play. */
 export async function reindexBeatmap(
 	r: ServerRuleset,
 	characterId: number,
 	beatmapId: number,
 ): Promise<void> {
-	const { best } = r;
-	const { beatmapKey, beatmapIds } = keysOf(r);
 	await markDirty(r, `m:${characterId}:${beatmapId}`);
-	const [row] = await db
-		.select({
-			id: best.id, score: best.score, accuracy: best.accuracy, country: users.country, 
-		})
-		.from(best)
-		.innerJoin(characters, eq(characters.id, best.characterId))
+	const { beatmapIds } = keysOf(r);
+	const [user] = await db.select({
+		country: users.country, restrictedAt: users.restrictedAt,
+	})
+		.from(characters)
 		.innerJoin(users, eq(users.id, characters.userId))
-		.where(and(eq(best.beatmapId, beatmapId), eq(best.characterId, characterId), visible))
+		.where(eq(characters.id, characterId))
 		.limit(1);
-	const prev = await redis.hget(beatmapIds(beatmapId), String(characterId));
-	if (!row) {
-		if (prev !== null) await unindexFromBeatmap(r, characterId, beatmapId, BigInt(prev));
-		return;
-	}
-	const member = beatmapMember(characterId, row.id);
+	const listed = user && !user.restrictedAt && characterId !== MAKISEBOT_ID;
+	const [rows, prevs] = await Promise.all([
+		listed ? Promise.all(BOARD_SORTS.map(async sort => {
+			const t = boardTable(r, sort);
+			const [row] = await db
+				.select({
+					id: t.id, score: t.score, accuracy: t.accuracy, pp: t.pp,
+				})
+				.from(t)
+				.where(and(eq(t.beatmapId, beatmapId), eq(t.characterId, characterId)))
+				.limit(1);
+			return row;
+		})) : [],
+		redis.pipeline()
+			.hget(beatmapIds(beatmapId, 'score'), String(characterId))
+			.hget(beatmapIds(beatmapId, 'pp'), String(characterId))
+			.exec(),
+	]);
+	const { beatmapKey } = keysOf(r);
 	const pipeline = redis.pipeline();
-	if (prev !== null && prev !== String(row.id)) {
-		const stale = beatmapMember(characterId, BigInt(prev));
-		pipeline.zrem(beatmapKey(beatmapId), stale);
-		pipeline.zrem(beatmapKey(beatmapId, row.country), stale);
-	}
-	const value = beatmapScore(row.score, row.accuracy);
-	pipeline.zadd(beatmapKey(beatmapId), value, member);
-	pipeline.zadd(beatmapKey(beatmapId, row.country), value, member);
-	pipeline.hset(beatmapIds(beatmapId), String(characterId), String(row.id));
+	BOARD_SORTS.forEach((sort, i) => {
+		const row = rows[i];
+		const prev = prevs?.[i]?.[1] as string | null | undefined;
+		if (prev != null && prev !== String(row?.id)) {
+			const stale = beatmapMember(characterId, BigInt(prev));
+			pipeline.zrem(beatmapKey(beatmapId, undefined, sort), stale);
+			if (user) pipeline.zrem(beatmapKey(beatmapId, user.country, sort), stale);
+			if (!row) pipeline.hdel(beatmapIds(beatmapId, sort), String(characterId));
+		}
+		if (!row || !user) return;
+		const member = beatmapMember(characterId, row.id);
+		const value = boardValue(sort, row);
+		pipeline.zadd(beatmapKey(beatmapId, undefined, sort), value, member);
+		pipeline.zadd(beatmapKey(beatmapId, user.country, sort), value, member);
+		pipeline.hset(beatmapIds(beatmapId, sort), String(characterId), String(row.id));
+	});
 	await pipeline.exec();
 }
 
@@ -599,24 +613,26 @@ export const unindexCharacter = async (id: number): Promise<void> => {
 };
 
 const unindexCharacterIn = async (r: ServerRuleset, id: number): Promise<void> => {
-	const { best } = r;
 	const { beatmapKey, beatmapIds } = keysOf(r);
 	await markDirty(r, `u:${id}`);
 	const character = await getCharacterFields(r, id);
 	if (!character) return;
 	const pipeline = redis.pipeline();
 	index(r, { zadd: (key, _score, member) => pipeline.zrem(key, member) }, character, [], keysOf(r));
-	const bests = await db
-		.select({
-			id: best.id, beatmapId: best.beatmapId,
-		})
-		.from(best)
-		.where(eq(best.characterId, id));
-	for (const b of bests) {
-		const member = beatmapMember(id, b.id);
-		pipeline.zrem(beatmapKey(b.beatmapId), member);
-		pipeline.zrem(beatmapKey(b.beatmapId, character.user.country), member);
-		pipeline.hdel(beatmapIds(b.beatmapId), String(id));
+	for (const sort of BOARD_SORTS) {
+		const t = boardTable(r, sort);
+		const bests = await db
+			.select({
+				id: t.id, beatmapId: t.beatmapId,
+			})
+			.from(t)
+			.where(eq(t.characterId, id));
+		for (const b of bests) {
+			const member = beatmapMember(id, b.id);
+			pipeline.zrem(beatmapKey(b.beatmapId, undefined, sort), member);
+			pipeline.zrem(beatmapKey(b.beatmapId, character.user.country, sort), member);
+			pipeline.hdel(beatmapIds(b.beatmapId, sort), String(id));
+		}
 	}
 	await pipeline.exec();
 };
@@ -647,7 +663,7 @@ export async function unindexBeatmap(r: ServerRuleset, beatmapId: number): Promi
  *  whole time. What moved while it read MySQL is re-indexed after the swap. */
 export async function rebuildAll(r: ServerRuleset): Promise<void> {
 	const {
-		profile, totals, medals, best,
+		profile, totals, medals,
 	} = r;
 	const next = keysOf(r, NEXT_ROOT);
 	const { PREFIX, beatmapKey, beatmapIds } = next;
@@ -681,30 +697,33 @@ export async function rebuildAll(r: ServerRuleset): Promise<void> {
 	}
 	await pipeline.exec();
 
-	const bests = await db
-		.select({
-			id: best.id, beatmapId: best.beatmapId, characterId: best.characterId, score: best.score,
-			accuracy: best.accuracy, country: users.country, 
-		})
-		.from(best)
-		.innerJoin(characters, eq(characters.id, best.characterId))
-		.innerJoin(users, eq(users.id, characters.userId))
-		.where(visible);
+	for (const sort of BOARD_SORTS) {
+		const t = boardTable(r, sort);
+		const bests = await db
+			.select({
+				id: t.id, beatmapId: t.beatmapId, characterId: t.characterId, score: t.score,
+				accuracy: t.accuracy, pp: t.pp, country: users.country,
+			})
+			.from(t)
+			.innerJoin(characters, eq(characters.id, t.characterId))
+			.innerJoin(users, eq(users.id, characters.userId))
+			.where(visible);
 
-	pipeline = redis.pipeline();
-	for (let i = 0; i < bests.length; i++) {
-		const b = bests[i];
-		const member = beatmapMember(b.characterId, b.id);
-		const value = beatmapScore(b.score, b.accuracy);
-		pipeline.zadd(beatmapKey(b.beatmapId), value, member);
-		pipeline.zadd(beatmapKey(b.beatmapId, b.country), value, member);
-		pipeline.hset(beatmapIds(b.beatmapId), String(b.characterId), String(b.id));
-		if (i % 200 === 199) {
-			await pipeline.exec();
-			pipeline = redis.pipeline();
+		pipeline = redis.pipeline();
+		for (let i = 0; i < bests.length; i++) {
+			const b = bests[i];
+			const member = beatmapMember(b.characterId, b.id);
+			const value = boardValue(sort, b);
+			pipeline.zadd(beatmapKey(b.beatmapId, undefined, sort), value, member);
+			pipeline.zadd(beatmapKey(b.beatmapId, b.country, sort), value, member);
+			pipeline.hset(beatmapIds(b.beatmapId, sort), String(b.characterId), String(b.id));
+			if (i % 200 === 199) {
+				await pipeline.exec();
+				pipeline = redis.pipeline();
+			}
 		}
+		await pipeline.exec();
 	}
-	await pipeline.exec();
 
 	await swapIn(r);
 	await reindexDirty(r);

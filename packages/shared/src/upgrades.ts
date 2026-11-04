@@ -146,19 +146,31 @@ export const canPrestige = (
  *  `spent` is everything the reset levels were worth. The caller takes it off
  *  the running totals, so the overall level falls with the skill - a character
  *  who has prestiged everything is not still carrying the level it all bought.
- *  Lifetime is the exception and never moves: it is what the tooltip hints at. */
-export const applyPrestige = (state: UpgradeState): UpgradeState & { spent: number } => {
-	if (!canPrestige(state)) throw new Error('prestige not available');
+ *  Lifetime is the exception and never moves: it is what the tooltip hints at.
+ *
+ *  `force` resets a skill that is not ready yet: the same reset, without the
+ *  prestige it would count. */
+export const applyPrestige = (
+	state: UpgradeState,
+	force = false,
+): UpgradeState & { spent: number } => {
+	const ready = canPrestige(state);
+	if (!ready && !force) throw new Error('prestige not available');
 
 	return {
 		level: 0,
 		xp: 0,
 		upgrades: 0,
 		overdrive: 0,
-		prestige: state.prestige + 1,
+		prestige: state.prestige + (ready ? 1 : 0),
 		spent: xpToLevel(state.level) + state.xp,
 	};
 };
+
+/** The overdrive a prestige turns into climaxx: what the skill holds, plus what
+ *  the next upgrade would add if it can be bought now. */
+export const prestigeOverdrive = (state: UpgradeState, overdriveBonus = 0): number =>
+	canUpgrade(state) ? applyUpgrade(state, overdriveBonus).overdrive : state.overdrive;
 
 export const rebirthMinLevel = (generation: number): number =>
 	REBIRTH_MIN_OVERALL_LEVEL + (generation - 1) * REBIRTH_LEVEL_STEP;
@@ -195,5 +207,8 @@ export type UpgradeBody = z.infer<typeof upgradeBody>;
 
 export const rollbackBody = upgradeBody.extend({ anchor: z.int().min(0).optional() });
 
-export const prestigeBody = z.object({ skill: z.string() });
+export const prestigeBody = z.object({
+	skill: z.string(),
+	force: z.boolean().optional(),
+});
 export type PrestigeBody = z.infer<typeof prestigeBody>;

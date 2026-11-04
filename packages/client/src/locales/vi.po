@@ -107,6 +107,10 @@ msgstr ""
 msgid "{levels, plural, one {inverse sections are played with # more release level} other {inverse sections are played with # more release levels}}"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "{levels, plural, one {your ring fingers and thumb play with # more accuracy level} other {your ring fingers and thumb play with # more accuracy levels}}"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{maps, plural, one {your most played map never fades} other {your # most played maps never fade}}"
 msgstr ""
@@ -148,6 +152,10 @@ msgid "{n, plural, one {# player} other {# players}}"
 msgstr ""
 
 #: src/components/character/PrestigeClimaxxPop.tsx
+msgid "{name} · Genetics"
+msgstr ""
+
+#: src/components/character/PrestigeClimaxxPop.tsx
 msgid "{name} · Prestige"
 msgstr ""
 
@@ -173,6 +181,10 @@ msgstr ""
 
 #: src/logs.ts
 msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
 msgstr ""
 
 #: src/components/upgrades/useUpgrade.ts
@@ -307,6 +319,10 @@ msgstr ""
 msgid "{value}% less chance to hold a short LN too long"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "{value}% less chance to let an LN go too early"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% of the time, a chord pressed while holding an LN is no harder than one note"
 msgstr ""
@@ -413,8 +429,20 @@ msgstr ""
 msgid "A game is already in progress. Play locally instead? It won't be submitted."
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "a hand can jack chords {value}% faster before it strains"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "a hand pressing fast throws your timing off {value}% less"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "a key hit twice in a row gets {value}% more slack"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "a key pressed right after its LN ends, while the hand holds another, is {value}% easier"
 msgstr ""
 
 #: src/components/genetics/GeneticsFooter.tsx
@@ -691,6 +719,7 @@ msgid "Already reborn with this character"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Ambidextrous"
 msgstr ""
 
@@ -774,6 +803,10 @@ msgstr ""
 
 #: src/scenes/Options.tsx
 msgid "autopilot|queue|offline|closed|keep|playing"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "autopilot|queue|once|loop|stop|last"
 msgstr ""
 
 #: src/osu/beatmap/grouping.ts
@@ -898,6 +931,10 @@ msgstr ""
 msgid "Best XP boost"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "big chords are {value}% lighter on your hands"
+msgstr ""
+
 #: src/editor/EditorClock.tsx
 msgid "Bookmark at {time}"
 msgstr ""
@@ -986,6 +1023,10 @@ msgstr ""
 
 #: src/components/Tutorial.tsx
 msgid "Bundled maps are listed in <0>song select</0>:<1> double-tap</1> a map to download it, then <2>single-tap</2> to start playing."
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Busy hands"
 msgstr ""
 
 #: src/components/upgrades/UpgradeAction.tsx
@@ -1196,6 +1237,10 @@ msgstr ""
 msgid "Chord cohesion"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Chord endurance"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Chord grip"
 msgstr ""
@@ -1204,8 +1249,16 @@ msgstr ""
 msgid "chord jacks strain you {value}% less"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Chord press"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Chordjack"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "chords tire you {value}% less"
 msgstr ""
 
 #: src/editor/EditorSoundFiles.tsx
@@ -1218,6 +1271,10 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Clap on the selection"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Clean lift"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -1359,6 +1416,10 @@ msgstr ""
 
 #: src/scenes/Options.tsx
 msgid "CONTROLS"
+msgstr ""
+
+#: src/components/genetics/useGeneActions.ts
+msgid "Convert"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -1504,6 +1565,7 @@ msgid "database|local|reset|recreate|repair|fresh"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Deep focus"
 msgstr ""
 
@@ -1856,6 +1918,7 @@ msgid "Fast"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Fast fingers for quick, busy songs."
 msgstr ""
 
@@ -1935,6 +1998,10 @@ msgstr ""
 msgid "Finished downloading {title}"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Firm grip"
+msgstr ""
+
 #: src/editor/EditorView.tsx
 msgid "Fix the errors the map checks found first"
 msgstr ""
@@ -1947,8 +2014,21 @@ msgstr ""
 msgid "Flow state"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "focus"
+msgstr ""
+
 #: src/rulesets/mania/4k/quiz.ts
 msgid "follows the recipe to the gram"
+msgstr ""
+
+#: src/components/character/PrestigeAction.tsx
+#: src/components/character/PrestigeRow.tsx
+msgid "Force prestige"
+msgstr ""
+
+#: src/components/character/PrestigeRow.tsx
+msgid "Force prestige {name}?"
 msgstr ""
 
 #: src/components/WebBrowser.tsx
@@ -1957,6 +2037,10 @@ msgstr ""
 
 #: src/editor/EditorBpmTools.tsx
 msgid "Found {bpm} BPM, {confidence}% sure"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "fps|frame|rate|limit|focus|unfocused|background"
 msgstr ""
 
 #: src/scenes/Options.tsx
@@ -1991,6 +2075,10 @@ msgstr ""
 msgid "Friend"
 msgstr ""
 
+#: src/components/leaderboard/LeaderboardFilters.tsx
+msgid "Friend rankings are an oss!supporter feature"
+msgstr ""
+
 #: src/components/community/CommunityHeader.tsx
 msgid "Friends"
 msgstr ""
@@ -2016,6 +2104,7 @@ msgid "From your genes"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Full hands"
 msgstr ""
 
@@ -2081,6 +2170,7 @@ msgid "Genetics"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Gets better every time it replays a song."
 msgstr ""
 
@@ -2108,6 +2198,10 @@ msgstr ""
 
 #: src/components/Tutorial.tsx
 msgid "Got it!"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Grace notes"
 msgstr ""
 
 #: src/scenes/Options.tsx
@@ -2144,15 +2238,25 @@ msgid "Hall of fame"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Hammer"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Hammers the same key again and again, fast."
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Hand split"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Hands apart"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "hands on rhythms that don't fit together (3 against 2) are {value}% easier"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -2177,6 +2281,10 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Hear the hitsounds"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "held fingers lift {value}% less often as you press"
 msgstr ""
 
 #: src/components/options/DownloadAllWarning.tsx
@@ -2224,6 +2332,7 @@ msgid "Hit deviance · {ur} UR"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Hits every note right on time."
 msgstr ""
 
@@ -2245,16 +2354,32 @@ msgstr ""
 msgid "Hold every note until the next (full LN)"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Hold on"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "holding LNs makes you choke {value}% less"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "holding two or more LNs in the pressing hand is {value}% easier"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "holding two or more LNs while you press is {value}% easier"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "holding with the middle or ring finger is {value}% easier"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Holdout"
+msgstr ""
+
+#: src/rulesets/mania/7k/quiz.ts
+msgid "Holds long notes down while the other fingers keep playing."
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
@@ -2343,11 +2468,16 @@ msgid "In the ranking queue"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "In the zone"
 msgstr ""
 
 #: src/scenes/Lobby.tsx
 msgid "Incorrect password."
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "independence"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -2386,6 +2516,7 @@ msgid "Interface"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Inverse"
 msgstr ""
 
@@ -2437,6 +2568,10 @@ msgstr ""
 msgid "jack speed"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "jacks"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "jacks up to {value}% faster feel comfortable"
 msgstr ""
@@ -2478,6 +2613,7 @@ msgid "Keeps both hands busy without getting tangled."
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Keeps going through long, intense songs."
 msgstr ""
 
@@ -2486,6 +2622,7 @@ msgid "keeps three pans going at once"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Keeps up when the notes speed up and slow down."
 msgstr ""
 
@@ -2587,8 +2724,21 @@ msgstr ""
 msgid "Length: {totalLength} BPM: {bpmText} Objects: {objects}"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Let go together"
+msgstr ""
+
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Lets go of long notes at just the right moment."
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "letting go of several LNs at once is {value}% easier"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "letting go while the same hand presses another key is {value}% easier"
 msgstr ""
 
 #: src/components/Tutorial.tsx
@@ -2597,6 +2747,10 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Light touch"
+msgstr ""
+
+#: src/components/options/CapUnfocused.tsx
+msgid "Limit to {fps} FPS when the game isn't focused"
 msgstr ""
 
 #: src/editor/EditorTiming.tsx
@@ -2636,11 +2790,17 @@ msgstr ""
 
 #: src/editor/EditorShortcuts.tsx
 #: src/osu/beatmap/grouping.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "LN"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "LN flow"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "LN maps give {value}% more LN XP"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -2653,11 +2813,17 @@ msgid "LN opacity"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "LN sections can be {value}% denser before your releases suffer"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "LN specialist"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "LNs held by the other hand bother you {value}% less"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -2705,6 +2871,10 @@ msgstr ""
 
 #: src/gameplay/playQueue.ts
 msgid "Loop"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Loose fingers"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -3104,6 +3274,10 @@ msgstr ""
 msgid "Next tool"
 msgstr ""
 
+#: src/components/genetics/ConvertText.tsx
+msgid "Next upgrade needs {OVERDRIVE_SYMBOL}{amount} overdrive"
+msgstr ""
+
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "No {ruleset} difficulty of it is online yet: upload one first"
 msgstr ""
@@ -3462,6 +3636,10 @@ msgstr ""
 msgid "Out of reach"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Outer fingers"
+msgstr ""
+
 #: src/osu/beatmap/grouping.ts
 msgid "Over 5 months ago"
 msgstr ""
@@ -3528,6 +3706,10 @@ msgstr ""
 msgid "Past the sweet spot. Play easier maps to come back to it."
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "past your limit, {value}% fewer releases slip away"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "past your limit, misses build up {value}% more gradually"
 msgstr ""
@@ -3542,6 +3724,10 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Paste, snapped to 1/16 and 1/12"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Patience"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -3699,6 +3885,10 @@ msgstr ""
 msgid "Play online"
 msgstr ""
 
+#: src/components/options/QueuePlayOnce.tsx
+msgid "Play the queue once, stop after the last song"
+msgstr ""
+
 #: src/scenes/bootPlay.ts
 msgid "Play unranked"
 msgstr ""
@@ -3761,6 +3951,7 @@ msgid "Press a key"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "pressing while holding LNs is {value}% easier"
 msgstr ""
 
@@ -3834,12 +4025,20 @@ msgstr ""
 msgid "Published add-on code must be licensed under the AGPLv3 (or a compatible licence), regardless of its source code's license."
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Pump"
+msgstr ""
+
 #: src/scenes/Gameplay.tsx
 msgid "Pushing"
 msgstr ""
 
 #: src/components/genetic-choice/GeneticQuiz.tsx
 msgid "Question {number} of {total}"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "quick double notes on one key are {value}% easier to read"
 msgstr ""
 
 #: src/scenes/Lobby.tsx
@@ -4151,6 +4350,14 @@ msgstr ""
 
 #: src/scenes/Options.tsx
 msgid "right|click|hold|time"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Rolling hands"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
@@ -4681,6 +4888,10 @@ msgstr ""
 msgid "speed up"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Split focus"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "stamina"
 msgstr ""
@@ -4727,6 +4938,10 @@ msgstr ""
 msgid "Stay warm"
 msgstr ""
 
+#: src/rulesets/mania/7k/quiz.ts
+msgid "Stays calm and focused all the way through long songs."
+msgstr ""
+
 #: src/rulesets/mania/4k/quiz.ts
 msgid "Stays calm and rarely slips up."
 msgstr ""
@@ -4771,6 +4986,10 @@ msgstr ""
 msgid "Strengths add up: 100% for a genetic, 50% from each genetic beside it."
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Strong middle"
+msgstr ""
+
 #: src/components/skins/MySkinRow.tsx
 msgid "Submit"
 msgstr ""
@@ -4801,6 +5020,7 @@ msgstr ""
 
 #: src/editor/EditorSummary.tsx
 #: src/osu/beatmap/grouping.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "SV"
 msgstr ""
 
@@ -4843,6 +5063,7 @@ msgid "Tags"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Tail chaser"
 msgstr ""
 
@@ -4973,6 +5194,10 @@ msgstr ""
 
 #: src/scenes/Direct.tsx
 msgid "The most played unranked beatmaps"
+msgstr ""
+
+#: src/components/songselect/ModeSelect.tsx
+msgid "The previous generation needs to rebirth in {mode} to unlock this generation of {mode} player."
 msgstr ""
 
 #: src/components/community/chat/ReportMessageDialog.tsx
@@ -5133,6 +5358,10 @@ msgstr ""
 msgid "Trade skill levels for XP boosts"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Trained fingers"
+msgstr ""
+
 #: src/components/songselect/BeatmapInfo.tsx
 msgid "Tries: {tries}"
 msgstr ""
@@ -5145,12 +5374,12 @@ msgstr ""
 msgid "trills are {value}% easier"
 msgstr ""
 
-#: src/components/genetics/ClimaxxBalance.tsx
-msgid "Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}"
+#: src/components/genetics/useGeneActions.ts
+msgid "Turn {od} overdrive into {gain} climaxx?"
 msgstr ""
 
-#: src/components/genetics/SkillCardBalance.tsx
-msgid "Turn {OVERDRIVE_SYMBOL}{od} overdrive into {CLIMAXX_SYMBOL}{gain}"
+#: src/components/genetics/ConvertText.tsx
+msgid "Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}"
 msgstr ""
 
 #: src/editor/builtinActions.ts
@@ -5159,6 +5388,10 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Two minds"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "Two rhythms"
 msgstr ""
 
 #: src/components/addons/AddonEditMeta.tsx
@@ -5262,6 +5495,7 @@ msgid "Unshakeable"
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
+#: src/rulesets/mania/7k/quiz.ts
 msgid "Untangles tricky, unusual patterns."
 msgstr ""
 
@@ -5454,6 +5688,7 @@ msgid "Watch"
 msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
+#: src/rulesets/mania/7k/geneText.ts
 msgid "Wave rider"
 msgstr ""
 
@@ -5592,6 +5827,10 @@ msgstr ""
 
 #: src/components/character/PrestigeRow.tsx
 msgid "XP Lv{level} → XP Lv0 · Loses every upgrade and all Overdrive · Keeps +{bonus, plural, one {# bonus level} other {# bonus levels}}, {slots, plural, one {# gear slot} other {# gear slots}} and x{multiplier} XP"
+msgstr ""
+
+#: src/components/character/PrestigeRow.tsx
+msgid "XP Lv{level} → XP Lv0 · Loses every upgrade and all Overdrive · No prestige and no Climaxx"
 msgstr ""
 
 #: src/components/character/PrestigeRow.tsx
@@ -5863,12 +6102,20 @@ msgstr ""
 msgid "your hands' limit is {value}% higher, about {bpm} BPM at 200 BPM"
 msgstr ""
 
+#: src/rulesets/mania/7k/geneText.ts
+msgid "your middle fingers jack as fast as your index"
+msgstr ""
+
 #: src/components/community/chat/ChannelPicker.tsx
 msgid "Your own plays and level-ups, seen only by you."
 msgstr ""
 
 #: src/components/skins/ManageSkinsView.tsx
 msgid "Your published skins"
+msgstr ""
+
+#: src/rulesets/mania/7k/geneText.ts
+msgid "your ring fingers and thumb jack {value}% closer to your index"
 msgstr ""
 
 #: src/components/OldHostPrompt.tsx

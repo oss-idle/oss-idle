@@ -13,9 +13,10 @@ import {
 	AUTOPILOT_MODE,
 	AutopilotMode,
 } from '@oss-idle/shared/queue';
+import type { BoardSort } from '@oss-idle/shared/rankings';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
-export const SCORE_TAB = mapped(['LOCAL', 'GLOBAL', 'COUNTRY']);
+export const SCORE_TAB = mapped(['LOCAL', 'GLOBAL', 'COUNTRY', 'FRIENDS', 'MINE']);
 export type ScoreTab = ValueIn<typeof SCORE_TAB>;
 
 export const GroupOptions = [
@@ -85,6 +86,10 @@ const defaults = [
 	 */
 	option<ScoreTab>()('leaderboard', SCORE_TAB.GLOBAL),
 	/**
+	 * What the song select leaderboard is ordered by
+	 */
+	option<BoardSort>()('leaderboardSort', 'score'),
+	/**
 	 * Song selection group category
 	 */
 	option<GroupOption>()('groupby', GROUP_OPTION['No Grouping']),
@@ -143,6 +148,8 @@ const defaults = [
 	 */
 	option<boolean>()('showFps', false),
 	option<FrameLimit>()('frameLimiter', 'vsync'),
+	/** cap the frame rate (UNFOCUSED_FPS) while the game window isn't focused */
+	option<boolean>()('capUnfocused', true),
 	option<boolean>()('fullscreen', false),
 	option<number>()('uiScale', 1),
 	option<boolean>()('parallax', true),
@@ -161,6 +168,7 @@ const defaults = [
 	option<number>()('autopilotDelay', 30),
 	// every setting is written on first load, so an existing player keeps Playlist
 	option<AutopilotMode>()('autopilotMode', AUTOPILOT_MODE.NEXT),
+	option<boolean>()('queuePlayOnce', false),
 ] as const satisfies DefaultSettings;
 
 type SettingsByKey<T extends DefaultSettings> = {

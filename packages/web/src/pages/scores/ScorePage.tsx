@@ -9,10 +9,8 @@ import {
 	difficultyTextColor,
 	starsText,
 } from '@oss-idle/shared/display/difficulty';
-import num from '@oss-idle/shared/display/num';
+import num, { bignum } from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
-import { showsDivine } from '@oss-idle/shared/rebirth';
-import { JUDGEMENT } from '@oss-idle/shared/rulesets/mania/judgement';
 
 import { coverBackground } from '../../api/maps';
 import type { getScore } from '../../api/scores';
@@ -24,7 +22,7 @@ import ScoreDial from '../../components/score/ScoreDial';
 import ScoreMods from '../../components/score/ScoreMods';
 import ScoreTower from '../../components/score/ScoreTower';
 import { i18n } from '../../i18n';
-import { JUDGEMENT_COLUMNS } from '../beatmaps/judgementColumns';
+import { judgementColumns } from '../beatmaps/judgementColumns';
 
 /** osu!web's score page (scores-show): the map, the grade dial and score, then the stats. */
 export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof getScore>> }) {
@@ -32,12 +30,7 @@ export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof ge
 		score, beatmap, beatmapset, player,
 	} = show;
 	const stars = Number(beatmap.sr);
-	const judgements = [
-		...showsDivine(score.judgements.DIVINE) ? [{
-			judgement: JUDGEMENT.DIVINE, label: 'DIVINE', 
-		}] : [],
-		...JUDGEMENT_COLUMNS,
-	];
+	const judgements = judgementColumns([score.judgements.DIVINE]);
 	const mapLink = {
 		to: '/maps/$id', params: { id: String(beatmapset.id) }, search: { diff: beatmap.id },
 	} as const;
@@ -112,7 +105,7 @@ export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof ge
 					<div className='score-stats__stat'>
 						<div className='score-stats__label'><Trans>Max Combo</Trans></div>
 						<div className={`score-stats__value ${score.pfc ? 'score-stats__value--perfect' : ''}`}>
-							{num(score.maxCombo)}x
+							{bignum(score.maxCombo)}x
 						</div>
 					</div>
 					<div className='score-stats__stat'>
@@ -125,7 +118,7 @@ export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof ge
 				<div className='score-stats__row'>
 					{judgements.map(j => <div key={j.judgement} className='score-stats__stat'>
 						<div className='score-stats__label'>{j.label}</div>
-						<div className='score-stats__value'>{num(score.judgements[j.judgement])}</div>
+						<div className='score-stats__value'>{bignum(score.judgements[j.judgement])}</div>
 					</div>)}
 				</div>
 			</div>

@@ -39,6 +39,7 @@ import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
 
 import { getBeatmap } from '../beatmaps';
 import { addFatigue } from '../fatigue';
+import { forgetScoreFacts } from '../medals';
 import {
 	botFor,
 	getServerXP,
@@ -61,6 +62,7 @@ import {
 	profileOf,
 	skillOf,
 } from './schema/character';
+import { refreshCharacterTotals } from './schema/character_totals';
 import type { NewScoreRow } from './schema/score';
 
 const decoder = new BeatmapDecoder();
@@ -182,6 +184,9 @@ const main = async () => {
 			const stored = (await db.select().from(r.score)
 				.where(eq(r.score.id, Number(row.id))).limit(1))[0];
 			if (stored) await onSubmitScore(r, stored);
+			// an old played_at, and totals that may or may not have held it
+			await refreshCharacterTotals(r, characterId);
+			await forgetScoreFacts(r, characterId);
 		}
 
 		if (++done % 100 === 0) console.log(`  ${done}/${rows.length}`);
