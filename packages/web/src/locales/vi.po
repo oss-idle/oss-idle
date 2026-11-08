@@ -94,6 +94,14 @@ msgstr ""
 msgid "{online, plural, one {# user online} other {# users online}}"
 msgstr ""
 
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays, plural, =0 {no plays} one {# play} other {# plays}}"
+msgstr ""
+
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays} plays in {months} months"
+msgstr ""
+
 #: src/components/character/RecentEvent.tsx
 msgid "{set} by {user} has been loved!"
 msgstr ""
@@ -624,6 +632,10 @@ msgstr ""
 msgid "Copyright"
 msgstr ""
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "Could not load play history."
+msgstr ""
+
 #: src/components/leaderboard/CountryFilter.tsx
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
@@ -1033,6 +1045,11 @@ msgstr ""
 msgid "Join the community"
 msgstr ""
 
+#. placeholder {0}: joined.toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric', })
+#: src/pages/characters/CharacterPage.tsx
+msgid "Joined <0>{0}</0>"
+msgstr ""
+
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
 msgstr ""
@@ -1099,6 +1116,7 @@ msgstr ""
 msgid "listing"
 msgstr ""
 
+#: src/components/character/CharacterHistorical.tsx
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
 #: src/pages/characters/CharacterPage.tsx
@@ -1375,6 +1393,10 @@ msgstr ""
 msgid "No player goes by that name."
 msgstr ""
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "No plays yet."
+msgstr ""
+
 #: src/components/character/CharacterTitle.tsx
 #: src/pages/settings/TitleSettings.tsx
 msgid "no title"
@@ -1574,6 +1596,10 @@ msgstr ""
 #: src/pages/characters/CharacterTotals.tsx
 #: src/pages/rankings/Country.tsx
 msgid "Play Count"
+msgstr ""
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "Play History"
 msgstr ""
 
 #: src/pages/AuthCallback.tsx

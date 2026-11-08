@@ -94,6 +94,14 @@ msgstr "{now} / {goal} (meilleur {best})"
 msgid "{online, plural, one {# user online} other {# users online}}"
 msgstr "{online, plural, one {# joueur en ligne} other {# joueurs en ligne}}"
 
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays, plural, =0 {no plays} one {# play} other {# plays}}"
+msgstr "{plays, plural, =0 {aucune partie} one {# partie} other {# parties}}"
+
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays} plays in {months} months"
+msgstr "{plays} parties en {months} mois"
+
 #: src/components/character/RecentEvent.tsx
 msgid "{set} by {user} has been loved!"
 msgstr "{set} par {user} est passée loved !"
@@ -624,6 +632,10 @@ msgstr "copyright"
 msgid "Copyright"
 msgstr "Copyright"
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "Could not load play history."
+msgstr "Impossible de charger l'historique des parties."
+
 #: src/components/leaderboard/CountryFilter.tsx
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
@@ -1033,6 +1045,11 @@ msgstr "Ses scores, ses pp et la progression de classement associée sont retir�
 msgid "Join the community"
 msgstr "Rejoindre la communauté"
 
+#. placeholder {0}: joined.toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric', })
+#: src/pages/characters/CharacterPage.tsx
+msgid "Joined <0>{0}</0>"
+msgstr "Membre depuis <0>{0}</0>"
+
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
 msgstr "Clés"
@@ -1099,6 +1116,7 @@ msgstr "Liste"
 msgid "listing"
 msgstr "listing"
 
+#: src/components/character/CharacterHistorical.tsx
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
 #: src/pages/characters/CharacterPage.tsx
@@ -1375,6 +1393,10 @@ msgstr "Pas de commandes."
 msgid "No player goes by that name."
 msgstr "Aucun joueur ne porte ce nom."
 
+#: src/components/character/CharacterHistorical.tsx
+msgid "No plays yet."
+msgstr "Aucune partie pour l'instant."
+
 #: src/components/character/CharacterTitle.tsx
 #: src/pages/settings/TitleSettings.tsx
 msgid "no title"
@@ -1575,6 +1597,10 @@ msgstr "Parties"
 #: src/pages/rankings/Country.tsx
 msgid "Play Count"
 msgstr "Parties"
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "Play History"
+msgstr "Historique des parties"
 
 #: src/pages/AuthCallback.tsx
 #: src/pages/PlayOssIdle.tsx

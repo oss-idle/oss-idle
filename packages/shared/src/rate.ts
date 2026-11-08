@@ -49,6 +49,11 @@ export const rateSchema = z.number().min(MIN_RATE).max(MAX_RATE);
 /** How a rate is written: x1.25, x1.3, x0.5. */
 export const rateLabel = (rate: number): string => `x${round(rate)}`;
 
+/** The rates `steps` unlock, as written: x0.9–x1.1, or x1 for none. */
+export const rateRange = (steps: number): string => (steps > 0
+	? `${rateLabel(slowestRate(steps))}–${rateLabel(fastestRate(steps))}`
+	: rateLabel(1));
+
 /** A difficulty's name as shown at a rate, with its locked mods: Beginner x1.3 +HRNF.
  *  Display only. */
 export const versionLabel = (version: string, rate: number, mods: readonly Mod[] = []): string =>

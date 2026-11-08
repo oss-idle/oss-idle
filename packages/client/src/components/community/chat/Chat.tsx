@@ -44,13 +44,15 @@ export default function Chat() {
 	// Ctrl+Tab / Ctrl+Shift+Tab: the next or previous tab (browsers keep it for their own tabs)
 	useEffect(() => {
 		if (!open || !shown) return;
+		// on the way in: the compose box's name and emoji completion take a plain Tab and stop it
 		const onKey = (e: KeyboardEvent) => {
 			if (!e.ctrlKey || e.key !== 'Tab') return;
 			e.preventDefault();
+			e.stopPropagation();
 			stepChatTab(e.shiftKey ? -1 : 1);
 		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
+		window.addEventListener('keydown', onKey, { capture: true });
+		return () => window.removeEventListener('keydown', onKey, { capture: true });
 	}, [open, shown]);
 
 	const closeChannel = (channel: string) => {

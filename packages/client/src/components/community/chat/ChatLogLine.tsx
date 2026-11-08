@@ -10,7 +10,7 @@ import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import {
 	type LogPart,
-	partColor,
+	partStyle,
 } from '../../../logMarks';
 import type { MenuTarget } from '../state';
 import ChatText from './ChatText';
@@ -55,7 +55,7 @@ export default memo(function ChatLogLine({ line, channel, actions, there, onRepl
 			<div className="chat__line chat__line--system">
 				<span className="chat__text" style={{ color: line.color }}>
 					{time} {line.ruleset && <RulesetTag ruleset={line.ruleset} />}{line.parts
-						? line.parts.map((part, i) => <span key={i} style={{ color: partColor(part) }}>{part.text}</span>)
+						? line.parts.map((part, i) => <span key={i} style={partStyle(part)}>{part.text}</span>)
 						: line.text}
 				</span>
 			</div>

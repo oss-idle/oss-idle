@@ -48,6 +48,7 @@ import ChatText from '../components/community/chat/ChatText';
 import NameCard from '../components/community/chat/NameCard';
 import { activeChatTab } from '../components/community/chat/state';
 import LinkMenu from '../components/community/LinkMenu';
+import { showChat } from '../components/community/state';
 import ConfirmMenu from '../components/ConfirmMenu';
 import DirectLinkPanel from '../components/direct/DirectLinkPanel';
 import { directLink } from '../components/direct/directState';
@@ -82,6 +83,7 @@ import {
 } from '../gameplay/playRate';
 import {
 	geneticChoice,
+	isCommunityOpen,
 	isOptionsOpen,
 	openPage,
 } from '../globals';
@@ -717,7 +719,12 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		id: 'chat-tabs',
 		label: 'Chat - tabs: #logs has a new line (light), the rest are read (dark); '
 			+ 'hover one for its close, + opens the channel list',
-		setup: () => log('A new line in #logs'),
+		setup: () => {
+			log('A new line in #logs');
+			// open as in the game: Ctrl+Tab only steps the tabs of a chat on screen
+			void isCommunityOpen.set(true);
+			void showChat.set(true);
+		},
 		render: () => <div style={{ height: 300 }}><Chat /><ChannelPicker /></div>,
 	},
 	{

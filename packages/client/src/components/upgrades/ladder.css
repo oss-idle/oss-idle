@@ -145,6 +145,8 @@
 	color: var(--text-dim);
 }
 .ladder-row__od {
+	/* under the level, on its right edge whatever the level's length */
+	justify-self: end;
 	color: var(--osu-pink-light);
 }
 

@@ -2633,6 +2633,14 @@ msgstr ""
 msgid "Keep the pitch at other speeds"
 msgstr ""
 
+#: src/components/character/PrestigeRow.tsx
+msgid "keeps {rates} rates"
+msgstr ""
+
+#: src/components/character/PrestigeRow.tsx
+msgid "Keeps {rates} rates"
+msgstr ""
+
 #: src/rulesets/mania/4k/quiz.ts
 msgid "Keeps both hands busy without getting tangled."
 msgstr ""

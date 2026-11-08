@@ -10,11 +10,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: 2026-11-04 18:23+0000\n"
 "Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
-"Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/"
-"oss-idle/web/ru/>\n"
-"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 "
-"&& n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 "
-"&& n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/web/ru/>\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
 
 #: src/pages/matches/MatchGame.tsx
 msgid "(match in progress)"
@@ -97,6 +94,14 @@ msgstr "{now}/{goal} (лучшее {best})"
 msgid "{online, plural, one {# user online} other {# users online}}"
 msgstr ""
 
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays, plural, =0 {no plays} one {# play} other {# plays}}"
+msgstr ""
+
+#: src/components/character/PlayHistoryGraph.tsx
+msgid "{plays} plays in {months} months"
+msgstr ""
+
 #: src/components/character/RecentEvent.tsx
 msgid "{set} by {user} has been loved!"
 msgstr "{set} от {user} стала любимой!"
@@ -135,8 +140,7 @@ msgstr "{user} потерял первое место на {map} ({mode})"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has once again chosen to support oss!idle - thanks for your generosity!"
-msgstr ""
-"{user} в очередной раз решил поддержать oss!idle - спасибо за твою щедрость!"
+msgstr "{user} в очередной раз решил поддержать oss!idle - спасибо за твою щедрость!"
 
 #: src/components/character/RecentEvent.tsx
 msgid "{user} has received the gift of oss!supporter!"
@@ -224,13 +228,11 @@ msgstr ""
 
 #: src/pages/bot/BotLanding.tsx
 msgid "A bot tries to match your scores by finding the closest skillset."
-msgstr ""
-"Бот пробует повторить твои результаты путем поиска подходящего скиллсета."
+msgstr "Бот пробует повторить твои результаты путем поиска подходящего скиллсета."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A heart in the corner of the main menu, to thank you every time you start the game."
-msgstr ""
-"Сердце в углу главного меню, чтобы благодарить тебя при каждом запуске игры."
+msgstr "Сердце в углу главного меню, чтобы благодарить тебя при каждом запуске игры."
 
 #: src/components/character/MedalTip.tsx
 msgid "A hidden medal"
@@ -238,15 +240,11 @@ msgstr "Скрытая медаль"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A pink heart next to your name on your profile. It grows more hearts the longer you support."
-msgstr ""
-"Розовое сердце рядом с твоим именем в профиле. Чем дольше ты поддерживаешь, "
-"тем больше сердец становится."
+msgstr "Розовое сердце рядом с твоим именем в профиле. Чем дольше ты поддерживаешь, тем больше сердец становится."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "A pink Supporter role on our Discord server, once you link your Discord account in the options."
-msgstr ""
-"Розовая роль Supporter на нашем Discord-сервере, после того как ты привяжешь "
-"свой аккаунт Discord в настройках."
+msgstr "Розовая роль Supporter на нашем Discord-сервере, после того как ты привяжешь свой аккаунт Discord в настройках."
 
 #: src/pages/matches/MatchEventLine.tsx
 msgid "a player"
@@ -296,11 +294,7 @@ msgstr "Получено {date}"
 
 #: src/pages/help/FAQ.tsx
 msgid "Achievements for skill levels, dedication, mastery and ranked play, plus a few secret ones. They are awarded on the result screen of a ranked play. Each medal permanently raises your experience gain, from {bronzeBonus}% for a bronze one to {divineBonus}% for a divine one, and the bonuses stack."
-msgstr ""
-"Достижения за уровни навыков, преданность, мастерство и ранговые игры, также "
-"несколько секретных. Они присваиваются после завершения рейтинговой игры. "
-"Каждая медаль навсегда увеличивает получаемый опыт, от {bronzeBonus}% за "
-"бронзовую, до {divineBonus}% за божественную, бонусы складываются."
+msgstr "Достижения за уровни навыков, преданность, мастерство и ранговые игры, также несколько секретных. Они присваиваются после завершения рейтинговой игры. Каждая медаль навсегда увеличивает получаемый опыт, от {bronzeBonus}% за бронзовую, до {divineBonus}% за божественную, бонусы складываются."
 
 #: src/components/character/AccountStanding.tsx
 msgid "Action"
@@ -312,9 +306,7 @@ msgstr "Активных игроков"
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Add a chat emote of your own from your settings, and share it with everyone if you like."
-msgstr ""
-"Добавь собственную эмоцию в чат через настройки и, если хочешь, поделись ей "
-"со всеми."
+msgstr "Добавь собственную эмоцию в чат через настройки и, если хочешь, поделись ей со всеми."
 
 #: src/pages/levels/LevelMapPicker.tsx
 msgid "Add a map: search a title, artist, mapper or difficulty"
@@ -343,9 +335,7 @@ msgstr "аддоны"
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "Adding or renaming it needs an <0>oss!supporter</0> tag. You keep it even if your supporter tag ends."
-msgstr ""
-"Для добавления или переименования необходим тег <0>oss!supporter</0>. Ты не "
-"потеряешь доступ, когда тег истечёт."
+msgstr "Для добавления или переименования необходим тег <0>oss!supporter</0>. Ты не потеряешь доступ, когда тег истечёт."
 
 #: src/HeaderLinks.tsx
 msgid "admin"
@@ -375,23 +365,15 @@ msgstr "Сумма"
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "An emoji of your own for the chat, typed as :name:. Only you can use it unless you share it with everyone."
-msgstr ""
-"Твоё эмодзи для чата, используемое как :название:. Пока не поделишься со "
-"всеми, использовать его можешь только ты."
+msgstr "Твоё эмодзи для чата, используемое как :название:. Пока не поделишься со всеми, использовать его можешь только ты."
 
 #: src/pages/AuthError.tsx
 msgid "An error occurred when communicating with osu! ... if your osu! account is valid, please try again"
-msgstr ""
-"Произошла ошибка при попытке обращения к osu! ... если твой аккаунт osu! "
-"действителен, попробуй ещё раз"
+msgstr "Произошла ошибка при попытке обращения к osu! ... если твой аккаунт osu! действителен, попробуй ещё раз"
 
 #: src/pages/help/FAQ.tsx
 msgid "An idle game built on osu!mania {modes}. You don't press the keys: your character plays the maps for you. Every play earns experience in its skills, better skills mean better plays, and better plays climb the rankings."
-msgstr ""
-"Idle-игра, сделанная на базе osu!mania {modes}. Тебе не надо нажимать "
-"кнопки: твой персонаж играет карты за тебя. Каждая игра приносит опыт его "
-"навыкам. Лучше навыки — лучше результаты, а лучшие результаты двигают тебя "
-"выше в рейтинге."
+msgstr "Idle-игра, сделанная на базе osu!mania {modes}. Тебе не надо нажимать кнопки: твой персонаж играет карты за тебя. Каждая игра приносит опыт его навыкам. Лучше навыки — лучше результаты, а лучшие результаты двигают тебя выше в рейтинге."
 
 #: src/pages/beatmaps/RankedMaps.tsx
 msgid "Any"
@@ -399,11 +381,7 @@ msgstr "Любые"
 
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "Anyone can propose a map for ranking in oss!idle - osu!mania {label} only. Support the ones you want to play so it shows what people are after. Accepted maps join the nomination queue and are ranked from there."
-msgstr ""
-"Кто угодно может предложить карту для получения статуса ранговой в "
-"oss!idle - только osu!mania {label}. Поддержи те, в которые хочешь играть, "
-"так будет видно, чего хотят люди. Одобренные карты поступают в очередь на "
-"номинацию, откуда и становятся ранговыми."
+msgstr "Кто угодно может предложить карту для получения статуса ранговой в oss!idle - только osu!mania {label}. Поддержи те, в которые хочешь играть, так будет видно, чего хотят люди. Одобренные карты поступают в очередь на номинацию, откуда и становятся ранговыми."
 
 #: src/pages/settings/EmojiSettings.tsx
 msgid "Anyone can use it"
@@ -429,14 +407,7 @@ msgstr "Название приложения"
 
 #: src/pages/help/FAQ.tsx
 msgid "At overall level {REBIRTH_MIN_OVERALL_LEVEL}, you can start a brand new character one generation up. Each rebirth needs {REBIRTH_LEVEL_STEP} more levels than the last. Each generation unlocks something new; the first is the Divine judgement. Your old character is not deleted: it stays playable, ranked and keeps all its progress. If the new one takes its name, the old one is renamed with _old, like on osu!."
-msgstr ""
-"При достижении общего уровня {REBIRTH_MIN_OVERALL_LEVEL} ты можешь создать "
-"нового персонажа на поколение выше. Каждое перерождение требует на "
-"{REBIRTH_LEVEL_STEP} уровней больше, чем предыдущее. Каждое поколение "
-"разблокирует что-то новое; первое — оценка Divine. Старый персонаж не "
-"удаляется: он остаётся доступным для игры, в рейтинге и сохраняет весь "
-"прогресс. Если новый берёт его имя, старый будет переименован с отметкой "
-"_old, как в osu!."
+msgstr "При достижении общего уровня {REBIRTH_MIN_OVERALL_LEVEL} ты можешь создать нового персонажа на поколение выше. Каждое перерождение требует на {REBIRTH_LEVEL_STEP} уровней больше, чем предыдущее. Каждое поколение разблокирует что-то новое; первое — оценка Divine. Старый персонаж не удаляется: он остаётся доступным для игры, в рейтинге и сохраняет весь прогресс. Если новый берёт его имя, старый будет переименован с отметкой _old, как в osu!."
 
 #: src/routes/oauth/authorize.tsx
 msgid "authorization request"
@@ -659,6 +630,10 @@ msgstr ""
 
 #: src/Footer.tsx
 msgid "Copyright"
+msgstr ""
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "Could not load play history."
 msgstr ""
 
 #: src/components/leaderboard/CountryFilter.tsx
@@ -1024,9 +999,7 @@ msgstr "Как считается pp?"
 
 #: src/pages/store/SupporterTag.tsx
 msgid "I accept the <0>terms of sale</0>, I want the supporter tag to start right away, and I give up my 14-day withdrawal right."
-msgstr ""
-"Я согласен с <0>условиями продажи</0>, я хочу, чтобы тег supporter начался "
-"сразу, и отказываюсь от своего права на возврат в течение 14 дней."
+msgstr "Я согласен с <0>условиями продажи</0>, я хочу, чтобы тег supporter начался сразу, и отказываюсь от своего права на возврат в течение 14 дней."
 
 #: src/pages/settings/OAuthNewClientDialog.tsx
 msgid "I agree to the <0>API Terms of Use</0>"
@@ -1066,13 +1039,16 @@ msgstr ""
 
 #: src/pages/help/FAQ.tsx
 msgid "Its scores, pp and ranking progress are removed. The experience your skills earned on it stays."
-msgstr ""
-"Её рекорды, pp и прогресс в рейтинге удаляются. Опыт, полученный на этой "
-"карте, остаётся."
+msgstr "Её рекорды, pp и прогресс в рейтинге удаляются. Опыт, полученный на этой карте, остаётся."
 
 #: src/pages/PublicLanding.tsx
 msgid "Join the community"
 msgstr "Присоединиться к сообществу"
+
+#. placeholder {0}: joined.toLocaleDateString(i18n.locale, { month: 'long', year: 'numeric', })
+#: src/pages/characters/CharacterPage.tsx
+msgid "Joined <0>{0}</0>"
+msgstr ""
 
 #: src/pages/beatmaps/BeatmapsetStats.tsx
 msgid "Keys"
@@ -1140,6 +1116,7 @@ msgstr ""
 msgid "listing"
 msgstr "список"
 
+#: src/components/character/CharacterHistorical.tsx
 #: src/pages/beatmaps/MapRequests.tsx
 #: src/pages/beatmaps/MapScoreboard.tsx
 #: src/pages/characters/CharacterPage.tsx
@@ -1224,17 +1201,11 @@ msgstr "Карты и рейтинг"
 
 #: src/pages/help/FAQ.tsx
 msgid "Maps the team loves that aren't ranked. They play like ranked maps: the server decides the score, which counts for ranked score, grades, leaderboards and experience, but gives no pp. They don't count for the star rating and #1 medals either."
-msgstr ""
-"Карты, которые понравились команде, но не стали рейтинговыми. Они играются "
-"как рейтинговые: результат определяет сервер, и он идёт в рейтинговые очки, "
-"оценки, таблицы лидеров и опыт, но pp не даёт. Они также не считаются в "
-"прогресс медалей за #1 места и уровни сложности."
+msgstr "Карты, которые понравились команде, но не стали рейтинговыми. Они играются как рейтинговые: результат определяет сервер, и он идёт в рейтинговые очки, оценки, таблицы лидеров и опыт, но pp не даёт. Они также не считаются в прогресс медалей за #1 места и уровни сложности."
 
 #: src/pages/store/SupporterPerks.tsx
 msgid "Maps you upload always have a leaderboard, and playing any unranked map opens its leaderboard for everyone."
-msgstr ""
-"Карты, которые ты загружаешь, всегда имеют таблицу лидеров, а сыграв любую "
-"нерейтинговую карту, ты откроешь её таблицу лидеров для всех."
+msgstr "Карты, которые ты загружаешь, всегда имеют таблицу лидеров, а сыграв любую нерейтинговую карту, ты откроешь её таблицу лидеров для всех."
 
 #: src/routes/matches/$id.tsx
 msgid "match history"
@@ -1420,6 +1391,10 @@ msgstr ""
 
 #: src/pages/store/RecipientPicker.tsx
 msgid "No player goes by that name."
+msgstr ""
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "No plays yet."
 msgstr ""
 
 #: src/components/character/CharacterTitle.tsx
@@ -1621,6 +1596,10 @@ msgstr ""
 #: src/pages/characters/CharacterTotals.tsx
 #: src/pages/rankings/Country.tsx
 msgid "Play Count"
+msgstr ""
+
+#: src/components/character/CharacterHistorical.tsx
+msgid "Play History"
 msgstr ""
 
 #: src/pages/AuthCallback.tsx

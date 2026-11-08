@@ -59,7 +59,7 @@ const gainsSummary = (progression?: SkillGain[]): string => {
 	const gains = (progression ?? [])
 		.filter(g => g.gained > 0)
 		.sort((a, b) => b.gained - a.gained)
-		.map(g => `${mark('xp', `+${bignum(g.gained)}`)} ${mark('skill', selectedDef().skillName(g.skill))}`
+		.map(g => `+${mark('xp', bignum(g.gained), g.gained)} ${mark('skill', selectedDef().skillName(g.skill))}`
 			+ (g.toLevel > g.fromLevel ? ` (${mark('level', `lv${g.fromLevel} to lv${g.toLevel}`)})` : ''));
 	return gains.length ? gains.join(', ') : t`No XP gained.`;
 };

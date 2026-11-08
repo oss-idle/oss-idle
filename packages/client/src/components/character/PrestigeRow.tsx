@@ -17,6 +17,10 @@ import {
 	conversionGain,
 } from '@oss-idle/shared/genetics';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import {
+	rateRange,
+	rateUnlocks,
+} from '@oss-idle/shared/rate';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import {
 	canPrestige,
@@ -36,6 +40,11 @@ import PrestigeAction from './PrestigeAction';
 import PrestigeClimaxxPop from './PrestigeClimaxxPop';
 import PrestigeDiamonds from './PrestigeDiamonds';
 import usePrestige from './usePrestige';
+
+/** The rates a skill keeps through its next prestige: the rate skill keeps a step per
+ *  prestige, once its upgrades are gone. None for any other skill. */
+const ratesKept = (skill: string, prestige: number): string | undefined =>
+	(skill === selectedDef().rateSkill ? rateRange(rateUnlocks(0, prestige + 1)) : undefined);
 
 export default function PrestigeRow({
 	skill,
@@ -74,6 +83,7 @@ export default function PrestigeRow({
 	const multiplier = prestigeXPMultiplier(prestige);
 	const factor = multiplier.toFixed(2);
 	const next = prestigeXPMultiplier(prestige + 1);
+	const keptRates = ratesKept(skill.name, prestige);
 	const at = level + levelProgress(level, xp);
 	const earned = xpToLevel(level) + xp;
 	const needed = xpToLevel(required);
@@ -113,6 +123,7 @@ export default function PrestigeRow({
 				})}, ${plural(ph({ slots: maxUpgrades(prestige + 1) }), {
 					one: '# gear slot', other: '# gear slots', 
 				})} and x${ph({ multiplier: next.toFixed(2) })} XP`,
+				...keptRates ? [t`Keeps ${ph({ rates: keptRates })} rates`] : [],
 				...note ? [note] : [],
 			].join(' · '),
 			confirmLabel: t`Prestige`,
@@ -153,6 +164,7 @@ export default function PrestigeRow({
 					<span className="ladder-row__next">
 						<span className="ladder-row__arrow">›</span>
 						<Trans>+{ph({ bonus: 1 })} Lv · +{ph({ slots: UPGRADES_PER_PRESTIGE })} gear slot · x{ph({ multiplier: next.toFixed(2) })} XP</Trans>
+						{keptRates && <> · <Trans>keeps {ph({ rates: keptRates })} rates</Trans></>}
 					</span>
 					<span className="ladder-row__count">{at.toFixed(2)} / {required}</span>
 				</div>

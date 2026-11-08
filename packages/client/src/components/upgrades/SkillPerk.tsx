@@ -3,10 +3,8 @@ import { useLingui } from '@lingui/react/macro';
 import HoverCardRow from '@oss-idle/shared/display/HoverCardRow';
 import { warmupCurve } from '@oss-idle/shared/fatigue';
 import {
-	fastestRate,
-	rateLabel,
+	rateRange,
 	rateUnlocks,
-	slowestRate,
 } from '@oss-idle/shared/rate';
 
 import { selectedDef } from '../../rulesets/registry';
@@ -34,14 +32,7 @@ export default function SkillPerk({
 	const { t } = useLingui();
 	const { rateSkill, warmupSkill } = selectedDef();
 	const perks: Partial<Record<string, Perk[]>> = {
-		...rateSkill && {
-			[rateSkill]: [[t`Rates`, u => {
-				const steps = rateUnlocks(u, prestige);
-				return steps > 0
-					? `${rateLabel(slowestRate(steps))}–${rateLabel(fastestRate(steps))}`
-					: rateLabel(1);
-			}]],
-		},
+		...rateSkill && { [rateSkill]: [[t`Rates`, u => rateRange(rateUnlocks(u, prestige))]] },
 		...warmupSkill && {
 			[warmupSkill]: [
 				[t`Warm-up`, u => hours(warmupCurve(u).warm)],
