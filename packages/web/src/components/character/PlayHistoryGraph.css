@@ -1,0 +1,44 @@
+.play-history {
+	position: relative;
+	width: 100%;
+}
+
+.play-history__svg {
+	display: block;
+}
+
+.play-history__grid,
+.play-history__frame {
+	stroke: hsl(var(--hsl-b6));
+	stroke-width: 1;
+}
+
+.play-history__frame {
+	fill: none;
+}
+
+.play-history__axis,
+.play-history__tick {
+	fill: hsl(var(--hsl-c1));
+	font-size: 11px;
+}
+
+.play-history__line {
+	fill: none;
+	stroke: hsl(var(--hsl-h1));
+	stroke-width: 2;
+}
+
+.play-history__dot {
+	fill: hsl(var(--hsl-h1));
+}
+
+.play-history__tooltip-when {
+	font-size: 12px;
+	color: hsl(var(--hsl-c1));
+}
+
+.play-history__tooltip-plays {
+	font-size: 11px;
+	color: hsl(var(--hsl-l3));
+}
