@@ -41,13 +41,43 @@
 }
 
 .character__submeta {
-	background-color: hsl(var(--hsl-b3));
-	height: 60px;
+	position: relative;
+	background-color: hsl(var(--hsl-b45));
+	padding: 6px 50px;
+	font-size: 13px;
+	color: hsl(var(--hsl-c2));
+}
+
+.character__submeta-tooltip {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	left: 50px;
+	padding: 5px 10px;
+	border-radius: 6px;
+	background-color: hsl(var(--hsl-b6));
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+	font-size: 12px;
+	color: hsl(var(--hsl-c1));
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 1;
+	opacity: 0;
+	transition: opacity 0.1s;
+}
+
+.character__submeta:hover .character__submeta-tooltip {
+	opacity: 1;
+}
+
+/* Recessed under the bar above it: the same inner edge the stats block has. */
+.character__stats,
+.character__submeta {
+	box-shadow: inset 0 2px 3px -1px rgba(0, 0, 0, 0.25);
 }
 
 .character__socialmeta {
 	background-color: hsl(var(--hsl-b4));
-	height: 80px;
+	height: 56px;
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -117,7 +147,6 @@
 	display: flex;
 	gap: 15px;
 	justify-content: space-between;
-	box-shadow: inset 0 2px 3px -1px rgba(0, 0, 0, 0.25);
 	padding: 10px 50px;
 }
 
@@ -206,7 +235,7 @@
 .character__blocks {
 	display: flex;
 	flex-direction: column;
-	padding-top: 20px;
+	padding-top: 8px;
 	gap: 10px;
 }
 
@@ -358,6 +387,14 @@
 	.character__info,
 	.character__socialmeta {
 		padding: 0 15px;
+	}
+
+	.character__submeta {
+		padding: 6px 15px;
+	}
+
+	.character__submeta-tooltip {
+		left: 15px;
 	}
 
 	.character__avatar {
