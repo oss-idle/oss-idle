@@ -19,6 +19,7 @@ const { DB } = await import('@oss-idle/client/db/dao');
 const { Score } = await import('@oss-idle/client/db/schema/score');
 const { ScoreBest } = await import('@oss-idle/client/db/schema/score_best');
 const { ScoreBestPP } = await import('@oss-idle/client/db/schema/score_best_pp');
+const { ScoreXP } = await import('@oss-idle/client/db/schema/score_xp');
 
 const require = createRequire(import.meta.url);
 
@@ -37,7 +38,7 @@ const bestScore = () => db.exec(`SELECT s.score FROM score_best b JOIN score s O
 beforeAll(async () => {
 	const SQL = await initSqlJs({ locateFile: () => require.resolve('sql.js/dist/sql-wasm.wasm') });
 	db = new SQL.Database();
-	for (const t of [Score.table, ScoreBest.table, ScoreBestPP.table]) db.run(t.ddl());
+	for (const t of [Score.table, ScoreBest.table, ScoreBestPP.table, ScoreXP.table]) db.run(t.ddl());
 	Object.assign(DB, {
 		write: async <T>(fn: (d: typeof db) => T) => fn(db),
 		read: async <T>(fn: (d: typeof db) => T) => fn(db),
@@ -68,5 +69,17 @@ describe('Score.addServerScores', () => {
 		await Score.addServerScores([dto(0, false, 10, 3)]);
 		await Score.addServerScores([dto(0, false, 20, 3)]);
 		expect(rows().filter(r => r[0] === 0)).toHaveLength(2);
+	});
+
+	it('keeps the XP the server says a play earned, under its local copy, once', async () => {
+		const gained = {
+			...dto(9, false, 400, 3), gains: { speed: 1234 }, 
+		};
+		const [saved] = await Score.addServerScores([gained]);
+		await Score.addServerScores([{
+			...gained, gains: { speed: 1 }, 
+		}]);
+		const xp = db.exec('SELECT scoreId, gains FROM score_xp')[0]?.values;
+		expect(xp).toEqual([[saved.id, JSON.stringify({ speed: 1234 })]]);
 	});
 });

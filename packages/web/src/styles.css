@@ -36,6 +36,7 @@
 	--hsl-b2: var(--base-hue), 10%, 30%;
 	--hsl-b3: var(--base-hue), 10%, 25%;
 	--hsl-b4: var(--base-hue), 10%, 20%;
+	--hsl-b45: var(--base-hue), 10%, 17.5%;
 	--hsl-b5: var(--base-hue), 10%, 15%;
 	--hsl-b6: var(--base-hue), 10%, 10%;
 	--c-saturation-1: 100%;
