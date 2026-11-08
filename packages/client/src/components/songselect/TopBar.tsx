@@ -17,32 +17,30 @@ import BeatmapInfo from './BeatmapInfo';
  *  raw key - comparators, the persisted setting, and grouping all branch on it
  *  so only this display text is translated. GroupOption is the superset, so one
  *  mapping covers both dropdowns. */
-function optionLabel(option: GroupOption | SortOption): ReactNode {
-	switch (option) {
-		case 'No Grouping': return <Trans>No Grouping</Trans>;
-		case 'By Artist': return <Trans>By Artist</Trans>;
-		case 'By BPM': return <Trans>By BPM</Trans>;
-		case 'By Best Score': return <Trans>By Best Score</Trans>;
-		case 'By Creator': return <Trans>By Creator</Trans>;
-		case 'By Difficulty': return <Trans>By Difficulty</Trans>;
-		case 'By Download Status': return <Trans>By Download Status</Trans>;
-		case 'By Length': return <Trans>By Length</Trans>;
-		case 'By Playlist': return <Trans>By Playlist</Trans>;
-		case 'By Rank Achieved': return <Trans>By Rank Achieved</Trans>;
-		case 'By Status': return <Trans>By Status</Trans>;
-		case 'By Tag': return <Trans>By Tag</Trans>;
-		case 'By Title': return <Trans>By Title</Trans>;
-		case 'Recently Played': return <Trans>Recently Played</Trans>;
-	}
-}
+const OPTION_LABEL: Record<GroupOption | SortOption, ReactNode> = {
+	'No Grouping': <Trans>No Grouping</Trans>,
+	'By Artist': <Trans>By Artist</Trans>,
+	'By BPM': <Trans>By BPM</Trans>,
+	'By Best Score': <Trans>By Best Score</Trans>,
+	'By Creator': <Trans>By Creator</Trans>,
+	'By Difficulty': <Trans>By Difficulty</Trans>,
+	'By Download Status': <Trans>By Download Status</Trans>,
+	'By Length': <Trans>By Length</Trans>,
+	'By Playlist': <Trans>By Playlist</Trans>,
+	'By Rank Achieved': <Trans>By Rank Achieved</Trans>,
+	'By Status': <Trans>By Status</Trans>,
+	'By Tag': <Trans>By Tag</Trans>,
+	'By Title': <Trans>By Title</Trans>,
+	'Recently Played': <Trans>Recently Played</Trans>,
+};
 
 const GROUP_OPTIONS = GroupOptions.map((v) => ({
-	value: v, 
-	label: optionLabel(v),
+	value: v,
+	label: OPTION_LABEL[v],
 }));
-const SORT_OPTIONS = SortOptions.map((v) => ({ 
-	value: v, 
-	label: optionLabel(v), 
+const SORT_OPTIONS = SortOptions.map((v) => ({
+	value: v,
+	label: OPTION_LABEL[v],
 }));
 
 /** Top bar: selected-difficulty metadata, the scores leaderboard, and the

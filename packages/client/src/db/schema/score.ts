@@ -115,6 +115,7 @@ const copyFinder = (db: Database) => {
 /** The XP the server says each synced play earned, under its local copy. A copy already
  *  holding gains (its result was shown here) keeps them. Whether any were written. */
 const keepGains = (db: Database, dtos: readonly ScoreDTO[], rows: readonly Score[]): boolean => {
+	if (!dtos.some(d => d.gains)) return false;
 	const stmt = db.prepare(`INSERT OR IGNORE INTO score_xp
 		(scoreId, characterId, beatmapId, playedAt, gains) VALUES (?, ?, ?, ?, ?)`);
 	let wrote = false;
