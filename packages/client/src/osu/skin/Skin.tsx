@@ -24,6 +24,7 @@ import {
 } from './maniaAssets';
 import OsuSkin from './OsuSkin';
 import SkinGrade from './SkinGrade';
+import { downloadSkin } from './skinInstall';
 import { installedSource } from './sources';
 
 let defaultSkin: Promise<OsuSkin> | undefined;
@@ -189,9 +190,13 @@ export const judgementKey = (judgement: Judgement) => `hit:${judgement}`;
 export const currentSkinDAO = new Synced<SkinDAO | undefined>(undefined);
 export const currentSkin = new Synced(Skin.empty());
 
-/** The skin a row plays: its installed files, else the default skin. */
+/** The skin a row plays: its installed files (a catalog skin's downloaded again when the
+ *  browser lost them), else the default skin. */
 export const skinOf = async (dao: SkinDAO | undefined): Promise<Skin> => {
-	const source = dao && await installedSource(dao.id);
+	let source = dao && await installedSource(dao.id);
+	if (dao && !source && !dao.local) {
+		source = await downloadSkin(dao.id).then(() => installedSource(dao.id), () => undefined);
+	}
 	return Skin.create(source && await OsuSkin.load(source));
 };
 

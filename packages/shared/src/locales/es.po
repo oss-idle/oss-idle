@@ -8,8 +8,8 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-30 23:16+0000\n"
-"Last-Translator: Pickle97x <pickle97xmola769@gmail.com>\n"
+"PO-Revision-Date: 2026-11-08 14:15+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Spanish <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/shared/es/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
@@ -56,19 +56,19 @@ msgstr "{s}s"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Adept"
-msgstr ""
+msgstr "Adepto de {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Grandmaster"
-msgstr ""
+msgstr "Gran maestro de {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Legend"
-msgstr ""
+msgstr "Leyenda de {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Master"
-msgstr ""
+msgstr "Maestro de {skill}"
 
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
@@ -91,7 +91,7 @@ msgstr "←↓↑→"
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
 msgid "1 hour pre-session warmup"
-msgstr ""
+msgstr "calentamiento previo de 1 hora"
 
 #: src/rulesets/mania/4k/display.ts
 msgid "2 hours gym session"
@@ -1752,6 +1752,10 @@ msgstr ""
 
 #: src/rulesets/mania/medalText.ts
 msgid "Time Flies"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Timeless"
 msgstr ""
 
 #: src/rulesets/mania/medalText.ts

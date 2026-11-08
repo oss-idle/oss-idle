@@ -1,11 +1,15 @@
-import { t } from '@lingui/core/macro';
+import {
+	ph,
+	t,
+} from '@lingui/core/macro';
 
 import Listener from '@oss-idle/shared/helpers/listener';
 import Synced from '@oss-idle/shared/helpers/synced';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
 
 import { music } from '../audio/MusicPlayer';
 import { showChat } from '../components/community/state';
-import { SETTINGS } from '../db/settings';
+import { scrollSpeedOf } from '../db/settings';
 import {
 	isOptionsOpen,
 	isStandalone,
@@ -13,6 +17,7 @@ import {
 	message,
 	openPage,
 } from '../globals';
+import { selectedRuleset } from '../rulesets/registry';
 import SceneManager, { SCENE } from '../scenes/SceneManager';
 import { closeTop } from './keyboardOwner';
 
@@ -51,6 +56,18 @@ class KeyListener extends Listener<KeyCallback> {
 		this.use((_press: boolean, release: boolean) => { if (release) callback(); });
 	}
 }
+
+/** F3/F4 (with Ctrl in song select): the scroll speed of the ruleset of the map on screen,
+ *  else of the picked one. */
+const stepScrollSpeed = async (by: 1 | -1) => {
+	const ruleset = music.beatmap.get()?.ruleset() ?? selectedRuleset.get();
+	const speed = scrollSpeedOf(ruleset);
+	const next = Math.min(40, Math.max(1, speed.get() + by));
+	if (next === speed.get()) return;
+	await speed.set(next);
+	const label = rulesetLabel(ruleset);
+	message.set(t`${ph({ ruleset: label })} scroll speed set to ${ph({ speed: next })}`);
+};
 
 export default class Controls {
 
@@ -235,19 +252,8 @@ export default class Controls {
 			capture: true, passive: false,
 		});
 
-		this.increaseScrollSpeed.onPress(async () => {
-			if (SETTINGS.scrollspeed.get() >= 40) return;
-			const next = SETTINGS.scrollspeed.get() + 1;
-			await SETTINGS.scrollspeed.set(next);
-			message.set(`osu!mania speed set to ${next}`);
-		});
-
-		this.decreaseScrollSpeed.onPress(async () => {
-			if (SETTINGS.scrollspeed.get() <= 1) return;
-			const prev = SETTINGS.scrollspeed.get() - 1;
-			await SETTINGS.scrollspeed.set(prev);
-			message.set(`osu!mania speed set to ${prev}`);
-		});
+		this.increaseScrollSpeed.onPress(() => stepScrollSpeed(1));
+		this.decreaseScrollSpeed.onPress(() => stepScrollSpeed(-1));
 
 		this.openOptions.onPress(async () => {
 			isOptionsOpen.set(!isOptionsOpen.get());

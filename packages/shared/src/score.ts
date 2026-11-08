@@ -27,5 +27,7 @@ export const scoreDTO = z.object({
 	rate: rateSchema,
 	mods: modsSchema.default([]),
 	playedAt: z.number().int(), // epoch ms
+	/** XP earned per skill that gained: only on the account's own synced plays */
+	gains: z.record(z.string(), z.number()).optional(),
 });
 export type ScoreDTO = z.infer<typeof scoreDTO>;

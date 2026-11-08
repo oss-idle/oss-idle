@@ -1,0 +1,18 @@
+.ruleset-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	margin-right: 6px;
+	padding: 0 5px;
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.12);
+	color: #fff;
+	font-size: 0.85em;
+	font-weight: 600;
+	vertical-align: text-bottom;
+}
+
+.ruleset-tag__icon {
+	width: 1.1em;
+	height: 1.1em;
+}

@@ -463,7 +463,7 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 			'hits-100k': 1e5, 'hits-1m': 1e6, 'hits-10m': 1e7, 'hits-50m': 5e7, 'hits-1b': 1e9,
 		}, 'hits'),
 		...s('hours played (sum of map lengths)', {
-			'time-10h': 10, 'time-100h': 100, 'time-1000h': 1_000, 'time-10000h': 10_000,
+			'time-10h': 10, 'time-100h': 100, 'time-1000h': 1_000, 'time-10000h': 10_000, 'time-25000h': 25_000,
 		}, 'time'),
 		...s('players who added the account as a friend', {
 			'friends-1': 1, 'friends-5': 5, 'friends-25': 25, 'friends-100': 100, 'friends-1k': 1_000,

@@ -2,6 +2,7 @@ import Synced from '@oss-idle/shared/helpers/synced';
 import {
 	allowedRate,
 	RATE_STEP,
+	rateUnlocks,
 } from '@oss-idle/shared/rate';
 import type SkillState from '@oss-idle/shared/rulesets/skillState';
 
@@ -14,8 +15,11 @@ import { selectedDefLoaded } from '../rulesets/registry';
 const speedOf = (character: Character): SkillState | undefined =>
 	character.skills.find(s => s.name === selectedDefLoaded()?.rateSkill);
 
-export const speedUpgrades = (character: Character): number =>
-	speedOf(character)?.upgrades.get() ?? 0;
+/** The rate steps the character has unlocked: Speed upgrades plus prestiges. */
+export const speedUpgrades = (character: Character): number => {
+	const speed = speedOf(character);
+	return speed ? rateUnlocks(speed.upgrades.get(), speed.prestige.get()) : 0;
+};
 
 /** The rate a play of this character starts at: the playlist's locked one, else
  *  the one picked, held to what its Speed upgrades unlock. */
@@ -40,8 +44,10 @@ const update = () => {
 let watched: SkillState | undefined;
 void Entities.character.sync(character => {
 	watched?.upgrades.desync(update);
+	watched?.prestige.desync(update);
 	watched = speedOf(character);
 	void watched?.upgrades.sync(update);
+	void watched?.prestige.sync(update);
 	update();
 });
 void SETTINGS.rate.sync(update);

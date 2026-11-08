@@ -387,7 +387,8 @@ html.is-chat-open .dock:not(.dock--left) {
 	border-left: 3px solid transparent;
 	color: rgba(255, 255, 255, 0.82);
 	font-size: 0.98rem;
-	touch-action: none;
+	/* a swipe scrolls the list; a held finger picks the row up (useQueueDrag) */
+	touch-action: pan-y;
 	cursor: grab;
 }
 .dock__entry + .dock__entry {

@@ -2,12 +2,15 @@ import { z } from 'zod';
 
 import type { Mod } from './mods.js';
 
-/** Each Speed upgrade unlocks one more step of playback rate, faster and slower. */
+/** Each Speed upgrade or prestige unlocks one more step of playback rate, faster and slower. */
 export const RATE_STEP = 0.05;
 export const MIN_RATE = 0.5;
 export const MAX_RATE = 1.5;
 
 const round = (rate: number) => Math.round(rate * 100) / 100;
+
+/** The rate steps a character has unlocked: its Speed upgrades, plus one per prestige, kept for good. */
+export const rateUnlocks = (upgrades: number, prestige: number): number => upgrades + prestige;
 
 const unlockedSteps = (speedUpgrades: number) => Math.max(0, speedUpgrades) * RATE_STEP;
 

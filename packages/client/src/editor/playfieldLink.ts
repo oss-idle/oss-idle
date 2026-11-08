@@ -1,7 +1,10 @@
 import type { Note } from '@oss-idle/shared/rulesets/mania/editor/chart';
 import { scrollSpeedToMs } from '@oss-idle/shared/rulesets/mania/scroll_speed';
 
-import { SETTINGS } from '../db/settings';
+import {
+	scrollSpeedOf,
+	SETTINGS,
+} from '../db/settings';
 import type Skin from '../osu/skin/Skin';
 import type { EditorSkins } from './editorSkins';
 import type { Overlay } from './painter';
@@ -123,7 +126,7 @@ export default class PlayfieldLink {
 			divisor: session.divisor,
 			zoom: session.zoom,
 			preview: sideField(session),
-			scrollMs: scrollSpeedToMs(SETTINGS.scrollspeed.get()),
+			scrollMs: scrollSpeedToMs(scrollSpeedOf(session.beatmap.ruleset()).get()),
 			sounds: session.showSounds,
 		};
 		const viewKey = `${view.divisor}:${view.zoom}:${view.preview}:${view.scrollMs}:${view.sounds}`;

@@ -16,6 +16,8 @@ export async function activateLocale(locale: Locale): Promise<void> {
 		import(`./locales/${locale}.po`),
 	]);
 	loadAndActivate(i18n, locale, shared, app);
+	// the in-game browser is the site on this origin, which reads its language from here
+	try { localStorage.setItem('language', JSON.stringify(locale)); } catch { /* storage blocked */ }
 }
 
 export { i18n };

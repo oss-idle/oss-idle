@@ -1,6 +1,8 @@
 import '../components/options/controls/Checkbox.css';
 
+import { ph } from '@lingui/core/macro';
 import { useLingui } from '@lingui/react/macro';
+import { useState } from 'react';
 
 import {
 	MAX_DIVISOR,
@@ -8,10 +10,15 @@ import {
 	type TimingPoint,
 } from '@oss-idle/shared/rulesets/mania/editor/chart';
 
+import { askConfirm } from '../components/ConfirmPrompt';
+import { SETTINGS } from '../db/settings';
 import EditorField from './EditorField';
 import type EditorSession from './session';
 
 const round = (n: number) => String(Math.round(n * 1000) / 1000);
+
+/** Above it a BPM asks once: usually a slip of the keyboard, sometimes SV on purpose. */
+const MAX_BPM = 1000;
 
 type Props = {
 	session: EditorSession,
@@ -34,6 +41,22 @@ export default function EditorTimingPoint({
 		if (Number.isFinite(n) && n > 0) use(n);
 	};
 	const update = (change: Partial<TimingPoint>) => session.updateTimingPoint(point, change);
+	// a refused BPM puts the field back on the point's own
+	const [refused, setRefused] = useState(0);
+	const setBpm = async (n: number) => {
+		if (n > MAX_BPM && !SETTINGS.editorHighBpm.get()) {
+			const yes = await askConfirm({
+				title: t`Set a BPM above ${ph({ max: MAX_BPM })}?`,
+				sub: t`BPMs this high are for SV and can slow the editor down. You won't be asked again.`,
+				confirmLabel: t`Set it`,
+			});
+			if (!yes) return setRefused(r => r + 1);
+			await SETTINGS.editorHighBpm.set(true);
+		}
+		update({ beatLength: 60000 / n });
+	};
+	const nudge = (by: number) => (e: { shiftKey: boolean }) =>
+		update({ time: point.time + by * (e.shiftKey ? 10 : 1) });
 
 	return (
 		<div
@@ -50,24 +73,32 @@ export default function EditorTimingPoint({
 			>
 				▸
 			</button>
+			<span className="editor__nudged">
+				<button className="editor__nudge" aria-label={t`1 ms earlier, 10 with Shift`} onClick={nudge(-1)}>
+					−
+				</button>
+				<EditorField
+					key={`time:${point.time}`}
+					type="number"
+					label={t`Time (ms)`}
+					value={String(point.time)}
+					onCommit={v => {
+						// 0 or before the song is fine: osu! maps often start there
+						const time = Number(v);
+						if (v.trim() && Number.isFinite(time)) update({ time: Math.round(time) });
+					}}
+				/>
+				<button className="editor__nudge" aria-label={t`1 ms later, 10 with Shift`} onClick={nudge(1)}>
+					+
+				</button>
+			</span>
 			<EditorField
-				key={`time:${point.time}`}
-				type="number"
-				label={t`Time (ms)`}
-				value={String(point.time)}
-				onCommit={v => {
-					// 0 or before the song is fine: osu! maps often start there
-					const time = Number(v);
-					if (v.trim() && Number.isFinite(time)) update({ time: Math.round(time) });
-				}}
-			/>
-			<EditorField
-				key={`bpm:${bpm}`}
+				key={`bpm:${bpm}:${refused}`}
 				type="number"
 				label={t`BPM`}
 				autoFocus={focused}
 				value={bpm}
-				onCommit={v => number(v, n => update({ beatLength: 60000 / n }))}
+				onCommit={v => number(v, n => void setBpm(n))}
 			/>
 			<EditorField
 				key={`meter:${point.meter}`}

@@ -14,6 +14,7 @@ import type {
 } from '@oss-idle/shared/queue';
 
 import { RESULT_SETTLE_MS } from '../components/result/settle';
+import { focusInCarousel } from '../components/songselect/selection';
 import { Score } from '../db/schema/score';
 import { ScoreXP } from '../db/schema/score_xp';
 import { SETTINGS } from '../db/settings';
@@ -77,6 +78,9 @@ type StartResult = 'started' | 'elsewhere' | 'failed';
  *  clears on its own is worth another go; an anti-cheat lock or an offline
  *  client never does, and retrying those forever is a popup every two seconds. */
 const MAX_START_FAILURES = 3;
+/** How long after a switch the new character's play still moves the selection:
+ *  a play it starts later is the queue's, not the switch's. */
+const SWITCH_FOLLOW_MS = 10_000;
 
 /** The play the character is running right now, in this client's clock. */
 export type LivePlay = {
@@ -581,11 +585,17 @@ export default class PlayManager {
 	 *  over. The one left behind keeps playing on the server; its play is not this
 	 *  screen's any more. */
 	private static watched: string | undefined;
+	/** A switch puts song select on the new character's play once its state comes in.
+	 *  `from` is the play left behind, whose stale state can land first. */
+	private static switched: { from?: string, at: number } | undefined;
 	private static identityChanged(): void {
 		const now = online() ? `${Entities.character.get()?.id}:${selectedRuleset.get()}` : 'local';
 		if (now === this.watched) return;
 		const switched = this.watched !== undefined && this.watched !== 'local' && now !== 'local';
 		this.watched = now;
+		this.switched = switched ? {
+			from: this.live.get()?.token ?? this.ranToken, at: Date.now(),
+		} : undefined;
 		if (switched) this.leavePlay();
 		window.clearInterval(this.serverTick);
 		this.serverTick = undefined;
@@ -798,6 +808,7 @@ export default class PlayManager {
 			? current.beatmap
 			: this.known.get(state.token) ?? await this.findDownloaded(state.beatmapId);
 		if (!beatmap) return;
+		this.followSwitch(state.token, beatmap);
 		const skew = Date.now() - state.serverNow;
 		void this.live.set({
 			token: state.token,
@@ -811,15 +822,23 @@ export default class PlayManager {
 		});
 	}
 
+	private static followSwitch(token: string, beatmap: LightBeatmap): void {
+		const switched = this.switched;
+		if (!switched || token === switched.from) return;
+		this.switched = undefined;
+		if (Date.now() - switched.at < SWITCH_FOLLOW_MS) focusInCarousel(beatmap);
+	}
+
 	/** Take a finished play's authoritative result, quietly: only a play the
 	 *  player watched leads to its result screen, and that is the scene's doing. */
 	private static async consumeResult(token: string, scene: string): Promise<void> {
 		// The scene marks a play complete when it tears down: it has shown the
 		// result and logged it, and doing either again is one score reported twice.
-		// While it is still up it owns the result even though it has not said so
-		// yet - a sweep finalising first would otherwise mirror the score here and
-		// the scene would mirror it again on its own ending.
-		if (token === this.completedToken || scene === SCENE.GAME) return;
+		// While it is still up it owns its play's result even though it has not said
+		// so yet - a sweep finalising first would otherwise mirror the score here and
+		// the scene would mirror it again on its own ending. A play it isn't showing
+		// (one that ended as the player launched another) is still ours to log.
+		if (token === this.completedToken || (scene === SCENE.GAME && this.known.has(token))) return;
 		const res = await fetchPlayResult(token, false, false).catch(() => null);
 		if (!res || res.failed || !res.score) return;
 		const dto = res.score;

@@ -1,13 +1,16 @@
 import type { MedalTier } from '@oss-idle/shared/achievements/medal';
 
 import { SETTINGS } from '../db/settings';
-import { audioContext } from './audioContext';
+import {
+	audioContext,
+	speakers,
+} from './audioContext';
 import * as synth from './medalSynth';
 
 /** Medals follow the main volume only, not the effects one. */
 const mainVolume = () => {
 	const gain = audioContext.createGain();
-	gain.connect(audioContext.destination);
+	gain.connect(speakers);
 	void SETTINGS.mainVolume.sync(v => gain.gain.setTargetAtTime(v, audioContext.currentTime, 0.02));
 	return gain;
 };

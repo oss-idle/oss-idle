@@ -58,6 +58,7 @@ import {
 import { xpGainsVersion } from '../db/schema/score_xp';
 import {
 	type GroupOption,
+	scrollSpeedOf,
 	SETTINGS,
 	type SortOption,
 } from '../db/settings';
@@ -91,6 +92,7 @@ import BeatmapStore, { beatmapsVersion } from '../osu/beatmap/beatmap_store';
 import { matchesSearch } from '../osu/beatmap/beatmapSearch';
 import {
 	bestRankOf,
+	bestScoreOf,
 	EMPTY_HISTORY,
 	EMPTY_PLAYLISTS,
 	type Group,
@@ -131,6 +133,9 @@ const SORT_COMPARATORS: Record<SortOption, (
 		a.beatmap.metadata.total_length - b.beatmap.metadata.total_length,
 	'By Title': (a, b) => 
 		a.set.metadata.title.localeCompare(b.set.metadata.title),
+	// unplayed first, then the lowest best up, as Rank Achieved runs worst first
+	'By Best Score': (a, b, h) =>
+		(bestScoreOf(h, a.beatmap) ?? -1) - (bestScoreOf(h, b.beatmap) ?? -1),
 	'By Rank Achieved': (a, b, h) => 
 		(bestRankOf(h, b.beatmap) ?? Infinity) 
 		- (bestRankOf(h, a.beatmap) ?? Infinity),
@@ -271,10 +276,10 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 
 	Controls.back.usePress(() => onBack(true));
 
-	const [scrollSpeed] = useSynced(SETTINGS.scrollspeed);
 	const [library] = useSynced(beatmapsVersion);
 	const [character] = useSynced(Entities.character);
 	const [ruleset] = useSynced(selectedRuleset);
+	const [scrollSpeed] = useSynced(scrollSpeedOf(ruleset));
 	const online_character = useAsync(async () => character.isGuest() ? undefined
 		: getCharacter(character.id, ruleset)
 	, [character, ruleset]);
@@ -541,13 +546,16 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 		if (item) void selectItem(item.beatmap, 'songselect/select-difficulty');
 	}, [selectableItems, selectItem]);
 
-	// osu!'s F2: a random map of the list, never the one already selected
+	// osu!'s F2: a random map of the list, or of the open group, never the one already selected
 	const random = useCallback((audible = true) => {
-		const others = selectableItems.filter(i => !i.beatmap.is(selection.get()));
+		const pool = expanded
+			? expanded.items.filter(i => canPlayAt(i.beatmap.lockedRate))
+			: selectableItems;
+		const others = pool.filter(i => !i.beatmap.is(selection.get()));
 		const pick = others[Math.floor(Math.random() * others.length)];
-		if (audible) randomSounds(selectableItems.map(i => i.beatmap), selection.get(), pick?.beatmap);
+		if (audible) randomSounds(pool.map(i => i.beatmap), selection.get(), pick?.beatmap);
 		if (pick) void selectItem(pick.beatmap, 'silent');
-	}, [selectableItems, selectItem, selection]);
+	}, [selectableItems, expanded, selectItem, selection]);
 
 	// entered with the intro still playing: move on to a map of the list
 	useEffect(() => {

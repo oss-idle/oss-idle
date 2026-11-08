@@ -18,6 +18,7 @@ import {
 	queueClientMessages,
 	queueServerMessages,
 } from '../queue.js';
+import { RULESET_IDS } from '../rulesets/ids.js';
 import {
 	CLIENT_STATUS,
 	presenceEntryDTO,
@@ -100,6 +101,8 @@ export const chatLineDTO = z.discriminatedUnion('kind', [
 			label: z.string(),
 			path: z.string(),
 		}).optional(),
+		/** the ruleset an announcement is about, drawn as its icon in front */
+		ruleset: z.enum(RULESET_IDS).optional(),
 	}),
 ]);
 export type ChatLine = z.infer<typeof chatLineDTO>;

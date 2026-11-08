@@ -8,8 +8,8 @@ msgstr ""
 "Language: de\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-04 09:23+0000\n"
-"Last-Translator: nel lish <nelbacon9f@gmail.com>\n"
+"PO-Revision-Date: 2026-11-08 14:15+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: German <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/de/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
@@ -23,7 +23,7 @@ msgstr ""
 
 #: src/components/multiplayer/MatchRow.tsx
 msgid "(In Progress)"
-msgstr ""
+msgstr "(im Gange)"
 
 #: src/components/options/RightClickHold.tsx
 msgid "(mobile) Tap duration to right click"
@@ -31,7 +31,7 @@ msgstr ""
 
 #: src/components/multiplayer/SlotLabel.tsx
 msgid "[no map]"
-msgstr ""
+msgstr "[Map fehlt]"
 
 #: src/components/multiplayer/SlotLabel.tsx
 msgid "[playing]"
@@ -55,7 +55,7 @@ msgstr ""
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "{count, plural, one {# note uses this file. It will play the default sound instead.} other {# notes use this file. They will play the default sounds instead.}}"
-msgstr "{count, plural, one {# Note nutzt diese Datei. Sie wird den standard Ton abspielen.} other {# Noten nutzen diese Datei. Sie werden die standard Töne abspielen.}}"
+msgstr "{count, plural, one {# Note nutzt diese Datei. Sie wird stattdessen den Standardton abspielen.} other {# Noten nutzen diese Datei. Sie werden stattdessen die Standardtöne abspielen.}}"
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "{count, plural, one {# note} other {# notes}}"
@@ -63,11 +63,11 @@ msgstr "{count, plural, one {# Note} other {# Noten}}"
 
 #: src/editor/EditorChecks.tsx
 msgid "{count, plural, one {Checks: # to look at} other {Checks: # to look at}}"
-msgstr "{count, plural, one {Checks: # zum ansehen} other {Checks: # zum ansehen}}"
+msgstr "{count, plural, one {Checks: # zum Ansehen} other {Checks: # zum Ansehen}}"
 
 #: src/editor/builtinActions.ts
 msgid "{count, plural, one {Resnapped # note} other {Resnapped # notes}}"
-msgstr "{count, plural, one {# neu aufgenommene Note} other {# neu aufgenommene Noten}}"
+msgstr "{count, plural, one {# Note neu am Raster ausgerichtet} other {# Noten neu am Raster ausgerichtet}}"
 
 #: src/components/community/WorldMap.tsx
 msgid "{count} here"
@@ -89,7 +89,7 @@ msgstr "{from}+ Min"
 
 #: src/components/character/RebirthView.tsx
 msgid "{handover}, stays playable and ranked · The new character starts from zero and unlocks: {unlocks}"
-msgstr "{handover}, bliebt spielbar und rangiert · Der neue Charakter fängt von Vorne an und schaltet frei: {unlocks}"
+msgstr "{handover}, bleibt spielbar und gerankt · Der neue Charakter fängt von vorne an und schaltet frei: {unlocks}"
 
 #: src/components/skills/SkillEquation.tsx
 msgid "{held, plural, one {# medal} other {# medals}}"
@@ -97,7 +97,7 @@ msgstr "{held, plural, one {# Medaille} other {# Medaillen}}"
 
 #: src/editor/EditorHitsounds.tsx
 msgid "{index} · no files"
-msgstr "{index} · keine Datein"
+msgstr "{index} · keine Dateien"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{levels, plural, one {a map you know by heart is played with # more accuracy level} other {a map you know by heart is played with # more accuracy levels}}"
@@ -117,7 +117,7 @@ msgstr ""
 
 #: src/components/direct/DirectFilters.tsx
 msgid "{matches, plural, one {# match found} other {# matches found}}"
-msgstr "{matches, plural, one {#1 Match gefunden} other {# Matche gefunden}}"
+msgstr "{matches, plural, one {# Treffer gefunden} other {# Treffer gefunden}}"
 
 #: src/osu/beatmap/grouping.ts
 msgid "{months, plural, one {# month ago} other {# months ago}}"
@@ -133,7 +133,7 @@ msgstr "{n, plural, one {# Note nach Ende des Songs} other {# Noten nach Ende de
 
 #: src/editor/EditorChecks.tsx
 msgid "{n, plural, one {# note before the song starts} other {# notes before the song starts}}"
-msgstr "{n, plural, one {# Note bevor Anfang des Songs} other {# Noten bevor Anfang des Songs}}"
+msgstr "{n, plural, one {# Note vor Anfang des Songs} other {# Noten vor Anfang des Songs}}"
 
 #: src/editor/EditorChecks.tsx
 msgid "{n, plural, one {# note in a chord across every column} other {# notes in chords across every column}}"
@@ -141,11 +141,11 @@ msgstr "{n, plural, one {# Note im Akkord in jeder Spalte} other {# Noten im Akk
 
 #: src/editor/EditorChecks.tsx
 msgid "{n, plural, one {# note off the 1/16 and 1/12 beat lines} other {# notes off the 1/16 and 1/12 beat lines}}"
-msgstr "{n, plural, one {# Note abseits der 1/16 und 1/12 Taktlinien} other {# Noten abseits der 1/16 und 1/12 Taktlinien}}"
+msgstr "{n, plural, one {# Note abseits der 1/16- und 1/12-Beatlinien} other {# Noten abseits der 1/16- und 1/12-Beatlinien}}"
 
 #: src/editor/EditorChecks.tsx
 msgid "{n, plural, one {# note overlaps another in its column} other {# notes overlap another in their column}}"
-msgstr "{n, plural, one {# Note überlappt eine Andere in ihrer Spalte} other {# Noten überlappen eine Andere in ihrer Spalte}}"
+msgstr "{n, plural, one {# Note überlappt eine andere in ihrer Spalte} other {# Noten überlappen eine andere in ihrer Spalte}}"
 
 #: src/components/multiplayer/CreateMatch.tsx
 msgid "{n, plural, one {# player} other {# players}}"
@@ -165,7 +165,7 @@ msgstr "{name} wird zu {name}_old"
 
 #: src/scenes/Editor.tsx
 msgid "{name} becomes this difficulty's background"
-msgstr "{name} wird zum Hintergrund dieses Schwierigkeitsgrad"
+msgstr "{name} wird zum Hintergrund dieses Schwierigkeitsgrads"
 
 #: src/components/character/PrestigeClimaxxPop.tsx
 msgid "{name} climaxx"
@@ -180,8 +180,8 @@ msgid "{name} mentioned you"
 msgstr "{name} hat dich erwähnt"
 
 #: src/logs.ts
-msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
-msgstr "{name} spielte {map} und erreichte {accuracy} {grade}. {gains}"
+msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
+msgstr ""
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
@@ -201,7 +201,7 @@ msgstr "{nbMaps, plural, one {# Map} other {# Maps}}"
 
 #: src/components/community/CommunityHeader.tsx
 msgid "{online, plural, one {# user connected} other {# users connected}}"
-msgstr "{online, plural, one {# User connected} other {# Users connected}}"
+msgstr "{online, plural, one {# User verbunden} other {# User verbunden}}"
 
 #: src/components/community/chat/Reactions.tsx
 msgid "{others} more"
@@ -221,7 +221,11 @@ msgstr "{result} auf {map}"
 
 #: src/scenes/SongSelect.tsx
 msgid "{results, plural, one {# result} other {# results}}"
-msgstr "{result, plural, one {# Resultat} other {# Resultate}}"
+msgstr "{results, plural, one {# Resultat} other {# Resultate}}"
+
+#: src/input/Controls.ts
+msgid "{ruleset} scroll speed set to {speed}"
+msgstr ""
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -229,7 +233,7 @@ msgstr "{seconds}s"
 
 #: src/editor/builtinActions.ts
 msgid "{seek}, selecting on the way"
-msgstr "{seek}, Auswahl auf dem Weg"
+msgstr "{seek}, dabei auswählen"
 
 #: src/editor/EditorSummary.tsx
 msgid "{selected, plural, one {# selected} other {# selected}}"
@@ -241,11 +245,11 @@ msgstr "{shown} von {total, plural, one {# Punkt} other {# Punkten}}"
 
 #: src/editor/EditorScroll.tsx
 msgid "{shown} of {total, plural, one {# point} other {# points}}, around the current time"
-msgstr "{shown} von {total, plural, one {# Punkt} other {# Points}}, etwa um die aktuelle Zeit"
+msgstr "{shown} von {total, plural, one {# Punkt} other {# Punkten}}, etwa um die aktuelle Zeit"
 
 #: src/scenes/SongSelect.tsx
 msgid "{shown} of {total, plural, one {# result} other {# results}}"
-msgstr "{shown} von {total, plural, one {# Resultat} other {# Resultate}}"
+msgstr "{shown} von {total, plural, one {# Resultat} other {# Resultaten}}"
 
 #: src/components/genetics/ClimaxxBalance.tsx
 msgid "{skill} climaxx"
@@ -345,7 +349,7 @@ msgstr ""
 
 #: src/editor/EditorView.tsx
 msgid "{version} (copy)"
-msgstr "{version} (kopieren)"
+msgstr "{version} (Kopie)"
 
 #: src/components/character/PrestigeRow.tsx
 msgid "+{bonus} Lv · +{slots} gear slot · x{multiplier} XP"
@@ -383,6 +387,14 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms earlier, 10 with Shift"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms later, 10 with Shift"
 msgstr ""
 
 #: src/components/mods/ModSelect.tsx
@@ -427,7 +439,7 @@ msgstr ""
 
 #: src/scenes/bootPlay.ts
 msgid "A game is already in progress. Play locally instead? It won't be submitted."
-msgstr "Ein Spiel ist bereits am Laufen. Spiele Lokal stattdessen? Es wird nicht eingereicht."
+msgstr "Ein Spiel ist bereits am Laufen. Stattdessen lokal spielen? Es wird nicht eingereicht."
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "a hand can jack chords {value}% faster before it strains"
@@ -472,7 +484,7 @@ msgstr ""
 
 #: src/components/DesktopUpdate.tsx
 msgid "A new update is available. Click here to download it !"
-msgstr "Ein neues Update ist bereit. Klicke hier um es herunterzuladen!"
+msgstr "Ein neues Update ist bereit. Klicke hier, um es herunterzuladen!"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "a pause of 15 s or more gives your focus back in full"
@@ -708,6 +720,10 @@ msgstr ""
 
 #: src/editor/EditorMetadata.tsx
 msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
+msgstr ""
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "All modes"
 msgstr ""
 
 #: src/components/options/DownloadAllWarning.tsx
@@ -957,6 +973,10 @@ msgstr ""
 msgid "BPM"
 msgstr ""
 
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Brake"
 msgstr ""
@@ -1064,6 +1084,10 @@ msgid "By Artist"
 msgstr ""
 
 #: src/components/songselect/TopBar.tsx
+msgid "By Best Score"
+msgstr ""
+
+#: src/components/songselect/TopBar.tsx
 msgid "By BPM"
 msgstr ""
 
@@ -1121,6 +1145,7 @@ msgstr ""
 #: src/components/dock/SaveQueuePrompt.tsx
 #: src/components/multiplayer/CreateMatch.tsx
 #: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/options/DownloadModeChoice.tsx
 #: src/components/page/pageBar.tsx
 #: src/components/songselect/CardContextMenu.tsx
 #: src/components/songselect/CardContextMenu.tsx
@@ -1798,7 +1823,7 @@ msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> acro
 msgstr ""
 
 #: src/components/mods/RateStepper.tsx
-msgid "Each Speed upgrade unlocks one more step"
+msgid "Each Speed upgrade or prestige unlocks one more step"
 msgstr ""
 
 #: src/components/genetics/SkillCard.tsx
@@ -3183,6 +3208,14 @@ msgstr ""
 msgid "Musical"
 msgstr ""
 
+#: src/components/options/MuteInBackground.tsx
+msgid "Mute when in the background"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "mute|background|unfocused|focus|tab|window|volume"
+msgstr ""
+
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
 msgstr ""
@@ -3341,6 +3374,10 @@ msgstr ""
 #: src/scenes/Result.tsx
 #: src/scenes/Result.tsx
 msgid "No replay data"
+msgstr ""
+
+#: src/osu/beatmap/grouping.ts
+msgid "No score"
 msgstr ""
 
 #: src/components/leaderboard/Leaderboard.tsx
@@ -3525,6 +3562,10 @@ msgstr ""
 
 #: src/components/community/CommunityControls.tsx
 msgid "Online users"
+msgstr ""
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Only {mode} beatmaps"
 msgstr ""
 
 #: src/components/genetics/GeneticsPreview.tsx
@@ -4360,6 +4401,10 @@ msgstr ""
 msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr ""
 
+#: src/scenes/Options.tsx
+msgid "RULESETS"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "running low on stamina starts to hurt {value}% later"
 msgstr ""
@@ -4431,6 +4476,18 @@ msgstr ""
 
 #: src/components/dock/DockTransport.tsx
 msgid "Screensaver"
+msgstr ""
+
+#: src/components/options/ScrollSpeed.tsx
+msgid "Scroll speed"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|4k|mania|f3|f4"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|7k|mania|f3|f4"
 msgstr ""
 
 #: src/components/community/CommunityHeader.tsx
@@ -4556,6 +4613,14 @@ msgstr ""
 
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "Sent back: {note}"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set a BPM above {max}?"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set it"
 msgstr ""
 
 #: src/components/multiplayer/MatchSettings.tsx
@@ -5763,6 +5828,10 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
+msgstr ""
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Which ranked beatmaps?"
 msgstr ""
 
 #: src/editor/EditorSoundFiles.tsx

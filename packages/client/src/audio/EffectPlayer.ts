@@ -2,7 +2,10 @@ import Log from '@oss-idle/shared/helpers/log';
 import Synced from '@oss-idle/shared/helpers/synced';
 
 import { SETTINGS } from '../db/settings';
-import { audioContext } from './audioContext';
+import {
+	audioContext,
+	speakers,
+} from './audioContext';
 import { unwrapWav } from './wav';
 
 export type PlayOptions = {
@@ -45,7 +48,7 @@ export class EffectPlayer {
 		this.master = this.context.createGain();
 		this.master.gain.value = 
 			SETTINGS.effectVolume.get() * SETTINGS.mainVolume.get();
-		this.master.connect(this.context.destination);
+		this.master.connect(speakers);
 
 		Synced.all([
 			SETTINGS.mainVolume,

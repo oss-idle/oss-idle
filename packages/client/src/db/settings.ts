@@ -16,18 +16,19 @@ import {
 import type { BoardSort } from '@oss-idle/shared/rankings';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
-export const SCORE_TAB = mapped(['LOCAL', 'GLOBAL', 'COUNTRY', 'FRIENDS', 'MINE']);
+export const SCORE_TAB = mapped(['LOCAL', 'GLOBAL', 'COUNTRY', 'FRIENDS', 'MINE', 'RATE']);
 export type ScoreTab = ValueIn<typeof SCORE_TAB>;
 
 export const GroupOptions = [
 	'No Grouping', 'By Artist', 'By BPM', 'By Creator', 'By Difficulty',
-	'By Download Status', 'By Length', 'By Playlist', 'By Rank Achieved', 'By Status', 'By Tag', 'By Title', 'Recently Played',
+	'By Best Score', 'By Download Status', 'By Length', 'By Playlist', 'By Rank Achieved', 'By Status', 'By Tag',
+	'By Title', 'Recently Played',
 ] as const;
 export const GROUP_OPTION = mapped(GroupOptions);
 export type GroupOption = ValueIn<typeof GROUP_OPTION>;
 
 export const SortOptions = [
-	'By Artist', 'By BPM', 'By Creator', 'By Difficulty',
+	'By Artist', 'By BPM', 'By Best Score', 'By Creator', 'By Difficulty',
 	'By Length', 'By Rank Achieved', 'By Title', 'Recently Played',
 ] as const;
 export const SORT_OPTION = mapped(SortOptions);
@@ -74,6 +75,16 @@ const option = <T>() =>
 const stored = new Set(Object.keys(localStorage));
 export const wasStored = (key: string): boolean => stored.has(key);
 
+/** A number this device saved under `key`, else `fallback`. */
+const storedNumber = (key: string, fallback: number): number => {
+	try {
+		const saved: unknown = JSON.parse(localStorage.getItem(key) ?? '');
+		return typeof saved === 'number' ? saved : fallback;
+	} catch {
+		return fallback;
+	}
+};
+
 const defaults = [
 	/**
 	 * Volume controls
@@ -117,7 +128,10 @@ const defaults = [
 	 * Touch long-press duration (ms) before it counts as a right click
 	 */
 	option<number>()('longpress', 400),
+	/** 4K's scroll speed (the one there was before rulesets had their own) */
 	option<number>()('scrollspeed', 16),
+	/** 7K's, starting where the shared one was */
+	option<number>()('scrollspeed7k', storedNumber('scrollspeed', 16)),
 	/**
 	 * The installed skin the editor draws its notes with (0: the default skin); the
 	 * gameplay skin is the enabled one.
@@ -129,6 +143,8 @@ const defaults = [
 	 */
 	option<number>()('rate', 1),
 	option<boolean>()('pitchFollowsRate', true),
+	/** every sound fades out while the game's window or tab is in the background */
+	option<boolean>()('muteInBackground', false),
 	/** the last rate picked on each side, which turning that mod back on brings back */
 	option<number>()('fasterRate', 1.05),
 	option<number>()('slowerRate', 0.95),
@@ -165,6 +181,8 @@ const defaults = [
 	option<number>()('cursorSize', 1),
 	/** the editor's live gameplay preview beside its playfield */
 	option<boolean>()('editorPreview', true),
+	/** BPMs over the editor's cap go in without asking: said yes to it once */
+	option<boolean>()('editorHighBpm', false),
 	option<number>()('autopilotDelay', 30),
 	// every setting is written on first load, so an existing player keeps Playlist
 	option<AutopilotMode>()('autopilotMode', AUTOPILOT_MODE.NEXT),
@@ -179,3 +197,7 @@ export const SETTINGS = defaults.reduce((acc, option) => {
 	acc[option.key as keyof typeof acc] = option as any;
 	return acc;
 }, {} as SettingsByKey<typeof defaults>);
+
+/** A ruleset's scroll speed: each mania ruleset keeps its own. */
+export const scrollSpeedOf = (ruleset?: RulesetId) =>
+	(ruleset === 'mania7k' ? SETTINGS.scrollspeed7k : SETTINGS.scrollspeed);

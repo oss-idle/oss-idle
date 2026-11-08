@@ -23,6 +23,7 @@ import {
 	isAdmin,
 } from '@oss-idle/shared/groups';
 import { LOBBY_CHANNEL } from '@oss-idle/shared/multiplayer';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { db } from '../db/client';
 import { characters } from '../db/schema/character';
@@ -284,19 +285,24 @@ export const forgetChatUser = async (userId: number, characterIds: number[]): Pr
 export const hasChatted = async (characterId: number): Promise<boolean> =>
 	await redis.sismember(CHATTED_KEY, String(characterId)) === 1;
 
-const systemLine = (channel: string, text: string, color: string): ChatLine => ({
+const systemLine = (
+	channel: string, text: string, color: string, ruleset?: RulesetId,
+): ChatLine => ({
 	id: randomUUID(),
 	kind: 'system',
 	channel,
 	text: text.slice(0, MAX_CHAT_LENGTH),
 	color,
 	at: Date.now(),
+	...ruleset && { ruleset },
 });
 
 /** Broadcast a server announcement (no sender) - e.g. a #1-rank notice. The
  *  whole line renders in `color`. Fire-and-forget history write. */
-export const announce = (channel: string, text: string, color: string): void => {
-	const line = systemLine(channel, text, color);
+export const announce = (
+	channel: string, text: string, color: string, ruleset?: RulesetId,
+): void => {
+	const line = systemLine(channel, text, color, ruleset);
 	void store(channel, line);
 	hub.broadcast({
 		type: 'chat', line,

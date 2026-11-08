@@ -7,6 +7,7 @@ import {
 } from 'drizzle-orm';
 
 import { APPROVED_STATUSES } from '@oss-idle/shared/beatmap';
+import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
 
 import { db } from '../db/client';
 import { beatmaps } from '../db/schema/beatmap';
@@ -77,6 +78,7 @@ const announceDue = async (r: ServerRuleset): Promise<boolean> => {
 
 		await announceRanked({
 			loved: status === 'loved',
+			ruleset: rulesetLabel(r.def.id),
 			id: set.id,
 			osuId: set.osuId,
 			osuCover: set.osuCover,

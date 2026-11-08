@@ -11,6 +11,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { menuIdle } from '../../globals';
 import Socket from '../../online/socket';
 import ChatText from './chat/ChatText';
+import RulesetTag from './chat/RulesetTag';
 
 /** The latest chat line, shown while the overlay is closed (when enabled). */
 export default function Ticker() {
@@ -42,7 +43,9 @@ export default function Ticker() {
 		return (
 			<div ref={ref} className={`community-ticker ${idle ? 'is-idle' : ''}`}>
 				<div className="chat__line">
-					<span className="chat__text" style={{ color: latest.color }}>{time} {latest.text}</span>
+					<span className="chat__text" style={{ color: latest.color }}>
+						{time} {latest.ruleset && <RulesetTag ruleset={latest.ruleset} />}{latest.text}
+					</span>
 				</div>
 			</div>
 		);

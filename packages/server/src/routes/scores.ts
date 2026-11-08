@@ -13,6 +13,7 @@ import {
 	BOARD_SORTS,
 	type BoardSort,
 } from '@oss-idle/shared/rankings';
+import { rateSchema } from '@oss-idle/shared/rate';
 import { betterScore } from '@oss-idle/shared/scoreOrder';
 
 import {
@@ -124,6 +125,31 @@ async function unrankedBoardRows(r: ServerRuleset, beatmapId: number) {
 	});
 }
 
+/** A map's board at one rate: each player's best play at it, by `sort`. */
+async function rateBoard(r: ServerRuleset, beatmapId: number, rate: number, sort: BoardSort) {
+	// ponytail: reads every play of the map at that rate; a per-rate best table if a map's plays get huge
+	const rows = await db
+		.select({
+			score: r.score, player: playerColumns,
+		})
+		.from(r.score)
+		.innerJoin(characters, eq(characters.id, r.score.characterId))
+		.innerJoin(users, eq(users.id, characters.userId))
+		.where(and(
+			eq(r.score.beatmapId, beatmapId), eq(r.score.rate, rate.toFixed(2)), isNull(users.restrictedAt),
+		));
+	const order = sort === 'pp' ? ppFirst : (a: ScoreRow, b: ScoreRow) => betterScore(a, b) ? -1 : 1;
+	const best = new Map<number, typeof rows[number]>();
+	for (const row of rows) {
+		const held = best.get(row.score.characterId);
+		if (!held || order(row.score, held.score) < 0) best.set(row.score.characterId, row);
+	}
+	return [...best.values()]
+		.sort((a, b) => order(a.score, b.score))
+		.slice(0, PAGE_SIZE)
+		.map(row => boardRow(r, row.score, row.player));
+}
+
 /** A map's leaderboard page one: global, one country, or among friends (`among`),
  *  ordered by `sort`. Each best with who set it. */
 export async function beatmapBoard(
@@ -198,6 +224,8 @@ const boardQuery = valid('query', z.object({
 	country: z.string().length(2).optional(),
 	friends: z.literal('1').optional(),
 	sort: z.enum(BOARD_SORTS).optional(),
+	/** global, played at this rate only */
+	rate: z.coerce.number().pipe(rateSchema).optional(),
 }));
 
 const sortQuery = valid('query', z.object({ sort: z.enum(BOARD_SORTS).optional() }));
@@ -234,7 +262,14 @@ const boardOf = async (beatmapId: number, country?: string) => {
 export const scoresRoutes = new Hono()
 	// the web map page: global, one country, or the viewer's friends
 	.get('/beatmap/:beatmap/board', boardQuery, async c => {
-		const { country, friends, sort } = c.req.valid('query');
+		const {
+			country, friends, sort, rate,
+		} = c.req.valid('query');
+		if (rate !== undefined) {
+			const beatmapId = idParam.parse(c.req.param('beatmap'));
+			const r = await rulesetOfBeatmap(beatmapId);
+			return c.json(r ? await rateBoard(r, beatmapId, rate, sort ?? 'score') : []);
+		}
 		const viewer = friends ? await sessionUserId(c) : undefined;
 		const among = viewer === undefined ? undefined : await friendCharacterIds(viewer);
 		if (friends && !among) return c.json([]);

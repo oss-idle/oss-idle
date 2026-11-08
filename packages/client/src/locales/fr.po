@@ -180,8 +180,8 @@ msgid "{name} mentioned you"
 msgstr "{name} t'a mentionné"
 
 #: src/logs.ts
-msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
-msgstr "{name} a joué {map} et a fait un {accuracy} {grade}. {gains}"
+msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
+msgstr "{name} a joué {map} et a fait un {accuracy} {grade}{pp}. {gains}"
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
@@ -222,6 +222,10 @@ msgstr "{result} sur {map}"
 #: src/scenes/SongSelect.tsx
 msgid "{results, plural, one {# result} other {# results}}"
 msgstr "{results, plural, one {# résultat} other {# résultats}}"
+
+#: src/input/Controls.ts
+msgid "{ruleset} scroll speed set to {speed}"
+msgstr "Vitesse de défilement {ruleset} réglée sur {speed}"
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -384,6 +388,14 @@ msgstr "★ Ton choix"
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
 msgstr "1 niveau de précision tous les 10 essais sur une map, jusqu'à {levels}"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms earlier, 10 with Shift"
+msgstr "1 ms plus tôt, 10 avec Maj"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms later, 10 with Shift"
+msgstr "1 ms plus tard, 10 avec Maj"
 
 #: src/components/mods/ModSelect.tsx
 msgid "1. Reset All Mods"
@@ -710,6 +722,10 @@ msgstr "Toutes les maps de base ont été téléchargées."
 msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
 msgstr "Tout sauf le nom de la difficulté est commun au set : sauvegarder l'écrit dans chaque difficulté."
 
+#: src/components/options/DownloadModeChoice.tsx
+msgid "All modes"
+msgstr "Tous les modes"
+
 #: src/components/options/DownloadAllWarning.tsx
 msgid "All ranked beatmaps downloaded."
 msgstr "Toutes les maps classées ont été téléchargées."
@@ -957,6 +973,10 @@ msgstr "Rebondir"
 msgid "BPM"
 msgstr "BPM"
 
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+msgstr "Des BPM aussi élevés servent aux SV et peuvent ralentir l'éditeur. On ne te le redemandera plus."
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Brake"
 msgstr "Frein"
@@ -1064,6 +1084,10 @@ msgid "By Artist"
 msgstr "Par artiste"
 
 #: src/components/songselect/TopBar.tsx
+msgid "By Best Score"
+msgstr "Par meilleur score"
+
+#: src/components/songselect/TopBar.tsx
 msgid "By BPM"
 msgstr "Par BPM"
 
@@ -1121,6 +1145,7 @@ msgstr "Mains calmes"
 #: src/components/dock/SaveQueuePrompt.tsx
 #: src/components/multiplayer/CreateMatch.tsx
 #: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/options/DownloadModeChoice.tsx
 #: src/components/page/pageBar.tsx
 #: src/components/songselect/CardContextMenu.tsx
 #: src/components/songselect/CardContextMenu.tsx
@@ -1798,8 +1823,8 @@ msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> acro
 msgstr "Chaque partie complétée octroie de <0>l'XP</0> et <1>des niveaux</1> à ton personnage dans diverses compétences, le rendant meilleur pour ses prochaines parties."
 
 #: src/components/mods/RateStepper.tsx
-msgid "Each Speed upgrade unlocks one more step"
-msgstr "Chaque amélioration de la vitesse débloque un incrément"
+msgid "Each Speed upgrade or prestige unlocks one more step"
+msgstr "Chaque amélioration ou prestige de Vitesse débloque un cran de plus"
 
 #: src/components/genetics/SkillCard.tsx
 msgid "Each tier you buy adds {perTier}% {name} XP"
@@ -3183,6 +3208,14 @@ msgstr "Musique en lecture"
 msgid "Musical"
 msgstr "Musicale"
 
+#: src/components/options/MuteInBackground.tsx
+msgid "Mute when in the background"
+msgstr "Couper le son en arrière-plan"
+
+#: src/scenes/Options.tsx
+msgid "mute|background|unfocused|focus|tab|window|volume"
+msgstr "muet|couper|son|arrière-plan|fond|focus|onglet|fenêtre|volume"
+
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
 msgstr "Amis en commun"
@@ -3342,6 +3375,10 @@ msgstr "Pas de point d'aperçu (onglet Métadonnées)"
 #: src/scenes/Result.tsx
 msgid "No replay data"
 msgstr "Aucune donnée de replay"
+
+#: src/osu/beatmap/grouping.ts
+msgid "No score"
+msgstr "Pas de score"
 
 #: src/components/leaderboard/Leaderboard.tsx
 msgid "No scores yet, be the first!"
@@ -3526,6 +3563,10 @@ msgstr "Les personnages en ligne partent toujours de zéro : la progression en t
 #: src/components/community/CommunityControls.tsx
 msgid "Online users"
 msgstr "Utilisateurs en ligne"
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Only {mode} beatmaps"
+msgstr "Seulement les maps {mode}"
 
 #: src/components/genetics/GeneticsPreview.tsx
 msgid "Only a preview: you learn genes with climaxx once you've begun."
@@ -4360,6 +4401,10 @@ msgstr "Mains roulantes"
 msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr "les rolls et les stairs sur une main sont {value}% plus légers"
 
+#: src/scenes/Options.tsx
+msgid "RULESETS"
+msgstr "MODES DE JEU"
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "running low on stamina starts to hurt {value}% later"
 msgstr "le manque d'endurance commence à te pénaliser {value}% plus tard"
@@ -4432,6 +4477,18 @@ msgstr "Multiplicateur: {multiplier}x"
 #: src/components/dock/DockTransport.tsx
 msgid "Screensaver"
 msgstr "Économiseur d'écran"
+
+#: src/components/options/ScrollSpeed.tsx
+msgid "Scroll speed"
+msgstr "Vitesse de défilement"
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|4k|mania|f3|f4"
+msgstr "défilement|vitesse|scroll|speed|4k|mania|f3|f4"
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|7k|mania|f3|f4"
+msgstr "défilement|vitesse|scroll|speed|7k|mania|f3|f4"
 
 #: src/components/community/CommunityHeader.tsx
 msgid "Search"
@@ -4557,6 +4614,14 @@ msgstr "Signaler"
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "Sent back: {note}"
 msgstr "Renvoyée, motif : {note}"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set a BPM above {max}?"
+msgstr "Mettre un BPM au-dessus de {max} ?"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set it"
+msgstr "Le mettre"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Set Password"
@@ -5764,6 +5829,10 @@ msgstr "quand ta concentration baisse, elle décline {value}% plus progressiveme
 #: src/rulesets/mania/4k/geneText.ts
 msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
 msgstr "quand tes mains s'emmêlent, tu lâches une LN trop tôt au lieu de rater une note {value}% plus souvent"
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Which ranked beatmaps?"
+msgstr "Quelles maps classées ?"
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "whistle"

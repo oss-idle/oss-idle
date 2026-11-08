@@ -14,6 +14,7 @@ import {
 	allowedRate,
 	RATE_STEP,
 	rateSchema,
+	rateUnlocks,
 } from '@oss-idle/shared/rate';
 import { mania4k } from '@oss-idle/shared/rulesets/mania/4k/index';
 import {
@@ -86,9 +87,9 @@ export const play = async (input: SimInput, chart: string): Promise<SimResult | 
 export const simulate = async (body: SimulateBody): Promise<ApiSimulation | Refusal> => {
 	const map = await getLiveBeatmap(rulesetFor(mania4k.id), body.beatmap_id);
 	if (!map) return refuse(404, 'No live ranked or loved 4K beatmap has this id');
-	const speed = body.skills[SKILL.speed]?.upgrades ?? 0;
-	if (allowedRate(body.rate, speed) !== body.rate) {
-		return refuse(422, 'The speed upgrades given don\'t allow this rate');
+	const speed = body.skills[SKILL.speed];
+	if (allowedRate(body.rate, rateUnlocks(speed?.upgrades ?? 0, speed?.prestige ?? 0)) !== body.rate) {
+		return refuse(422, 'The speed upgrades and prestiges given don\'t allow this rate');
 	}
 	const mods = modsFor(cleanMods(body.mods), mania4k.id);
 	const result = await play({

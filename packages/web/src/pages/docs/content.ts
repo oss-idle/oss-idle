@@ -459,7 +459,7 @@ export const ENDPOINTS: EndpointSection[] = [
 					{
 						name: 'rate', type: 'number', optional: true,
 						about: 'Playback rate, 0.5 to 1.5 in steps of 0.05 (default 1). The speed upgrades'
-							+ ' given must allow it.',
+							+ ' and prestiges given must allow it: one step each.',
 					},
 					{
 						name: 'mods', type: 'string[]', optional: true,

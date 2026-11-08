@@ -23,7 +23,7 @@ import { sendCharacterAction } from './characterAction';
  *  ready: no prestige counted, no climaxx. */
 export const prestigeSkill = async (skillName: string, force = false): Promise<boolean> => {
 	const character = Entities.character.get();
-	if (character.id === 0 || !selectedDef().rebirth) return false;
+	if (character.id === 0) return false;
 
 	// a guest's play is already resolved, so nothing it does now can reach it
 	if (character.isGuest()) return prestigeLocally(character, skillName, force);

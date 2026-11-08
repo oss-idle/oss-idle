@@ -37,7 +37,7 @@ export default function SkillRow({
 				<span className="skill-row__gear">
 					<span>{selectedDef().upgradeLabel(name, s.upgrades)}</span>
 					<span className="skill-row__perk">
-						<SkillPerk skill={name} upgrades={s.upgrades} next={s.upgrades} />
+						<SkillPerk skill={name} upgrades={s.upgrades} next={s.upgrades} prestige={s.prestige} />
 					</span>
 				</span>
 			</div>

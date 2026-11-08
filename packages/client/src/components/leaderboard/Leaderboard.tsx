@@ -18,9 +18,15 @@ import {
 	SCORE_TAB,
 	SETTINGS,
 } from '../../db/settings';
+import Entities from '../../entity/entities';
+import {
+	rateFor,
+	selectedRate,
+} from '../../gameplay/playRate';
 import Account from '../../online/account';
 import Auth from '../../online/auth';
 import {
+	boardKey,
 	type BoardRow,
 	boardScores,
 	boardTab,
@@ -53,6 +59,8 @@ export default function Leaderboard() {
 	const [sort] = useSynced(SETTINGS.leaderboardSort);
 	const [scoresV] = useSynced(scoresVersion);
 	const [library] = useSynced(beatmapsVersion);
+	// the picked rate moves the Current rate board
+	useSynced(selectedRate);
 	// The board on screen and which map + tab it is. A re-fetch of the same board keeps
 	// its rows: only the scores that changed come and go, the rest slide to their place.
 	const [board, setBoard] = useState<{ key?: string, scores: BoardRow[] }>({ scores: [] });
@@ -63,7 +71,9 @@ export default function Leaderboard() {
 
 	const effective = boardTab(category, country, user?.supporter);
 	const local = effective === SCORE_TAB.LOCAL || effective === SCORE_TAB.MINE;
-	const key = `${beatmap?.metadata.id}:${effective}:${sort}:${country}`;
+	// the rate this map plays at: a playlist's locked one, else the one picked
+	const rate = rateFor(Entities.character.get(), beatmap?.lockedRate);
+	const key = boardKey(beatmap?.metadata.id, effective, sort, country, rate);
 	const loading = board.key !== key;
 	const scores = loading ? NO_ROWS : board.scores;
 	const show = (rows: BoardRow[]) => {
@@ -90,7 +100,7 @@ export default function Leaderboard() {
 		}
 		let cancelled = false;
 
-		boardScores(id, effective, sort, country)
+		boardScores(id, effective, sort, country, rate)
 			.then((s) => !cancelled && show(s))
 			.catch(() => !cancelled && show([]));
 		return () => {

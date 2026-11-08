@@ -1,7 +1,10 @@
 import { Beatmap } from 'osu-classes';
 
 import type { Mod } from '@oss-idle/shared/mods';
-import { rulesetOf } from '@oss-idle/shared/rulesets/ids';
+import {
+	type RulesetId,
+	rulesetOf,
+} from '@oss-idle/shared/rulesets/ids';
 
 import { music } from '../../audio/MusicPlayer';
 import { playable } from '../../rulesets/enabled';
@@ -39,9 +42,14 @@ export default class LightBeatmap {
 		return playable(this.metadata.mode, this.metadata.keys);
 	}
 
+	/** The ruleset that plays it, when one does. */
+	public ruleset(): RulesetId | undefined {
+		return rulesetOf(this.metadata.mode, this.metadata.keys);
+	}
+
 	/** Played by the ruleset the player picked: what song select lists. */
 	public inPickedRuleset(): boolean {
-		return rulesetOf(this.metadata.mode, this.metadata.keys) === selectedRuleset.get();
+		return this.ruleset() === selectedRuleset.get();
 	}
 
 	public isPlaying(): boolean {

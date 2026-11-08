@@ -8,8 +8,8 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-02 19:23+0000\n"
-"Last-Translator: almdudler <romashka150710@gmail.com>\n"
+"PO-Revision-Date: 2026-11-04 18:23+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/ru/>\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
 
@@ -180,8 +180,8 @@ msgid "{name} mentioned you"
 msgstr "{name} упоминает тебя"
 
 #: src/logs.ts
-msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
-msgstr "{name} сыграл {map} и получил {accuracy} {grade}. {gains}"
+msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
+msgstr ""
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
@@ -222,6 +222,10 @@ msgstr "{result} на {map}"
 #: src/scenes/SongSelect.tsx
 msgid "{results, plural, one {# result} other {# results}}"
 msgstr "{results, plural, one {# результат} few {# результата} many {# результатов} other {# результата}}"
+
+#: src/input/Controls.ts
+msgid "{ruleset} scroll speed set to {speed}"
+msgstr ""
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -383,6 +387,14 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms earlier, 10 with Shift"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms later, 10 with Shift"
 msgstr ""
 
 #: src/components/mods/ModSelect.tsx
@@ -710,6 +722,10 @@ msgstr "Все встроенные карты скачаны."
 msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
 msgstr "Все, кроме названия сложности, являются общими для набора: сохранение записывает их для каждой сложности."
 
+#: src/components/options/DownloadModeChoice.tsx
+msgid "All modes"
+msgstr ""
+
 #: src/components/options/DownloadAllWarning.tsx
 msgid "All ranked beatmaps downloaded."
 msgstr "Все ранкнутые карты скачаны."
@@ -957,6 +973,10 @@ msgstr ""
 msgid "BPM"
 msgstr "BPM"
 
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Brake"
 msgstr ""
@@ -1019,11 +1039,11 @@ msgstr "Встроенные"
 
 #: src/components/Tutorial.tsx
 msgid "Bundled maps are listed in <0>song select</0>:<1> double-click</1> a map to download it, then <2>single-click</2> to start playing."
-msgstr "Встроенные карты отображаются в <0>меню выбора песни</0>: <1>дважды кликните</1> на карту, чтобы скачать её, затем <2>кликните один раз</2>, чтобы начать играть."
+msgstr "Встроенные карты отображаются в <0>меню выбора песни</0>: <1>дважды кликни</1> на карту, чтобы скачать её, затем <2>кликни один раз</2>, чтобы начать играть."
 
 #: src/components/Tutorial.tsx
 msgid "Bundled maps are listed in <0>song select</0>:<1> double-tap</1> a map to download it, then <2>single-tap</2> to start playing."
-msgstr "Встроенные карты отображаются в <0>меню выбора песни</0>: <1> дважды коснитесь карты</1>, чтобы скачать её, затем <2>коснитесь один раз</2>, чтобы начать играть."
+msgstr "Встроенные карты отображаются в <0>меню выбора песни</0>: <1> дважды коснись карты</1>, чтобы скачать её, затем <2>коснись один раз</2>, чтобы начать играть."
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "Busy hands"
@@ -1061,7 +1081,11 @@ msgstr "от {name}"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Artist"
-msgstr "По Исполнителю"
+msgstr "По исполнителю"
+
+#: src/components/songselect/TopBar.tsx
+msgid "By Best Score"
+msgstr ""
 
 #: src/components/songselect/TopBar.tsx
 msgid "By BPM"
@@ -1069,27 +1093,27 @@ msgstr "По BPM"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Creator"
-msgstr "По Создателю"
+msgstr "По создателю"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Difficulty"
-msgstr "По Сложности"
+msgstr "По сложности"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Download Status"
-msgstr "По Статусу Загрузки"
+msgstr "По статусу загрузки"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Length"
-msgstr "По Длительности"
+msgstr "По длительности"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Playlist"
-msgstr "По Плейлисту"
+msgstr "По плейлисту"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Rank Achieved"
-msgstr "По Достигнутому Рангу"
+msgstr "По достигнутому рангу"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "By snap"
@@ -1097,15 +1121,15 @@ msgstr "По снапу"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Status"
-msgstr "По Статусу"
+msgstr "По статусу"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Tag"
-msgstr "По Тэгу"
+msgstr "По тэгу"
 
 #: src/components/songselect/TopBar.tsx
 msgid "By Title"
-msgstr "По Названию"
+msgstr "По названию"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Calibrated"
@@ -1121,6 +1145,7 @@ msgstr ""
 #: src/components/dock/SaveQueuePrompt.tsx
 #: src/components/multiplayer/CreateMatch.tsx
 #: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/options/DownloadModeChoice.tsx
 #: src/components/page/pageBar.tsx
 #: src/components/songselect/CardContextMenu.tsx
 #: src/components/songselect/CardContextMenu.tsx
@@ -1231,7 +1256,7 @@ msgstr "Проверка: нечего чинить"
 
 #: src/components/options/MoveInstall.tsx
 msgid "Choose where to move oss!idle (the game will restart)"
-msgstr "Выберите, куда переместить oss!idle (игра перезапуститься)"
+msgstr "Выбери, куда переместить oss!idle (игра перезапустится)"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Chord cohesion"
@@ -1271,7 +1296,7 @@ msgstr "Хлопок"
 
 #: src/editor/builtinActions.ts
 msgid "Clap on the selection"
-msgstr "Хлопок на выборе"
+msgstr "Хлопок на выделенном"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "Clean lift"
@@ -1287,11 +1312,11 @@ msgstr ""
 
 #: src/components/songselect/CardContextMenu.tsx
 msgid "Clear local scores"
-msgstr "Очистить локальный скоры"
+msgstr "Очистить локальные скоры"
 
 #: src/scenes/Lobby.tsx
 msgid "Click 'New Game' to start a new game!"
-msgstr "Нажмите 'Новая Игра', чтобы начать новую игру!"
+msgstr "Нажми 'Новая Игра', чтобы начать новую игру!"
 
 #: src/components/medals/MedalUnlockOverlay.tsx
 msgid "Click a medal to look at it · click elsewhere to continue"
@@ -1668,7 +1693,7 @@ msgstr "Сложность удалена"
 
 #: src/components/mods/ModSelect.tsx
 msgid "Difficulty Increase"
-msgstr "Повышение Сложности"
+msgstr "Повышение сложности"
 
 #: src/editor/EditorMetadata.tsx
 msgid "Difficulty name"
@@ -1676,7 +1701,7 @@ msgstr "Название сложности"
 
 #: src/components/mods/ModSelect.tsx
 msgid "Difficulty Reduction"
-msgstr "Уменьшение Сложности"
+msgstr "Уменьшение сложности"
 
 #: src/gameplay/playQueue.ts
 msgid "Disabled"
@@ -1700,7 +1725,7 @@ msgstr "Показывать"
 
 #: src/components/options/ShowUnbundled.tsx
 msgid "Display non-bundled approved beatmaps as downloadable in song select"
-msgstr "Показывать несгрупированные одбренные карты, как скачиваемые в меню выбора песни"
+msgstr "Показывать невстроенные одобренные карты как скачиваемые в меню выбора песни"
 
 #: src/components/mods/ModSelect.tsx
 #: src/components/result/ResultMods.tsx
@@ -1709,7 +1734,7 @@ msgstr "Даблтайм"
 
 #: src/components/BeatmapCard.tsx
 msgid "Double click to download"
-msgstr "Двойной клик чтобы скачать"
+msgstr "Двойной клик, чтобы скачать"
 
 #: src/components/direct/directState.ts
 msgid "Download"
@@ -1721,7 +1746,7 @@ msgstr "Скачать всё"
 
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Download all bundled beatmaps"
-msgstr "Скачать все сгруппированные карты"
+msgstr "Скачать все встроенные карты"
 
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Download all ranked beatmaps"
@@ -1729,7 +1754,7 @@ msgstr "Скачать все ранкнутые карты"
 
 #: src/components/options/DownloadAllWarning.tsx
 msgid "Download every bundled beatmap?"
-msgstr "Скачать все сгрупированные карты?"
+msgstr "Скачать все встроенные карты?"
 
 #: src/components/options/DownloadAllWarning.tsx
 msgid "Download every ranked beatmap?"
@@ -1741,11 +1766,11 @@ msgstr "Скачивание остановлено."
 
 #: src/scenes/SongSelect.tsx
 msgid "Download the beatmap first"
-msgstr "Сначала скачайте карту"
+msgstr "Сначала скачай карту"
 
 #: src/scenes/Options.tsx
 msgid "download|beatmap|beatmaps|bundled|supporter"
-msgstr "download|beatmap|beatmaps|bundled|supporter|скачать|скачивание|карта|карты|сгруппированные|группа|саппортер"
+msgstr "download|beatmap|beatmaps|bundled|supporter|скачать|скачивание|карта|карты|встроенные|саппортер"
 
 #: src/scenes/Options.tsx
 msgid "download|beatmap|beatmaps|ranked|supporter"
@@ -1753,7 +1778,7 @@ msgstr "download|beatmap|beatmaps|ranked|supporter|скачать|скачива
 
 #: src/scenes/Options.tsx
 msgid "download|downloaded|beatmap|beatmaps|bundled|ranked|loved"
-msgstr "download|downloaded|beatmap|beatmaps|bundled|ranked|loved|скачать|скачанные|скачанный|карта|карты|сгруппированные|группа|ранкед|ловед|любимый"
+msgstr "download|downloaded|beatmap|beatmaps|bundled|ranked|loved|скачать|скачанные|скачанный|карта|карты|встроенные|ранкед|ловед|любимый"
 
 #: src/scenes/Options.tsx
 msgid "download|downloaded|beatmap|beatmaps|hide"
@@ -1762,7 +1787,7 @@ msgstr "download|downloaded|beatmap|beatmaps|hide|скачать|скачанн�
 #: src/components/direct/directState.ts
 #: src/osu/beatmap/grouping.ts
 msgid "Downloaded"
-msgstr "Скачанная"
+msgstr "Скачано"
 
 #: src/online/mapLinks.ts
 msgid "Downloaded {title}"
@@ -1778,7 +1803,7 @@ msgstr "Загрузка {title}..."
 
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Downloading beatmaps: {done}/{total} (click to stop)"
-msgstr "Загрузка карт: {done}/{total} (кликните, чтобы остановить)"
+msgstr "Загрузка карт: {done}/{total} (кликни, чтобы остановить)"
 
 #: src/components/DesktopUpdate.tsx
 msgid "Downloading update… {percent}%"
@@ -1798,8 +1823,8 @@ msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> acro
 msgstr "Каждая завершенная игра приносит твоему персонажу <0>XP</0> и <1>уровни</1> в разных скиллсетах, чтобы он играл лучше в будущих играх."
 
 #: src/components/mods/RateStepper.tsx
-msgid "Each Speed upgrade unlocks one more step"
-msgstr "Каждое улучшение скорости открывает еще один шаг"
+msgid "Each Speed upgrade or prestige unlocks one more step"
+msgstr ""
 
 #: src/components/genetics/SkillCard.tsx
 msgid "Each tier you buy adds {perTier}% {name} XP"
@@ -1866,11 +1891,11 @@ msgstr "Включено"
 
 #: src/components/multiplayer/CreateMatch.tsx
 msgid "Enter a password before attempting to start the game..."
-msgstr "Введите пароль перед попыткой начать игру..."
+msgstr "Введи пароль перед попыткой начать игру..."
 
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Every bundled beatmap is already downloaded."
-msgstr "Все сгруппированные карты уже скачаны."
+msgstr "Все встроенные карты уже скачаны."
 
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Every ranked beatmap is already downloaded."
@@ -1878,11 +1903,11 @@ msgstr "Все ранкнутые карты уже скачаны."
 
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "Every score and all the progression players earned on it are deleted for good, and only the team can rank it again."
-msgstr "Каждый скор и весь прогресс, который получили на ней игроки были удалены во благо, и только команда может ранкнуть её снова."
+msgstr "Все скоры и весь прогресс, который игроки получили на ней, будут удалены навсегда, и только команда может ранкнуть её снова."
 
 #: src/editor/builtinActions.ts
 msgid "Every shortcut is back to its default"
-msgstr "Каждое сочетание клавиш было вернуто к дефолтным настройкам"
+msgstr "Каждое сочетание клавиш возвращено к дефолтным настройкам"
 
 #: src/scenes/MainMenu.tsx
 #: src/scenes/MainMenu.tsx
@@ -1891,7 +1916,7 @@ msgstr "Выйти"
 
 #: src/scenes/MainMenu.tsx
 msgid "Exit oss!idle"
-msgstr "Выйти oss!idle"
+msgstr "Выйти из oss!idle"
 
 #: src/components/skins/DefaultSkinRow.tsx
 #: src/components/skins/SkinDAORow.tsx
@@ -1907,7 +1932,7 @@ msgstr "Экспорт .osz"
 #: src/components/result/scoreCard.ts
 #: src/scenes/Result.tsx
 msgid "FAILED"
-msgstr "ОШИБКА"
+msgstr "ПРОВАЛ"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Familiar shapes"
@@ -1928,7 +1953,7 @@ msgstr "Быстрее"
 
 #: src/editor/builtinActions.ts
 msgid "Faster playback"
-msgstr "Быстрое воспроизведение"
+msgstr "Ускорить воспроизведение"
 
 #: src/scenes/Gameplay.tsx
 msgid "Fatigued"
@@ -1972,15 +1997,15 @@ msgstr "Найти темп"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "Fine"
-msgstr "Хороший"
+msgstr "Подробный"
 
 #: src/editor/builtinActions.ts
 msgid "Finer beat snap"
-msgstr "Тонкая привязка нот"
+msgstr "Более тонкая привязка нот"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "Finest"
-msgstr "Прекрасный"
+msgstr "Самый подробный"
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "finish"
@@ -1992,7 +2017,7 @@ msgstr "Финиш"
 
 #: src/editor/builtinActions.ts
 msgid "Finish on the selection"
-msgstr "Финиш на выборе"
+msgstr "Финиш на выделенном"
 
 #: src/components/direct/directState.ts
 msgid "Finished downloading {title}"
@@ -2004,11 +2029,11 @@ msgstr ""
 
 #: src/editor/EditorView.tsx
 msgid "Fix the errors the map checks found first"
-msgstr "Сначала исправьте ошибки, найденные после проверки карты"
+msgstr "Сначала исправь ошибки, найденные после проверки карты"
 
 #: src/editor/builtinActions.ts
 msgid "Flip the selection"
-msgstr "Переворот на выборе"
+msgstr "Переворот выделенного"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Flow state"
@@ -2057,7 +2082,7 @@ msgstr "Ограничитель кадров"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Free Mods"
-msgstr "Фри Моды"
+msgstr "Фри моды"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "Frequencies"
@@ -2118,11 +2143,11 @@ msgstr "Полноэкранный режим"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Game Name"
-msgstr "Название Игры"
+msgstr "Название игры"
 
 #: src/components/multiplayer/CreateMatch.tsx
 msgid "Game Name:"
-msgstr "Название Игры:"
+msgstr "Название игры:"
 
 #: src/components/addons/AddonEditMeta.tsx
 msgid "Game version"
@@ -2176,7 +2201,7 @@ msgstr ""
 
 #: src/components/community/PlayerMenu.tsx
 msgid "Give Host"
-msgstr "Дать Хоста"
+msgstr "Дать хоста"
 
 #: src/editor/EditorScrollPoint.tsx
 #: src/editor/EditorTimingPoint.tsx
@@ -2289,7 +2314,7 @@ msgstr ""
 
 #: src/components/options/DownloadAllWarning.tsx
 msgid "Here they are stored by your browser: the desktop app is better suited to keeping this many."
-msgstr "Здесь они храняться в вашем браузере: компьютерное приложение лучше подойдёт для хранения их большого количества."
+msgstr "Здесь они хранятся в твоём браузере: компьютерное приложение лучше подойдёт для хранения их большого количества."
 
 #: src/components/addons/AddonRepoBuild.tsx
 msgid "Hide build log"
@@ -2344,7 +2369,7 @@ msgstr "Хитсаунды"
 
 #: src/editor/EditorLiveMapping.tsx
 msgid "Hold a key for an LN"
-msgstr "Зажмите клавишу для ЛНа"
+msgstr "Зажми клавишу для ЛНа"
 
 #: src/rulesets/mania/4k/quiz.ts
 msgid "hold a note and let go right on time"
@@ -2352,7 +2377,7 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Hold every note until the next (full LN)"
-msgstr "Зажмите каждую ноту до следующей (полный ЛН)"
+msgstr "Растянуть каждую ноту до следующей (полный ЛН)"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "Hold on"
@@ -2396,7 +2421,7 @@ msgstr ""
 
 #: src/components/PlayChoice.tsx
 msgid "How do you want to play?"
-msgstr "Как вы хотите играть?"
+msgstr "Как ты хочешь играть?"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Ice veins"
@@ -2416,7 +2441,7 @@ msgstr "Импорт"
 
 #: src/components/skins/ManageSkinsView.tsx
 msgid "Import a skin folder"
-msgstr "Импортировать папку скинов"
+msgstr "Импортировать папку скина"
 
 #: src/components/skins/ManageSkinsView.tsx
 msgid "Import an .osk"
@@ -2437,7 +2462,7 @@ msgstr "Импортировано {title}"
 
 #: src/osu/beatmap/oszImport.ts
 msgid "Imported {title}, but it has no {rulesets} difficulty to play"
-msgstr "Импортировано {title}, но он не имеет {rulesets} difficulty, чтобы играть"
+msgstr "Импортировано {title}, но в нём нет сложности {rulesets} для игры"
 
 #: src/osu/beatmap/oszImport.ts
 msgid "Importing {name}..."
@@ -2522,7 +2547,7 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Inverse the whole map"
-msgstr "Инвертируйте всю карту"
+msgstr "Инвертировать всю карту"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Iron wrists"
@@ -2534,15 +2559,15 @@ msgstr "Его нельзя будет перенести в онлайн."
 
 #: src/editor/EditorView.tsx
 msgid "It is in the ranking queue: withdraw it to update it"
-msgstr "Карта в очереди на рейтинг: отзовите его, чтобы обновить"
+msgstr "Карта в очереди на рейтинг: отзови её, чтобы обновить"
 
 #: src/editor/EditorView.tsx
 msgid "It is loved: unrank it to change it"
-msgstr "Карта в статусе «Любимые»: снимите его с рейтинга, чтобы изменить"
+msgstr "Карта в статусе «Любимые»: сними её с рейтинга, чтобы изменить"
 
 #: src/editor/EditorView.tsx
 msgid "It is ranked: unrank it to change it"
-msgstr "Карта в статусе «Ранкед»: снимите его с рейтинга, чтобы изменить"
+msgstr "Карта в статусе «Ранкед»: сними её с рейтинга, чтобы изменить"
 
 #: src/components/genetic-choice/GeneticHubReach.tsx
 msgid "Its genes at {percent}% strength"
@@ -2590,7 +2615,7 @@ msgstr "Заход в эту игру требует пароль..."
 
 #: src/components/options/DiscordLevelColour.tsx
 msgid "Keep my level colour on Discord instead of supporter pink"
-msgstr "Оставьте мой цвет уровня в Дискорде вместо саппортер розового"
+msgstr "Оставлять мой цвет уровня в Дискорде вместо розового цвета саппортера"
 
 #: src/components/Tutorial.tsx
 msgid "Keep playing"
@@ -2598,7 +2623,7 @@ msgstr "Продолжить играть"
 
 #: src/components/options/KeepPlaying.tsx
 msgid "Keep playing the queue when the game is closed"
-msgstr "Продолжить играть очередь пока игра закрыта"
+msgstr "Продолжить играть очередь, пока игра закрыта"
 
 #: src/editor/EditorCompose.tsx
 msgid "Keep the pitch"
@@ -2652,7 +2677,7 @@ msgstr "Язык"
 
 #: src/scenes/Options.tsx
 msgid "language|locale"
-msgstr "language|locale|язык|локальный"
+msgstr "language|locale|язык|локаль"
 
 #: src/components/addons/AddonRepoBuild.tsx
 msgid "Last build:"
@@ -2702,11 +2727,11 @@ msgstr ""
 
 #: src/scenes/Gameplay.tsx
 msgid "Leave - your character keeps playing"
-msgstr "Выйти - ваш персонаж продолжит играть"
+msgstr "Выйти - твой персонаж продолжит играть"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Leave empty to remove the password."
-msgstr "Оставьте пустым, чтобы убрать пароль."
+msgstr "Оставь пустым, чтобы убрать пароль."
 
 #: src/scenes/MatchSetup.tsx
 msgid "Leave Match"
@@ -2714,7 +2739,7 @@ msgstr "Выйти из матча"
 
 #: src/online/play.ts
 msgid "Leave the match to play on your own."
-msgstr "Выйдите из матча, чтобы играть одному."
+msgstr "Выйди из матча, чтобы играть одному."
 
 #: src/components/direct/DirectPanel.tsx
 msgid "Length"
@@ -2929,7 +2954,7 @@ msgstr "ОБСЛУЖИВАНИЕ"
 
 #: src/editor/builtinActions.ts
 msgid "Make every LN a note"
-msgstr "Сделать каждую удерживаемую ноту обычной"
+msgstr "Сделать каждую ЛН обычной нотой"
 
 #: src/components/multiplayer/CreateMatch.tsx
 msgid "Make match history publicly viewable"
@@ -2950,7 +2975,7 @@ msgstr "Управлять аддонами"
 
 #: src/components/songselect/CardContextMenu.tsx
 msgid "Manage Playlists"
-msgstr "Управлять плэйлистами"
+msgstr "Управлять плейлистами"
 
 #: src/components/options/ManageSkins.tsx
 msgid "Manage skins"
@@ -2971,16 +2996,16 @@ msgstr ""
 #: src/components/BeatmapCard.tsx
 #: src/editor/EditorSummary.tsx
 msgid "mapped by {creator}"
-msgstr "замапанно {creator}"
+msgstr "замаплено {creator}"
 
 #: src/components/songselect/BeatmapInfo.tsx
 msgid "Mapped by {creator}"
-msgstr "Замапанно {creator}"
+msgstr "Замаплено {creator}"
 
 #: src/components/direct/DirectPanel.tsx
 #: src/components/direct/DirectRow.tsx
 msgid "mapped by {mapper}"
-msgstr "замапанно {mapper}"
+msgstr "замаплено {mapper}"
 
 #: src/editor/EditorMetadata.tsx
 msgid "Mapper"
@@ -3055,7 +3080,7 @@ msgstr "Метроном"
 
 #: src/editor/builtinActions.ts
 msgid "Metronome: off, beats, half beats"
-msgstr "Метроном: выкл., долей, полудолей"
+msgstr "Метроном: выкл., доли, полудоли"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Minijacks"
@@ -3084,7 +3109,7 @@ msgstr "Моды"
 
 #: src/components/mods/ModSelect.tsx
 msgid "Mods change how a map plays. A faster rate usually makes the map harder, and a slower one easier."
-msgstr "Моды меняют то, как играется мапа. Рейт повыше обычно делают мапу сложнее, а поменьше легче."
+msgstr "Моды меняют то, как играется мапа. Рейт повыше обычно делает мапу сложнее, а поменьше — легче."
 
 #: src/editor/EditorActions.tsx
 msgid "More"
@@ -3133,11 +3158,11 @@ msgstr "Изменить место установки..."
 
 #: src/editor/builtinActions.ts
 msgid "Move the selection a column left"
-msgstr "Сдвинуть выбранное на колонну влево"
+msgstr "Сдвинуть выбранное на колонку влево"
 
 #: src/editor/builtinActions.ts
 msgid "Move the selection a column right"
-msgstr "Сдвинуть выбранное на колонну вправо"
+msgstr "Сдвинуть выбранное на колонку вправо"
 
 #: src/editor/builtinActions.ts
 msgid "Move the selection a line earlier"
@@ -3161,7 +3186,7 @@ msgstr "Мульти"
 
 #: src/scenes/Lobby.tsx
 msgid "Multiplayer Lobby"
-msgstr "Мультиплеер лобби"
+msgstr "Лобби мультиплеера"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Muscle memory"
@@ -3177,11 +3202,19 @@ msgstr "Музыка приостановлена"
 
 #: src/input/Controls.ts
 msgid "Music playing"
-msgstr "Музыка воспроизведена"
+msgstr "Музыка играет"
 
 #: src/editor/EditorViewOptions.tsx
 msgid "Musical"
 msgstr "Музыкальный"
+
+#: src/components/options/MuteInBackground.tsx
+msgid "Mute when in the background"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "mute|background|unfocused|focus|tab|window|volume"
+msgstr ""
 
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
@@ -3226,7 +3259,7 @@ msgstr "Новая сложность"
 
 #: src/scenes/Lobby.tsx
 msgid "New Game"
-msgstr "Новая Игра"
+msgstr "Новая игра"
 
 #: src/editor/EditorNewMap.tsx
 msgid "New map"
@@ -3234,11 +3267,11 @@ msgstr "Новая карта"
 
 #: src/scenes/Direct.tsx
 msgid "New Releases"
-msgstr "Новые Карты"
+msgstr "Новые карты"
 
 #: src/components/addons/AddonRepoPane.tsx
 msgid "New webhook address"
-msgstr "Новый вебхук адрес"
+msgstr "Новый адрес вебхука"
 
 #: src/components/addons/BrowseAddonsView.tsx
 #: src/components/skins/BrowseSkinsView.tsx
@@ -3260,7 +3293,7 @@ msgstr ""
 
 #: src/components/character/RebirthView.tsx
 msgid "Next rebirth unlocks: {next}"
-msgstr "Следующее перерождение откроется: {next}"
+msgstr "Следующее перерождение откроет: {next}"
 
 #: src/gameplay/playQueue.ts
 msgid "Next song"
@@ -3280,11 +3313,11 @@ msgstr ""
 
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "No {ruleset} difficulty of it is online yet: upload one first"
-msgstr "Ещё нет загруженной сложности {ruleset}: сначала загрузите её"
+msgstr "Ещё нет загруженной сложности {ruleset}: сначала загрузи её"
 
 #: src/components/PlayChoice.tsx
 msgid "No account. Your character stays on this device."
-msgstr "Без аккаунта. Ваш персонаж остаётся на этом устройстве."
+msgstr "Без аккаунта. Твой персонаж остаётся на этом устройстве."
 
 #: src/components/addons/BrowseAddonsView.tsx
 msgid "No add-ons found."
@@ -3292,7 +3325,7 @@ msgstr "Аддоны не были найдены."
 
 #: src/components/addons/ManageAddonsView.tsx
 msgid "No add-ons installed. Browse the catalog to find some."
-msgstr "Нет установленных аддонов. Просмотрите каталог, чтобы найти что-то подходящее."
+msgstr "Нет установленных аддонов. Просмотри каталог, чтобы найти что-то подходящее."
 
 #: src/editor/EditorChecks.tsx
 msgid "No background image"
@@ -3312,7 +3345,7 @@ msgstr "Местоположения не найдены"
 
 #: src/components/BeatmapCarousel.tsx
 msgid "no maps match your search"
-msgstr "никакие карты не подходят к вашему запросу"
+msgstr "никакие карты не подходят к твоему запросу"
 
 #: src/scenes/Options.tsx
 msgid "No matching settings."
@@ -3324,7 +3357,7 @@ msgstr "Ни одна нота не перепривязана"
 
 #: src/editor/EditorChecks.tsx
 msgid "No notes yet"
-msgstr "Заметок ещё нет"
+msgstr "Нот ещё нет"
 
 #: src/components/community/PlayerGrid.tsx
 msgid "No one online"
@@ -3332,7 +3365,7 @@ msgstr "Никто не в сети"
 
 #: src/components/PlaylistOverlay.tsx
 msgid "No playlists yet. Type a name above and press Enter."
-msgstr "Плейлистов ещё нет. Введите название выше и нажмите Enter."
+msgstr "Плейлистов ещё нет. Введи название выше и нажми Enter."
 
 #: src/editor/EditorChecks.tsx
 msgid "No preview point (Metadata tab)"
@@ -3343,9 +3376,13 @@ msgstr "Не задана точка превью (вкладка «Метада
 msgid "No replay data"
 msgstr "Нет данных повтора"
 
+#: src/osu/beatmap/grouping.ts
+msgid "No score"
+msgstr ""
+
 #: src/components/leaderboard/Leaderboard.tsx
 msgid "No scores yet, be the first!"
-msgstr "Рекордов ещё нет, станьте первым!"
+msgstr "Рекордов ещё нет, стань первым!"
 
 #: src/components/result/SkillProgression.tsx
 msgid "No skill gains"
@@ -3361,7 +3398,7 @@ msgstr "Аудиофайлов пока нет"
 
 #: src/editor/EditorBpmTools.tsx
 msgid "No tempo found"
-msgstr "Ритм не найден"
+msgstr "Темп не найден"
 
 #: src/editor/EditorChecks.tsx
 msgid "No timing point: the beat lines need one"
@@ -3413,7 +3450,7 @@ msgstr "Не все готовы. Все равно начать?"
 
 #: src/components/multiplayer/ReadyButton.tsx
 msgid "Not Ready"
-msgstr "Не Готов"
+msgstr "Не готов"
 
 #: src/components/genetic-choice/GeneticPickScreen.tsx
 msgid "Not sure? Take the quiz"
@@ -3421,27 +3458,27 @@ msgstr ""
 
 #: src/editor/EditorModes.tsx
 msgid "Note"
-msgstr "Заметка"
+msgstr "Нота"
 
 #: src/editor/EditorModes.tsx
 msgid "Note + LN"
-msgstr "Нота + LN"
+msgstr "Нота + ЛН"
 
 #: src/editor/builtinActions.ts
 msgid "Note + LN tool"
-msgstr "Нота + LN инструмент"
+msgstr "Инструмент «Нота + ЛН»"
 
 #: src/editor/EditorShortcuts.tsx
 msgid "Note + LN: drag up"
-msgstr "Нота + LN: тянуть вверх"
+msgstr "Нота + ЛН: тянуть вверх"
 
 #: src/editor/builtinActions.ts
 msgid "Note in column {column}"
-msgstr "Нота в колонне {column}"
+msgstr "Нота в колонке {column}"
 
 #: src/editor/builtinActions.ts
 msgid "Note tool"
-msgstr "Инструмент заметок"
+msgstr "Инструмент нот"
 
 #: src/editor/EditorShortcuts.tsx
 msgid "Note: click"
@@ -3449,7 +3486,7 @@ msgstr "Нота: нажатие"
 
 #: src/editor/actions.ts
 msgid "Notes"
-msgstr "Заметки"
+msgstr "Ноты"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "notes that slow down are {value}% easier"
@@ -3461,7 +3498,7 @@ msgstr "Ничего не подходит"
 
 #: src/components/character/RebirthView.tsx
 msgid "nothing new"
-msgstr "Ничего нового"
+msgstr "ничего нового"
 
 #: src/components/dock/DockUpNext.tsx
 msgid "Nothing queued"
@@ -3469,7 +3506,7 @@ msgstr "Очередь пуста"
 
 #: src/components/dock/DockQueue.tsx
 msgid "Nothing queued. Click a map to add it."
-msgstr "Очередь пуста. Нажмите на карту чтобы добавить её."
+msgstr "Очередь пуста. Нажми на карту, чтобы добавить её."
 
 #: src/editor/EditorMetadata.tsx
 msgid "Now"
@@ -3493,7 +3530,7 @@ msgstr "Не в сети"
 
 #: src/editor/builtinActions.ts
 msgid "Offset in ms, like -15"
-msgstr "Оффсет в мс., например -15"
+msgstr "Оффсет в мс, например -15"
 
 #: src/editor/builtinActions.ts
 msgid "Offset the whole map"
@@ -3521,11 +3558,15 @@ msgstr ""
 
 #: src/components/Onboarding.tsx
 msgid "Online characters always start fresh: Guest progress stays local, so the leaderboards stay fair."
-msgstr "Онлайн персонажи всегда начинают с нуля. Гостевой прогресс остаётся локальным чтобы таблицы лидеров были честными."
+msgstr "Онлайн персонажи всегда начинают с нуля. Гостевой прогресс остаётся локальным, чтобы таблицы лидеров были честными."
 
 #: src/components/community/CommunityControls.tsx
 msgid "Online users"
 msgstr "Пользователи онлайн"
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Only {mode} beatmaps"
+msgstr ""
 
 #: src/components/genetics/GeneticsPreview.tsx
 msgid "Only a preview: you learn genes with climaxx once you've begun."
@@ -3598,7 +3639,7 @@ msgstr "oss!idle не может записывать в эту папку."
 
 #: src/components/Tutorial.tsx
 msgid "oss!idle features <0>online leaderboards</0>, just like osu!. Sign in with your osu! account to compete and save your progression online."
-msgstr "В oss!idle есть <0>онлайн таблицы лидеров<0>, прямо как в osu!. Войдите с помощью аккаунта osu! чтобы соревноваться и сохранить свой прогресс онлайн."
+msgstr "В oss!idle есть <0>онлайн таблицы лидеров</0>, прямо как в osu!. Войди с помощью аккаунта osu!, чтобы соревноваться и сохранить свой прогресс онлайн."
 
 #: src/components/OldHostPrompt.tsx
 msgid "oss!idle moved here from {OLD_HOST}"
@@ -3606,7 +3647,7 @@ msgstr "oss!idle перемещена сюда из {OLD_HOST}"
 
 #: src/components/Changelog.tsx
 msgid "oss!idle updated to v{VERSION}, see what's new"
-msgstr "oss!idle обновлена до v{VERSION}, посмотрите, что нового"
+msgstr "oss!idle обновлена до v{VERSION}, посмотри, что нового"
 
 #: src/components/options/OsuMusicTheme.tsx
 msgid "osu! music at startup"
@@ -3704,7 +3745,7 @@ msgstr "Пароль:"
 
 #: src/components/gameplay/WarmupHint.tsx
 msgid "Past the sweet spot. Play easier maps to come back to it."
-msgstr "Выше идеальной зоны. Играйте более простые карты, чтобы вернуться в неё."
+msgstr "Выше идеальной зоны. Играй более простые карты, чтобы вернуться в неё."
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "past your limit, {value}% fewer releases slip away"
@@ -3720,7 +3761,7 @@ msgstr ""
 
 #: src/editor/builtinActions.ts
 msgid "Paste as copied"
-msgstr "Вставить скопированное"
+msgstr "Вставить как скопировано"
 
 #: src/editor/builtinActions.ts
 msgid "Paste, snapped to 1/16 and 1/12"
@@ -3790,15 +3831,15 @@ msgstr ""
 
 #: src/components/gameplay/WarmupHint.tsx
 msgid "Physically demanding maps ({skills}) move the needle right, easier maps and time off move it left. Keep it in the middle."
-msgstr "Физически сложные карты ({skills}) сдвигают указатель вправо, более простые карты и отдых — влево. Держите его посередине."
+msgstr "Физически сложные карты ({skills}) сдвигают указатель вправо, более простые карты и отдых — влево. Держи его посередине."
 
 #: src/components/direct/DirectPanel.tsx
 msgid "Pick a beatmap to see it here."
-msgstr "Выберите карту, чтобы посмотреть информацию о ней."
+msgstr "Выбери карту, чтобы посмотреть информацию о ней."
 
 #: src/components/options/MoveInstall.tsx
 msgid "Pick a folder outside the current installation."
-msgstr "Выберите папку за пределами текущей директории установки."
+msgstr "Выбери папку за пределами текущей директории установки."
 
 #: src/components/genetics/GeneticsPickPrompt.tsx
 msgid "Pick a genetic"
@@ -3806,7 +3847,7 @@ msgstr ""
 
 #: src/components/Tutorial.tsx
 msgid "Pick a song"
-msgstr "Выберите песню"
+msgstr "Выбери песню"
 
 #: src/components/genetics/GeneticsChangeLabel.tsx
 msgid "Pick another genetic"
@@ -4360,6 +4401,10 @@ msgstr ""
 msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr ""
 
+#: src/scenes/Options.tsx
+msgid "RULESETS"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "running low on stamina starts to hurt {value}% later"
 msgstr ""
@@ -4431,6 +4476,18 @@ msgstr ""
 
 #: src/components/dock/DockTransport.tsx
 msgid "Screensaver"
+msgstr ""
+
+#: src/components/options/ScrollSpeed.tsx
+msgid "Scroll speed"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|4k|mania|f3|f4"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|7k|mania|f3|f4"
 msgstr ""
 
 #: src/components/community/CommunityHeader.tsx
@@ -4556,6 +4613,14 @@ msgstr ""
 
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "Sent back: {note}"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set a BPM above {max}?"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set it"
 msgstr ""
 
 #: src/components/multiplayer/MatchSettings.tsx
@@ -5763,6 +5828,10 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
+msgstr ""
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Which ranked beatmaps?"
 msgstr ""
 
 #: src/editor/EditorSoundFiles.tsx

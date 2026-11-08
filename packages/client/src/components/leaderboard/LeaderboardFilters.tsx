@@ -13,7 +13,7 @@ import { i18n } from '../../i18n';
 import Dropdown, { DropdownOption } from '../dropdown/Dropdown';
 
 /** Local, the current character's, Friends (oss!supporter), the signed-in player's
- *  own country and Global. */
+ *  own country, Global and Global at the rate the map plays at. */
 const tabOptions = (country?: string, supporter?: boolean): DropdownOption<ScoreTab>[] => [
 	{
 		value: SCORE_TAB.LOCAL, label: 'Local', 
@@ -34,6 +34,9 @@ const tabOptions = (country?: string, supporter?: boolean): DropdownOption<Score
 	}] : []),
 	{
 		value: SCORE_TAB.GLOBAL, label: 'Global', 
+	},
+	{
+		value: SCORE_TAB.RATE, label: 'Current rate',
 	},
 ];
 

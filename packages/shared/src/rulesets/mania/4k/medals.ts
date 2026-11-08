@@ -48,6 +48,7 @@ export const MEDALS: MedalDef[] = [
 	def('time-100h', 'dedication', 'silver', 'hourglass'),
 	def('time-1000h', 'dedication', 'gold', 'timer'),
 	def('time-10000h', 'dedication', 'platinum', 'mountains'),
+	def('time-25000h', 'dedication', 'divine', 'moonStars'),
 	def('friends-1', 'dedication', 'bronze', 'usersThree'),
 	def('friends-5', 'dedication', 'silver', 'usersThree'),
 	def('friends-25', 'dedication', 'gold', 'usersThree'),
@@ -158,7 +159,7 @@ export const MEDAL_LINES: Record<MedalCategory, string[][]> = {
 	dedication: [
 		['plays-100', 'plays-1k', 'plays-5k', 'plays-25k', 'plays-100k'],
 		['hits-100k', 'hits-1m', 'hits-10m', 'hits-50m', 'hits-1b'],
-		['time-10h', 'time-100h', 'time-1000h', 'time-10000h'],
+		['time-10h', 'time-100h', 'time-1000h', 'time-10000h', 'time-25000h'],
 		['friends-1', 'friends-5', 'friends-25', 'friends-100', 'friends-1k'],
 	],
 	mastery: [

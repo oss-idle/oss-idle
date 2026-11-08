@@ -21,6 +21,7 @@ import {
 } from '../db/schema/level_vote';
 import { matchScoresTable } from '../db/schema/match';
 import { scoreTable } from '../db/schema/score';
+import { scoreXpTable } from '../db/schema/score_xp';
 import { milestonesTable } from '../db/schema/skill_milestone';
 import { unrankedScoreTable } from '../db/schema/unranked_score';
 import {
@@ -48,6 +49,7 @@ export const serverRuleset = <J extends string, S extends string>(
 		play,
 		progression,
 		score,
+		scoreXp: scoreXpTable(name('score_xp')),
 		best: bestTable(name('best'), def.judgements, score),
 		bestPP: bestPpTable(name('best_pp'), def.judgements, score),
 		unrankedScores: unrankedScoreTable(name('unranked_score'), def.judgements),

@@ -10,9 +10,8 @@ import ContextMenu from '../ContextMenu';
  *  parent) so it resets every time the menu reopens - the menu only mounts while
  *  a card is targeted.
  *
- *  Entries are not numbered: the queue ones come and go with whether the map is
- *  downloaded, so any number baked into a label is wrong half the time - and
- *  wrong in every translation of it. */
+ *  Entries are numbered by the menu, never in their labels: the queue ones come and go
+ *  with whether the map is downloaded. */
 export default function CardContextMenu({ 
 	item, 
 	onClose, 
@@ -65,6 +64,7 @@ export default function CardContextMenu({
 			title={title}
 			sub={t`What do you want to delete?`}
 			onClose={onClose}
+			unnumbered
 			options={[
 				{
 					label: t`Delete all difficulties`,

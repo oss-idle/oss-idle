@@ -85,9 +85,11 @@ const scoresChanged = (beatmapId?: number) =>
 		n: scoresVersion.get().n + 1, beatmapId, 
 	});
 
-/** a map's top play at one rate: its grade, its order (rank value, then id), the last play */
+/** a map's top play at one rate: its grade, its order (rank value, then id), the last play,
+ *  its score */
 export type HistoryRow = [
 	beatmapId: number, rate: number, grade: Grade, value: number, id: number, lastPlayed: number,
+	score: number,
 ];
 
 /** Finds the local copy of a server score, if this device holds one; free it once done.
@@ -108,6 +110,22 @@ const copyFinder = (db: Database) => {
 		},
 		free: () => stmt.free(),
 	};
+};
+
+/** The XP the server says each synced play earned, under its local copy. A copy already
+ *  holding gains (its result was shown here) keeps them. Whether any were written. */
+const keepGains = (db: Database, dtos: readonly ScoreDTO[], rows: readonly Score[]): boolean => {
+	const stmt = db.prepare(`INSERT OR IGNORE INTO score_xp
+		(scoreId, characterId, beatmapId, playedAt, gains) VALUES (?, ?, ?, ?, ?)`);
+	let wrote = false;
+	dtos.forEach(({ gains }, i) => {
+		const score = rows[i];
+		if (!gains || !score.id) return;
+		stmt.run([score.id, score.characterId, score.beatmapId, score.playedAt, JSON.stringify(gains)]);
+		wrote = true;
+	});
+	stmt.free();
+	return wrote;
 };
 
 /** Scores stored in one write at most: a bigger one holds the game up while it runs. */
@@ -174,6 +192,9 @@ export class Score extends DAO(t) {
 				`DELETE FROM score WHERE characterId IN (${ids}) AND onlineId != -1 AND playedAt <= ?`,
 				[before],
 			);
+			// a reused id would hand a new score the gains of the one that held it
+			db.run(`DELETE FROM score_xp WHERE characterId IN (${ids})
+				AND scoreId NOT IN (SELECT id FROM score)`);
 			const bests = [['score_best', `${rankValueSQL()} DESC`], ['score_best_pp', 'pp DESC']];
 			for (const [best, order] of bests) {
 				db.run(`DELETE FROM ${best} WHERE characterId IN (${ids})`);
@@ -196,6 +217,7 @@ export class Score extends DAO(t) {
 			await new Promise(resolve => setTimeout(resolve));
 		}
 		scoresChanged();
+		xpGainsChanged();
 	}
 
 	/** Keep copies of server scores this device does not hold yet, and the bests of the
@@ -204,6 +226,7 @@ export class Score extends DAO(t) {
 		if (!dtos.length) return [];
 		// each map's best new play by score and by pp, set against the bests held
 		const added = new Map<string, [Score, Score]>();
+		let gained = false;
 		const saved = await DB.write(db => {
 			const copies = copyFinder(db);
 			const inserts = t.inserter(db);
@@ -221,6 +244,7 @@ export class Score extends DAO(t) {
 			});
 			copies.free();
 			inserts.free();
+			gained = keepGains(db, dtos, rows);
 			for (const [byScore, byPP] of added.values()) {
 				keepIfBest(db, 'score_best', byScore, held => byScore.isHigherThan(held));
 				keepIfBest(db, 'score_best_pp', byPP, held => byPP.hasHigherPPThan(held));
@@ -231,6 +255,7 @@ export class Score extends DAO(t) {
 			const maps = new Set([...added.values()].map(([s]) => s.beatmapId));
 			scoresChanged(maps.size === 1 ? [...maps][0] : undefined);
 		}
+		if (announce && gained) xpGainsChanged(dtos.length === 1 ? dtos[0].beatmapId : undefined);
 		return saved;
 	}
 
@@ -300,8 +325,8 @@ export class Score extends DAO(t) {
 	static history(characterId: number, beatmapId?: number): Promise<HistoryRow[]> {
 		const where = beatmapId === undefined ? '' : ' AND beatmapId = ?';
 		const params = beatmapId === undefined ? [characterId] : [characterId, beatmapId];
-		return DB.read(db => (db.exec(`SELECT beatmapId, rate, grade, value, id, lastPlayed FROM (
-			SELECT beatmapId, rate, grade, id, ${rankValueSQL()} AS value,
+		return DB.read(db => (db.exec(`SELECT beatmapId, rate, grade, value, id, lastPlayed, score FROM (
+			SELECT beatmapId, rate, grade, id, score, ${rankValueSQL()} AS value,
 				MAX(playedAt) OVER (PARTITION BY beatmapId, rate) AS lastPlayed,
 				ROW_NUMBER() OVER (PARTITION BY beatmapId, rate ORDER BY ${rankValueSQL()} DESC, id ASC) AS n
 			FROM score WHERE characterId = ?${where}

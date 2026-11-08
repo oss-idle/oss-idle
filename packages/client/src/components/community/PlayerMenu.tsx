@@ -137,7 +137,6 @@ export default function PlayerMenu() {
 			header={card && <PlayerCard character={card} className="player-menu__card" />}
 			onClose={close}
 			options={options}
-			numbered
 		/>
 	);
 }

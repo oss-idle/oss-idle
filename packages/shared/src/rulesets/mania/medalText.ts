@@ -47,6 +47,7 @@ const NAMES = defineMessages({
 	'time-100h': 'Where Did The Day Go',
 	'time-1000h': 'Lifer',
 	'time-10000h': 'Ten Thousand Hours',
+	'time-25000h': 'Timeless',
 	'friends-1': 'Familiar Face',
 	'friends-5': 'Friendly',
 	'friends-25': 'Popular',

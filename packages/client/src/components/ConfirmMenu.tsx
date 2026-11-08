@@ -23,6 +23,7 @@ export default function ConfirmMenu({
 	const { t } = useLingui();
 	return (
 		<ContextMenu
+			unnumbered
 			title={title}
 			sub={sub}
 			onClose={onClose}

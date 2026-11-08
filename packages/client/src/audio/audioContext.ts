@@ -24,7 +24,15 @@ function keepRunning(ctx: AudioContext): void {
 }
 
 // HMR reuse so hot reloads don't leak contexts
-const globalStore = globalThis as unknown as { __ossIdleCtx?: AudioContext };
+const globalStore = globalThis as unknown as {
+	__ossIdleCtx?: AudioContext,
+	__ossIdleOut?: GainNode,
+};
 export const audioContext: AudioContext = globalStore.__ossIdleCtx ?? new Ctx();
 if (!globalStore.__ossIdleCtx) keepRunning(audioContext);
 globalStore.__ossIdleCtx = audioContext;
+
+/** Where every sound of the game goes out: one gain over all of it (the background mute). */
+export const speakers: GainNode = globalStore.__ossIdleOut ?? audioContext.createGain();
+if (!globalStore.__ossIdleOut) speakers.connect(audioContext.destination);
+globalStore.__ossIdleOut = speakers;

@@ -658,14 +658,13 @@ export default class EditorSession {
 	}
 
 	/** Paste the copied notes from the current time, resnapped to 1/16 and 1/12 or as
-	 *  they were copied, minus any that would overlap. */
+	 *  they were copied, all of them even where they overlap. */
 	public paste(resnap = true): void {
 		const [first] = clipboard;
 		if (!first) return;
 		const placed = shifted(clipboard, Math.round(this.now()) - first.time, 0)
 			.filter(note => note.column < this.chart.keys);
-		const snapped = resnap ? resnapped(placed, this.timing, PASTE_SNAPS) : placed;
-		const pasted = fitting(snapped, this.notes);
+		const pasted = resnap ? resnapped(placed, this.timing, PASTE_SNAPS) : placed;
 		if (pasted.length) this.apply([...this.notes, ...pasted], pasted);
 	}
 

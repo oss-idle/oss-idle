@@ -62,7 +62,10 @@ import RatedVersion from '../components/RatedVersion';
 import ResultMods from '../components/result/ResultMods';
 import { Score } from '../db/schema/score';
 import { ScoreXP } from '../db/schema/score_xp';
-import { SETTINGS } from '../db/settings';
+import {
+	scrollSpeedOf,
+	SETTINGS,
+} from '../db/settings';
 import Entities from '../entity/entities';
 import GameplayRenderer, {
 	type PlayfieldGeometry,
@@ -185,7 +188,7 @@ export default function Gameplay({
 	music.mode.set(PLAYER_MODE.SINGLE);
 
 	const [skin] = useSynced(currentSkin);
-	const [scrollSpeed] = useSynced(SETTINGS.scrollspeed);
+	const [scrollSpeed] = useSynced(scrollSpeedOf(beatmapInfo.ruleset()));
 	const SCROLL_MS = scrollSpeedToMs(scrollSpeed);
 	const [debug] = useSynced(debugMode);
 	const { i18n, t } = useLingui();
@@ -1202,7 +1205,6 @@ export default function Gameplay({
 					title={t`Abort the play?`}
 					sub={`${beatmap.metadata.artist} - ${beatmap.metadata.title}`}
 					onClose={() => setConfirmAbort(false)}
-					numbered
 					options={owned
 						? [
 							{

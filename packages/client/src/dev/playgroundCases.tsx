@@ -5,7 +5,14 @@ import type { ReactNode } from 'react';
 
 import { ADDON_KIND } from '@oss-idle/shared/addon';
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
+import {
+	ANNOUNCE_CHANNEL,
+	type ChatLine,
+} from '@oss-idle/shared/community/wire';
+import type { Grade } from '@oss-idle/shared/grade';
+import type { Mod } from '@oss-idle/shared/mods';
 import type { Match } from '@oss-idle/shared/multiplayer';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import type { SkillProgress } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import { makeOrderedSkills } from '@oss-idle/shared/rulesets/mania/4k/skills/factory';
 import Skill from '@oss-idle/shared/rulesets/mania/4k/skills/skill';
@@ -39,6 +46,7 @@ import ChannelPicker from '../components/community/chat/ChannelPicker';
 import Chat from '../components/community/chat/Chat';
 import ChatText from '../components/community/chat/ChatText';
 import NameCard from '../components/community/chat/NameCard';
+import { activeChatTab } from '../components/community/chat/state';
 import LinkMenu from '../components/community/LinkMenu';
 import ConfirmMenu from '../components/ConfirmMenu';
 import DirectLinkPanel from '../components/direct/DirectLinkPanel';
@@ -77,7 +85,12 @@ import {
 	isOptionsOpen,
 	openPage,
 } from '../globals';
-import { log } from '../logs';
+import {
+	log,
+	logLines,
+	logPlayFinished,
+	LOGS_CHANNEL,
+} from '../logs';
 import {
 	closeMedals,
 	showMedals,
@@ -85,6 +98,7 @@ import {
 } from '../online/medalWatch';
 import Multiplayer from '../online/multiplayer';
 import PlayManager from '../online/playManager';
+import Socket from '../online/socket';
 import BeatmapAPI from '../osu/beatmap/beatmap_api';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import LightBeatmapSet from '../osu/beatmap/LightBeatmapSet';
@@ -110,6 +124,7 @@ import {
 } from './medalSamples';
 import PlayHudPreview from './PlayHudPreview';
 import SkinPlayground from './SkinPlayground';
+import TimingPointPreview from './TimingPointPreview';
 import {
 	bigNumbersCharacter,
 	convertingCharacter,
@@ -706,6 +721,43 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		render: () => <div style={{ height: 300 }}><Chat /><ChannelPicker /></div>,
 	},
 	{
+		id: 'chat-logs',
+		label: '#logs - plays at a rate with mods and pp, at x1 with none, a loved map without pp, level-ups',
+		setup: () => {
+			void activeChatTab.set(LOGS_CHANNEL);
+			// the playground can run a case's setup twice
+			if (logLines.get().length > 1) return;
+			const [godslain, nightbird, zenith] = fakeQueue();
+			const play = (grade: Grade, accuracy: number, rate: number, mods: Mod[], pp: number) => ({
+				grade, accuracy, rate, mods, pp, playedAt: Date.now(),
+			});
+			logPlayFinished(play('S', 0.9696, 0.85, ['HR'], 234.4), godslain, [
+				gain('speedjam', 101, 101, 92_926), gain('concentration', 87, 88, 101), gain('release', 64, 64, 3),
+			]);
+			logPlayFinished(play('SS', 1, 1, [], 412.8), nightbird, [gain('accuracy', 99, 99, 5_412_000)]);
+			logPlayFinished(play('A', 0.9312, 1.2, [], 0), zenith, []);
+		},
+		render: () => <div style={{ height: 300 }}><Chat /></div>,
+	},
+	{
+		id: 'chat-announce',
+		label: '#announce - a 4K #1, a perfect 7K #1, a 4K pp milestone, an admin line without a ruleset',
+		setup: () => {
+			const line = (text: string, color: string, ruleset?: RulesetId): ChatLine => ({
+				id: text, kind: 'system', channel: ANNOUNCE_CHANNEL, text, color, at: Date.now(),
+				...ruleset && { ruleset },
+			});
+			void Socket.chat.set([
+				line('Sky3rr achieved rank #1 on BEMANI Sound Team - TWO-TORIAL [4K EXH]', '#fa81c6', 'mania4k'),
+				line('Adri achieved a perfect rank #1 on Camellia - Ghost [7K Another]', '#c794ff', 'mania7k'),
+				line('PatouZ has reached 9,000pp !', '#fa9981', 'mania4k'),
+				line('Server restart in 5 minutes', '#ffcc22'),
+			]);
+			void activeChatTab.set(ANNOUNCE_CHANNEL);
+		},
+		render: () => <div style={{ height: 300 }}><Chat /></div>,
+	},
+	{
 		id: 'dock-panel',
 		label: 'Play dock - open, mid-play with a queue behind it',
 		setup: () => fakeQueue(),
@@ -1018,5 +1070,10 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 			}}
 			onBack={() => {}}
 		/>,
+	},
+	{
+		id: 'editor-timing-point',
+		label: 'Editor - a BPM point, its time nudged by 1 ms (10 with Shift)',
+		render: () => <TimingPointPreview />,
 	},
 ];

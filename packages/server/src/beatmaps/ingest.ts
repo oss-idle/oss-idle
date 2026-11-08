@@ -198,16 +198,19 @@ const ownSet = async (metas: BeatmapMetadataSection[], owner: Owner) => {
 type Written = { entry: { entryName: string }, text: string, id: number, osuBeatmapId?: number };
 
 /** The ids a difficulty's file gives it: osu!'s (kept by a player's map only when its
- *  set is osu!'s), and ours when a player's file already carries one. */
+ *  set is osu!'s), and ours when a player's file already carries one. A pack can give
+ *  two difficulties the same osu! id: the first to claim it keeps it. */
 const difficultyIds = (
 	text: string,
 	decoded: Beatmap,
-	player: boolean,
-	osuSetId: number | undefined,
+	{ player, osuSetId, claimed }: { player: boolean, osuSetId?: number, claimed: Set<number> },
 ) => {
 	const fileId = fileIdsOf(text).beatmapId;
+	const id = player && osuSetId === undefined ? undefined : osuId(decoded.metadata.beatmapId);
+	const osuBeatmapId = id && !claimed.has(id) ? id : undefined;
+	if (osuBeatmapId) claimed.add(osuBeatmapId);
 	return {
-		osuBeatmapId: player && osuSetId === undefined ? undefined : osuId(decoded.metadata.beatmapId),
+		osuBeatmapId,
 		ownId: player && fileId !== undefined && fileId >= OWN_ID_FROM ? fileId : undefined,
 	};
 };
@@ -353,10 +356,13 @@ export const ingestOsz = async (
 
 	// 2. Build + upsert the difficulty rows.
 	const used = new Set<number>();
+	const claimed = new Set<number>();
 	const written: Written[] = [];
 	for (const { entry, text, decoded } of parsed) {
 		const stats = chartStats(text, decoded);
-		const { osuBeatmapId, ownId } = difficultyIds(text, decoded, !!owner, osuSetId);
+		const { osuBeatmapId, ownId } = difficultyIds(text, decoded, {
+			player: !!owner, osuSetId, claimed,
+		});
 		const row = {
 			osuId: osuBeatmapId,
 			setId,

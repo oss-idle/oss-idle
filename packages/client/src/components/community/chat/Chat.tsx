@@ -1,7 +1,10 @@
 import './Chat.css';
 
 import { useLingui } from '@lingui/react/macro';
-import { useRef } from 'react';
+import {
+	useEffect,
+	useRef,
+} from 'react';
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { isMatchChannel } from '@oss-idle/shared/multiplayer';
@@ -17,6 +20,7 @@ import {
 	channelPickerOpen,
 	chatTabs,
 	pmContact,
+	stepChatTab,
 } from './state';
 import { unreadTabs } from './unread';
 
@@ -36,6 +40,18 @@ export default function Chat() {
 	const [open] = useSynced(isCommunityOpen);
 	const [shown = true] = useSynced(showChat);
 	useKeyboardOwner(inputRef, { active: open && shown });
+
+	// Ctrl+Tab / Ctrl+Shift+Tab: the next or previous tab (browsers keep it for their own tabs)
+	useEffect(() => {
+		if (!open || !shown) return;
+		const onKey = (e: KeyboardEvent) => {
+			if (!e.ctrlKey || e.key !== 'Tab') return;
+			e.preventDefault();
+			stepChatTab(e.shiftKey ? -1 : 1);
+		};
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	}, [open, shown]);
 
 	const closeChannel = (channel: string) => {
 		void chatTabs.set(channels.filter(c => c !== channel));

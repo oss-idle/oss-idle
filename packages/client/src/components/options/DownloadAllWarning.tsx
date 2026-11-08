@@ -60,6 +60,7 @@ export default function DownloadAllWarning({ bundled, sets, onClose }: {
 				onClose={onClose}
 			/>
 			: <ContextMenu
+				unnumbered
 				title={title}
 				sub={sub}
 				onClose={onClose}

@@ -1,5 +1,8 @@
 import { SETTINGS } from '../db/settings';
-import { audioContext } from './audioContext';
+import {
+	audioContext,
+	speakers,
+} from './audioContext';
 import {
 	UI_SOUNDS,
 	type UiSound,
@@ -14,7 +17,7 @@ let out: GainNode | undefined;
 const bus = () => {
 	if (out) return out;
 	out = audioContext.createGain();
-	out.connect(audioContext.destination);
+	out.connect(speakers);
 	const level = () => out?.gain.setTargetAtTime(
 		SETTINGS.mainVolume.get() * SETTINGS.effectVolume.get() * FILE_GAIN, audioContext.currentTime, 0.02,
 	);

@@ -22,31 +22,43 @@ import {
 const fold = (tops: HistoryRow[], into: PlayHistory) => {
 	const anyRate = new Map<number, HistoryRow>();
 	for (const top of tops) {
-		const [id, rate, grade, value, scoreId, played] = top;
+		const [id, rate, grade, value, scoreId, played, score] = top;
 		into.bestRank.set(rankKey(id, rate), Grades.indexOf(grade));
+		into.bestScore.set(rankKey(id, rate), score);
 		const held = anyRate.get(id);
 		if (!held || value > held[3] || (value === held[3] && scoreId < held[4])) anyRate.set(id, top);
 		into.lastPlayed.set(id, Math.max(into.lastPlayed.get(id) ?? 0, played));
 	}
-	for (const [id, [, , grade]] of anyRate) into.bestRankAnyRate.set(id, Grades.indexOf(grade));
+	for (const [id, [, , grade, , , , score]] of anyRate) {
+		into.bestRankAnyRate.set(id, Grades.indexOf(grade));
+		into.bestScoreAnyRate.set(id, score);
+	}
 	return into;
 };
 
 const historyOf = async (characterId: number): Promise<PlayHistory> => fold(
 	await Score.history(characterId),
 	{
-		bestRank: new Map(), bestRankAnyRate: new Map(), lastPlayed: new Map(),
+		bestRank: new Map(),
+		bestRankAnyRate: new Map(),
+		bestScore: new Map(),
+		bestScoreAnyRate: new Map(),
+		lastPlayed: new Map(),
 	},
 );
 
 /** `history` with one map's entries read again. */
 const withMap = (history: PlayHistory, beatmapId: number, tops: HistoryRow[]): PlayHistory => {
+	const other = ([key]: [string, unknown]) => !key.startsWith(`${beatmapId}@`);
 	const next: PlayHistory = {
-		bestRank: new Map([...history.bestRank].filter(([key]) => !key.startsWith(`${beatmapId}@`))),
+		bestRank: new Map([...history.bestRank].filter(other)),
 		bestRankAnyRate: new Map(history.bestRankAnyRate),
+		bestScore: new Map([...history.bestScore].filter(other)),
+		bestScoreAnyRate: new Map(history.bestScoreAnyRate),
 		lastPlayed: new Map(history.lastPlayed),
 	};
 	next.bestRankAnyRate.delete(beatmapId);
+	next.bestScoreAnyRate.delete(beatmapId);
 	next.lastPlayed.delete(beatmapId);
 	return fold(tops, next);
 };

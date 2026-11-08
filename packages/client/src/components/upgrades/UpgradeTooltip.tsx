@@ -23,6 +23,7 @@ export default function UpgradeTooltip({
 	level,
 	xp,
 	upgrades,
+	prestige,
 	overdrive,
 	minLevel,
 	preview,
@@ -31,6 +32,7 @@ export default function UpgradeTooltip({
 	level: number,
 	xp: number,
 	upgrades: number,
+	prestige: number,
 	overdrive: number,
 	minLevel: number,
 	preview: UpgradePurchase | undefined,
@@ -48,7 +50,7 @@ export default function UpgradeTooltip({
 			<HoverCardRow label={<Trans>XP boost</Trans>}>
 				x{boost}<Arrow /><span className="ladder-tip__boost">x{nextBoost}</span>
 			</HoverCardRow>
-			<SkillPerk skill={skill} upgrades={upgrades} next={upgrades + 1} />
+			<SkillPerk skill={skill} upgrades={upgrades} next={upgrades + 1} prestige={prestige} />
 		</>;
 	}
 
@@ -66,6 +68,6 @@ export default function UpgradeTooltip({
 		<HoverCardRow label={<Trans>XP boost</Trans>}>
 			x{boost}<Arrow /><span className="ladder-tip__boost">x{nextBoost}</span>
 		</HoverCardRow>
-		<SkillPerk skill={skill} upgrades={upgrades} next={preview.upgrades} />
+		<SkillPerk skill={skill} upgrades={upgrades} next={preview.upgrades} prestige={prestige} />
 	</>;
 }

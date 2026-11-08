@@ -22,6 +22,7 @@ function optionLabel(option: GroupOption | SortOption): ReactNode {
 		case 'No Grouping': return <Trans>No Grouping</Trans>;
 		case 'By Artist': return <Trans>By Artist</Trans>;
 		case 'By BPM': return <Trans>By BPM</Trans>;
+		case 'By Best Score': return <Trans>By Best Score</Trans>;
 		case 'By Creator': return <Trans>By Creator</Trans>;
 		case 'By Difficulty': return <Trans>By Difficulty</Trans>;
 		case 'By Download Status': return <Trans>By Download Status</Trans>;

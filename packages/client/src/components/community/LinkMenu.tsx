@@ -15,6 +15,7 @@ export default function LinkMenu() {
 	const close = () => void linkFor.set(undefined);
 	return (
 		<ContextMenu
+			unnumbered
 			title={t`Open this link?`}
 			sub={url}
 			onClose={close}

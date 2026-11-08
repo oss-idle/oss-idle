@@ -180,8 +180,8 @@ msgid "{name} mentioned you"
 msgstr "{name} mentioned you"
 
 #: src/logs.ts
-msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
-msgstr "{name} played {map} and got a {accuracy} {grade}. {gains}"
+msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
+msgstr "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
@@ -222,6 +222,10 @@ msgstr "{result} on {map}"
 #: src/scenes/SongSelect.tsx
 msgid "{results, plural, one {# result} other {# results}}"
 msgstr "{results, plural, one {# result} other {# results}}"
+
+#: src/input/Controls.ts
+msgid "{ruleset} scroll speed set to {speed}"
+msgstr "{ruleset} scroll speed set to {speed}"
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -384,6 +388,14 @@ msgstr "★ Your pick"
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
 msgstr "1 accuracy level for every 10 tries on a map, up to {levels}"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms earlier, 10 with Shift"
+msgstr "1 ms earlier, 10 with Shift"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms later, 10 with Shift"
+msgstr "1 ms later, 10 with Shift"
 
 #: src/components/mods/ModSelect.tsx
 msgid "1. Reset All Mods"
@@ -710,6 +722,10 @@ msgstr "All bundled beatmaps downloaded."
 msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
 msgstr "All but the difficulty name is shared by the set: saving writes it to every difficulty."
 
+#: src/components/options/DownloadModeChoice.tsx
+msgid "All modes"
+msgstr "All modes"
+
 #: src/components/options/DownloadAllWarning.tsx
 msgid "All ranked beatmaps downloaded."
 msgstr "All ranked beatmaps downloaded."
@@ -957,6 +973,10 @@ msgstr "Bounce back"
 msgid "BPM"
 msgstr "BPM"
 
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+msgstr "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Brake"
 msgstr "Brake"
@@ -1064,6 +1084,10 @@ msgid "By Artist"
 msgstr "By Artist"
 
 #: src/components/songselect/TopBar.tsx
+msgid "By Best Score"
+msgstr "By Best Score"
+
+#: src/components/songselect/TopBar.tsx
 msgid "By BPM"
 msgstr "By BPM"
 
@@ -1121,6 +1145,7 @@ msgstr "Calm hands"
 #: src/components/dock/SaveQueuePrompt.tsx
 #: src/components/multiplayer/CreateMatch.tsx
 #: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/options/DownloadModeChoice.tsx
 #: src/components/page/pageBar.tsx
 #: src/components/songselect/CardContextMenu.tsx
 #: src/components/songselect/CardContextMenu.tsx
@@ -1798,8 +1823,8 @@ msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> acro
 msgstr "Each completed play earns your character <0>XP</0> and <1>levels</1> across various skillsets, making it perform better on future plays."
 
 #: src/components/mods/RateStepper.tsx
-msgid "Each Speed upgrade unlocks one more step"
-msgstr "Each Speed upgrade unlocks one more step"
+msgid "Each Speed upgrade or prestige unlocks one more step"
+msgstr "Each Speed upgrade or prestige unlocks one more step"
 
 #: src/components/genetics/SkillCard.tsx
 msgid "Each tier you buy adds {perTier}% {name} XP"
@@ -3183,6 +3208,14 @@ msgstr "Music playing"
 msgid "Musical"
 msgstr "Musical"
 
+#: src/components/options/MuteInBackground.tsx
+msgid "Mute when in the background"
+msgstr "Mute when in the background"
+
+#: src/scenes/Options.tsx
+msgid "mute|background|unfocused|focus|tab|window|volume"
+msgstr "mute|background|unfocused|focus|tab|window|volume"
+
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
 msgstr "Mutual friends"
@@ -3342,6 +3375,10 @@ msgstr "No preview point (Metadata tab)"
 #: src/scenes/Result.tsx
 msgid "No replay data"
 msgstr "No replay data"
+
+#: src/osu/beatmap/grouping.ts
+msgid "No score"
+msgstr "No score"
 
 #: src/components/leaderboard/Leaderboard.tsx
 msgid "No scores yet, be the first!"
@@ -3526,6 +3563,10 @@ msgstr "Online characters always start fresh: Guest progress stays local, so the
 #: src/components/community/CommunityControls.tsx
 msgid "Online users"
 msgstr "Online users"
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Only {mode} beatmaps"
+msgstr "Only {mode} beatmaps"
 
 #: src/components/genetics/GeneticsPreview.tsx
 msgid "Only a preview: you learn genes with climaxx once you've begun."
@@ -4360,6 +4401,10 @@ msgstr "Rolling hands"
 msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr "rolls and stairs across one hand are {value}% lighter"
 
+#: src/scenes/Options.tsx
+msgid "RULESETS"
+msgstr "RULESETS"
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "running low on stamina starts to hurt {value}% later"
 msgstr "running low on stamina starts to hurt {value}% later"
@@ -4432,6 +4477,18 @@ msgstr "Score Multiplier: {multiplier}x"
 #: src/components/dock/DockTransport.tsx
 msgid "Screensaver"
 msgstr "Screensaver"
+
+#: src/components/options/ScrollSpeed.tsx
+msgid "Scroll speed"
+msgstr "Scroll speed"
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|4k|mania|f3|f4"
+msgstr "scroll|speed|4k|mania|f3|f4"
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|7k|mania|f3|f4"
+msgstr "scroll|speed|7k|mania|f3|f4"
 
 #: src/components/community/CommunityHeader.tsx
 msgid "Search"
@@ -4557,6 +4614,14 @@ msgstr "Send Report"
 #: src/editor/EditorRulesetSubmission.tsx
 msgid "Sent back: {note}"
 msgstr "Sent back: {note}"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set a BPM above {max}?"
+msgstr "Set a BPM above {max}?"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set it"
+msgstr "Set it"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Set Password"
@@ -5764,6 +5829,10 @@ msgstr "when your focus slips, it fades {value}% more gradually"
 #: src/rulesets/mania/4k/geneText.ts
 msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
 msgstr "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Which ranked beatmaps?"
+msgstr "Which ranked beatmaps?"
 
 #: src/editor/EditorSoundFiles.tsx
 msgid "whistle"

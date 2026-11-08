@@ -38,6 +38,7 @@ import {
 	pickRate,
 	selectedRate,
 	speedUpgrades,
+	stepRate,
 } from '../../gameplay/playRate';
 import { inTextBox } from '../../input/Controls';
 import useKeyboardOwner from '../../input/keyboardOwner';
@@ -91,7 +92,7 @@ export default function ModSelect({ onClose }: { onClose: () => void }) {
 		</div>
 	);
 	// on: the last rate picked on that side; off: back to x1
-	const toggle = (side: number[]) => pick(side.includes(rate)
+	const toggle = (side: number[]) => pick(side.includes(selectedRate.get())
 		? 1
 		: (side === FASTER ? SETTINGS.fasterRate : SETTINGS.slowerRate).get());
 	// the wheel over a lit mod steps along its side, never across x1
@@ -101,12 +102,25 @@ export default function ModSelect({ onClose }: { onClose: () => void }) {
 	};
 
 	useEffect(() => {
+		// osu!stable's mod select keys; read live, this runs once per open
+		const keys: Partial<Record<string, () => void>> = {
+			'1': reset,
+			'2': onClose,
+			q: () => pickMod('EZ'),
+			w: () => pickMod('NF'),
+			e: () => toggle(SLOWER),
+			a: () => pickMod('HR'),
+			s: () => cycleDeath(selectedMods.get()),
+			d: () => toggle(FASTER),
+			arrowleft: () => stepRate(-1),
+			arrowright: () => stepRate(1),
+		};
 		const onKey = (e: KeyboardEvent) => {
 			if (inTextBox(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
 			// F1 is the footer's toggle
-			if (e.key === '1') reset();
-			else if (e.key === '2') onClose();
-			else return;
+			const action = keys[e.key.toLowerCase()];
+			if (!action) return;
+			action();
 			e.preventDefault();
 		};
 		window.addEventListener('keydown', onKey);

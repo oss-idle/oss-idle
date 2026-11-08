@@ -3,7 +3,11 @@ import './SkillBar.css';
 import { bignum } from '@oss-idle/shared/display/num';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
-import { xpForLevel } from '@oss-idle/shared/xp';
+import {
+	levelProgress,
+	xpForLevel,
+	xpGivesLevel,
+} from '@oss-idle/shared/xp';
 
 import { rulesetDef } from '../../rulesets';
 
@@ -16,8 +20,15 @@ export function SkillBar({ ruleset, skill, progress: {
 		level: number, xp: number, prestige?: number, lifetimeXp?: number
 	}
 }) {
-	const toNext = xpForLevel(level);
-	const percent = toNext > 0 ? Math.min(1, xp / toNext) : 0;
+	// the bar fills toward the next level shown: lifetime's when it is ahead, as the level is
+	const lifetime = xpGivesLevel(lifetimeXp ?? 0);
+	const ahead = lifetime.level + levelProgress(lifetime.level, lifetime.xp)
+		> level + levelProgress(level, xp);
+	const at = ahead ? lifetime : {
+		level, xp,
+	};
+	const toNext = xpForLevel(at.level);
+	const percent = levelProgress(at.level, at.xp);
 	// overall has no prestige to add, so it reads as the xp level either way -
 	// but it still earns the hover, and the lifetime behind it
 	const overall = String(skill) === 'overall';
@@ -27,7 +38,7 @@ export function SkillBar({ ruleset, skill, progress: {
 			<div
 				className='skill__track'
 				title={
-					`${bignum(xp)} / ${bignum(toNext)} XP to next level`
+					`${bignum(at.xp)} / ${bignum(toNext)} XP to next level`
 				}
 			>
 				<div className='skill__fill' style={{ width: `${percent*100}%` }} />

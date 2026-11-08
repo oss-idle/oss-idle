@@ -1,4 +1,8 @@
 import Synced from '@oss-idle/shared/helpers/synced';
+import {
+	type RulesetId,
+	rulesetOf,
+} from '@oss-idle/shared/rulesets/ids';
 
 import BeatmapAPI, { type Metadata } from './beatmap_api';
 import BeatmapStore from './beatmap_store';
@@ -7,10 +11,12 @@ import BeatmapStore from './beatmap_store';
 export const bulkDownload = new Synced<{ done: number; total: number } | undefined>(undefined);
 let stopping = false;
 
-/** The ranked (or only bundled) sets not downloaded yet. Loved ones are never in it. */
-export const missingSets = async (bundled: boolean): Promise<Metadata[]> => {
+/** The ranked (or only bundled) sets not downloaded yet, with a difficulty of the
+ *  ruleset when one is given. Loved ones are never in it. */
+export const missingSets = async (bundled: boolean, ruleset?: RulesetId): Promise<Metadata[]> => {
 	const manifest = await BeatmapAPI.getManifest();
-	const sets = manifest.beatmaps.filter(m => !m.loved && (!bundled || m.bundled));
+	const sets = manifest.beatmaps.filter(m => !m.loved && (!bundled || m.bundled)
+		&& (!ruleset || m.versions.some(v => rulesetOf(v.mode, v.keys) === ruleset)));
 	const stored = await Promise.all(sets.map(m => BeatmapStore.has(m.id)));
 	return sets.filter((_, i) => !stored[i]);
 };

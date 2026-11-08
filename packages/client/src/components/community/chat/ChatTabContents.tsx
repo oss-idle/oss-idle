@@ -19,6 +19,7 @@ import { music } from '../../../audio/MusicPlayer';
 import Entities from '../../../entity/entities';
 import { SITE_URL } from '../../../globals';
 import {
+	type LogEntry,
 	logLines,
 	LOGS_CHANNEL,
 } from '../../../logs';
@@ -47,9 +48,9 @@ import useNameComplete from './useNameComplete';
 import useReply from './useReply';
 
 /** How a channel line shows to you: `me` sees their mentions lit, blocked players' lines hidden. */
-const toLogLine = (l: ChatLine, blockedIds: ReadonlySet<number>, me?: number): LogLine => {
+const toLogLine = (l: LogEntry, blockedIds: ReadonlySet<number>, me?: number): LogLine => {
 	if (l.kind === 'system') return {
-		id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link,
+		id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link, parts: l.parts, ruleset: l.ruleset,
 		sender: l.from && l.name !== undefined ? {
 			...l.from, name: l.name,
 		} : undefined,

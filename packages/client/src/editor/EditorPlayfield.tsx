@@ -5,7 +5,10 @@ import {
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
-import { SETTINGS } from '../db/settings';
+import {
+	scrollSpeedOf,
+	SETTINGS,
+} from '../db/settings';
 import {
 	currentEditorSkin,
 	currentSkin,
@@ -59,7 +62,7 @@ export default function EditorPlayfield({ session }: { session: EditorSession })
 
 		const sync = () => link.sync();
 		void session.revision.sync(sync);
-		const settings = [SETTINGS.editorPreview, SETTINGS.scrollspeed, visualOptions];
+		const settings = [SETTINGS.editorPreview, scrollSpeedOf(session.beatmap.ruleset()), visualOptions];
 		for (const setting of settings) void setting.sync(sync);
 		sync();
 

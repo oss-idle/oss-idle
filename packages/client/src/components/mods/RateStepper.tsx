@@ -29,7 +29,9 @@ export default function RateStepper({ steps, unlocked, current, onPick }: {
 			type="button"
 			className="rate-stepper__arrow"
 			disabled={!outerOpen}
-			title={outer !== undefined && !outerOpen ? t`Each Speed upgrade unlocks one more step` : undefined}
+			title={outer !== undefined && !outerOpen
+				? t`Each Speed upgrade or prestige unlocks one more step`
+				: undefined}
 			onClick={() => onPick(outer!)}
 		>{slower ? '‹' : '›'}</button>
 	);

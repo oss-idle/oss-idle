@@ -5,7 +5,10 @@ import { BeatmapDecoder } from 'osu-parsers';
 
 import { warmupTrend } from '@oss-idle/shared/fatigue';
 import { type Mod } from '@oss-idle/shared/mods';
-import { allowedRate } from '@oss-idle/shared/rate';
+import {
+	allowedRate,
+	rateUnlocks,
+} from '@oss-idle/shared/rate';
 import { hasUnlock } from '@oss-idle/shared/rebirth';
 import type { ScoreLike } from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import { GENETICS_4K } from '@oss-idle/shared/rulesets/mania/4k/genes';
@@ -92,7 +95,10 @@ export const getServerXP = async (
 
 export const play: RulesetPlay = {
 	tiredness: tiredness(SKILL.stamina, GENETICS_4K),
-	allowedRate: (profile, rate) => allowedRate(rate, skillOf(profile, 'speed').upgrades),
+	allowedRate: (profile, rate) => {
+		const speed = skillOf(profile, 'speed');
+		return allowedRate(rate, rateUnlocks(speed.upgrades, speed.prestige));
+	},
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
 		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,

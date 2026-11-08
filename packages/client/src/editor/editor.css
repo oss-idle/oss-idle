@@ -356,7 +356,7 @@
 /* ---- timing points ---- */
 .editor__point {
 	display: grid;
-	grid-template-columns: 30px 1.4fr 1.1fr 0.6fr 0.6fr 22px 30px;
+	grid-template-columns: 30px 2fr 1.1fr 0.6fr 0.6fr 22px 30px;
 	align-items: center;
 	gap: 4px;
 	margin-bottom: 4px;
@@ -383,6 +383,29 @@
 .editor__remove:hover {
 	background: rgba(239, 136, 136, 0.15);
 	color: #ef8888;
+}
+.editor__nudged {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	min-width: 0;
+}
+.editor__nudged .editor__field {
+	flex: 1;
+	min-width: 0;
+}
+.editor__nudge {
+	flex: none;
+	min-width: 30px;
+	min-height: 30px;
+	border-radius: 4px;
+	color: var(--text-dim);
+	font-size: 1.1rem;
+	line-height: 1;
+}
+.editor__nudge:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--osu-pink-light);
 }
 .editor__timing .editor__action {
 	margin-bottom: 6px;

@@ -41,6 +41,7 @@ import MasterVolume from '../components/options/MasterVolume';
 import MentionPings from '../components/options/MentionPings';
 import MoveInstall from '../components/options/MoveInstall';
 import MusicVolume from '../components/options/MusicVolume';
+import MuteInBackground from '../components/options/MuteInBackground';
 import OpenLibraryFolders from '../components/options/OpenLibraryFolders';
 import OsuMusicTheme from '../components/options/OsuMusicTheme';
 import ParallaxMode from '../components/options/ParallaxMode';
@@ -50,6 +51,8 @@ import QueuePlayOnce from '../components/options/QueuePlayOnce';
 import RecreateDatabase from '../components/options/RecreateDatabase';
 import ReportBug from '../components/options/ReportBug';
 import RightClickHold from '../components/options/RightClickHold';
+import ScrollSpeed4K from '../components/options/ScrollSpeed4K';
+import ScrollSpeed7K from '../components/options/ScrollSpeed7K';
 import ShowFPS from '../components/options/ShowFPS';
 import ShowThumbnails from '../components/options/ShowThumbnails';
 import ShowUnbundled from '../components/options/ShowUnbundled';
@@ -61,6 +64,7 @@ import useKeyboardOwner, { LAYER } from '../input/keyboardOwner';
 import AutoSkip from '../pbe/AutoSkip';
 import { PBE } from '../pbe/pbe';
 import ResetCharacter from '../pbe/ResetCharacter';
+import { ENABLED_RULESETS } from '../rulesets/enabled';
 
 /** A consumer component rendered inside a group. */
 type OptComponent = () => JSX.Element;
@@ -75,6 +79,7 @@ export default function Options() {
 		'GENERAL',
 		'GRAPHICS',
 		'GAMEPLAY',
+		'RULESETS',
 		'SKIN',
 		'CONTROLS',
 		'EDITOR',
@@ -87,6 +92,7 @@ export default function Options() {
 		[CATEGORY.GENERAL]: t`GENERAL`,
 		[CATEGORY.GRAPHICS]: t`GRAPHICS`,
 		[CATEGORY.GAMEPLAY]: t`GAMEPLAY`,
+		[CATEGORY.RULESETS]: t`RULESETS`,
 		[CATEGORY.SKIN]: t`SKIN`,
 		[CATEGORY.CONTROLS]: t`CONTROLS`,
 		[CATEGORY.EDITOR]: t`EDITOR`,
@@ -280,8 +286,31 @@ export default function Options() {
 							search: t`pitch|rate|speed|double|half|nightcore|mods`,
 							component: () => PitchFollowsRate,
 						},
+						{
+							search: t`mute|background|unfocused|focus|tab|window|volume`,
+							component: () => MuteInBackground,
+						},
 					],
 				},
+			],
+		},
+		{
+			name: CATEGORY.RULESETS,
+			groups: [
+				{
+					title: '4K',
+					components: [{
+						search: t`scroll|speed|4k|mania|f3|f4`,
+						component: () => ScrollSpeed4K,
+					}],
+				},
+				...ENABLED_RULESETS.includes('mania7k') ? [{
+					title: '7K',
+					components: [{
+						search: t`scroll|speed|7k|mania|f3|f4`,
+						component: () => ScrollSpeed7K,
+					}],
+				}] : [],
 			],
 		},
 		{

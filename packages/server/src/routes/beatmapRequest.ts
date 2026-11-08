@@ -169,6 +169,26 @@ export const acceptRequestsForSet = async (setId: number, adminId?: number): Pro
 	}
 };
 
+/** A nominator's own upload of a map nobody asked for: they're its proposer. */
+export const proposeUploadedSet = async (
+	r: ServerRuleset,
+	setId: number,
+	osuSetId: number,
+	userId: number,
+) => {
+	const [set] = await db.select({
+		artist: beatmapset.artist, title: beatmapset.title, creator: beatmapset.creator,
+	}).from(beatmapset).where(eq(beatmapset.id, setId)).limit(1);
+	if (!set) return;
+	await db.insert(r.requests).ignore().values({
+		setId: osuSetId, userId, ...set,
+		status: 'accepted', resolvedAt: new Date(), resolvedBy: userId,
+	});
+	await db.insert(r.requestVotes).ignore().values({
+		setId: osuSetId, userId,
+	});
+};
+
 /**
  * Player-facing ranking propositions. Reads are public (the queue is part of the
  * site); submitting and backing need an account; resolving and ingesting are

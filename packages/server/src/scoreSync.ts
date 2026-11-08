@@ -16,6 +16,7 @@ import type { ScoreDTO } from '@oss-idle/shared/score';
 import { db } from './db/client';
 import { characters } from './db/schema/character';
 import { toScoreDTO } from './db/schema/score';
+import { scoreXpOf } from './db/schema/score_xp';
 import { enabledRulesets } from './rulesets/registry';
 import type { ServerRuleset } from './rulesets/ruleset';
 import {
@@ -81,8 +82,14 @@ export const accountScores = async (
 		.where(and(inArray(t.characterId, ids), gt(t.id, after)))
 		.orderBy(asc(t.id))
 		.limit(SCORE_PAGE);
+	const xp = await scoreXpOf(r, unranked ? [] : rows.map(row => row.id));
 	return {
-		scores: rows.map(row => toScoreDTO(row, r.def, unranked)),
+		scores: rows.map(row => {
+			const gains = xp.get(row.id);
+			return {
+				...toScoreDTO(row, r.def, unranked), ...gains && { gains },
+			};
+		}),
 		...rows.length === SCORE_PAGE && { next: rows[rows.length - 1].id },
 	};
 };

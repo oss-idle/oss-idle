@@ -75,7 +75,6 @@ export default function ChannelPicker() {
 				</label>
 			</>}
 			onClose={close}
-			numbered
 			options={[
 				{
 					label: t`Close`, color: '#d5627a', onClick: close,

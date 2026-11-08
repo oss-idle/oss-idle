@@ -49,6 +49,7 @@ import {
 	type ScoreRow,
 	toScoreDTO,
 } from './db/schema/score';
+import { storeScoreXp } from './db/schema/score_xp';
 import { isRestricted } from './db/schema/user';
 import {
 	recordXpGains,
@@ -422,12 +423,13 @@ const joinResult = (p: Pending): StartPlayResult => ({
 
 /** Join the play already in progress in this slot (spectate), or null to
  *  start a fresh one. An overdue play (past its end, sweep hasn't run) is
- *  finalised first so a new play can begin. */
+ *  finalised first so a new play can begin - as the sweep would, since no
+ *  client has seen its result yet. */
 async function joinExisting(slot: Slot): Promise<StartPlayResult | null> {
 	const existing = await readPlay(slot);
 	if (!existing) return null;
 	if (Date.now() < existing.endsAt) return joinResult(existing);
-	await finalizePlay(slot);
+	await finalizePlay(slot, true);
 	return null;
 }
 
@@ -755,6 +757,8 @@ const parsePlayResult = async (play: Pending, notify: boolean): Promise<ParsedRe
 	play.draft.playedAt = new Date();
 	const row = await submitScore(r, play.draft);
 	const gains = await applySkillXp(r, characterId, play.skillXp);
+	await storeScoreXp(r, row.id, gains)
+		.catch(e => console.error('[play] score xp store failed for', row.id, e));
 	if (play.xpGains) await recordXpGains(r, play.draft.beatmapId, play.xpGains);
 	if (play.strain) {
 		await addFatigue(r, characterId, play.strain.minutes, play.strain.strained, Date.now());

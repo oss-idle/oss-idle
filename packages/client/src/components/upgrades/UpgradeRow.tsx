@@ -78,6 +78,7 @@ export default function UpgradeRow({
 					level={u.level}
 					xp={u.xp}
 					upgrades={u.upgrades}
+					prestige={u.prestige}
 					overdrive={u.overdrive}
 					minLevel={u.minLevel}
 					preview={u.preview}

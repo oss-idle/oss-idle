@@ -11,7 +11,10 @@ import { SETTINGS } from '../db/settings';
 import BeatmapStore, { revokeBlob } from '../osu/beatmap/beatmap_store';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import { loadStoryboardAssets } from '../osu/beatmap/storyboard';
-import { audioContext } from './audioContext';
+import {
+	audioContext,
+	speakers,
+} from './audioContext';
 import { effects } from './EffectPlayer';
 import { preloadSamples } from './hitsounds';
 import type { LiveStretchMessage } from './liveStretch.worklet';
@@ -224,7 +227,7 @@ export class MusicPlayer {
 		this._freqData = new Uint8Array(this._analyser.frequencyBinCount);
 		this._source.connect(this._analyser);
 		this._analyser.connect(this._gain);
-		this._gain.connect(ctx.destination);
+		this._gain.connect(speakers);
 
 		return ctx;
 	}

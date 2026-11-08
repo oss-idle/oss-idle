@@ -23,6 +23,7 @@ import {
 import MedalLineIcon from '../../components/leaderboard/MedalLineIcon';
 import Pager from '../../components/leaderboard/Pager';
 import Link from '../../components/Link';
+import { useCurrentCharacter } from '../../hooks/useCurrentCharacter';
 import RankingsNav from './RankingsNav';
 
 /** The players furthest along one medal line, toward their next medal. */
@@ -34,6 +35,7 @@ export default function MedalProgressLine({ line, page, country, board }: {
 }) {
 	const { i18n } = useLingui();
 	const navigate = useNavigate();
+	const self = useCurrentCharacter();
 	return (
 		<main>
 			<RankingsNav current={'medals'} />
@@ -66,7 +68,7 @@ export default function MedalProgressLine({ line, page, country, board }: {
 							<tbody>
 								{board.rows.map((row, r) => {
 									const { reached, next } = lineStanding(board.goals, row.value);
-									return <tr key={row.id}>
+									return <tr key={row.id} className={row.id === self?.id ? 'is-self' : undefined}>
 										<td>{rank(r + 1 + ((page - 1) * PAGE_SIZE))}</td>
 										<td className='main'><div className='player__lb_listing_main'>
 											<Flag country={row.country} />

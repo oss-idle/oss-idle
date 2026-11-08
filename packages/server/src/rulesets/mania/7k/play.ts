@@ -3,7 +3,10 @@ import '@oss-idle/shared/osu/controlPointPatch';
 import { BeatmapDecoder } from 'osu-parsers';
 
 import { warmupTrend } from '@oss-idle/shared/fatigue';
-import { allowedRate } from '@oss-idle/shared/rate';
+import {
+	allowedRate,
+	rateUnlocks,
+} from '@oss-idle/shared/rate';
 import { GENETICS_7K } from '@oss-idle/shared/rulesets/mania/7k/genes';
 import { modXpMultipliers7k } from '@oss-idle/shared/rulesets/mania/7k/modXp';
 import {
@@ -40,7 +43,10 @@ export const STRAINED_7K = Object.fromEntries(PHYSICAL_SKILLS_7K.map(skill => [s
 /** 7K's play: its own bot and skills, mania's engine, the shared fatigue and xp rules. */
 export const play: RulesetPlay = {
 	tiredness: tiredness(SKILL_7K.stamina, GENETICS_7K),
-	allowedRate: (profile, rate) => allowedRate(rate, skillOf(profile, SKILL_7K.speed).upgrades),
+	allowedRate: (profile, rate) => {
+		const speed = skillOf(profile, SKILL_7K.speed);
+		return allowedRate(rate, rateUnlocks(speed.upgrades, speed.prestige));
+	},
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
 		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,

@@ -12,6 +12,7 @@ import { SETTINGS } from '../../db/settings';
 import { selectedRate } from '../../gameplay/playRate';
 import { starsOf } from '../../gameplay/rateStars';
 import type LightBeatmap from './LightBeatmap';
+import { scoreBand } from './scoreBand';
 
 /** Per-character play history, keyed by beatmap (difficulty) id. Mirrors what
  *  SongSelect derives from the local score table; the two history-based group
@@ -19,6 +20,8 @@ import type LightBeatmap from './LightBeatmap';
 export interface PlayHistory {
 	bestRank: Map<string, number>;   // rankKey -> Grades index of the top score at that rate
 	bestRankAnyRate: Map<number, number>; // beatmapId -> Grades index of the top score at any rate
+	bestScore: Map<string, number>;   // rankKey -> the top score at that rate
+	bestScoreAnyRate: Map<number, number>; // beatmapId -> the top score at any rate
 	lastPlayed: Map<number, number>; // beatmapId -> most recent playedAt (ms epoch)
 }
 
@@ -31,11 +34,35 @@ export const bestRankOf = (history: PlayHistory, beatmap: LightBeatmap): number 
 		? history.bestRankAnyRate.get(beatmap.metadata.id)
 		: history.bestRank.get(rankKey(beatmap.metadata.id, beatmap.lockedRate ?? selectedRate.get()));
 
+/** Best score, at the same rate as {@link bestRankOf}. */
+export const bestScoreOf = (history: PlayHistory, beatmap: LightBeatmap): number | undefined =>
+	SETTINGS.bestGradeAnyRate.get()
+		? history.bestScoreAnyRate.get(beatmap.metadata.id)
+		: history.bestScore.get(rankKey(beatmap.metadata.id, beatmap.lockedRate ?? selectedRate.get()));
+
 export const EMPTY_HISTORY: PlayHistory = { 
 	bestRank: new Map(), 
 	bestRankAnyRate: new Map(),
+	bestScore: new Map(),
+	bestScoreAnyRate: new Map(),
 	lastPlayed: new Map(), 
 };
+
+/** A Grades index's group; unplayed last. */
+function rankGroup(rank: number | undefined): Group {
+	return rank === undefined ? {
+		key: 'unplayed', label: t`Unplayed`, order: LAST,
+	} : {
+		key: Grades[rank], label: Grades[rank], order: rank,
+	};
+}
+
+/** A best score's band; no score last. */
+function bestScoreGroup(score: number | undefined): Group {
+	return score === undefined ? {
+		key: 'noscore', label: t`No score`, order: LAST,
+	} : scoreBand(score);
+}
 
 /** beatmapId -> the local playlists containing that difficulty, once per copy
  *  of it there. Backs the "By Playlist" group mode. */
@@ -222,17 +249,8 @@ export function groupOf(
 				};
 		}
 		case 'By Status': return statusGroup(item);
-		case 'By Rank Achieved': {
-			const rank = bestRankOf(history, item.beatmap);
-			if (rank === undefined) return {
-				key: 'unplayed', 
-				label: t`Unplayed`,
-				order: LAST, 
-			};
-			return {
-				key: Grades[rank], label: Grades[rank], order: rank, 
-			};
-		}
+		case 'By Rank Achieved': return rankGroup(bestRankOf(history, item.beatmap));
+		case 'By Best Score': return bestScoreGroup(bestScoreOf(history, item.beatmap));
 		case 'Recently Played': return recencyGroup(history.lastPlayed.get(bm.id), now);
 		default: return null;
 	}

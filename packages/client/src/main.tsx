@@ -13,6 +13,7 @@ import { desktop } from '@oss-idle/shared/desktop';
 import { startAutoUpdates } from './addons/autoUpdate';
 import { bootAddons } from './addons/runtime';
 import App from './App.tsx';
+import { startBackgroundMute } from './audio/backgroundMute';
 import { DB } from './db/dao';
 import { SETTINGS } from './db/settings';
 import {
@@ -64,6 +65,7 @@ if (!devTools.profiler) {
 // run) and again on every change. We await it so the first catalog is live
 // before render.
 await SETTINGS.language.sync((locale) => activateLocale(locale));
+startBackgroundMute();
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>

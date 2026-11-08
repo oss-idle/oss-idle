@@ -110,6 +110,7 @@ import {
 import {
 	acceptRequestsForSet,
 	beatmapRequestRoutes,
+	proposeUploadedSet,
 	requestersForSets,
 } from './beatmapRequest';
 import { beatmapUploadRoutes } from './beatmapUpload';
@@ -365,9 +366,13 @@ export const beatmapsRoutes = new Hono()
 		try {
 			const result = await ingestOsz(buffer);
 			// A map someone asked for is answered the moment its file lands.
-			if (result.osuSetId) await acceptRequestsForSet(result.osuSetId, c.get('userId'));
+			if (result.osuSetId) {
+				await acceptRequestsForSet(result.osuSetId, c.get('userId'));
+				await proposeUploadedSet(queueQuery(c), result.setId, result.osuSetId, c.get('userId'));
+			}
 			return c.json(result);
 		} catch (e) {
+			console.error('nomination upload failed:', e);
 			throw new HTTPException(400, { message: e instanceof Error ? e.message : 'Could not ingest beatmap' });
 		}
 	})

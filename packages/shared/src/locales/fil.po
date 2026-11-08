@@ -8,8 +8,8 @@ msgstr ""
 "Language: fil\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-02 08:23+0000\n"
-"Last-Translator: salminine <lucasyestinamiele@gmail.com>\n"
+"PO-Revision-Date: 2026-11-08 14:15+0000\n"
+"Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Filipino <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/shared/fil/>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
@@ -60,15 +60,15 @@ msgstr "Sanay sa {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Grandmaster"
-msgstr "{skill} Grandmaster"
+msgstr "Grandmaster sa {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Legend"
-msgstr "{skill} Maalamat"
+msgstr "Maalamat na {skill}"
 
 #: src/rulesets/mania/medalText.ts
 msgid "{skill} Master"
-msgstr "{skill} Dalubhasa"
+msgstr "Dalubhasa na {skill}"
 
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
@@ -125,7 +125,7 @@ msgstr "60hz GMMK firmware"
 
 #: src/rulesets/mania/7k/display.ts
 msgid "A tidy desk"
-msgstr ""
+msgstr "Maayos na desk"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Absolute"
@@ -134,13 +134,13 @@ msgstr ""
 #: src/rulesets/mania/4k/display.ts
 #: src/rulesets/mania/7k/display.ts
 msgid "Accuracy"
-msgstr ""
+msgstr "Katumpakan"
 
 #: src/rulesets/mania/4k/medalText.ts
 #: src/rulesets/mania/7k/medalText.ts
 msgctxt "skill in a medal name"
 msgid "Accuracy"
-msgstr ""
+msgstr "Katumpakan"
 
 #: src/rulesets/mania/7k/display.ts
 msgid "Adjustable actuation"
@@ -1754,6 +1754,10 @@ msgstr ""
 
 #: src/rulesets/mania/medalText.ts
 msgid "Time Flies"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Timeless"
 msgstr ""
 
 #: src/rulesets/mania/medalText.ts

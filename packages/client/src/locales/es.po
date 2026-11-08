@@ -8,7 +8,7 @@ msgstr ""
 "Language: es\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-30 19:22+0000\n"
+"PO-Revision-Date: 2026-11-08 14:15+0000\n"
 "Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Spanish <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/es/>\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
@@ -180,8 +180,8 @@ msgid "{name} mentioned you"
 msgstr "{name} te ha mencionado"
 
 #: src/logs.ts
-msgid "{name} played {map} and got a {accuracy} {grade}. {gains}"
-msgstr "{name} ha jugado {map} y ha conseguido {accuracy} {grade}. {gains}"
+msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
+msgstr ""
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
@@ -222,6 +222,10 @@ msgstr "{result} en {map}"
 #: src/scenes/SongSelect.tsx
 msgid "{results, plural, one {# result} other {# results}}"
 msgstr "{results, plural, one {# resultado} other {# resultados}}"
+
+#: src/input/Controls.ts
+msgid "{ruleset} scroll speed set to {speed}"
+msgstr ""
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -349,7 +353,7 @@ msgstr "{version} (copia)"
 
 #: src/components/character/PrestigeRow.tsx
 msgid "+{bonus} Lv · +{slots} gear slot · x{multiplier} XP"
-msgstr "+{bonus} Nv · +{slots} casilla de equipamiento · x{multiplier} XP"
+msgstr "+{bonus} Nv · +{slots} casilla de mejora · x{multiplier} XP"
 
 #: src/components/medals/MedalFocus.tsx
 #: src/components/medals/MedalShowcase.tsx
@@ -383,6 +387,14 @@ msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms earlier, 10 with Shift"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "1 ms later, 10 with Shift"
 msgstr ""
 
 #: src/components/mods/ModSelect.tsx
@@ -704,11 +716,15 @@ msgstr "Todos los beatmaps eliminados."
 
 #: src/components/options/DownloadAllWarning.tsx
 msgid "All bundled beatmaps downloaded."
-msgstr "Se han descargado todos los beatmaps incluidos."
+msgstr "Se han descargado todos los mapas incluidos."
 
 #: src/editor/EditorMetadata.tsx
 msgid "All but the difficulty name is shared by the set: saving writes it to every difficulty."
 msgstr "Todo, a excepción del nombre de la dificultad, está en común por el conjunto: al guardarlo se aplica a cada una de las dificultades."
+
+#: src/components/options/DownloadModeChoice.tsx
+msgid "All modes"
+msgstr ""
 
 #: src/components/options/DownloadAllWarning.tsx
 msgid "All ranked beatmaps downloaded."
@@ -896,7 +912,7 @@ msgstr "Beatmap eliminado"
 
 #: src/components/songselect/SongSelectFooter.tsx
 msgid "Beatmap Options"
-msgstr "Opciones del Beatmap"
+msgstr "Opciones del beatmap"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Beatmap study"
@@ -956,6 +972,10 @@ msgstr ""
 #: src/editor/EditorTimingPoint.tsx
 msgid "BPM"
 msgstr "BPM"
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "BPMs this high are for SV and can slow the editor down. You won't be asked again."
+msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "Brake"
@@ -1064,6 +1084,10 @@ msgid "By Artist"
 msgstr "Por Artista"
 
 #: src/components/songselect/TopBar.tsx
+msgid "By Best Score"
+msgstr ""
+
+#: src/components/songselect/TopBar.tsx
 msgid "By BPM"
 msgstr "Por BPM"
 
@@ -1121,6 +1145,7 @@ msgstr ""
 #: src/components/dock/SaveQueuePrompt.tsx
 #: src/components/multiplayer/CreateMatch.tsx
 #: src/components/multiplayer/PasswordPrompt.tsx
+#: src/components/options/DownloadModeChoice.tsx
 #: src/components/page/pageBar.tsx
 #: src/components/songselect/CardContextMenu.tsx
 #: src/components/songselect/CardContextMenu.tsx
@@ -1798,8 +1823,8 @@ msgid "Each completed play earns your character <0>XP</0> and <1>levels</1> acro
 msgstr "Cada jugada completa otorga a tu personaje <0>XP</0> y <1>niveles</1> a través de varios conjuntos de habilidades, lo que le permitirá mejorar en jugadas futuras."
 
 #: src/components/mods/RateStepper.tsx
-msgid "Each Speed upgrade unlocks one more step"
-msgstr "Cada mejora de Velocidad desbloquea un step más"
+msgid "Each Speed upgrade or prestige unlocks one more step"
+msgstr ""
 
 #: src/components/genetics/SkillCard.tsx
 msgid "Each tier you buy adds {perTier}% {name} XP"
@@ -2114,7 +2139,7 @@ msgstr "pantalla completa"
 
 #: src/components/options/Fullscreen.tsx
 msgid "Fullscreen mode"
-msgstr "En pantalla completa"
+msgstr "Pantalla completa"
 
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Game Name"
@@ -2218,7 +2243,7 @@ msgstr ""
 
 #: src/components/songselect/TopBar.tsx
 msgid "Group"
-msgstr "Grupo"
+msgstr "Agrupar"
 
 #: src/logs.ts
 msgid "Guest"
@@ -3183,6 +3208,14 @@ msgstr "Reproduciendo música"
 msgid "Musical"
 msgstr "Musical"
 
+#: src/components/options/MuteInBackground.tsx
+msgid "Mute when in the background"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "mute|background|unfocused|focus|tab|window|volume"
+msgstr ""
+
 #: src/components/community/chat/NameCardFriends.tsx
 msgid "Mutual friends"
 msgstr "Amigos en común"
@@ -3342,6 +3375,10 @@ msgstr "No hay punto de preview (pestaña Metadatos)"
 #: src/scenes/Result.tsx
 msgid "No replay data"
 msgstr "Sin datos de repetición"
+
+#: src/osu/beatmap/grouping.ts
+msgid "No score"
+msgstr ""
 
 #: src/components/leaderboard/Leaderboard.tsx
 msgid "No scores yet, be the first!"
@@ -3527,6 +3564,10 @@ msgstr "Los personajes en línea siempre comienzan desde cero: El progreso del i
 msgid "Online users"
 msgstr "Usuarios conectados"
 
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Only {mode} beatmaps"
+msgstr ""
+
 #: src/components/genetics/GeneticsPreview.tsx
 msgid "Only a preview: you learn genes with climaxx once you've begun."
 msgstr ""
@@ -3704,7 +3745,7 @@ msgstr "Contraseña:"
 
 #: src/components/gameplay/WarmupHint.tsx
 msgid "Past the sweet spot. Play easier maps to come back to it."
-msgstr "Por encima del punto dulce. Juega mapas más fáciles para volver a él."
+msgstr "Por encima del punto ideal. Juega mapas más fáciles para volver a él."
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "past your limit, {value}% fewer releases slip away"
@@ -3861,7 +3902,7 @@ msgstr "Veces Jugado: {playCount} (Nv{level})"
 #: src/components/gameplay/WarmupHint.tsx
 #: src/components/gameplay/WarmupHint.tsx
 msgid "Play harder maps to reach the sweet spot."
-msgstr "Juega mapas más difíciles para alcanzar el punto dulce."
+msgstr "Juega mapas más difíciles para alcanzar el punto ideal."
 
 #: src/components/dock/DockRepeatCount.tsx
 msgid "Play it one more time"
@@ -3878,7 +3919,7 @@ msgstr "Jugar localmente"
 
 #: src/components/songselect/CardContextMenu.tsx
 msgid "Play next"
-msgstr "Siguiente"
+msgstr "Añadir como la siguiente"
 
 #: src/components/PlayChoice.tsx
 #: src/components/Tutorial.tsx
@@ -4093,7 +4134,7 @@ msgstr "Rates"
 
 #: src/components/character/PrestigeView.tsx
 msgid "Reaching XP Lv{PRESTIGE_MIN_LEVEL} on a skill lets you reset it. You lose its upgrades and Overdrive, and gain a bonus level, an extra gear slot and a multiplicative XP bonus. Each prestige asks for one more level than the last."
-msgstr "Al llegar al nivel de XP Nv{PRESTIGE_MIN_LEVEL} en una habilidad, podrás restablecerla. Perderás sus mejoras y Overdrive, y ganarás un nivel bonus, una casilla de equipamiento adicional y un multiplicador bonus de XP. Cada prestigio requiere un nivel más que el anterior."
+msgstr "Al llegar al nivel de XP Nv{PRESTIGE_MIN_LEVEL} en una habilidad, podrás restablecerla. Perderás sus mejoras y Overdrive, ganarás un nivel bonus, una casilla de mejora adicional y un multiplicador bonus de XP. Cada prestigio requiere un nivel más que el anterior."
 
 #: src/components/community/chat/ReactPicker.tsx
 msgid "React"
@@ -4140,7 +4181,7 @@ msgstr "Recibir mensajes de cualquiera"
 
 #: src/components/songselect/TopBar.tsx
 msgid "Recently Played"
-msgstr "Jugados Recientemente"
+msgstr "Por Jugados Recientemente"
 
 #: src/components/options/RecreateDatabase.tsx
 msgid "Recreate local database"
@@ -4268,7 +4309,7 @@ msgstr ""
 #: src/components/character/PrestigeAction.tsx
 #: src/components/upgrades/UpgradeAction.tsx
 msgid "Requires XP Lv{required}"
-msgstr "Requiere el nivel de XP Nv{required}"
+msgstr "Necesitas XP Nv{required}"
 
 #: src/editor/EditorKeyRow.tsx
 #: src/editor/EditorSpeed.tsx
@@ -4360,6 +4401,10 @@ msgstr ""
 msgid "rolls and stairs across one hand are {value}% lighter"
 msgstr ""
 
+#: src/scenes/Options.tsx
+msgid "RULESETS"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "running low on stamina starts to hurt {value}% later"
 msgstr ""
@@ -4432,6 +4477,18 @@ msgstr "Multiplicador de Score: {multiplier}x"
 #: src/components/dock/DockTransport.tsx
 msgid "Screensaver"
 msgstr "Salvapantallas"
+
+#: src/components/options/ScrollSpeed.tsx
+msgid "Scroll speed"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|4k|mania|f3|f4"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "scroll|speed|7k|mania|f3|f4"
+msgstr ""
 
 #: src/components/community/CommunityHeader.tsx
 msgid "Search"
@@ -4558,6 +4615,14 @@ msgstr "Enviar reporte"
 msgid "Sent back: {note}"
 msgstr "Se ha devuelto: {note}"
 
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set a BPM above {max}?"
+msgstr ""
+
+#: src/editor/EditorTimingPoint.tsx
+msgid "Set it"
+msgstr ""
+
 #: src/components/multiplayer/MatchSettings.tsx
 msgid "Set Password"
 msgstr "Establecer Contraseña"
@@ -4677,7 +4742,7 @@ msgstr "Mostrando {shown} de {total, plural, one {# sala} other {# salas}}"
 
 #: src/gameplay/playQueue.ts
 msgid "Shuffle"
-msgstr "Mezclar"
+msgstr "Aleatorio"
 
 #: src/rulesets/mania/4k/quiz.ts
 msgid "shut everything else out"
@@ -5012,7 +5077,7 @@ msgstr "Enviando puntuación…"
 
 #: src/components/SupporterHeart.tsx
 msgid "Support the game to access cool features!"
-msgstr "¡Apoya el juego para poder acceder a funciones guays!"
+msgstr "¡Apoya el juego para poder acceder a unas funciones chulas!"
 
 #: src/rulesets/mania/4k/quiz.ts
 msgid "surprises don't throw you"
@@ -5409,7 +5474,7 @@ msgstr "Tipo:"
 
 #: src/components/options/UIScaling.tsx
 msgid "UI scaling"
-msgstr "Escala de UI"
+msgstr "Escala de IU"
 
 #: src/components/options/UIScaling.tsx
 msgid "UI scaling: use your browser's zoom (Ctrl + / Ctrl -)"
@@ -5509,7 +5574,7 @@ msgstr ""
 
 #: src/components/dock/DockQueue.tsx
 msgid "Up next"
-msgstr "Siguiente"
+msgstr "A continuación"
 
 #: src/components/addons/AddonRepoBuild.tsx
 msgid "Up to date"
@@ -5557,7 +5622,7 @@ msgstr "boost de mejora"
 
 #: src/components/mods/ModSelect.tsx
 msgid "Upgrade Speed to unlock rates"
-msgstr "Mejora Velocidad para desbloquear rates"
+msgstr "Mejora Speed para desbloquear rates"
 
 #: src/components/dock/DockUpgradesButton.tsx
 #: src/components/skills/SkillsView.tsx
@@ -5765,6 +5830,10 @@ msgstr ""
 msgid "when your hands tangle, you let go of an LN early instead of missing a note {value}% more often"
 msgstr ""
 
+#: src/components/options/DownloadModeChoice.tsx
+msgid "Which ranked beatmaps?"
+msgstr ""
+
 #: src/editor/EditorSoundFiles.tsx
 msgid "whistle"
 msgstr "silbato"
@@ -5827,7 +5896,7 @@ msgstr "Nivel de XP"
 
 #: src/components/character/PrestigeRow.tsx
 msgid "XP Lv{level} → XP Lv0 · Loses every upgrade and all Overdrive · Keeps +{bonus, plural, one {# bonus level} other {# bonus levels}}, {slots, plural, one {# gear slot} other {# gear slots}} and x{multiplier} XP"
-msgstr "Nivel de XP Nv{level} → Nivel de XP Nv0 · Se pierden todas las mejoras y todo el Overdrive · Conserva +{bonus, plural, one {# nivel de bonus} other {# niveles de bonus}}, {slots, plural, one {# casilla de equipamiento} other {# casillas de equipamiento}} y x{multiplier} XP"
+msgstr "Nivel de XP Nv{level} → Nivel de XP Nv0 · Se pierden todas las mejoras y todo el Overdrive · Conserva +{bonus, plural, one {# nivel de bonus} other {# niveles de bonus}}, {slots, plural, one {# casilla de mejora} other {# casillas de mejora}} y x{multiplier} XP"
 
 #: src/components/character/PrestigeRow.tsx
 msgid "XP Lv{level} → XP Lv0 · Loses every upgrade and all Overdrive · No prestige and no Climaxx"

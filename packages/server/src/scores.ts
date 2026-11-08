@@ -179,7 +179,7 @@ export const onSubmitScore = async (
 	await refreshBestTotals(ruleset, score.characterId);
 	const after = (await getCharacterTotals(ruleset, score.characterId)).rankedScore;
 	if (Math.floor(after / 1_000_000_000) > Math.floor(before / 1_000_000_000)) {
-		await announceBillions(score, after);
+		await announceBillions(ruleset, score, after);
 	}
 	if (!(loved ?? await isLovedBeatmap(ruleset, score.beatmapId))) {
 		await checkNewBestPP(ruleset, score, recompute);
@@ -261,7 +261,7 @@ export const checkNewBestPP = async (ruleset: ServerRuleset, score: ScoreRow, re
 		const after = await profileOf(ruleset, score.characterId);
 
 		if (Math.floor(Number(after.pp) / 1000) > Math.floor(Number(before.pp) / 1000)) {
-			void announcePps(after);
+			void announcePps(ruleset, after);
 		}
 	}
 };
@@ -273,7 +273,7 @@ export const checkNewFirstPlace = async (ruleset: ServerRuleset, score: ScoreRow
 	await setNewFirstPlace(ruleset, score);
 	// Beating your own #1 is not news.
 	if (best?.characterId === score.characterId) return;
-	await announceFirstPlace(score);
+	await announceFirstPlace(ruleset, score);
 	return best?.characterId;
 };
 
@@ -299,7 +299,7 @@ export const recomputeFirstPlace = async (beatmapId: number) => {
 };
 
 /** Server-announce a new #1 in chat (a "perfect" variant for a max score). */
-const announceFirstPlace = async (score: ScoreRow) => {
+const announceFirstPlace = async (ruleset: ServerRuleset, score: ScoreRow) => {
 	const [character, beatmap] = await Promise.all([
 		getCharacterById(score.characterId),
 		getBeatmapById(score.beatmapId),
@@ -311,11 +311,12 @@ const announceFirstPlace = async (score: ScoreRow) => {
 		ANNOUNCE_CHANNEL, 
 		firstPlaceMessage(character.name, beatmap, perfect), 
 		perfect ? '#c794ff' : '#fa81c6',
+		ruleset.def.id,
 	);
 };
 
 /** Server-announce a new #1 in chat (a "perfect" variant for a max score). */
-const announceBillions = async (score: ScoreRow, rankedScore: number) => {
+const announceBillions = async (ruleset: ServerRuleset, score: ScoreRow, rankedScore: number) => {
 	const character = await getCharacterById(score.characterId);
 	if (!character) return;
 
@@ -324,11 +325,12 @@ const announceBillions = async (score: ScoreRow, rankedScore: number) => {
 		ANNOUNCE_CHANNEL, 
 		billionsMessage(character.name, billions), 
 		'#81e2fa',
+		ruleset.def.id,
 	);
 };
 
 /** Server-announce a new #1 in chat (a "perfect" variant for a max score). */
-const announcePps = async (profile: ProfileRow) => {
+const announcePps = async (ruleset: ServerRuleset, profile: ProfileRow) => {
 	const character = await getCharacterById(profile.id);
 	if (!character) return;
 	const pps = Math.floor(Number(profile.pp) / 1_000) * 1_000;
@@ -336,6 +338,7 @@ const announcePps = async (profile: ProfileRow) => {
 		ANNOUNCE_CHANNEL, 
 		ppsMessage(character.name, pps), 
 		'#fa9981',
+		ruleset.def.id,
 	);
 };
 
@@ -372,6 +375,7 @@ const announceSkillLevels = async (
 			ANNOUNCE_CHANNEL,
 			skillLevelMessage(character.name, ruleset.def.skillName(skill), level),
 			'#81fa9b',
+			ruleset.def.id,
 		);
 	}
 };

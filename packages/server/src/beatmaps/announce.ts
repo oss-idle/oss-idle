@@ -13,6 +13,8 @@ import {
 
 export type AnnounceSet = MapCover & {
 	loved: boolean;
+	/** the ruleset its difficulties are ranked in, as players name it: 4K, 7K */
+	ruleset: string;
 	artist: string;
 	title: string;
 	creator: string;
@@ -39,7 +41,7 @@ export const announceRanked = async (set: AnnounceSet): Promise<void> => {
 				url: `${clientUrl}/web/maps/${set.id}`,
 				description: asc.map(d => `\`${d.sr.toFixed(2)}☆\` \`${d.version}\``).join('\n'),
 				color: set.loved ? 16737962 : 5814783,
-				author: { name: `New ${set.loved ? 'loved' : 'ranked'} map by ${set.creator}` },
+				author: { name: `New ${set.loved ? 'loved' : 'ranked'} ${set.ruleset} map by ${set.creator}` },
 				fields: [{
 					name: set.loved ? 'Loved' : 'Ranked', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, 
 				}],

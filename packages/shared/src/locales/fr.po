@@ -1755,6 +1755,10 @@ msgid "Time Flies"
 msgstr "Le temps file"
 
 #: src/rulesets/mania/medalText.ts
+msgid "Timeless"
+msgstr "Intemporel"
+
+#: src/rulesets/mania/medalText.ts
 msgid "Top of the Line"
 msgstr "Top du top"
 

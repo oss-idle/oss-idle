@@ -58,19 +58,20 @@ const importScores = (scores: BeatmapBoardResponse[number]['score'][]) => {
 	})();
 };
 
-/** A map's leaderboard by `sort`: global, within a country, or among the signed-in
- *  player's friends. Each best with who set it. */
+/** A map's leaderboard by `sort`: global, within a country, among the signed-in
+ *  player's friends, or global at one rate. Each best with who set it. */
 const getBeatmapScores = async (
 	beatmap: number,
 	sort: BoardSort,
 	country?: string,
 	friends?: boolean,
+	rate?: number,
 ): Promise<BeatmapBoardResponse> => boards
-	.process(`${beatmap}:${country ?? (friends ? 'friends' : '')}:${sort}`, async () => {
+	.process(`${beatmap}:${country ?? (friends ? 'friends' : '')}:${sort}:${rate ?? ''}`, async () => {
 		const rows = await unwrap<BeatmapBoardResponse>(endpoint['beatmap'][':beatmap']['board'].$get({
 			param: { beatmap: String(beatmap) },
 			query: {
-				country, friends: friends ? '1' : undefined, sort,
+				country, friends: friends ? '1' : undefined, sort, rate: rate?.toString(),
 			},
 		}));
 		importScores(rows.map(r => r.score));
@@ -86,6 +87,12 @@ export const boardTab = (tab: ScoreTab, country?: string, supporter?: boolean): 
 		? SCORE_TAB.GLOBAL
 		: tab;
 
+/** What sets a board apart: the map, the tab, the order, the country, and the rate for
+ *  the Current rate tab. */
+export const boardKey = (
+	beatmap: number | undefined, tab: ScoreTab, sort: BoardSort, country?: string, rate?: number,
+) => `${beatmap}:${tab}:${sort}:${country}:${tab === SCORE_TAB.RATE ? rate : ''}`;
+
 /** A map's scores for a song select tab (see {@link boardTab}), by `sort`: the local plays,
  *  the current character's, or the server's global, country or friends board. */
 export const boardScores = async (
@@ -93,13 +100,19 @@ export const boardScores = async (
 	tab: ScoreTab,
 	sort: BoardSort,
 	country?: string,
+	/** the Current rate tab's */
+	rate?: number,
 ): Promise<BoardRow[]> => {
 	if (tab === SCORE_TAB.LOCAL || tab === SCORE_TAB.MINE) {
 		const mine = tab === SCORE_TAB.MINE ? Entities.character.get().id : undefined;
 		return (await Score.forBeatmap(beatmap, sort, mine)).map(score => ({ score }));
 	}
 	return getBeatmapScores(
-		beatmap, sort, tab === SCORE_TAB.COUNTRY ? country : undefined, tab === SCORE_TAB.FRIENDS,
+		beatmap,
+		sort,
+		tab === SCORE_TAB.COUNTRY ? country : undefined,
+		tab === SCORE_TAB.FRIENDS,
+		tab === SCORE_TAB.RATE ? rate : undefined,
 	);
 };
 

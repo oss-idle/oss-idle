@@ -827,6 +827,13 @@
       "when": 1798329600000,
       "tag": "0126_queue_play_once",
       "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "5",
+      "when": 1798416000000,
+      "tag": "0127_score_xp",
+      "breakpoints": true
     }
   ]
 }

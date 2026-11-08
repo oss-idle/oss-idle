@@ -40,7 +40,6 @@ export default function SaveQueuePrompt({ onClose }: Props) {
 			title={t`Save the queue as a playlist`}
 			focus={inputRef}
 			onClose={onClose}
-			numbered
 			options={[
 				{
 					label: t`Save`, color: '#5aa02c', onClick: () => void save(),

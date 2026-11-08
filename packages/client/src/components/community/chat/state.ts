@@ -9,6 +9,14 @@ import { LOGS_CHANNEL } from '../../../logs';
 /** The open chat tabs: channels, plus one `pm:<userId>` tab per conversation. */
 export const chatTabs = new Synced<string[]>([DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, LOGS_CHANNEL]);
 export const activeChatTab = new Synced<string | undefined>(DEFAULT_CHANNEL);
+/** The next open tab (`by` 1) or the previous one (-1), wrapping round. */
+export const stepChatTab = (by: 1 | -1): void => {
+	const tabs = chatTabs.get();
+	if (!tabs.length) return;
+	const at = tabs.indexOf(activeChatTab.get() ?? '');
+	void activeChatTab.set(tabs[(at + by + tabs.length) % tabs.length]);
+};
+
 /** The channel list behind the tabs' + button. */
 export const channelPickerOpen = new Synced(false);
 

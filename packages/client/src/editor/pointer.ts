@@ -18,8 +18,9 @@ type Drag =
  * select it (ctrl adds it or takes it out) and drag to move the selection onto the beat
  * lines (shift keeps each note's offset from them); drag a long
  * note's end to resize it; drag from an empty spot for a box (ctrl adds to the selection).
- * Note: click to place a note, on a note to remove it. Note + LN: the same, and drag up
- * for a long note. With any tool, a drag from outside the columns is a box, and a right
+ * Note: click to place a note, on a note to remove it. Note + LN: the same, drag up
+ * for a long note, and drag a long note's end to resize it. With any tool, a drag from
+ * outside the columns is a box, and a right
  * click removes a note. A box is a plain rectangle held to song time, so scrolling while
  * dragging stretches it over the map.
  */
@@ -106,24 +107,41 @@ export default class EditorPointer {
 			if (button === 0) this.startBox(at, ctrl);
 			return;
 		}
-		const note = this.session.noteAt(at.time, at.column, tolerance);
-		let tail: Note | undefined;
-		if (button === 2 || (note && this.session.tool !== 'select')) {
+		const { tool } = this.session;
+		const note = this.noteUnder(at, tolerance);
+		if (button === 2) {
 			if (note) this.session.remove(note);
-		} else if (this.session.tool !== 'select') {
-			this.drag = {
-				kind: 'place', column: at.column, time: this.session.snap(at.time), 
-			};
-		} else if (!ctrl && (tail = this.session.tailAt(at.time, at.column, tolerance))) {
-			this.session.select([tail]);
-			this.drag = {
-				kind: 'resize', note: tail, end: tail.end!, 
+			return;
+		}
+		if (!ctrl && tool !== 'note' && this.grabTail(at, tolerance)) return;
+		if (tool !== 'select') {
+			if (note) this.session.remove(note);
+			else this.drag = {
+				kind: 'place', column: at.column, time: this.session.snap(at.time),
 			};
 		} else if (note) {
 			this.grab(note, at, ctrl);
 		} else {
 			this.startBox(at, ctrl);
 		}
+	}
+
+	/** The note under the pointer, else, with a placing tool, the one on the line it snaps to. */
+	private noteUnder(at: PointerAt, tolerance: number): Note | undefined {
+		const { session } = this;
+		return session.noteAt(at.time, at.column, tolerance)
+			?? (session.tool === 'select' ? undefined : session.noteAt(session.snap(at.time), at.column, 1));
+	}
+
+	/** Starts resizing the long note whose end is under the pointer, if there is one. */
+	private grabTail(at: PointerAt, tolerance: number): boolean {
+		const tail = this.session.tailAt(at.time, at.column, tolerance);
+		if (!tail) return false;
+		this.session.select([tail]);
+		this.drag = {
+			kind: 'resize', note: tail, end: tail.end!,
+		};
+		return true;
 	}
 
 	private startBox(at: PointerAt, add: boolean) {

@@ -492,6 +492,7 @@ export default function MainMenu({ flash = false }: Props) {
 
 			{exitConfirm && (
 				<ContextMenu
+					unnumbered
 					title={t`Exit oss!idle`}
 					sub={awayHours === undefined
 						? t`Are you sure you want to quit?`
