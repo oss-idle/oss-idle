@@ -1,6 +1,7 @@
 import type {
 	ApiBeatmap,
 	ApiBeatmapset,
+	ApiLivePlay,
 	ApiNewsPost,
 	ApiScore,
 	ApiStatistics,
@@ -9,6 +10,7 @@ import type {
 	ApiUserStatistics,
 } from '@oss-idle/shared/apiV2';
 import { mapCoverUrl } from '@oss-idle/shared/beatmap';
+import { restedFatigue } from '@oss-idle/shared/fatigue';
 import { GoodGrades } from '@oss-idle/shared/grade';
 import {
 	OSU_MODE,
@@ -41,6 +43,8 @@ import {
 	apiBaseUrl,
 	clientUrl,
 } from '../env';
+import type { LivePlay } from '../play';
+import type { Tiredness } from '../rulesets/play';
 import { levelPercent } from './levelPercent';
 
 /** osu!'s API objects, in its snake_case, with the fields we have. */
@@ -107,6 +111,24 @@ export const userStatistics = (
 	statistics: statistics(def, totals as unknown as Record<string, number>),
 });
 
+/** The session state both fatigue curves read off, as of this response: the
+ *  strained-minute accumulator rested to now, how tired that leaves the character, and the
+ *  warm-up it drives. A client drawing the warm-up bar for somebody who isn't mid-play has
+ *  nowhere else to get it. */
+const tiredness = (profile: ProfileRow, tired: Tiredness) => {
+	const fatigue = profile.fatigue ?? undefined;
+	return {
+		fatigue: {
+			minutes: Math.round(restedFatigue(fatigue, Date.now()) * 1000) / 1000,
+			level: tired.fatigue,
+			at: fatigue && iso(new Date(fatigue.at)),
+		},
+		warmup: {
+			level: tired.warmup, bar: tired.warmupBar,
+		},
+	};
+};
+
 export const apiUser = (
 	def: RulesetDef,
 	user: UserRow,
@@ -114,6 +136,7 @@ export const apiUser = (
 	profile: ProfileRow,
 	totals: CharacterTotalsRow,
 	ranks: { global?: number; country?: number },
+	tired: Tiredness,
 ): ApiUser => {
 	const { mode, variant }: { mode: string, variant?: string } = RULESETS[def.id];
 	const supporter = supporterActive(user);
@@ -132,6 +155,7 @@ export const apiUser = (
 		support_level: supportLevel(supporter, user.supporterMonths),
 		join_date: iso(user.createdAt),
 		statistics: userStatistics(def, profile, totals, ranks),
+		...tiredness(profile, tired),
 		skills: Object.fromEntries(def.skills.map(s => {
 			const skill = skillOf(profile, s);
 			const shown = playLevelOf(skill.level, skill.xp, skill.lifetimeXp, skill.prestige);
@@ -163,6 +187,22 @@ export const apiScore = (def: RulesetDef, score: ScoreDTO): ApiScore => ({
 	mods: score.mods,
 	statistics: statistics(def, score.judgements),
 	ended_at: new Date(score.playedAt).toISOString(),
+});
+
+/** A play in flight, as `GET /characters/{character}/playing` serves it. */
+export const apiLivePlay = (play: LivePlay, now: number): ApiLivePlay => ({
+	beatmap_id: play.beatmapId,
+	ruleset: play.ruleset,
+	rate: play.rate,
+	mods: play.mods,
+	ranked: play.ranked,
+	started_at: iso(new Date(play.startedAt)),
+	ends_at: iso(new Date(play.endsAt)),
+	server_now: iso(new Date(now)),
+	fatigue: play.fatigue,
+	warmup: play.warmup,
+	warmup_bar: play.warmupBar,
+	warmup_trend: play.warmupTrend,
 });
 
 type BeatmapInput = Omit<BeatmapRow, 'chart'>;

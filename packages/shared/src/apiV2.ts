@@ -57,6 +57,26 @@ export type ApiSkill = {
 	upgrades: number,
 };
 
+export type ApiFatigue = { minutes: number, level: number, at?: string };
+
+export type ApiWarmup = { level: number, bar: number };
+
+/** A play in flight, as `GET /characters/{character}/playing` serves it. */
+export type ApiLivePlay = {
+	beatmap_id: number,
+	ruleset: RulesetId,
+	rate: number,
+	mods: Mod[],
+	ranked: boolean,
+	started_at: string,
+	ends_at: string,
+	server_now: string,
+	fatigue: number,
+	warmup: number,
+	warmup_bar?: number,
+	warmup_trend?: number,
+};
+
 export type ApiUser = ApiUserCompact & {
 	cover_url?: string,
 	title?: string,
@@ -65,6 +85,10 @@ export type ApiUser = ApiUserCompact & {
 	support_level: number,
 	join_date?: string,
 	statistics: ApiUserStatistics,
+	/** the strained-minute accumulator, rested to the response, and how tired it leaves the character */
+	fatigue: ApiFatigue,
+	/** the warm-up that fatigue drives, and where it sits on the warm-up bar (0 to 1) */
+	warmup: ApiWarmup,
 	skills: Record<string, ApiSkill>,
 	rank_history: { mode: string, variant?: string, data: number[] },
 };

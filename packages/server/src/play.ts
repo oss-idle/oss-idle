@@ -421,6 +421,36 @@ const joinResult = (p: Pending): StartPlayResult => ({
 	...chunkFrom(p, 0),
 });
 
+/** What a character is playing right now in one ruleset (its slot), for anybody who asks: the map, how it is
+ *  being played, when it ends and the warm-up its HUD is drawing. `undefined` once the
+ *  play is over or finalised.
+ *
+ *  Everything here is already public. The online list broadcasts `playing` and the map's
+ *  name to every connected client (`livePlayPresence`), and the warm-up numbers are a
+ *  function of the character's own fatigue. Like `joinResult` it sends `shownEnd` and
+ *  never the real `endsAt`, so a fail still cannot be read before it streams in. */
+export const livePlay = async (slot: Slot) => {
+	const p = await readPlay(slot);
+	if (!p || Date.now() >= shownEnd(p)) return undefined;
+	return {
+		ruleset: p.ruleset,
+		beatmapId: p.beatmapId,
+		rate: rateOf(p),
+		mods: modsOf(p),
+		// the play's clock, LEAD_IN_MS of lead-in included
+		startedAt: p.startedAt,
+		endsAt: shownEnd(p),
+		// false for a match round or an unranked map's own leaderboard
+		ranked: !p.unranked && !p.board,
+		fatigue: p.fatigue ?? 0,
+		warmup: p.warmup ?? 1,
+		warmupBar: p.warmupBar,
+		warmupTrend: p.strain && rulesetFor(p.ruleset).play.warmupTrend(p.strain),
+	};
+};
+
+export type LivePlay = NonNullable<Awaited<ReturnType<typeof livePlay>>>;
+
 /** Join the play already in progress in this slot (spectate), or null to
  *  start a fresh one. An overdue play (past its end, sweep hasn't run) is
  *  finalised first so a new play can begin - as the sweep would, since no
