@@ -6,26 +6,12 @@
 }
 
 .rank-graph__guide {
-	position: absolute;
 	top: 0;
 	bottom: 0;
-	width: 1px;
-	background-color: hsla(var(--hsl-c1), 0.4);
-	pointer-events: none;
 }
 
 .rank-graph__tooltip {
-	position: absolute;
 	bottom: calc(100% + 4px);
-	transform: translateX(-50%);
-	padding: 5px 10px;
-	border-radius: 6px;
-	background-color: hsl(var(--hsl-b6));
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
-	white-space: nowrap;
-	text-align: center;
-	pointer-events: none;
-	z-index: 1;
 }
 
 .rank-graph__tooltip-rank {

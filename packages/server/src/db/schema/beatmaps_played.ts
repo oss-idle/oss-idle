@@ -6,6 +6,7 @@ import {
 	gt,
 	gte,
 	inArray,
+	isNotNull,
 	ne,
 	type SQL,
 	sql,
@@ -139,6 +140,24 @@ export const getTotalPlayed = async (
 		.from(beatmaps_played)
 		.where(and(eq(beatmaps_played.characterId, characterId), gt(beatmaps_played.plays, 0)))
 		.groupBy(beatmaps_played.characterId))[0]?.maps ?? 0;
+};
+
+/** A character's plays per UTC month, oldest first, sparse. DATE_FORMAT keeps the
+ *  month a string; a bare DATE() comes back as a JS Date and loses the calendar day. */
+export const getPlayCounts = ({ score }: ServerRuleset, characterId: number) => {
+	const month = sql<string>`DATE_FORMAT(${score.playedAt}, '%Y-%m')`;
+	return db
+		.select({
+			d: month,
+			plays: count(),
+		})
+		.from(score)
+		.where(and(
+			eq(score.characterId, characterId),
+			isNotNull(score.playedAt),
+		))
+		.groupBy(month)
+		.orderBy(month);
 };
 
 /** The plays of this map that still train memory (0 if never played): read
