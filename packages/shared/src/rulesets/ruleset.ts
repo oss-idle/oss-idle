@@ -44,7 +44,7 @@ export type RulesetDef<J extends string = string, S extends string = string> = {
 	/** the skill whose gear unlocks rates, and the one whose gear warms up faster */
 	rateSkill?: S,
 	warmupSkill?: S,
-	/** a character can be reborn in it (4K alone: 7K and standard have no rebirth) */
+	/** a character can be reborn in it */
 	rebirth?: true,
 	/** its characters pick a genetic and grow gene trees (4K alone) */
 	genetics?: GeneticsDef,

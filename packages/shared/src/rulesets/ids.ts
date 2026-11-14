@@ -29,7 +29,7 @@ export const rulesetOf = (mode: number, keys: number): RulesetId | undefined =>
 	});
 
 /** The rulesets a release build plays. */
-export const PROD_RULESETS: readonly RulesetId[] = ['mania4k'];
+export const PROD_RULESETS: readonly RulesetId[] = ['mania4k', 'mania7k'];
 /** The rulesets a dev or staging build plays: every one that has an implementation. */
 export const DEV_RULESETS: readonly RulesetId[] = ['mania4k', 'mania7k', 'osu'];
 /** The rulesets the PBE plays: the release ones and those being tried. */

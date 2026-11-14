@@ -8,6 +8,7 @@ import {
 	billionsMessage,
 	firstPlaceMessage,
 	isSkillLevelMilestone,
+	mapLabel,
 	ppsMessage,
 	skillLevelMessage,
 } from '@oss-idle/shared/community/announcements';
@@ -312,6 +313,7 @@ const announceFirstPlace = async (ruleset: ServerRuleset, score: ScoreRow) => {
 		firstPlaceMessage(character.name, beatmap, perfect), 
 		perfect ? '#c794ff' : '#fa81c6',
 		ruleset.def.id,
+		[mapLabel(beatmap)],
 	);
 };
 
@@ -371,11 +373,13 @@ const announceSkillLevels = async (
 	for (const { skill, level } of reached) {
 		if (level <= (announced.get(skill) ?? 0)) continue;
 		await setSkillMilestone(ruleset, characterId, skill, level);
+		const skillName = ruleset.def.skillName(skill);
 		announce(
 			ANNOUNCE_CHANNEL,
-			skillLevelMessage(character.name, ruleset.def.skillName(skill), level),
+			skillLevelMessage(character.name, skillName, level),
 			'#81fa9b',
 			ruleset.def.id,
+			[skillName],
 		);
 	}
 };

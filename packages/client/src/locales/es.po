@@ -37,6 +37,11 @@ msgstr "[sin mapa]"
 msgid "[playing]"
 msgstr "[jugando]"
 
+#. placeholder {0}: q.maps
+#: src/components/character/RosterQueue.tsx
+msgid "{0, plural, one {# map} other {# maps}}"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{chords, plural, one {you settle into a steady rhythm # chord sooner} other {you settle into a steady rhythm # chords sooner}}"
 msgstr ""
@@ -94,6 +99,10 @@ msgstr "{handover}, se quedará jugable y clasificado · El nuevo personaje comi
 #: src/components/skills/SkillEquation.tsx
 msgid "{held, plural, one {# medal} other {# medals}}"
 msgstr "{held, plural, one {# medalla} other {# medallas}}"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "{hours}h"
+msgstr ""
 
 #: src/editor/EditorHitsounds.tsx
 msgid "{index} · no files"
@@ -266,6 +275,10 @@ msgstr ""
 #: src/logs.ts
 msgid "{skill} reached level {level}!"
 msgstr "¡{skill} ha alcanzado el nivel {level}!"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "{supporterHours} hours with oss!supporter."
+msgstr ""
 
 #: src/components/genetics/GeneticsXpRows.tsx
 msgid "{tiers, plural, one {# tier bought} other {# tiers bought}}"
@@ -1234,6 +1247,11 @@ msgstr "Personaje"
 msgid "Character name"
 msgstr "Nombre del personaje"
 
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Characters"
+msgstr ""
+
 #: src/scenes/Options.tsx
 msgid "Chat"
 msgstr "Chat"
@@ -1897,6 +1915,19 @@ msgstr "Escribe una contraseña antes de intentar iniciar el juego..."
 msgid "Every bundled beatmap is already downloaded."
 msgstr "Ya tienes todos los mapas incluidos descargados."
 
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, and keeps playing for {hours} hours after you close the game."
+msgstr ""
+
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, while the game is open."
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Every character, in every mode"
+msgstr ""
+
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Every ranked beatmap is already downloaded."
 msgstr "Ya tienes todos los mapas rankeados descargados."
@@ -2162,6 +2193,7 @@ msgid "Games with Friends"
 msgstr "Salas con Amigos"
 
 #: src/components/character/LineageList.tsx
+#: src/components/character/RosterCell.tsx
 msgid "Gen {generation}"
 msgstr "Gen {generation}"
 
@@ -2648,6 +2680,10 @@ msgstr ""
 #: src/rulesets/mania/4k/quiz.ts
 #: src/rulesets/mania/7k/quiz.ts
 msgid "Keeps going through long, intense songs."
+msgstr ""
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Keeps playing for {hours, plural, one {# hour} other {# hours}} after you close the game."
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
@@ -3456,6 +3492,10 @@ msgstr ""
 msgid "Not everyone is ready. Start anyway?"
 msgstr "No todos están listos. ¿Iniciar la partida de todas formas?"
 
+#: src/components/character/RosterCell.tsx
+msgid "Not in this mode"
+msgstr ""
+
 #: src/components/multiplayer/ReadyButton.tsx
 msgid "Not Ready"
 msgstr "Esperando"
@@ -3508,6 +3548,7 @@ msgstr "No hay coincidencias"
 msgid "nothing new"
 msgstr "nada nuevo"
 
+#: src/components/character/RosterQueue.tsx
 #: src/components/dock/DockUpNext.tsx
 msgid "Nothing queued"
 msgstr "No hay nada en la cola"
@@ -3523,6 +3564,10 @@ msgstr "Ahora"
 #: src/components/community/MusicControls.tsx
 msgid "Now playing"
 msgstr "Reproduciendo"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "off"
+msgstr ""
 
 #: src/editor/EditorCompose.tsx
 msgid "Off"
@@ -3794,6 +3839,10 @@ msgstr "Pausar después de este mapa"
 #: src/components/dock/DockCountdown.tsx
 msgid "paused"
 msgstr "pausado"
+
+#: src/components/character/RosterQueue.tsx
+msgid "Paused"
+msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "pauses as short as {seconds} s also give you focus back"
@@ -4748,6 +4797,10 @@ msgstr "Mostrar ticker"
 msgid "Showing {shown} of {total, plural, one {# match} other {# matches}}"
 msgstr "Mostrando {shown} de {total, plural, one {# sala} other {# salas}}"
 
+#: src/components/character/RosterCell.tsx
+msgid "Shown"
+msgstr ""
+
 #: src/gameplay/playQueue.ts
 msgid "Shuffle"
 msgstr "Aleatorio"
@@ -5046,6 +5099,14 @@ msgstr "Detener"
 #: src/scenes/Gameplay.tsx
 msgid "Stop the play (Esc)"
 msgstr "Detener la partida (Esc)"
+
+#: src/components/character/RosterQueue.tsx
+msgid "Stopped"
+msgstr ""
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Stops when you close the game."
+msgstr ""
 
 #: src/components/songselect/SongSelectDebug.tsx
 msgid "Strain debug"

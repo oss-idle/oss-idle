@@ -67,6 +67,12 @@ export const plainText = (text: string): string => splitLinks(text)
 	.map(part => typeof part === 'string' ? part : part.text)
 	.join('');
 
+/** The text that may mention someone: without its maps, its addresses and the `quiet` parts. */
+export const mentionableText = (text: string, quiet: string[] = []): string => quiet.reduce(
+	(rest, part) => rest.split(part).join(' '),
+	splitLinks(text).map(part => typeof part === 'string' ? part : ' ').join(''),
+);
+
 function splitUrls(text: string): ChatPart[] {
 	const parts: ChatPart[] = [];
 	let at = 0;

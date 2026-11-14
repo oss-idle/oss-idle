@@ -17,7 +17,10 @@ import Auth from '../../../online/auth';
 import { blocked } from '../../../online/blocks';
 import Socket from '../../../online/socket';
 import { showChat } from '../state';
-import { plainText } from './links';
+import {
+	mentionableText,
+	plainText,
+} from './links';
 import {
 	activeChatTab,
 	chatTabs,
@@ -41,11 +44,13 @@ export const MENTION_COLOR = '#66ccff';
 
 const escape = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/** The text names the signed-in character, as a whole word. */
-export const mentionsMe = (text: string): boolean => {
+/** The text names the signed-in character, as a whole word, outside its maps, addresses and
+ *  `quiet` parts. */
+export const mentionsMe = (text: string, quiet?: string[]): boolean => {
 	if (!Auth.user.get()) return false;
 	const name = Entities.character.get().name;
-	return !!name && new RegExp(`(?<![\\w])${escape(name)}(?![\\w])`, 'i').test(text);
+	return !!name
+		&& new RegExp(`(?<![\\w])${escape(name)}(?![\\w])`, 'i').test(mentionableText(text, quiet));
 };
 
 const openChannel = (channel: string): void => {
@@ -88,7 +93,8 @@ const mentionsYou = (line: ChatLine): boolean =>
 	(line.kind === 'player'
 		? line.from.userId !== Auth.user.get()?.id && !blocked.get().has(line.from.userId)
 		: line.channel === ANNOUNCE_CHANNEL)
-	&& chatTabs.get().includes(line.channel) && mentionsMe(line.text);
+	&& chatTabs.get().includes(line.channel)
+	&& mentionsMe(line.text, line.kind === 'system' ? line.quiet : undefined);
 
 Socket.on('chat', ({ line }) => {
 	if (!mentionsYou(line)) return;

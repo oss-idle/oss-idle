@@ -8,7 +8,7 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-04 18:23+0000\n"
+"PO-Revision-Date: 2026-11-10 09:01+0000\n"
 "Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/ru/>\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
@@ -37,13 +37,18 @@ msgstr "[нет карты]"
 msgid "[playing]"
 msgstr "[играет]"
 
+#. placeholder {0}: q.maps
+#: src/components/character/RosterQueue.tsx
+msgid "{0, plural, one {# map} other {# maps}}"
+msgstr ""
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{chords, plural, one {you settle into a steady rhythm # chord sooner} other {you settle into a steady rhythm # chords sooner}}"
-msgstr ""
+msgstr "{chords, plural, one {ты входишь в устойчивый ритм на # аккорд раньше} few {ты входишь в устойчивый ритм на # аккорда раньше} many {ты входишь в устойчивый ритм на # аккордов раньше} other {ты входишь в устойчивый ритм на # аккорда раньше}}"
 
 #: src/components/genetics/GeneCardActions.tsx
 msgid "{CLIMAXX_SYMBOL}{SELL_FEE} fee"
-msgstr ""
+msgstr "{CLIMAXX_SYMBOL}{SELL_FEE} плата"
 
 #: src/components/skins/SkinContents.tsx
 msgid "{count, plural, one {# file} other {# files}}"
@@ -95,25 +100,29 @@ msgstr "{handover}, остается играбельным и ранкнуты�
 msgid "{held, plural, one {# medal} other {# medals}}"
 msgstr "{held, plural, one {# медаль} few {# медали} many {# медалей} other {# медали}}"
 
+#: src/components/dock/DockAwayTime.tsx
+msgid "{hours}h"
+msgstr ""
+
 #: src/editor/EditorHitsounds.tsx
 msgid "{index} · no files"
 msgstr "{index} · Нет файлов"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{levels, plural, one {a map you know by heart is played with # more accuracy level} other {a map you know by heart is played with # more accuracy levels}}"
-msgstr ""
+msgstr "{levels, plural, one {На карте, которую вы знаете наизусть, точность повышается на # уровень} few {На карте, которую вы знаете наизусть, точность повышается на # уровня} many {На карте, которую вы знаете наизусть, точность повышается на # уровней}}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{levels, plural, one {inverse sections are played with # more release level} other {inverse sections are played with # more release levels}}"
-msgstr ""
+msgstr "{levels, plural, one {На секции с инверсами уровень релиза повышается на # уровень}  few {На секции с инверсами уровень релиза повышается на # уровня} many {На секции с инверсами уровень релиза повышается на # уровней}}"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "{levels, plural, one {your ring fingers and thumb play with # more accuracy level} other {your ring fingers and thumb play with # more accuracy levels}}"
-msgstr ""
+msgstr "{levels, plural, one {уровень точности повышен на # уровень для безымянного и большого пальца } few {уровень точности повышен на # уровня для безымянного и большого пальца} many {уровень точности повышен на # уровней для безымянного и большого пальца}}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{maps, plural, one {your most played map never fades} other {your # most played maps never fade}}"
-msgstr ""
+msgstr "{maps, plural, one {вы не забываете карту, сыгранную наибольшее количество раз} few {вы не забываете # карты, сыгранные наибольшее количество раз} many {вы не забываете # карт, сыгранные наибольшее количество раз}}"
 
 #: src/components/direct/DirectFilters.tsx
 msgid "{matches, plural, one {# match found} other {# matches found}}"
@@ -153,11 +162,11 @@ msgstr "{n, plural, one {# игрок} few {# игрока} many {# игроко
 
 #: src/components/character/PrestigeClimaxxPop.tsx
 msgid "{name} · Genetics"
-msgstr ""
+msgstr "{name} · Генетика"
 
 #: src/components/character/PrestigeClimaxxPop.tsx
 msgid "{name} · Prestige"
-msgstr ""
+msgstr "{name} · Престиж"
 
 #: src/components/character/RebirthView.tsx
 msgid "{name} becomes {name}_old"
@@ -169,7 +178,7 @@ msgstr "{name} становится фоном этой сложности"
 
 #: src/components/character/PrestigeClimaxxPop.tsx
 msgid "{name} climaxx"
-msgstr ""
+msgstr "{name} климакс"
 
 #: src/components/character/RebirthView.tsx
 msgid "{name} keeps its name"
@@ -181,11 +190,11 @@ msgstr "{name} упоминает тебя"
 
 #: src/logs.ts
 msgid "{name} played {map} and got a {accuracy} {grade}{pp}. {gains}"
-msgstr ""
+msgstr "{name} сыграл {map} и получил {accuracy} {grade}{pp}. {gains}"
 
 #: src/components/genetics/useGeneActions.ts
 msgid "{name} XP boost from upgrades drops from x{before} to x{after}"
-msgstr ""
+msgstr "{name} Бонус опыта от улучшений падает с x{before} до x{after}"
 
 #: src/components/upgrades/useUpgrade.ts
 msgid "{name} XP Lv{level} → XP Lv{nextLevel} · Costs {spent}xp{odSegment} · XP boost x{boost}"
@@ -209,11 +218,11 @@ msgstr "Ещё {others}"
 
 #: src/components/genetic-choice/StrengthBreakdown.tsx
 msgid "{percent}% as your genetic"
-msgstr ""
+msgstr "{percent}% твоей генетики"
 
 #: src/components/genetic-choice/StrengthBreakdown.tsx
 msgid "{percent}% from {name}"
-msgstr ""
+msgstr "{percent}% от {name}"
 
 #: src/online/presence.ts
 msgid "{result} on {map}"
@@ -225,7 +234,7 @@ msgstr "{results, plural, one {# результат} few {# результата
 
 #: src/input/Controls.ts
 msgid "{ruleset} scroll speed set to {speed}"
-msgstr ""
+msgstr "{ruleset} Скорость прокрутки: {speed}"
 
 #: src/components/dock/DockCountdown.tsx
 msgid "{seconds}s"
@@ -253,23 +262,27 @@ msgstr "{shown} из {total, plural, one {# результата} few {# рез�
 
 #: src/components/genetics/ClimaxxBalance.tsx
 msgid "{skill} climaxx"
-msgstr ""
+msgstr "{skill} климакс"
 
 #: src/components/genetics/GeneCard.tsx
 msgid "{skill} gene"
-msgstr ""
+msgstr "{skill} ген"
 
 #: src/components/genetics/GeneCard.tsx
 msgid "{skill} gene · tier {tier} of {max}"
-msgstr ""
+msgstr "{skill} ген· тир {tier} из {max}"
 
 #: src/logs.ts
 msgid "{skill} reached level {level}!"
 msgstr "{skill} достиг уровня {level}!"
 
+#: src/components/dock/DockAwayTime.tsx
+msgid "{supporterHours} hours with oss!supporter."
+msgstr ""
+
 #: src/components/genetics/GeneticsXpRows.tsx
 msgid "{tiers, plural, one {# tier bought} other {# tiers bought}}"
-msgstr ""
+msgstr "{tiers, plural, one {# тир куплен} few {# тира куплено} many {# тиров куплено}}"
 
 #: src/online/mapLinks.ts
 msgid "{title} is already downloaded"
@@ -289,63 +302,63 @@ msgstr "{upgrades}/{max} улучшений"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% {skill} XP bonus"
-msgstr ""
+msgstr "{value}% {skill} бонус опыта"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer chokes"
-msgstr ""
+msgstr "На {value}% меньше промахов"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer misses on patterns past your limit"
-msgstr ""
+msgstr "На {value}% меньше промахов на паттернах за пределами вашего лимита"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer misses when you're exhausted"
-msgstr ""
+msgstr "На {value}% меньше промахов когда вы устали"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer misses when your hands are past their limit"
-msgstr ""
+msgstr "На {value}% меньше промахов когда ваши руки исчерпали свой лимит"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer sloppy releases"
-msgstr ""
+msgstr "На {value}% меньше небрежных отпусканий ЛНов"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer stray hits"
-msgstr ""
+msgstr "На {value}% меньше случайных нажатий"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% fewer tangles when your hands are overloaded"
-msgstr ""
+msgstr "На {value}% меньше запутанности когда ваши руки перегружены"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% less chance to hold a short LN too long"
-msgstr ""
+msgstr "На {value}% меньше шанс продержать короткий ЛН слишком долго"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "{value}% less chance to let an LN go too early"
-msgstr ""
+msgstr "На {value}% меньше шанс отпустить ЛН слишком рано"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% of the time, a chord pressed while holding an LN is no harder than one note"
-msgstr ""
+msgstr "В {value}% случаях, аккорд, нажатый когда удерживаешь ЛН, не сложнее, чем нажать одну ноту"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% of the time, pressing with the hand that holds an LN is no harder than with the other"
-msgstr ""
+msgstr "В {value}% случаях, нажатие рукой, которая держит ЛН, не сложнее, чем другой рукой"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% of the time, the notes of a chord are judged together"
-msgstr ""
+msgstr "В {value}% случаях, ноты аккорда оцениваются вместе"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% of the time, you recognise an SV pattern from further back in the song"
-msgstr ""
+msgstr "В {value}% случаях, вы узнаете SV паттерн из более ранней части песни"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{value}% overdrive bonus"
-msgstr ""
+msgstr "{value}% бонус овердрайва"
 
 #: src/editor/EditorView.tsx
 msgid "{version} (copy)"
@@ -367,7 +380,7 @@ msgstr "+{prestige} Lv"
 
 #: src/components/genetics/SkillCardBalance.tsx
 msgid "<0>{CLIMAXX_SYMBOL}{amount}</0> climaxx"
-msgstr ""
+msgstr "<0>{CLIMAXX_SYMBOL}{amount}</0> климакс"
 
 #: src/editor/EditorSummary.tsx
 msgid "<0>{rice}</0> rice, <1>{longNotes}</1> LN"
@@ -375,27 +388,27 @@ msgstr "<0>{rice}</0> райс, <1>{longNotes}</1> ЛН"
 
 #: src/components/genetic-choice/GeneticHubTag.tsx
 msgid "★ Your genetic"
-msgstr ""
+msgstr "★ Ваша генетика"
 
 #: src/components/genetic-choice/GeneticHubTag.tsx
 msgid "★ Your genetic · change in {hours}h"
-msgstr ""
+msgstr "★ Ваша генетика · может быть изменена через {hours}ч"
 
 #: src/components/genetic-choice/GeneticHubTag.tsx
 msgid "★ Your pick"
-msgstr ""
+msgstr "★ Ваш выбор"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1 accuracy level for every 10 tries on a map, up to {levels}"
-msgstr ""
+msgstr "1 уровень точности за каждые 10 попыток на карте, вплоть до {levels}"
 
 #: src/editor/EditorTimingPoint.tsx
 msgid "1 ms earlier, 10 with Shift"
-msgstr ""
+msgstr "На 1 мс раньше, 10 с клавишей Shift"
 
 #: src/editor/EditorTimingPoint.tsx
 msgid "1 ms later, 10 with Shift"
-msgstr ""
+msgstr "На 1 мс позже, 10 с клавишей Shift"
 
 #: src/components/mods/ModSelect.tsx
 msgid "1. Reset All Mods"
@@ -403,15 +416,15 @@ msgstr "1. Сбросить все моды"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1/1 and 1/2 notes are played with {levels} more accuracy levels"
-msgstr ""
+msgstr "1/1 и 1/2 ноты играются с повышенным уровнем точности на {levels}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1/1 notes are played with {levels} more accuracy levels"
-msgstr ""
+msgstr "1/1 ноты играются с повышенным уровнем точности на {levels}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "1/1, 1/2 and 1/4 notes are played with {levels} more accuracy levels"
-msgstr ""
+msgstr "1/1, 1/2 и 1/4 ноты играются с повышенным уровнем точности на {levels}"
 
 #: src/components/mods/ModSelect.tsx
 msgid "2. Close"
@@ -423,19 +436,19 @@ msgstr "Перерыв дольше 30 секунд"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "a choke never spoils an LN's release"
-msgstr ""
+msgstr "Промах никогда не портит отпускание ЛНа"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "a choke throws your timing off {value}% less"
-msgstr ""
+msgstr "Промах сбивает ваш тайминг на {value}% меньше"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "a failed play teaches you as much as {value}% of a pass"
-msgstr ""
+msgstr "неуспешная попытка учит вас так же, как и {value} от пасса"
 
 #: src/rulesets/mania/4k/quiz.ts
 msgid "A free afternoon. What sounds best?"
-msgstr ""
+msgstr "Свободный день. Чем бы занятся?"
 
 #: src/scenes/bootPlay.ts
 msgid "A game is already in progress. Play locally instead? It won't be submitted."
@@ -443,7 +456,7 @@ msgstr "Игра уже в процессе. Хочешь сыграть лок�
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "a hand can jack chords {value}% faster before it strains"
-msgstr ""
+msgstr "рука может прожимать чордджэки быстрее на {value}%, прежде чем устанет"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "a hand pressing fast throws your timing off {value}% less"
@@ -1234,6 +1247,11 @@ msgstr "Персонаж"
 msgid "Character name"
 msgstr "Имя персонажа"
 
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Characters"
+msgstr ""
+
 #: src/scenes/Options.tsx
 msgid "Chat"
 msgstr "Чат"
@@ -1897,6 +1915,19 @@ msgstr "Введи пароль перед попыткой начать игр�
 msgid "Every bundled beatmap is already downloaded."
 msgstr "Все встроенные карты уже скачаны."
 
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, and keeps playing for {hours} hours after you close the game."
+msgstr ""
+
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, while the game is open."
+msgstr ""
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Every character, in every mode"
+msgstr ""
+
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Every ranked beatmap is already downloaded."
 msgstr "Все ранкнутые карты уже скачаны."
@@ -2162,6 +2193,7 @@ msgid "Games with Friends"
 msgstr "Игры с друзьями"
 
 #: src/components/character/LineageList.tsx
+#: src/components/character/RosterCell.tsx
 msgid "Gen {generation}"
 msgstr "Пок. {generation}"
 
@@ -2648,6 +2680,10 @@ msgstr ""
 #: src/rulesets/mania/4k/quiz.ts
 #: src/rulesets/mania/7k/quiz.ts
 msgid "Keeps going through long, intense songs."
+msgstr ""
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Keeps playing for {hours, plural, one {# hour} other {# hours}} after you close the game."
 msgstr ""
 
 #: src/rulesets/mania/4k/quiz.ts
@@ -3456,6 +3492,10 @@ msgstr ""
 msgid "Not everyone is ready. Start anyway?"
 msgstr "Не все готовы. Все равно начать?"
 
+#: src/components/character/RosterCell.tsx
+msgid "Not in this mode"
+msgstr ""
+
 #: src/components/multiplayer/ReadyButton.tsx
 msgid "Not Ready"
 msgstr "Не готов"
@@ -3508,6 +3548,7 @@ msgstr "Ничего не подходит"
 msgid "nothing new"
 msgstr "ничего нового"
 
+#: src/components/character/RosterQueue.tsx
 #: src/components/dock/DockUpNext.tsx
 msgid "Nothing queued"
 msgstr "Очередь пуста"
@@ -3523,6 +3564,10 @@ msgstr "Сейчас"
 #: src/components/community/MusicControls.tsx
 msgid "Now playing"
 msgstr "Сейчас играет"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "off"
+msgstr ""
 
 #: src/editor/EditorCompose.tsx
 msgid "Off"
@@ -3794,6 +3839,10 @@ msgstr "Пауза после этой карты"
 #: src/components/dock/DockCountdown.tsx
 msgid "paused"
 msgstr "На паузе"
+
+#: src/components/character/RosterQueue.tsx
+msgid "Paused"
+msgstr ""
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "pauses as short as {seconds} s also give you focus back"
@@ -4748,6 +4797,10 @@ msgstr ""
 msgid "Showing {shown} of {total, plural, one {# match} other {# matches}}"
 msgstr ""
 
+#: src/components/character/RosterCell.tsx
+msgid "Shown"
+msgstr ""
+
 #: src/gameplay/playQueue.ts
 msgid "Shuffle"
 msgstr ""
@@ -5045,6 +5098,14 @@ msgstr ""
 
 #: src/scenes/Gameplay.tsx
 msgid "Stop the play (Esc)"
+msgstr ""
+
+#: src/components/character/RosterQueue.tsx
+msgid "Stopped"
+msgstr ""
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Stops when you close the game."
 msgstr ""
 
 #: src/components/songselect/SongSelectDebug.tsx

@@ -1,5 +1,6 @@
 import type { CharacterDTO } from '@oss-idle/shared/character';
 import Log from '@oss-idle/shared/helpers/log';
+import type { RosterCharacter } from '@oss-idle/shared/roster';
 
 import Character from '../../db/schema/character';
 import Entities from '../../entity/entities';
@@ -35,4 +36,10 @@ export const selectCharacter = async (characterId: number): Promise<boolean> => 
 	}
 	await Account.character.set(await res.json());
 	return true;
+};
+
+/** Every character in every ruleset, with each one's queue. */
+export const roster = async (): Promise<RosterCharacter[]> => {
+	const res = await rpc.v1.me.roster.$get();
+	return res.ok ? await res.json() as RosterCharacter[] : [];
 };

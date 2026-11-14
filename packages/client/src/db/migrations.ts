@@ -455,6 +455,11 @@ const addScoreUnranked: Migration = db => {
 	db.run('UPDATE score SET unranked = 1 WHERE onlineId >= 1500000000');
 };
 
+/** The ruleset a reborn guest is held to, now that 7K has rebirth too. */
+const addGuestRulesetLock: Migration = db => {
+	addColumn(db, 'character', 'rulesetLock', 'TEXT DEFAULT \'\'');
+};
+
 const migrations: Migration[] = [
 	recomputeBests,
 	addOnlineId,
@@ -484,6 +489,7 @@ const migrations: Migration[] = [
 	playlistCharacter,
 	addGenetics,
 	addScoreUnranked,
+	addGuestRulesetLock,
 ];
 
 /** A database just created from the live schema already is what every migration makes. */

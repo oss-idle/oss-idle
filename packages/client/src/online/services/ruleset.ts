@@ -12,10 +12,12 @@ import Account from '../account';
 import { rpc } from '../client';
 import { currentLocalPlay } from '../localPlay';
 
-/** The ruleset a guest is held to: a reborn one stays in 4K, the one ruleset with rebirth,
- *  as a reborn account stays in its own. */
+/** The ruleset a guest is held to: a reborn one stays in the ruleset it was reborn in,
+ *  as a reborn account does. */
 export const guestLock = (character: Character): RulesetId | undefined =>
-	character.isGuest() && character.generation > 1 ? 'mania4k' : undefined;
+	character.isGuest() && character.generation > 1
+		? (character.rulesetLock || 'mania4k') as RulesetId
+		: undefined;
 
 /** A guest picks on this device: the local character reads its progress in the other ruleset. */
 const pickLocally = async (character: Character, ruleset: RulesetId): Promise<boolean> => {

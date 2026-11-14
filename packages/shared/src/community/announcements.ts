@@ -8,8 +8,11 @@ export const firstPlaceMessage = (
 	beatmap: { artist: string; title: string; version: string },
 	perfect: boolean,
 ): string =>
-	`${name} achieved ${perfect ? 'a perfect rank #1' : 'rank #1'} on `
-	+ `${beatmap.artist} - ${beatmap.title} [${beatmap.version}]`;
+	`${name} achieved ${perfect ? 'a perfect rank #1' : 'rank #1'} on ${mapLabel(beatmap)}`;
+
+/** A difficulty as announcements name it: "Artist - Title [Version]". */
+export const mapLabel = (beatmap: { artist: string; title: string; version: string }): string =>
+	`${beatmap.artist} - ${beatmap.title} [${beatmap.version}]`;
 
 export const billionsMessage = (
 	name: string,

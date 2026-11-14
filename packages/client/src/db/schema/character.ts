@@ -47,6 +47,8 @@ const t = table('character', {
 	overallTotalXp: integer().default(0),
 	overallLevel:   integer().default(0),
 	generation:  integer().default(1),
+	// the ruleset a reborn guest was reborn in ('' before 7K had rebirth: 4K)
+	rulesetLock: text().default(''),
 	// when memory was last prestiged: plays before it no longer train it
 	memoryResetAt: integer().default(0),
 	// JSON list of when memory upgrades were bought: each forgets plays on every map
@@ -229,12 +231,15 @@ export default class Character extends DAO(t) {
 		await this.update();
 	}
 
-	public static async newCharacter(name?: string, generation = 1): Promise<Character> {
+	public static async newCharacter(
+		name?: string, generation = 1, rulesetLock = '',
+	): Promise<Character> {
 		name = name ?? 'Guest';
 		const character = await new Character({
 			id: await Character.nextLocalId(),
 			name,
 			generation,
+			rulesetLock,
 			local: 1,
 		}).add();
 		await character.makeCurrent();

@@ -74,3 +74,115 @@
 	font-size: 13px;
 	opacity: 0.75;
 }
+
+/* ---- characters: every character against every ruleset ---- */
+
+.roster-table {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.roster-table__row {
+	display: grid;
+	align-items: center;
+	gap: 2px;
+	min-height: 56px;
+	background: rgba(255, 255, 255, 0.03);
+	border-left: 3px solid rgba(255, 255, 255, 0.1);
+}
+.roster-table__row > * {
+	padding: 0 14px;
+}
+.roster-table__head {
+	background: none;
+	border-left-color: transparent;
+}
+.roster-table__mode {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--text-dim);
+	font-size: 1.05rem;
+}
+.roster-table__mode svg {
+	width: 1.1em;
+	height: 1.1em;
+}
+.roster-table__mode.is-shown {
+	color: #fff;
+}
+.roster-table__mode.is-shown::after {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--osu-pink-darkest);
+}
+.roster-table__name {
+	color: #fff;
+	font-size: 1.02rem;
+}
+.roster-cell {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 2px;
+	align-self: stretch;
+	min-width: 0;
+}
+.roster-cell.is-playing {
+	background: linear-gradient(
+		90deg,
+		rgba(255, 64, 137, 0.16),
+		rgba(255, 64, 137, 0.03) 80%
+	);
+}
+.roster-cell__top {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+}
+.roster-cell__lv {
+	color: #fff;
+	font-weight: 300;
+}
+.roster-cell__gen {
+	color: var(--text-dim);
+	font-size: 0.8rem;
+}
+.roster-cell__tag {
+	margin-left: auto;
+	color: var(--osu-pink);
+	font-size: 0.7rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.roster-cell.is-locked {
+	color: rgba(246, 240, 245, 0.25);
+	font-size: 0.8rem;
+}
+.roster-queue {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	color: var(--text-dim);
+	font-size: 0.8rem;
+	white-space: nowrap;
+}
+.roster-queue > svg {
+	flex: none;
+	font-size: 0.65rem;
+}
+.roster-queue.is-playing > svg {
+	color: var(--osu-pink-light);
+}
+.roster-queue__map {
+	min-width: 0;
+	overflow: hidden;
+	color: #fff;
+	text-overflow: ellipsis;
+}
+.roster-queue__dim {
+	flex: none;
+}

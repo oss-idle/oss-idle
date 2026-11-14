@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { length } from '@oss-idle/shared/display/length';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
+import { passMs } from '@oss-idle/shared/queue';
 
 import PlayQueue from '../../gameplay/playQueue';
 import { selectedRate } from '../../gameplay/playRate';
@@ -13,9 +14,8 @@ export default function DockQueueLength() {
 	const [queue] = useSynced(PlayQueue.state);
 	const [rate] = useSynced(selectedRate);
 	if (!queue?.entries.length) return null;
-	const ms = queue.entries
-		.reduce((sum, { beatmap: b, repeat = 1, played = 0 }) =>
-			sum + (repeat - played) * b.metadata.total_length / (b.lockedRate ?? rate), 0);
+	const ms = passMs(queue.entries, ({ beatmap: b }) =>
+		b.metadata.total_length / (b.lockedRate ?? rate));
 	return (
 		<span className="dock__length">
 			<FontAwesomeIcon icon={faClock} />

@@ -50,14 +50,15 @@ describe('the sim API across several sim services', () => {
 		expect(calls).toEqual(['c', 'c+chart', 'd']);
 	});
 
-	it('leaves out a service that is down, and tries it again when none is up', async () => {
+	it('leaves out a service that is down, and tries it again before refusing', async () => {
 		const calls = hosts({
-			e: [undefined, 200], f: [200, 503],
+			e: [undefined, 200, undefined], f: [200, undefined],
 		});
 		const urls = ['http://e', 'http://f'];
 		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'f' });
-		expect(await playOnHosts(urls, 's', input, 'text')).toMatchObject({ status: 503 });
+		// f restarts while e is still left out: e is back, it plays
 		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'e' });
-		expect(calls).toEqual(['e', 'f', 'f', 'e']);
+		expect(await playOnHosts(urls, 's', input, 'text')).toMatchObject({ status: 503 });
+		expect(calls).toEqual(['e', 'f', 'f', 'e', 'e', 'f']);
 	});
 });

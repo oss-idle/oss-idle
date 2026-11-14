@@ -37,6 +37,11 @@ msgstr "[pas de map]"
 msgid "[playing]"
 msgstr "[en jeu]"
 
+#. placeholder {0}: q.maps
+#: src/components/character/RosterQueue.tsx
+msgid "{0, plural, one {# map} other {# maps}}"
+msgstr "{0, plural, one {# map} other {# maps}}"
+
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{chords, plural, one {you settle into a steady rhythm # chord sooner} other {you settle into a steady rhythm # chords sooner}}"
 msgstr "{chords, plural, one {tu trouves un rythme stable # accord plus tôt} other {tu trouves un rythme stable # accords plus tôt}}"
@@ -94,6 +99,10 @@ msgstr "{handover} restera jouable et dans les classements. Le nouveau personnag
 #: src/components/skills/SkillEquation.tsx
 msgid "{held, plural, one {# medal} other {# medals}}"
 msgstr "{held, plural, one {# médaille} other {# médailles}}"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "{hours}h"
+msgstr "{hours}h"
 
 #: src/editor/EditorHitsounds.tsx
 msgid "{index} · no files"
@@ -266,6 +275,10 @@ msgstr "Gène {skill} · tier {tier} sur {max}"
 #: src/logs.ts
 msgid "{skill} reached level {level}!"
 msgstr "{skill} a atteint le niveau {level} !"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "{supporterHours} hours with oss!supporter."
+msgstr "{supporterHours} heures avec oss!supporter."
 
 #: src/components/genetics/GeneticsXpRows.tsx
 msgid "{tiers, plural, one {# tier bought} other {# tiers bought}}"
@@ -1234,6 +1247,11 @@ msgstr "Personnage"
 msgid "Character name"
 msgstr "Nom du personnage"
 
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Characters"
+msgstr "Personnages"
+
 #: src/scenes/Options.tsx
 msgid "Chat"
 msgstr "Chat"
@@ -1897,6 +1915,19 @@ msgstr "Entre un mot de passe avant de commencer la partie..."
 msgid "Every bundled beatmap is already downloaded."
 msgstr "Toutes les maps de base sont déjà téléchargées."
 
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, and keeps playing for {hours} hours after you close the game."
+msgstr "Chaque personnage joue sa liste dans chaque mode en même temps, et continue pendant {hours} heures après la fermeture du jeu."
+
+#: src/components/character/CharactersTable.tsx
+msgid "Every character plays its queue in every mode at the same time, while the game is open."
+msgstr "Chaque personnage joue sa liste dans chaque mode en même temps, tant que le jeu est ouvert."
+
+#: src/dev/UpgradesPreview.tsx
+#: src/scenes/Character.tsx
+msgid "Every character, in every mode"
+msgstr "Tous les personnages, dans tous les modes"
+
 #: src/components/options/DownloadAllBeatmaps.tsx
 msgid "Every ranked beatmap is already downloaded."
 msgstr "Toutes les maps ranked ont déjà été téléchargées."
@@ -2162,6 +2193,7 @@ msgid "Games with Friends"
 msgstr "Parties avec des amis"
 
 #: src/components/character/LineageList.tsx
+#: src/components/character/RosterCell.tsx
 msgid "Gen {generation}"
 msgstr "Gen {generation}"
 
@@ -2649,6 +2681,10 @@ msgstr "Occupe ses deux mains sans s'emmêler."
 #: src/rulesets/mania/7k/quiz.ts
 msgid "Keeps going through long, intense songs."
 msgstr "Tient le coup sur les musiques longues et intenses."
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Keeps playing for {hours, plural, one {# hour} other {# hours}} after you close the game."
+msgstr "Continue de jouer pendant {hours, plural, one {# heure} other {# heures}} après la fermeture du jeu."
 
 #: src/rulesets/mania/4k/quiz.ts
 msgid "keeps three pans going at once"
@@ -3456,6 +3492,10 @@ msgstr "Pas assez de climaxx"
 msgid "Not everyone is ready. Start anyway?"
 msgstr "Tout le monde n'est pas prêt. Commencer quand même ?"
 
+#: src/components/character/RosterCell.tsx
+msgid "Not in this mode"
+msgstr "Pas dans ce mode"
+
 #: src/components/multiplayer/ReadyButton.tsx
 msgid "Not Ready"
 msgstr "Pas prêt"
@@ -3508,6 +3548,7 @@ msgstr "Aucun résultat"
 msgid "nothing new"
 msgstr "rien de nouveau"
 
+#: src/components/character/RosterQueue.tsx
 #: src/components/dock/DockUpNext.tsx
 msgid "Nothing queued"
 msgstr "Rien dans la playlist"
@@ -3523,6 +3564,10 @@ msgstr "Maintenant"
 #: src/components/community/MusicControls.tsx
 msgid "Now playing"
 msgstr "En cours de lecture"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "off"
+msgstr "désactivé"
 
 #: src/editor/EditorCompose.tsx
 msgid "Off"
@@ -3794,6 +3839,10 @@ msgstr "Pause après cette map"
 #: src/components/dock/DockCountdown.tsx
 msgid "paused"
 msgstr "en pause"
+
+#: src/components/character/RosterQueue.tsx
+msgid "Paused"
+msgstr "En pause"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "pauses as short as {seconds} s also give you focus back"
@@ -4748,6 +4797,10 @@ msgstr "Voir le ticker"
 msgid "Showing {shown} of {total, plural, one {# match} other {# matches}}"
 msgstr "{shown} sur {total, plural, one {# partie affichée} other {# parties affichées}}"
 
+#: src/components/character/RosterCell.tsx
+msgid "Shown"
+msgstr "Affiché"
+
 #: src/gameplay/playQueue.ts
 msgid "Shuffle"
 msgstr "Aléatoire"
@@ -5046,6 +5099,14 @@ msgstr "Stop"
 #: src/scenes/Gameplay.tsx
 msgid "Stop the play (Esc)"
 msgstr "Arrêter de jouer (Échap)"
+
+#: src/components/character/RosterQueue.tsx
+msgid "Stopped"
+msgstr "À l'arrêt"
+
+#: src/components/dock/DockAwayTime.tsx
+msgid "Stops when you close the game."
+msgstr "S'arrête quand tu fermes le jeu."
 
 #: src/components/songselect/SongSelectDebug.tsx
 msgid "Strain debug"

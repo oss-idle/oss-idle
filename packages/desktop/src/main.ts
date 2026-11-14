@@ -77,6 +77,16 @@ if (!OTHER_INSTALL && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DAT
 const stillLegacy = !OTHER_INSTALL && !fs.existsSync(USER_DATA) && fs.existsSync(LEGACY_USER_DATA);
 app.setPath('userData', stillLegacy ? LEGACY_USER_DATA : USER_DATA);
 
+// The AppImage launcher puts /usr/share ahead of the system's data dirs, so the browser
+// it opens lost to a same-named system file (SteamOS: Firefox's page in Discover).
+const appDir = process.env.APPDIR;
+if (appDir && process.env.XDG_DATA_DIRS) {
+	const dirs = process.env.XDG_DATA_DIRS.split(':')
+		.filter(dir => dir && dir !== './share/' && !dir.startsWith(appDir))
+		.map(dir => dir.replace(/\/+$/, ''));
+	process.env.XDG_DATA_DIRS = dirs.filter((dir, i) => dirs.lastIndexOf(dir) === i).join(':');
+}
+
 // Privileges must be declared before the app is ready.
 registerAppSchemePrivileges();
 

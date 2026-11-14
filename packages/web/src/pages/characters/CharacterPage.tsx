@@ -99,12 +99,12 @@ export default function CharacterPage({ id, character, stats }: {
 	const [order, setOrder] = useState(character.profileOrder);
 	const supporter = Boolean(me?.supporter);
 	const movable = editable && supporter;
-	const move = (from: Section, to: Section) => {
-		const next = order.filter(s => s !== from);
-		next.splice(next.indexOf(to) + (order.indexOf(from) < order.indexOf(to) ? 1 : 0), 0, from);
-		setOrder(next);
-		void saveProfileOrder(character.id, next);
-	};
+	const move = (from: Section, to: Section) => setOrder(prev => {
+		const next = prev.filter(s => s !== from);
+		next.splice(next.indexOf(to) + (prev.indexOf(from) < prev.indexOf(to) ? 1 : 0), 0, from);
+		return next;
+	});
+	const save = () => void saveProfileOrder(character.id, order);
 
 	if (!user) return <main><Trans>Loading…</Trans></main>;
 
@@ -237,6 +237,7 @@ export default function CharacterPage({ id, character, stats }: {
 					section={section}
 					movable={movable}
 					onMove={move}
+					onDrop={save}
 				>
 					{sections[section]}
 				</ProfileSection>)}

@@ -30,8 +30,8 @@ export const SKILL_GLYPHS_7K: Record<SkillName7k, GlyphName> = {
 	memory: 'fingerprint',
 };
 
-/** 4K's medals 7K has no twin of: ones tied to particular maps, and rebirth (none in 7K). */
-const LEFT_OUT = new Set(['possessed', 'parallax', 'wonderful', 'rebirth']);
+/** 4K's medals 7K has no twin of: ones tied to particular maps. */
+const LEFT_OUT = new Set(['possessed', 'parallax', 'wonderful']);
 
 const isSkillMedal = (id: string) =>
 	(Skills as readonly string[]).includes(id.replace(/-\d+$/, ''));

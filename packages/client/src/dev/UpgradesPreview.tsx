@@ -9,7 +9,7 @@ export default function UpgradesPreview({
 	tab = 'upgrades',
 }: {
 	children: ReactNode,
-	tab?: 'skills' | 'upgrades' | 'prestige' | 'genetics',
+	tab?: 'skills' | 'upgrades' | 'prestige' | 'genetics' | 'characters',
 }) {
 	return (
 		<div style={{
@@ -40,6 +40,12 @@ export default function UpgradesPreview({
 					},
 					{
 						id: 'rebirth', label: <Trans>Rebirth</Trans>, render: () => undefined, 
+					},
+					{
+						id: 'characters',
+						label: <Trans>Characters</Trans>,
+						subtitle: <Trans>Every character, in every mode</Trans>,
+						render: () => tab === 'characters' && children,
 					},
 				]}
 			/>

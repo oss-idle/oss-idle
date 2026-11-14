@@ -77,7 +77,7 @@ export default function Search({ q }: { q: string }) {
 			{query && (<>
 				<h2><Trans>Players</Trans> <b>{players?.length ?? '…'}</b></h2>
 				<div className='friends__list'>
-					{players?.map(p => <FriendChip key={p.userId} friend={p} />)}
+					{players?.map(p => <FriendChip key={p.character.id} friend={p} />)}
 				</div>
 				<h2><Trans>Beatmaps</Trans> <b>{found?.length ?? '…'}</b></h2>
 				<div className='list__beatmap-container'>

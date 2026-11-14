@@ -6,6 +6,7 @@ import {
 
 import {
 	mapLink,
+	mentionableText,
 	plainText,
 	splitLinks,
 } from '@oss-idle/client/components/community/chat/links';
@@ -86,5 +87,17 @@ describe('plainText', () => {
 			setId: 882805, beatmapId: 1846628,
 		}, 'aran - L.F.O [Beginner]');
 		expect(plainText(`${np} see https://a.com`)).toBe('aran - L.F.O [Beginner] see https://a.com');
+	});
+});
+
+describe('mentionableText', () => {
+	it('drops maps, addresses and quiet parts, keeps the rest', () => {
+		const np = mapLink('https://site', {
+			setId: 1, beatmapId: 2,
+		}, 'Kasane Teto - Song [Hard]');
+		expect(mentionableText(`hi ${np} https://teto.com`)).not.toMatch(/teto/i);
+		const map = 'Kasane Teto - Song [Hard]';
+		expect(mentionableText(`Teto achieved rank #1 on ${map}`, [map]))
+			.toBe('Teto achieved rank #1 on  ');
 	});
 });

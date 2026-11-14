@@ -629,3 +629,67 @@ body:has(.ctxmenu, .plmgr) .dock {
 	opacity: 0;
 	pointer-events: none;
 }
+
+/* --- away time: how long the character plays on once the game is closed --- */
+
+.dock__away {
+	position: relative;
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.05rem 0.45rem;
+	border: 1px solid rgba(255, 165, 200, 0.35);
+	border-radius: 999px;
+	color: var(--osu-pink-light);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	cursor: default;
+}
+.dock__away.is-off {
+	border-color: var(--dock-line);
+	color: var(--dock-dim);
+}
+.dock__away-tip {
+	position: absolute;
+	right: -0.5rem;
+	bottom: calc(100% + 8px);
+	padding: 4px 8px;
+	border: 1px solid #ffffff60;
+	border-radius: 4px;
+	background: #000000d0;
+	color: #fff;
+	font-size: 0.85rem;
+	font-weight: 500;
+	line-height: 1.35;
+	white-space: nowrap;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.1s;
+}
+.dock__away:hover .dock__away-tip {
+	opacity: 1;
+}
+
+.dock__away-line {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: -0.3rem;
+	color: var(--dock-dim);
+	font-size: 0.85rem;
+	font-weight: 600;
+}
+.dock__away-line > svg:first-child {
+	color: var(--osu-pink-light);
+}
+.dock__away-line b {
+	color: #fff;
+}
+.dock__away-line.is-off > svg:first-child {
+	color: var(--dock-dim);
+}
+.dock__supporter {
+	margin-left: auto;
+	color: var(--osu-pink-darkest);
+}

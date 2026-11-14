@@ -467,4 +467,14 @@
 	z-index: 1;
 	color: hsl(var(--hsl-c2));
 	cursor: grab;
+	touch-action: none;
+}
+
+.character__section--dragging {
+	z-index: 2;
+	filter: drop-shadow(0 10px 20px rgb(0 0 0 / 50%));
+}
+
+.character__section--dragging .character__section-handle {
+	cursor: grabbing;
 }

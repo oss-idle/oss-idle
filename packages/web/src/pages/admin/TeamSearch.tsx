@@ -51,7 +51,7 @@ export default function TeamSearch({ busy, onAdd }: {
 		</label>
 		{query && players && !players.length && <p className='admin-medals__meta'>No player found.</p>}
 		{!!players?.length && <ul className='team-search__results'>
-			{players.slice(0, SHOWN).map(p => <li key={p.userId} className='team-member'>
+			{players.slice(0, SHOWN).map(p => <li key={p.character.id} className='team-member'>
 				<ProfilePicture avatarUrl={p.character.avatarUrl} className='team-member__avatar' />
 				<Link to='/c/$id' params={{ id: String(p.character.id) }} className='team-member__name'>
 					{p.character.name}

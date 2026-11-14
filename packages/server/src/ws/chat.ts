@@ -286,7 +286,7 @@ export const hasChatted = async (characterId: number): Promise<boolean> =>
 	await redis.sismember(CHATTED_KEY, String(characterId)) === 1;
 
 const systemLine = (
-	channel: string, text: string, color: string, ruleset?: RulesetId,
+	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[],
 ): ChatLine => ({
 	id: randomUUID(),
 	kind: 'system',
@@ -295,14 +295,15 @@ const systemLine = (
 	color,
 	at: Date.now(),
 	...ruleset && { ruleset },
+	...quiet && { quiet },
 });
 
 /** Broadcast a server announcement (no sender) - e.g. a #1-rank notice. The
- *  whole line renders in `color`. Fire-and-forget history write. */
+ *  whole line renders in `color`; `quiet` parts never mention anyone. Fire-and-forget history write. */
 export const announce = (
-	channel: string, text: string, color: string, ruleset?: RulesetId,
+	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[],
 ): void => {
-	const line = systemLine(channel, text, color, ruleset);
+	const line = systemLine(channel, text, color, ruleset, quiet);
 	void store(channel, line);
 	hub.broadcast({
 		type: 'chat', line,

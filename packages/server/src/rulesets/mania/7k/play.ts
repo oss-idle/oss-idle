@@ -7,6 +7,7 @@ import {
 	allowedRate,
 	rateUnlocks,
 } from '@oss-idle/shared/rate';
+import { hasUnlock } from '@oss-idle/shared/rebirth';
 import { GENETICS_7K } from '@oss-idle/shared/rulesets/mania/7k/genes';
 import { modXpMultipliers7k } from '@oss-idle/shared/rulesets/mania/7k/modXp';
 import {
@@ -52,6 +53,7 @@ export const play: RulesetPlay = {
 		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,
 	}) {
 		const { fatigue, warmup: warm } = tired;
+		const divine = hasUnlock(profile.generation, 'DIVINE');
 		const simPlay = {
 			progress: (skill: SkillName7k) => skillOf(profile, skill),
 			fatigue,
@@ -67,7 +69,7 @@ export const play: RulesetPlay = {
 				play: {
 					...simPlay, ...await geneInput(r, profile, beatmapId),
 				},
-				rate, mods, divine: false, round, strained: STRAINED_7K, gauged: r.def.gauged as SkillName7k[],
+				rate, mods, divine, round, strained: STRAINED_7K, gauged: r.def.gauged as SkillName7k[],
 			});
 			if (board) return {
 				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
@@ -93,7 +95,7 @@ export const play: RulesetPlay = {
 		const bot = sim().mania7k.bot(simPlay);
 		const chart = decoder.decodeFromString(text);
 		const options = {
-			rate, mods, playOn: round,
+			divine, rate, mods, playOn: round,
 		};
 		const { game, played: run } = runManiaPlay(chart, bot, options, round);
 		const played = {

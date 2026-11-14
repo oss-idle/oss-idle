@@ -96,7 +96,7 @@ export const rebirth = async (name: string): Promise<boolean> => {
 		character.name = `${character.name}_old`;
 		await character.update();
 
-		const fresh = await Character.newCharacter(name, character.generation + 1);
+		const fresh = await Character.newCharacter(name, character.generation + 1, selectedDef().id);
 		Entities.character.set(fresh);
 		return true;
 	}

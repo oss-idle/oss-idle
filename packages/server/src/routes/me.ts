@@ -61,6 +61,7 @@ import {
 	queuePendingAction,
 } from '../character/pending';
 import { announceCharacter } from '../character/push';
+import { rosterOf } from '../character/roster';
 import { db } from '../db/client';
 import { getPlays } from '../db/schema/beatmaps_played';
 import {
@@ -466,6 +467,13 @@ export const meRoutes = new Hono()
 			.orderBy(characters.id);
 
 		return c.json(await Promise.all(rows.map(row => characterDTOOf(row, user))));
+	})
+
+	// Every character in every ruleset, each with its queue: the Characters tab.
+	.get('/roster', requireAuth, async c => {
+		const [user] = await db.select().from(users).where(eq(users.id, c.get('userId'))).limit(1);
+		if (!user) throw new HTTPException(404, { message: 'User not found' });
+		return c.json(await rosterOf(user));
 	})
 
 	// Switch which of the account's characters is live.

@@ -12,6 +12,7 @@ import PlayQueue, {
 	autopilotModeLabels,
 } from '../../gameplay/playQueue';
 import Marquee from '../Marquee';
+import DockAwayTime from './DockAwayTime';
 import DockQueueLength from './DockQueueLength';
 import DockRefresh from './DockRefresh';
 
@@ -35,6 +36,7 @@ export default function DockSource() {
 			{queue.label && <Marquee className="dock__source-label">{queue.label}</Marquee>}
 			<DockRefresh />
 			<DockQueueLength />
+			<DockAwayTime />
 		</span>
 	);
 }

@@ -8,6 +8,7 @@ import {
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import CharactersTab from '../components/character/CharactersTab';
 import PrestigeView from '../components/character/PrestigeView';
 import RebirthView from '../components/character/RebirthView';
 import GeneticsView from '../components/genetics/GeneticsView';
@@ -63,6 +64,12 @@ export default function Character({ tab = 'upgrades' }: { tab?: string }) {
 					subtitle: t`Start over with a new character that unlocks new features`,
 					render: () => <RebirthView />,
 				}] : [],
+				...character.isGuest() ? [] : [{
+					id: 'characters',
+					label: <Trans>Characters</Trans>,
+					subtitle: t`Every character, in every mode`,
+					render: () => <CharactersTab />,
+				}],
 			]}
 		/>
 	);

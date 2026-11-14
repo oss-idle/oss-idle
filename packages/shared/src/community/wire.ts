@@ -103,6 +103,8 @@ export const chatLineDTO = z.discriminatedUnion('kind', [
 		}).optional(),
 		/** the ruleset an announcement is about, drawn as its icon in front */
 		ruleset: z.enum(RULESET_IDS).optional(),
+		/** parts of `text` that never mention anyone: a map name, a skill name */
+		quiet: z.array(z.string()).optional(),
 	}),
 ]);
 export type ChatLine = z.infer<typeof chatLineDTO>;

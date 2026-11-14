@@ -107,7 +107,7 @@ const loadCharacter = createMiddleware<CharacterEnv>(async (c, next) => {
 });
 
 export const charactersRoutes = new Hono()
-	// Players by name: the accounts' current characters, exact match first.
+	// Players by name: every character of each account, exact match first.
 	.get('/search', async c => {
 		const q = z.string().trim().min(1).max(32).safeParse(c.req.query('q'));
 		if (!q.success) return c.json([]);
@@ -122,7 +122,7 @@ export const charactersRoutes = new Hono()
 				},
 			})
 			.from(users)
-			.innerJoin(characters, eq(characters.id, users.currentCharacter))
+			.innerJoin(characters, eq(characters.userId, users.id))
 			.where(and(isNull(users.restrictedAt), like(characters.name, `%${likeEscape(q.data)}%`)))
 			.orderBy(sql`${characters.name} = ${q.data} desc`, asc(characters.name))
 			.limit(50);

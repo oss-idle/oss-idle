@@ -51,6 +51,7 @@ export const mania7k = {
 	rateSkill: SKILL_7K.speed,
 	warmupSkill: SKILL_7K.stamina,
 	performanceArgs,
+	rebirth: true,
 	genetics: GENETICS_7K,
 	medals: {
 		medals: MEDALS_7K,

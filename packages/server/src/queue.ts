@@ -553,6 +553,18 @@ const runDue = async (slot: Slot): Promise<void> => {
 export const isAway = async (slot: Slot): Promise<boolean> =>
 	await redis.zscore(AWAY, slot) !== null;
 
+/** A slot's queue for the roster: playing (watched, or on with the game closed),
+ *  held, or left behind; none when nothing is queued. */
+export const slotQueue = async (slot: Slot, row: CharacterRow, watched: boolean) => {
+	const s = await read(slot);
+	if (!s.entries.length) return undefined;
+	const state = s.paused || disabled(row) ? 'paused'
+		: watched || await isAway(slot) ? 'playing' : 'stopped';
+	return {
+		entries: s.entries, state,
+	} as const;
+};
+
 /** Players with a game open: the roster minus characters playing with theirs closed. */
 export const clientCount = async (): Promise<number> =>
 	Math.max(0, await presenceCount() - await redis.zcard(AWAY));

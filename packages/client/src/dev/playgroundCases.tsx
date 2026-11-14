@@ -40,6 +40,7 @@ import AddonView, {
 	newAddonDetail,
 } from '../components/addons/AddonView';
 import InstalledAddonRow from '../components/addons/InstalledAddonRow';
+import CharactersTable from '../components/character/CharactersTable';
 import PrestigeClimaxxPop from '../components/character/PrestigeClimaxxPop';
 import PrestigeView from '../components/character/PrestigeView';
 import ChannelPicker from '../components/community/chat/ChannelPicker';
@@ -93,6 +94,7 @@ import {
 	logPlayFinished,
 	LOGS_CHANNEL,
 } from '../logs';
+import Auth from '../online/auth';
 import {
 	closeMedals,
 	showMedals,
@@ -100,6 +102,7 @@ import {
 } from '../online/medalWatch';
 import Multiplayer from '../online/multiplayer';
 import PlayManager from '../online/playManager';
+import { keepPlaying } from '../online/queuePrefs';
 import Socket from '../online/socket';
 import BeatmapAPI from '../osu/beatmap/beatmap_api';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
@@ -125,6 +128,10 @@ import {
 	MEDALS_THREE,
 } from './medalSamples';
 import PlayHudPreview from './PlayHudPreview';
+import {
+	FIRST_ROSTER,
+	REBORN_ROSTER,
+} from './rosterSample';
 import SkinPlayground from './SkinPlayground';
 import TimingPointPreview from './TimingPointPreview';
 import {
@@ -205,6 +212,24 @@ const fakeQueue = (groupKey?: string) => {
 		grade: 'S',
 	});
 	return entries;
+};
+
+/** {@link fakeQueue} for a signed-in player, supporter or not, keep playing on or off. */
+const awayAs = (supporter: boolean, keep: boolean) => {
+	void Auth.user.set({
+		id: 1,
+		username: 'Adri',
+		avatarUrl: null,
+		country: 'FR',
+		createdAt: '2025-01-01',
+		supporter,
+		restricted: false,
+		groups: [],
+		nominates: [],
+	});
+	void keepPlaying.set(keep);
+	void PlayManager.paused.set(false);
+	fakeQueue();
 };
 
 /** {@link fakeQueue} from a playlist that gained a map once queued. */
@@ -763,6 +788,44 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 			void activeChatTab.set(ANNOUNCE_CHANNEL);
 		},
 		render: () => <div style={{ height: 300 }}><Chat /></div>,
+	},
+	{
+		id: 'away-chip',
+		label: 'Away time - beside the queue length, hovered',
+		setup: () => awayAs(false, true),
+		render: () => <DockPanel />,
+	},
+	{
+		id: 'away-chip-supporter',
+		label: 'Away time - supporter, hovered',
+		setup: () => awayAs(true, true),
+		render: () => <DockPanel />,
+	},
+	{
+		id: 'away-chip-off',
+		label: 'Away time - keep playing off, hovered',
+		setup: () => awayAs(false, false),
+		render: () => <DockPanel />,
+	},
+	{
+		id: 'characters-reborn',
+		label: 'Characters - reborn in 4K, the old character still on 7K',
+		setup: () => awayAs(false, true),
+		render: () => <UpgradesPreview tab="characters">
+			<CharactersTable characters={REBORN_ROSTER} shown={{
+				id: 2, ruleset: 'mania4k', 
+			}} />
+		</UpgradesPreview>,
+	},
+	{
+		id: 'characters-first',
+		label: 'Characters - one character, 7K paused, keep playing off',
+		setup: () => awayAs(false, false),
+		render: () => <UpgradesPreview tab="characters">
+			<CharactersTable characters={FIRST_ROSTER} shown={{
+				id: 2, ruleset: 'mania4k', 
+			}} />
+		</UpgradesPreview>,
 	},
 	{
 		id: 'dock-panel',

@@ -192,6 +192,12 @@ export const sameEntry = (a: QueueEntry, b: QueueEntry) =>
 
 type Repeats = Pick<QueueEntry, 'repeat' | 'played'>;
 
+/** One pass through the queue in ms: each map as many times as it has left. */
+export const passMs = <T extends Repeats>(
+	entries: readonly T[], playMs: (entry: T) => number,
+): number =>
+	entries.reduce((sum, e) => sum + ((e.repeat ?? 1) - (e.played ?? 0)) * playMs(e), 0);
+
 /** A LOOP queue is one map played forever: it loops either way. */
 export const playsOnce = (playOnce: boolean, mode?: AutopilotMode): boolean =>
 	playOnce && mode !== AUTOPILOT_MODE.LOOP;

@@ -221,12 +221,16 @@ export const beatmapRequestRoutes = new Hono()
 			.from(r.requests)
 			.where(eq(r.requests.setId, setId))
 			.limit(1);
-		if (existing) {
-			throw new HTTPException(409, {
-				message: existing.status === 'pending'
-					? 'That map is already in the queue - back it instead'
-					: 'That map has already been through the queue',
+		if (existing?.status === 'pending') {
+			await db.insert(r.requestVotes).ignore().values({
+				setId, userId,
 			});
+			return c.json({
+				setId, ok: true,
+			}, 200);
+		}
+		if (existing) {
+			throw new HTTPException(409, { message: 'That map has already been through the queue' });
 		}
 
 		const [ingested] = await db
