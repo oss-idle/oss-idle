@@ -38,15 +38,13 @@ const plurals = (pkg: string, locale: string) => {
 		.filter(([, translated]) => Boolean(translated));
 };
 
-/** A count for every name the source message selects on, so a message with a new
- *  variable cannot leave VALUES behind. An uncovered name arrives as undefined, and the
- *  plural rule then picks a branch for it: the text reads "undefined medals" where that
- *  branch exists, and the render throws where it does not, which is what the Russian
- *  catalogue hit. Names come from the `msgid` rather than the translation, since the
- *  source message is what the code actually passes values for. */
-const valuesOf = (source: string) => ({
-	...Object.fromEntries([...source.matchAll(/\{(\w+), *plural/g)].map(m => [m[1], 21])),
+/** Between them they land on `other` in every locale, and on the usual forms. */
+const COUNTS = [1, 2, 5, 21, 1.5];
+
+/** VALUES, with `count` for every name the source message selects on. */
+const valuesOf = (source: string, count: number) => ({
 	...VALUES,
+	...Object.fromEntries([...source.matchAll(/\{(\w+), *plural/g)].map(m => [m[1], count])),
 });
 
 describe('plurals', () => {
@@ -61,7 +59,9 @@ describe('plurals', () => {
 			const messages = plurals(pkg, locale);
 			if (locale === 'en') expect(messages.length).toBeGreaterThan(0);
 			for (const [source, message] of messages) {
-				expect(render(locale, message, valuesOf(source)), message).not.toContain('{');
+				for (const count of COUNTS) {
+					expect(render(locale, message, valuesOf(source, count)), message).not.toContain('{');
+				}
 			}
 		},
 	);
