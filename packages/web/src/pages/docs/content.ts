@@ -196,7 +196,7 @@ const OPTIONAL_MODE: Param = {
 const USER_PARAM: Param = {
 	name: 'user',
 	type: 'string',
-	about: 'Id of the user, or @ and the name of the character they play as (@Paturages).',
+	about: 'Id of the user, or @ and the name of any character they have (@Paturages).',
 };
 
 const CHARACTER_PARAM: Param = {

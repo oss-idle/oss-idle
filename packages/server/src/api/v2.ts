@@ -116,14 +116,20 @@ const userWhere = async (where: SQL | undefined, on: SQL) => {
 	return row;
 };
 
-/** `{user}` is an account id, or `@name` (a current character's name). */
+/** `{user}` is an account id, or `@name` (any of its characters' names).
+ *
+ *  An id lands on the account's current character, which is what `/me` means by it.
+ *  A name lands on the character holding that name, current or not: names are unique
+ *  across characters, and a rebirthed account keeps every character it has ever had,
+ *  so matching the name against the current one alone left the other half of such an
+ *  account unreachable by name while its profile page and ranking rows stayed live.
+ */
 const byUser = (param: string) => {
 	const name = param.startsWith('@') ? param.slice(1) : undefined;
 	if (name === undefined && !/^\d+$/.test(param)) throw notFound('User');
-	return userWhere(
-		name === undefined ? eq(users.id, Number(param)) : eq(characters.name, name),
-		eq(characters.id, users.currentCharacter),
-	);
+	return name === undefined
+		? userWhere(eq(users.id, Number(param)), eq(characters.id, users.currentCharacter))
+		: userWhere(eq(characters.name, name), eq(characters.userId, users.id));
 };
 
 const byCharacter = (id: number) =>
