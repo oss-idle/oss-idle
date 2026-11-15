@@ -29,14 +29,25 @@ const VALUES = {
 	online: 21, selected: 21, multiplier: '1.20', level: 100, size: '4 GB', bpm: 180, share: '2%', map: 'map',
 };
 
-/** The translated plurals of a catalog: `msgstr`, or its `msgid` in the source catalog. */
+/** The translated plurals of a catalog, each with the `msgid` it came from. */
 const plurals = (pkg: string, locale: string) => {
 	const url = new URL(`../../${pkg}/src/locales/${locale}.po`, import.meta.url);
 	const po = readFileSync(url, 'utf8');
 	return [...po.matchAll(/^msgid "(.*, plural.*)"\nmsgstr "(.*)"$/gm)]
-		.map(m => m[2].replaceAll('\\"', '"'))
-		.filter(Boolean);
+		.map(m => [m[1], m[2].replaceAll('\\"', '"')] as const)
+		.filter(([, translated]) => Boolean(translated));
 };
+
+/** A count for every name the source message selects on, so a message with a new
+ *  variable cannot leave VALUES behind. An uncovered name arrives as undefined, and the
+ *  plural rule then picks a branch for it: the text reads "undefined medals" where that
+ *  branch exists, and the render throws where it does not, which is what the Russian
+ *  catalogue hit. Names come from the `msgid` rather than the translation, since the
+ *  source message is what the code actually passes values for. */
+const valuesOf = (source: string) => ({
+	...Object.fromEntries([...source.matchAll(/\{(\w+), *plural/g)].map(m => [m[1], 21])),
+	...VALUES,
+});
 
 describe('plurals', () => {
 	beforeAll(() => {
@@ -49,8 +60,8 @@ describe('plurals', () => {
 		(pkg, locale) => {
 			const messages = plurals(pkg, locale);
 			if (locale === 'en') expect(messages.length).toBeGreaterThan(0);
-			for (const message of messages) {
-				expect(render(locale, message, VALUES), message).not.toContain('{');
+			for (const [source, message] of messages) {
+				expect(render(locale, message, valuesOf(source)), message).not.toContain('{');
 			}
 		},
 	);
