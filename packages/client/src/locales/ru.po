@@ -110,19 +110,19 @@ msgstr "{index} · Нет файлов"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{levels, plural, one {a map you know by heart is played with # more accuracy level} other {a map you know by heart is played with # more accuracy levels}}"
-msgstr "{levels, plural, one {На карте, которую вы знаете наизусть, точность повышается на # уровень} few {На карте, которую вы знаете наизусть, точность повышается на # уровня} many {На карте, которую вы знаете наизусть, точность повышается на # уровней}}"
+msgstr "{levels, plural, one {На карте, которую вы знаете наизусть, точность повышается на # уровень} few {На карте, которую вы знаете наизусть, точность повышается на # уровня} many {На карте, которую вы знаете наизусть, точность повышается на # уровней} other {На карте, которую вы знаете наизусть, точность повышается на # уровня}}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{levels, plural, one {inverse sections are played with # more release level} other {inverse sections are played with # more release levels}}"
-msgstr "{levels, plural, one {На секции с инверсами уровень релиза повышается на # уровень}  few {На секции с инверсами уровень релиза повышается на # уровня} many {На секции с инверсами уровень релиза повышается на # уровней}}"
+msgstr "{levels, plural, one {На секции с инверсами уровень релиза повышается на # уровень}  few {На секции с инверсами уровень релиза повышается на # уровня} many {На секции с инверсами уровень релиза повышается на # уровней} other {На секции с инверсами уровень релиза повышается на # уровня}}"
 
 #: src/rulesets/mania/7k/geneText.ts
 msgid "{levels, plural, one {your ring fingers and thumb play with # more accuracy level} other {your ring fingers and thumb play with # more accuracy levels}}"
-msgstr "{levels, plural, one {уровень точности повышен на # уровень для безымянного и большого пальца } few {уровень точности повышен на # уровня для безымянного и большого пальца} many {уровень точности повышен на # уровней для безымянного и большого пальца}}"
+msgstr "{levels, plural, one {уровень точности повышен на # уровень для безымянного и большого пальца } few {уровень точности повышен на # уровня для безымянного и большого пальца} many {уровень точности повышен на # уровней для безымянного и большого пальца} other {уровень точности повышен на # уровня для безымянного и большого пальца}}"
 
 #: src/rulesets/mania/4k/geneText.ts
 msgid "{maps, plural, one {your most played map never fades} other {your # most played maps never fade}}"
-msgstr "{maps, plural, one {вы не забываете карту, сыгранную наибольшее количество раз} few {вы не забываете # карты, сыгранные наибольшее количество раз} many {вы не забываете # карт, сыгранные наибольшее количество раз}}"
+msgstr "{maps, plural, one {вы не забываете карту, сыгранную наибольшее количество раз} few {вы не забываете # карты, сыгранные наибольшее количество раз} many {вы не забываете # карт, сыгранные наибольшее количество раз} other {вы не забываете # карты, сыгранные наибольшее количество раз}}"
 
 #: src/components/direct/DirectFilters.tsx
 msgid "{matches, plural, one {# match found} other {# matches found}}"
@@ -282,7 +282,7 @@ msgstr ""
 
 #: src/components/genetics/GeneticsXpRows.tsx
 msgid "{tiers, plural, one {# tier bought} other {# tiers bought}}"
-msgstr "{tiers, plural, one {# тир куплен} few {# тира куплено} many {# тиров куплено}}"
+msgstr "{tiers, plural, one {# тир куплен} few {# тира куплено} many {# тиров куплено} other {# тира куплено}}"
 
 #: src/online/mapLinks.ts
 msgid "{title} is already downloaded"
