@@ -196,7 +196,7 @@ const OPTIONAL_MODE: Param = {
 const USER_PARAM: Param = {
 	name: 'user',
 	type: 'string',
-	about: 'Id of the user, or @ and the name of the character they play as (@Paturages).',
+	about: 'Id of the user, or @ and the name of any character they have (@Paturages).',
 };
 
 const CHARACTER_PARAM: Param = {
@@ -583,7 +583,7 @@ export const ENDPOINTS: EndpointSection[] = [
 				title: 'Get User Scores',
 				path: '/users/{user}/scores/{type}',
 				scope: 'public',
-				about: 'Returns the scores of the character the user plays as now. Each score carries its beatmap and beatmapset.',
+				about: 'Returns the scores of the character the user plays as now, or of the character named. Each score carries its beatmap and beatmapset.',
 				url: [USER_PARAM, SCORE_TYPE],
 				query: LIST_QUERY,
 				example: {
@@ -778,7 +778,7 @@ export const OBJECTS: ObjectDoc[] = [
 	{
 		id: 'user',
 		title: 'User',
-		about: 'A UserCompact with the details below. A user is an account: it plays as one character at a time, and its statistics are that character\'s.',
+		about: 'A UserCompact with the details below. A user is an account: it plays as one character at a time, and its statistics are that character\'s, or the named character\'s when asked for by name.',
 		fields: [
 			['cover_url', 'string?', 'The profile banner.'],
 			['title', 'string?', 'The id of the medal worn as a title.'],
@@ -805,7 +805,7 @@ export const OBJECTS: ObjectDoc[] = [
 		about: 'Mainly used for embedding in certain responses to save additional api lookups.',
 		fields: [
 			['id', 'integer', 'The account: its osu! user id.'],
-			['character_id', 'integer', 'The character it plays as.'],
+			['character_id', 'integer', 'The character it plays as, or the one asked for by name.'],
 			['username', 'string', 'The character\'s name.'],
 			['country_code', 'string', 'Two-letter code.'],
 			['avatar_url', 'string', ''],
