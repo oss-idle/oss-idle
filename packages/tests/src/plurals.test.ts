@@ -29,14 +29,23 @@ const VALUES = {
 	online: 21, selected: 21, multiplier: '1.20', level: 100, size: '4 GB', bpm: 180, share: '2%', map: 'map',
 };
 
-/** The translated plurals of a catalog: `msgstr`, or its `msgid` in the source catalog. */
+/** The translated plurals of a catalog, each with the `msgid` it came from. */
 const plurals = (pkg: string, locale: string) => {
 	const url = new URL(`../../${pkg}/src/locales/${locale}.po`, import.meta.url);
 	const po = readFileSync(url, 'utf8');
 	return [...po.matchAll(/^msgid "(.*, plural.*)"\nmsgstr "(.*)"$/gm)]
-		.map(m => m[2].replaceAll('\\"', '"'))
-		.filter(Boolean);
+		.map(m => [m[1], m[2].replaceAll('\\"', '"')] as const)
+		.filter(([, translated]) => Boolean(translated));
 };
+
+/** Between them they land on `other` in every locale, and on the usual forms. */
+const COUNTS = [1, 2, 5, 21, 1.5];
+
+/** VALUES, with `count` for every name the source message selects on. */
+const valuesOf = (source: string, count: number) => ({
+	...VALUES,
+	...Object.fromEntries([...source.matchAll(/\{(\w+), *plural/g)].map(m => [m[1], count])),
+});
 
 describe('plurals', () => {
 	beforeAll(() => {
@@ -49,8 +58,10 @@ describe('plurals', () => {
 		(pkg, locale) => {
 			const messages = plurals(pkg, locale);
 			if (locale === 'en') expect(messages.length).toBeGreaterThan(0);
-			for (const message of messages) {
-				expect(render(locale, message, VALUES), message).not.toContain('{');
+			for (const [source, message] of messages) {
+				for (const count of COUNTS) {
+					expect(render(locale, message, valuesOf(source, count)), message).not.toContain('{');
+				}
 			}
 		},
 	);
