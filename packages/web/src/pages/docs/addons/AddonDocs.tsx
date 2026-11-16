@@ -19,7 +19,10 @@ const item = (id: string, title: string, children?: TocItem[]): TocItem => ({
 const TOC: TocItem[] = [
 	item('introduction', 'Introduction'),
 	item('making-one', 'Making one'),
-	item('the-contract', 'The contract', [item('the-api', 'The API')]),
+	item('the-contract', 'The contract', [
+		item('the-api', 'The API'),
+		item('the-state', 'The game\'s state'),
+	]),
 	item('types-and-tags', 'Types and tags'),
 	item('react', 'The game\'s React'),
 	item('the-editor', 'The editor', [item('editor-api', 'The editor API')]),

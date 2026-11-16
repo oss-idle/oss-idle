@@ -3,6 +3,7 @@ import {
 	useLingui,
 } from '@lingui/react/macro';
 
+import { fromWire } from '@oss-idle/shared/big';
 import accuracyText from '@oss-idle/shared/display/accuracy';
 import num from '@oss-idle/shared/display/num';
 import { GUEST_AVATAR_URL } from '@oss-idle/shared/osu/profile';
@@ -37,7 +38,8 @@ export default function UserCard({
 	online_stats: Awaited<ReturnType<typeof getCharacterStats>> | undefined;
 }) {
 	const { t } = useLingui();
-	const overall = online_character && xpGivesLevel(online_character.profile.overallLifetimeXp);
+	const overall = online_character
+		&& xpGivesLevel(fromWire(online_character.profile.overallLifetimeXp));
 	const pp = num(Number(online_character?.profile.pp ?? 0));
 	const accuracy = online_stats && accuracyText(hitAccuracy(countsOf(online_stats)));
 	const level = num(overall?.level);

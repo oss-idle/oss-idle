@@ -13,9 +13,13 @@ import { spawn } from 'node:child_process';
 import { basename } from 'node:path';
 import { createInterface } from 'node:readline';
 
+import type { Big } from '@oss-idle/shared/big';
+import { fromWire } from '@oss-idle/shared/big';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import { Skills7k } from '@oss-idle/shared/rulesets/mania/7k/skills';
 import { xpToLevel } from '@oss-idle/shared/xp';
+
+import type { SkillTuple } from './state';
 
 type Row = (string | undefined)[];
 
@@ -71,20 +75,20 @@ const fieldsOf = (columns: string[]): Field => (row, column) => {
 
 /** Everything a skill ever earned. Early dumps have no lifetime xp, or zeros before it
  *  was backfilled, and none had totals at first: each is a floor of it. */
-const lifetimeOf = (field: (name: string) => string | undefined, level: number, xp: number) =>
-	Math.max(
-		Number(field('lifetime_xp') ?? 0),
-		Number(field('total_xp') ?? 0),
-		Math.floor(xpToLevel(level)) + xp,
-	);
-
-const SKILL_COLUMNS = ['level', 'xp', 'upgrades', 'overdrive', 'prestige'];
+const lifetimeOf = (field: (name: string) => string | undefined, level: number, xp: Big) =>
+	fromWire(field('lifetime_xp') ?? 0)
+		.max(fromWire(field('total_xp') ?? 0))
+		.max(xpToLevel(level).floor().add(xp));
 
 /** A skill's level, xp, upgrades, overdrive, prestige and lifetime xp. */
 const skillOf = (row: Row, field: Field, skill: string) => {
 	const of = (name: string) => field(row, `${skill}_${name}`);
-	const [level, xp, upgrades, overdrive, prestige] = SKILL_COLUMNS.map(name => Number(of(name) ?? 0));
-	return [level, xp, upgrades, overdrive, prestige, lifetimeOf(of, level, xp)];
+	const [level, upgrades, prestige] = ['level', 'upgrades', 'prestige']
+		.map(name => Number(of(name) ?? 0));
+	const xp = fromWire(of('xp') ?? 0);
+	return [
+		level, xp, upgrades, fromWire(of('overdrive') ?? 0), prestige, lifetimeOf(of, level, xp),
+	] as SkillTuple;
 };
 
 const quote = (s: string | undefined) =>
@@ -122,7 +126,7 @@ const reader = (file: string) => {
 	});
 };
 
-type Profile = { id: number, skills: Record<string, number[]>, fatigue?: string };
+type Profile = { id: number, skills: Record<string, SkillTuple>, fatigue?: string };
 
 /** What one dump holds: the ruleset's highest score id, its profiles, and its memory plays by `character:beatmap`. */
 class Dump {

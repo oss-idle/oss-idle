@@ -10,7 +10,16 @@ import type {
 	ApiUserStatistics,
 } from '@oss-idle/shared/apiV2';
 import { mapCoverUrl } from '@oss-idle/shared/beatmap';
+import {
+	type Big,
+	toText,
+} from '@oss-idle/shared/big';
 import { restedFatigue } from '@oss-idle/shared/fatigue';
+import {
+	climaxxOf,
+	effectOf,
+	geneticsXpMultiplier,
+} from '@oss-idle/shared/genetics';
 import { GoodGrades } from '@oss-idle/shared/grade';
 import {
 	OSU_MODE,
@@ -28,6 +37,7 @@ import type { BeatmapRow } from '../db/schema/beatmap';
 import type { RulesetSetRow } from '../db/schema/beatmapset';
 import {
 	type CharacterRow,
+	geneticsOf,
 	type ProfileRow,
 	resolveAvatarUrl,
 	resolveBannerUrl,
@@ -46,6 +56,7 @@ import {
 import type { LivePlay } from '../play';
 import type { Tiredness } from '../rulesets/play';
 import { levelPercent } from './levelPercent';
+import { apiSkill } from './skill';
 
 /** osu!'s API objects, in its snake_case, with the fields we have. */
 
@@ -83,12 +94,12 @@ const gradeCounts = (totals: CharacterTotalsRow) =>
 		Record<Lowercase<typeof GoodGrades[number]>, number>;
 
 /** osu!'s level object for every xp ever earned. */
-const levelOfXp = (totalXp: number) => {
+const levelOfXp = (totalXp: Big) => {
 	const { level, xp } = xpGivesLevel(totalXp);
 	return {
 		current: level,
 		progress: levelPercent(level, xp),
-		total_xp: totalXp,
+		total_xp: toText(totalXp),
 	};
 };
 
@@ -137,9 +148,14 @@ export const apiUser = (
 	totals: CharacterTotalsRow,
 	ranks: { global?: number; country?: number },
 	tired: Tiredness,
+	/** the XP multiplier of the medals the character holds */
+	medals: number,
 ): ApiUser => {
 	const { mode, variant }: { mode: string, variant?: string } = RULESETS[def.id];
 	const supporter = supporterActive(user);
+	const genetics = def.genetics && {
+		def: def.genetics, held: geneticsOf(profile),
+	};
 	return {
 		...userCompact({
 			userId: user.id,
@@ -156,16 +172,19 @@ export const apiUser = (
 		join_date: iso(user.createdAt),
 		statistics: userStatistics(def, profile, totals, ranks),
 		...tiredness(profile, tired),
-		skills: Object.fromEntries(def.skills.map(s => {
+		skills: Object.fromEntries(def.skills.map((s) => {
 			const skill = skillOf(profile, s);
-			const shown = playLevelOf(skill.level, skill.xp, skill.lifetimeXp, skill.prestige);
-			return [s, {
-				level: Math.floor(shown),
-				progress: Math.min(99, Math.floor((shown % 1) * 100)),
-				total_xp: skill.lifetimeXp,
-				prestige: skill.prestige,
-				upgrades: skill.upgrades,
-			}];
+			return [s, apiSkill(skill, {
+				medals,
+				...genetics && {
+					overdriveBonus: effectOf(genetics.def, genetics.held, 'overdrive', s),
+					climaxx: climaxxOf(
+						genetics.def, genetics.held, s,
+						playLevelOf(skill.level, skill.xp, skill.lifetimeXp, skill.prestige),
+					),
+					geneticsXp: geneticsXpMultiplier(genetics.def, genetics.held, s),
+				},
+			})];
 		})),
 		rank_history: {
 			mode, variant, data: profile.rankHistory?.ranks ?? [],

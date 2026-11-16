@@ -1,3 +1,7 @@
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import { CharacterDTO } from '@oss-idle/shared/character';
 import {
 	type Genetics,
@@ -13,6 +17,7 @@ import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import { maxUpgrades } from '@oss-idle/shared/upgrades';
 import {
+	heldTotal,
 	xpGivesLevel,
 	xpToLevel,
 } from '@oss-idle/shared/xp';
@@ -22,6 +27,7 @@ import {
 	selectedRuleset,
 } from '../../rulesets/registry';
 import {
+	big,
 	DAO,
 	DB,
 	Insert,
@@ -44,7 +50,7 @@ const t = table('character', {
 	name:        text(),
 	// 4K's progress, from before rulesets: every other ruleset has its own table
 	...progressColumns(Skills),
-	overallTotalXp: integer().default(0),
+	overallTotalXp: big().default(ZERO),
 	overallLevel:   integer().default(0),
 	generation:  integer().default(1),
 	// the ruleset a reborn guest was reborn in ('' before 7K had rebirth: 4K)
@@ -88,13 +94,14 @@ export default class Character extends DAO(t) {
 		const json = this.progress.geneticsJson;
 		void this.genetics.set(readGenetics(json ? JSON.parse(json) as Partial<Genetics> : undefined));
 		const columns = this.skillColumns();
+		const amounts = this.amountColumns();
 		this.skills.forEach(skill => {
 			void skill.level.set(columns[skill.name] ?? 0);
-			void skill.xp.set(columns[`${skill.name}XP`] ?? 0);
+			void skill.xp.set(amounts[`${skill.name}XP`] ?? ZERO);
 			void skill.upgrades.set(columns[`${skill.name}Upgrades`] ?? 0);
-			void skill.overdrive.set(columns[`${skill.name}Overdrive`] ?? 0);
+			void skill.overdrive.set(amounts[`${skill.name}Overdrive`] ?? ZERO);
 			void skill.prestige.set(columns[`${skill.name}Prestige`] ?? 0);
-			void skill.lifetimeXp.set(columns[`${skill.name}LifetimeXp`] ?? 0);
+			void skill.lifetimeXp.set(amounts[`${skill.name}LifetimeXp`] ?? ZERO);
 		});
 	}
 
@@ -108,11 +115,12 @@ export default class Character extends DAO(t) {
 
 	public async persistSkills(): Promise<void> {
 		const columns = this.skillColumns();
+		const amounts = this.amountColumns();
 		for (const skill of this.skills) {
 			columns[skill.name] = skill.level.get();
-			columns[`${skill.name}XP`] = skill.xp.get();
+			amounts[`${skill.name}XP`] = skill.xp.get();
 			columns[`${skill.name}Upgrades`] = skill.upgrades.get();
-			columns[`${skill.name}Overdrive`] = skill.overdrive.get();
+			amounts[`${skill.name}Overdrive`] = skill.overdrive.get();
 			columns[`${skill.name}Prestige`] = skill.prestige.get();
 		}
 		await this.progress.update();
@@ -120,29 +128,31 @@ export default class Character extends DAO(t) {
 
 	/** Book a finished guest play's xp into the totals the overall level - and so
 	 *  the rebirth requirement - is derived from. Prestige never takes these back. */
-	public async addProgression(gains: readonly { skill: string, gained: number }[]): Promise<void> {
-		const columns = this.skillColumns();
-		let overall = 0;
-		for (const g of gains) {
-			const gained = Math.round(g.gained);
-			columns[`${g.skill}TotalXp`] += gained;
-			columns[`${g.skill}LifetimeXp`] += gained;
-			overall += gained;
+	public async addProgression(gains: readonly { skill: string, gained: Big }[]): Promise<void> {
+		const amounts = this.amountColumns();
+		for (const { skill, gained } of gains) {
+			amounts[`${skill}TotalXp`] = (amounts[`${skill}TotalXp`] ?? ZERO).add(gained);
+			amounts[`${skill}LifetimeXp`] = (amounts[`${skill}LifetimeXp`] ?? ZERO).add(gained);
 		}
-		this.progress.overallTotalXp += overall;
-		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
+		this.setOverall();
 		await this.persistSkills();
 	}
 
-	/** Spend a purchase's XP out of the lifetime totals, like the server route
-	 *  does, so buying upgrades costs a guest the same overall levels. */
-	public async spendXP(skill: string, spent: number): Promise<void> {
-		const amount = Math.round(spent);
-		const columns = this.skillColumns();
-		columns[`${skill}TotalXp`] = Math.max(0, columns[`${skill}TotalXp`] - amount);
-		this.progress.overallTotalXp = Math.max(0, this.progress.overallTotalXp - amount);
-		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
+	/** After a spend, the skill's total is what it now holds, like the server route
+	 *  sets it, so buying upgrades costs a guest the same overall levels. */
+	public async setHeldTotals(skill: SkillState): Promise<void> {
+		this.amountColumns()[`${skill.name}TotalXp`] = heldTotal(skill.level.get(), skill.xp.get());
+		this.setOverall();
 		await this.persistSkills();
+	}
+
+	/** The overall total is the skills' totals summed. */
+	private setOverall(): void {
+		const amounts = this.amountColumns();
+		this.progress.overallTotalXp = this.skills.reduce(
+			(sum, s) => sum.add(amounts[`${s.name}TotalXp`] ?? ZERO), ZERO,
+		);
+		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
 	}
 
 	/** Debug mode: put skills at these real levels as if earned - their total xp
@@ -152,7 +162,7 @@ export default class Character extends DAO(t) {
 		levels: Partial<Record<string, number>>,
 		prestige: Partial<Record<string, number>> = {},
 	): Promise<void> {
-		const columns = this.skillColumns();
+		const amounts = this.amountColumns();
 		for (const skill of this.skills) {
 			const count = prestige[skill.name];
 			if (count !== undefined) {
@@ -161,34 +171,36 @@ export default class Character extends DAO(t) {
 			}
 			const level = levels[skill.name];
 			if (level === undefined) continue;
-			const totalXp = Math.ceil(xpToLevel(level));
-			this.progress.overallTotalXp = Math.max(
-				0, this.progress.overallTotalXp + totalXp - (columns[`${skill.name}TotalXp`] ?? 0),
-			);
-			columns[`${skill.name}TotalXp`] = totalXp;
+			const totalXp = xpToLevel(level).ceil();
+			amounts[`${skill.name}TotalXp`] = totalXp;
 			// the level is the level: the sim plays it, not what the lifetime bought
-			columns[`${skill.name}LifetimeXp`] = totalXp;
+			amounts[`${skill.name}LifetimeXp`] = totalXp;
 			skill.lifetimeXp.set(totalXp);
 			skill.level.set(level);
-			skill.xp.set(0);
+			skill.xp.set(ZERO);
 		}
-		this.progress.overallLevel = xpGivesLevel(this.progress.overallTotalXp).level;
+		this.setOverall();
 		await this.persistSkills();
 	}
 
-	/** The picked ruleset's skill columns by name. */
+	/** The picked ruleset's level, upgrade and prestige columns by name. */
 	private skillColumns(): Record<string, number> {
 		return this.progress as unknown as Record<string, number>;
 	}
 
+	/** The picked ruleset's xp and overdrive columns by name. */
+	private amountColumns(): Record<string, Big> {
+		return this.progress as unknown as Record<string, Big>;
+	}
+
 	/** Everything a skill has ever earned, prestige or not. */
-	public lifetimeXp(skill: string): number {
-		return this.skillColumns()[`${skill}LifetimeXp`] ?? 0;
+	public lifetimeXp(skill: string): Big {
+		return this.amountColumns()[`${skill}LifetimeXp`] ?? ZERO;
 	}
 
 	/** What every skill's lifetime xp buys: the overall level shown and the rebirth gate. */
 	public overallLifetimeLevel(): number {
-		return xpGivesLevel(this.skills.reduce((sum, s) => sum + s.lifetimeXp.get(), 0)).level;
+		return xpGivesLevel(this.skills.reduce((sum, s) => sum.add(s.lifetimeXp.get()), ZERO)).level;
 	}
 
 	public memoryForgets(): number[] {
@@ -205,11 +217,11 @@ export default class Character extends DAO(t) {
 		if (!this.isGuest()) return;
 
 		let moved = false;
-		const columns = this.skillColumns();
+		const amounts = this.amountColumns();
 		for (const skill of this.skills) {
-			const next = xpGivesLevel(columns[`${skill.name}TotalXp`] ?? 0);
-			const xp = Math.round(next.xp);
-			if (next.level === skill.level.get() && xp === skill.xp.get()) continue;
+			const next = xpGivesLevel(amounts[`${skill.name}TotalXp`] ?? ZERO);
+			const xp = next.xp.round();
+			if (next.level === skill.level.get() && xp.eq(skill.xp.get())) continue;
 			skill.level.set(next.level);
 			skill.xp.set(xp);
 			moved = true;

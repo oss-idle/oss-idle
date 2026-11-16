@@ -35,6 +35,7 @@ import GameplaySkin from '../components/options/GameplaySkin';
 import KeepPlaying from '../components/options/KeepPlaying';
 import Language from '../components/options/Language';
 import LinkDiscord from '../components/options/LinkDiscord';
+import LinkTwitch from '../components/options/LinkTwitch';
 import ManageAddons from '../components/options/ManageAddons';
 import ManageSkins from '../components/options/ManageSkins';
 import MasterVolume from '../components/options/MasterVolume';
@@ -127,6 +128,10 @@ export default function Options() {
 							search: t`discord|link|role`,
 							component: () => LinkDiscord,
 						}],
+						{
+							search: t`twitch|link|stream`,
+							component: () => LinkTwitch,
+						},
 						{
 							search: t`bug|report|issue|problem|crash|help`,
 							component: () => ReportBug,

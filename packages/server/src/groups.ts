@@ -3,6 +3,7 @@ import {
 	asc,
 	eq,
 	inArray,
+	ne,
 	or,
 } from 'drizzle-orm';
 
@@ -65,13 +66,14 @@ export const teamMembers = async () => {
 	}));
 };
 
-/** The current characters of every member of any group, the owner included: #team's audience. */
+/** The current characters of every member of any group but the bots, the owner included:
+ *  #team's audience. */
 export const teamCharacters = async (): Promise<number[]> => {
 	const rows = await db
 		.selectDistinct({ id: users.currentCharacter })
 		.from(users)
 		.leftJoin(userGroups, eq(userGroups.userId, users.id))
-		.where(or(eq(users.id, OWNER_ID), eq(userGroups.userId, users.id)));
+		.where(or(eq(users.id, OWNER_ID), ne(userGroups.group, 'bot')));
 	return rows.flatMap(r => r.id ?? []);
 };
 

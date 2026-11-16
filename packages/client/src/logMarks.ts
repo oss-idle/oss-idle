@@ -1,5 +1,10 @@
 import type { CSSProperties } from 'react';
 
+import {
+	Big,
+	type BigLike,
+	toText,
+} from '@oss-idle/shared/big';
 import { bigStyle } from '@oss-idle/shared/display/bigTheme';
 
 /** What a coloured piece of a #logs line is. */
@@ -7,7 +12,7 @@ export type LogKind = 'player' | 'map' | 'mods' | 'acc' | 'grade' | 'pp' | 'xp' 
 
 /** A piece of a #logs line: plain text, or a value of some kind, with the number behind it
  *  when its colour follows its size. */
-export type LogPart = { text: string, kind?: LogKind, amount?: number };
+export type LogPart = { text: string, kind?: LogKind, amount?: Big };
 
 // private-use characters: never typed, kept by translations as part of the value
 const OPEN = '\u{E000}';
@@ -20,8 +25,10 @@ const MARK = new RegExp(
 
 /** `text` tagged as `kind`, to go into a translated sentence as a placeholder; `amount` is
  *  the number it shows, for a colour by size. */
-export const mark = (kind: LogKind, text: string, amount?: number): string =>
-	`${OPEN}${kind}${SPLIT}${amount ?? ''}${SPLIT}${text}${CLOSE}`;
+export const mark = (kind: LogKind, text: string, amount?: BigLike): string => {
+	const size = amount === undefined ? '' : toText(Big.from(amount));
+	return `${OPEN}${kind}${SPLIT}${size}${SPLIT}${text}${CLOSE}`;
+};
 
 /** A marked sentence cut into its pieces. */
 export const logParts = (text: string): LogPart[] => {
@@ -30,7 +37,7 @@ export const logParts = (text: string): LogPart[] => {
 	for (const m of text.matchAll(MARK)) {
 		if (m.index > from) parts.push({ text: text.slice(from, m.index) });
 		parts.push({
-			text: m[3], kind: m[1] as LogKind, ...m[2] && { amount: Number(m[2]) },
+			text: m[3], kind: m[1] as LogKind, ...m[2] && { amount: Big.from(m[2]) },
 		});
 		from = m.index + m[0].length;
 	}

@@ -5,23 +5,22 @@ import { playLabel } from '@oss-idle/shared/mods';
 
 import { selectedMods } from '../../gameplay/playMods';
 import { selectedRate } from '../../gameplay/playRate';
-import { isMobile } from '../../globals';
 import SceneManager, { SCENE } from '../../scenes/SceneManager';
 import { modSelectOpen } from '../mods/modSelectOpen';
 
-/** Song select's Mods, for phones: their screen hides the footer it lives in. */
+/** Song select's Mods, where the screen is too narrow for the footer it lives in. */
 export default function DockModsButton() {
 	const [scene] = useSynced(SceneManager.current);
 	const [rate] = useSynced(selectedRate);
 	const [mods] = useSynced(selectedMods);
 	const active = playLabel(mods, rate);
 
-	if (!isMobile || scene !== SCENE.SELECT) return null;
+	if (scene !== SCENE.SELECT) return null;
 
 	return (
 		<button
 			type="button"
-			className="dock__btn"
+			className="dock__btn dock__btn--narrow"
 			onClick={() => void modSelectOpen.set(!modSelectOpen.get())}
 		>
 			<Trans>mods</Trans>{active && ` ${active}`}

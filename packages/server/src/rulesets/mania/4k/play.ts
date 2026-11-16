@@ -3,6 +3,7 @@ import '@oss-idle/shared/osu/controlPointPatch';
 import type { Beatmap } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
 
+import { ZERO } from '@oss-idle/shared/big';
 import { warmupTrend } from '@oss-idle/shared/fatigue';
 import { type Mod } from '@oss-idle/shared/mods';
 import {
@@ -64,12 +65,12 @@ export const botFor = async (
 	plays: await getPlays(r, profile.id, beatmapId),
 });
 
-/** The xp a finished play is worth: mindblock and the bonus for a first X.
+/** The xp a finished play is worth: the bot's raw xp under the character's multipliers.
  *  Exported so the score replay awards xp by the same rules a live play does,
  *  rather than keeping a second copy of them. */
 export const getServerXP = async (
 	r: ServerRuleset,
-	characterId: number,
+	profile: ProfileRow,
 	beatmapId: number,
 	bot: SimBot<SkillName, ScoreLike>,
 	chart: Beatmap,
@@ -80,16 +81,18 @@ export const getServerXP = async (
 	mods: readonly Mod[] = [],
 	fatigue = 0,
 	genetics?: Readonly<Record<string, number>>,
+	xpMultiplier = 1,
 ) => {
 	// the play's real duration: a rate shortens or stretches it
-	const skillXp = bot.getSkillsXP(chart.totalLength / rate, score);
-	return serverXp(r, characterId, beatmapId, skillXp, {
+	const raw = bot.getRawXP(chart.totalLength / rate, score);
+	return serverXp(r, profile, beatmapId, raw, {
 		mindblock: MINDBLOCK_SKILLS,
 		modMultipliers: modXpMultipliers(mods),
 		grade: score.grade,
 		stars,
 		fatigue,
 		genetics,
+		xpMultiplier,
 	});
 };
 
@@ -101,14 +104,14 @@ export const play: RulesetPlay = {
 	},
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
-		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,
+		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired, xpMultiplier,
 	}) {
 		const { fatigue, warmup: warm } = tired;
 		const divine = hasUnlock(profile.generation, 'DIVINE');
 		const native = sim().mania4k.play;
 		if (native) {
 			const {
-				xpScore: score, skillXp, rawXp, strainedShare, totalLength, ...played
+				xpScore: score, rawXp, strainedShare, totalLength, ...played
 			} = native({
 				chart: text,
 				play: {
@@ -121,18 +124,19 @@ export const play: RulesetPlay = {
 				rate, mods, divine, round, strained: STRAINED_4K, gauged: r.def.gauged as SkillName[],
 			});
 			if (board) return {
-				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, ZERO])),
 			};
 			const length = totalLength / rate;
 			return {
 				...played,
-				skillXp: await serverXp(r, profile.id, beatmapId, skillXp, {
+				skillXp: await serverXp(r, profile, beatmapId, rawXp, {
 					mindblock: MINDBLOCK_SKILLS,
 					modMultipliers: modXpMultipliers(mods),
 					grade: score.grade,
 					stars: sr,
 					fatigue,
 					genetics: await geneticsXp(r, profile, beatmapId),
+					xpMultiplier,
 				}),
 				rawXp,
 				strain: {
@@ -151,17 +155,17 @@ export const play: RulesetPlay = {
 			...run, strains: strainSamples(bot, r.def.gauged, run.endSongTime),
 		};
 		if (board) return {
-			...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+			...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, ZERO])),
 		};
 		const length = chart.totalLength / rate;
 		const score = xpScore(chart, game, options);
 		return {
 			...played,
 			skillXp: await getServerXP(
-				r, profile.id, beatmapId, bot, chart, score, rate, sr, mods, fatigue,
-				await geneticsXp(r, profile, beatmapId),
+				r, profile, beatmapId, bot, chart, score, rate, sr, mods, fatigue,
+				await geneticsXp(r, profile, beatmapId), xpMultiplier,
 			),
-			rawXp: bot.getRawXP?.(length, score),
+			rawXp: bot.getRawXP(length, score),
 			strain: {
 				minutes: length / 60_000,
 				strained: playStrain(STRAINED_4K, bot, length),

@@ -11,7 +11,7 @@ import {
 	useState,
 } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 
 import FancyGraph from '../FancyGraph';
 
@@ -60,7 +60,7 @@ export default function RankGraph({ ranks }: { ranks: number[] }) {
 					<div className='graph-guide rank-graph__guide' style={{ left: guideX }} />
 					<div className='graph-tooltip rank-graph__tooltip' style={{ left: guideX }}>
 						<div className='rank-graph__tooltip-rank'>
-							<Trans>Global Ranking</Trans> #{bignum(ranks[hover])}
+							<Trans>Global Ranking</Trans> #{formatBig(ranks[hover])}
 						</div>
 						<div className='rank-graph__tooltip-when'>
 							<Plural

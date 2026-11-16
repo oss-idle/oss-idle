@@ -1,5 +1,6 @@
 import type { Mod } from '../../../../mods.js';
 import type { SkillGain } from '../../../../play.js';
+import { scaleXp } from '../../../../xpGain.js';
 import SkillState from '../../../skillState.js';
 import CharacterBot, { type ScoreLike } from '../../4k/bots/character.js';
 import type { SkillName } from '../../4k/skills.js';
@@ -34,6 +35,15 @@ const STANDS_FOR: Record<SkillName, SkillName7k> = {
 };
 
 export type ScoreLike7k = ScoreLike;
+
+/** 4K skills' xp summed on the 7K skills they stand for. */
+const standingFor = (xp4k: Record<SkillName, number>): Record<SkillName7k, number> => {
+	const xp = Object.fromEntries(Skills7k.map(s => [s, 0])) as Record<SkillName7k, number>;
+	for (const [skill, gained] of Object.entries(xp4k) as [SkillName, number][]) {
+		xp[STANDS_FOR[skill]] += gained;
+	}
+	return xp;
+};
 
 const skillsAt = ({
 	progress, fatigue, warm, plays,
@@ -94,12 +104,12 @@ export default class Bot7k extends Bot {
 	}
 
 	getSkillsXP(length: number, score: ScoreLike7k): Record<SkillName7k, number> {
-		const xp = Object.fromEntries(Skills7k.map(s => [s, 0])) as Record<SkillName7k, number>;
-		const gains = Object.entries(this.bot.getSkillsXP(length, score)) as [SkillName, number][];
-		for (const [skill, gained] of gains) {
-			xp[STANDS_FOR[skill]] += gained;
-		}
-		return xp;
+		return standingFor(this.bot.getSkillsXP(length, score));
+	}
+
+	/** {@link getSkillsXP} unfloored: the same for anyone at that level. */
+	getRawXP(length: number, score: ScoreLike7k): Record<SkillName7k, number> {
+		return standingFor(this.bot.getRawXP(length, score));
 	}
 
 	private progression?: SkillGain[];
@@ -114,12 +124,12 @@ export default class Bot7k extends Bot {
 		perSkill: Readonly<Record<string, number>> = {},
 	): SkillGain[] {
 		if (this.progression) return this.progression;
-		const xp = this.getSkillsXP(length, score);
-		const multipliers = modXpMultipliers7k(mods);
+		const modded = modXpMultipliers7k(mods);
+		const xp = scaleXp(this.getRawXP(length, score), name =>
+			this.skills.find(s => s.name === name)!.xpMultiplier()
+				.mul(modded[name] * Math.max(1, xpMultiplier) * (perSkill[name] ?? 1)));
 		this.progression = this.skills.map(skill => {
-			const gained = Math.floor(
-				xp[skill.name] * multipliers[skill.name] * Math.max(1, xpMultiplier) * (perSkill[skill.name] ?? 1),
-			);
+			const gained = xp[skill.name];
 			const fromLevel = skill.level.get();
 			const fromXp = skill.xp.get();
 			const levels = skill.gainXP(gained);

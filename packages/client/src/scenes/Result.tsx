@@ -98,8 +98,8 @@ export default function Result({ score, game, progression, failed, beatmap, meda
 		score instanceof Score ? score[j] : score.judgements[j];
 
 	const gains = progression
-		?.filter((p) => p.gained > 0)
-		.sort((a, b) => b.gained - a.gained) ?? [];
+		?.filter((p) => p.gained.gt(0))
+		.sort((a, b) => b.gained.cmp(a.gained)) ?? [];
 
 	useEffect(() => {
 		if (!gains) return;

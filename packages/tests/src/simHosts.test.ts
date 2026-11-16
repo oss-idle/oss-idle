@@ -10,7 +10,7 @@ import type { SimInput } from '../../server/src/rulesets/mania/4k/simState';
 import { playOnHosts } from '../../server/src/simHosts';
 
 const input = {
-	checksum: 'c'.repeat(64), state: {}, rate: 1, mods: [],
+	checksum: 'c'.repeat(64), state: { skills: {} }, rate: 1, mods: [],
 } as unknown as SimInput;
 
 /** Hosts answering in turn: a status, or undefined for one that can't be reached. */
@@ -22,7 +22,9 @@ const hosts = (answers: Record<string, (number | undefined)[]>) => {
 		calls.push(sent.chart === undefined ? host : `${host}+chart`);
 		const status = answers[host]!.shift();
 		if (status === undefined) throw new Error('unreachable');
-		return new Response(JSON.stringify(status === 200 ? { score: host } : { error: 'x' }), { status });
+		return new Response(JSON.stringify(status === 200 ? {
+			score: host, xp: {}, 
+		} : { error: 'x' }), { status });
 	});
 	return calls;
 };
@@ -37,8 +39,12 @@ describe('the sim API across several sim services', () => {
 			a: [200, 429], b: [200],
 		});
 		const urls = ['http://a', 'http://b'];
-		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'a' });
-		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'b' });
+		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({
+			score: 'a', xp: {}, 
+		});
+		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({
+			score: 'b', xp: {}, 
+		});
 		expect(calls).toEqual(['a', 'a', 'b']);
 	});
 
@@ -55,9 +61,13 @@ describe('the sim API across several sim services', () => {
 			e: [undefined, 200, undefined], f: [200, undefined],
 		});
 		const urls = ['http://e', 'http://f'];
-		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'f' });
+		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({
+			score: 'f', xp: {}, 
+		});
 		// f restarts while e is still left out: e is back, it plays
-		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({ score: 'e' });
+		expect(await playOnHosts(urls, 's', input, 'text')).toEqual({
+			score: 'e', xp: {}, 
+		});
 		expect(await playOnHosts(urls, 's', input, 'text')).toMatchObject({ status: 503 });
 		expect(calls).toEqual(['e', 'f', 'f', 'e', 'e', 'f']);
 	});

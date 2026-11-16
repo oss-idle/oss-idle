@@ -834,6 +834,48 @@
       "when": 1798416000000,
       "tag": "0127_score_xp",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "5",
+      "when": 1798502400000,
+      "tag": "0128_ruleset_queue_prefs",
+      "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "5",
+      "when": 1798588800000,
+      "tag": "0129_amadeus",
+      "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "5",
+      "when": 1798675200000,
+      "tag": "0130_bot_group",
+      "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "5",
+      "when": 1798761600000,
+      "tag": "0131_user_twitch",
+      "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "5",
+      "when": 1798848000000,
+      "tag": "0132_big_numbers",
+      "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "5",
+      "when": 1798934400000,
+      "tag": "0133_skin_published_at",
+      "breakpoints": true
     }
   ]
 }

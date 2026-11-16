@@ -4,6 +4,7 @@ import {
 	it,
 } from 'vitest';
 
+import { Big } from '@oss-idle/shared/big';
 import {
 	afterPlay,
 	type Fatigue,
@@ -16,7 +17,10 @@ import {
 import Reading from '@oss-idle/shared/rulesets/mania/4k/skills/reading';
 import Speed from '@oss-idle/shared/rulesets/mania/4k/skills/speed';
 import { tireSkill } from '@oss-idle/shared/rulesets/mania/4k/tiring';
-import { xpToLevel } from '@oss-idle/shared/xp';
+import {
+	heldTotal,
+	xpToLevel,
+} from '@oss-idle/shared/xp';
 
 const MAP = 3;
 const GAP = 0.5;
@@ -81,10 +85,13 @@ describe('fatigue', () => {
 
 	it('plays an exhausted physical skill at the level a quarter of its xp reaches', () => {
 		const speed = new Speed(80);
-		speed.xp.set(500);
+		speed.xp.set(Big.from(500));
+		speed.lifetimeXp.set(heldTotal(80, 500));
 		tireSkill(speed, 1);
 		expect(speed.level.get()).toBeLessThan(80);
-		expect(xpToLevel(speed.level.get()) + speed.xp.get()).toBeCloseTo((xpToLevel(80) + 500) / 4);
+		expect(heldTotal(speed.level.get(), speed.xp.get()).toNumber())
+			.toBeCloseTo((xpToLevel(80).toNumber() + 500) / 4);
+		expect(speed.lifetimeXp.get().toNumber()).toBeCloseTo((xpToLevel(80).toNumber() + 500) / 4);
 
 		const reading = new Reading(80);
 		tireSkill(reading, 1);
@@ -145,12 +152,12 @@ describe('fatigue', () => {
 		const cold = (level: number) => {
 			const speed = new Speed(level);
 			tireSkill(speed, 0, 0);
-			return xpToLevel(speed.level.get()) + speed.xp.get();
+			return heldTotal(speed.level.get(), speed.xp.get()).toNumber();
 		};
 		expect(cold(0)).toBe(0);
-		expect(cold(50)).toBeCloseTo(xpToLevel(50) * 0.75);
-		expect(cold(100)).toBeCloseTo(xpToLevel(100) / 2);
-		expect(cold(120)).toBeCloseTo(xpToLevel(120) / 2);
+		expect(cold(50)).toBeCloseTo(xpToLevel(50).toNumber() * 0.75);
+		expect(cold(100)).toBeCloseTo(xpToLevel(100).toNumber() / 2);
+		expect(cold(120)).toBeCloseTo(xpToLevel(120).toNumber() / 2);
 
 		const warm = new Speed(80);
 		tireSkill(warm, 0, 1);

@@ -8,6 +8,10 @@ import {
 	vi,
 } from 'vitest';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import CharacterBot from '@oss-idle/shared/rulesets/mania/4k/bots/character';
 import type { SkillName } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import { makeOrderedSkills } from '@oss-idle/shared/rulesets/mania/4k/skills/factory';
@@ -46,7 +50,7 @@ const STATES = [
 
 /** The skills as the server loaded them before the seam. */
 const byHand = (
-	progress: (s: SkillName) => UpgradeState & { lifetimeXp: number },
+	progress: (s: SkillName) => UpgradeState & { lifetimeXp: Big },
 	fatigue: number,
 	warm: number,
 	plays: number,
@@ -86,7 +90,7 @@ describe('the public sim through the contract', () => {
 	} of STATES) {
 		it(`plays like the hand-built bot at L${level}`, async () => {
 			const progress = () => ({
-				level, xp: 0, upgrades: 3, overdrive: 0, prestige, lifetimeXp: 0,
+				level, xp: ZERO, upgrades: 3, overdrive: ZERO, prestige, lifetimeXp: ZERO,
 			});
 			const before = await play(byHand(progress, fatigue, warm, plays));
 			const after = await play(publicSims.mania4k.bot({
@@ -104,7 +108,7 @@ describe('the strain view through the contract', () => {
 	it('combines into the play the bot makes', async () => {
 		const sim = {
 			progress: () => ({
-				level: 40, xp: 0, upgrades: 3, overdrive: 0, prestige: 0, lifetimeXp: 0,
+				level: 40, xp: ZERO, upgrades: 3, overdrive: ZERO, prestige: 0, lifetimeXp: ZERO,
 			}),
 			fatigue: 0,
 			warm: 1,

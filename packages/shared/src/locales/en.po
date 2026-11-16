@@ -527,6 +527,10 @@ msgstr "DFJK"
 msgid "Diamond skin notes"
 msgstr "Diamond skin notes"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Diva"
+msgstr "Diva"
+
 #: src/display/medals.ts
 msgid "Divine medal"
 msgstr "Divine medal"
@@ -774,6 +778,10 @@ msgstr "Get added as a friend by {count, plural, one {# player} other {# players
 #: src/rulesets/mania/medalText.ts
 msgid "Get an S on The Parallax II: Future Sequence [Marathon]"
 msgstr "Get an S on The Parallax II: Future Sequence [Marathon]"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an SS on After School - Diva [Insane]"
+msgstr "Get an SS on After School - Diva [Insane]"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Get an SS on AiAe [Wafles' SHD]"

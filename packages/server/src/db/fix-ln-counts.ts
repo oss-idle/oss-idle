@@ -10,6 +10,8 @@
 import { eq } from 'drizzle-orm';
 import * as rosu from 'rosu-pp-js';
 
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
+
 import { db } from './client';
 import { beatmaps } from './schema/beatmap';
 
@@ -25,7 +27,7 @@ const main = async () => {
 	for (const row of rows) {
 		let ln: number;
 		try {
-			const map = new rosu.Beatmap(row.chart);
+			const map = new rosu.Beatmap(playableChart(row.chart));
 			ln = map.nHolds;
 			map.free();
 		} catch { continue; }

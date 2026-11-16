@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import * as ppjs from 'rosu-pp-js';
 
 import type { Mod } from '@oss-idle/shared/mods';
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
 import {
 	rateKey,
 	RATES,
@@ -32,7 +33,7 @@ const difficultyOf = (
 	else {
 		attrs = new ppjs.Difficulty({
 			lazer: args.lazer, clockRate: args.clockRate, mods: args.mods,
-		}).calculate(new ppjs.Beatmap(text()));
+		}).calculate(new ppjs.Beatmap(playableChart(text())));
 		if (difficulties.size >= DIFFICULTIES) difficulties.delete(difficulties.keys().next().value!);
 	}
 	// re-inserted: the map's order is the least recently priced first
@@ -67,7 +68,7 @@ export function calculatePP(
 export const starsAt = (chart: string, rate = 1): number =>
 	new ppjs.Difficulty({
 		lazer: false, clockRate: rate,
-	}).calculate(new ppjs.Beatmap(chart)).stars;
+	}).calculate(new ppjs.Beatmap(playableChart(chart))).stars;
 
 /** The chart's stars at every rate but x1, by `rateKey`. */
 export const starsAtRates = (chart: string): Record<string, number> =>

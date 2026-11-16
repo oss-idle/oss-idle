@@ -42,7 +42,7 @@ const cellOf = async (r: ServerRuleset, row: CharacterRow, user: UserRow): Promi
 		generation: profile?.generation ?? 1,
 		overall: xpGivesLevel(profile?.lifetime ?? 0).level,
 		rate: profile?.rate ?? 1,
-		queue: await slotQueue(slot, row, watched),
+		queue: await slotQueue(slot, watched),
 		playing: (await livePlay(slot))?.beatmapId,
 	};
 };

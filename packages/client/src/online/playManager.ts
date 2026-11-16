@@ -13,6 +13,7 @@ import type {
 	QueueState,
 } from '@oss-idle/shared/queue';
 
+import { recordResult } from '../addons/state';
 import { RESULT_SETTLE_MS } from '../components/result/settle';
 import { focusInCarousel } from '../components/songselect/selection';
 import { Score } from '../db/schema/score';
@@ -290,7 +291,7 @@ export default class PlayManager {
 	/** The server's queue: its pause, and its countdown on this clock. */
 	private static receive(state: QueueState): void {
 		void PlayQueue.receive(state);
-		receivePrefs(state.prefs);
+		receivePrefs(state.prefs, state.ruleset);
 		void this.paused.set(state.paused);
 		window.clearInterval(this.serverTick);
 		this.serverTick = undefined;
@@ -412,12 +413,14 @@ export default class PlayManager {
 
 		this.unwatch();
 		this.retryIfFailed(state, scene);
+		const played = this.live.get();
 		// awaited: the result below carries the levels as they were *before* the
 		// play's parked purchases spent them, so the two must not race
 		await this.endedHere();
 		if (state.phase === 'finished' && state.notify && this.notified !== state.token) {
 			this.notified = state.token;
-			await this.consumeResult(state.token, scene);
+			const beatmap = played?.token === state.token ? played.beatmap : undefined;
+			await this.consumeResult(state.token, scene, beatmap);
 		}
 	}
 
@@ -831,7 +834,9 @@ export default class PlayManager {
 
 	/** Take a finished play's authoritative result, quietly: only a play the
 	 *  player watched leads to its result screen, and that is the scene's doing. */
-	private static async consumeResult(token: string, scene: string): Promise<void> {
+	private static async consumeResult(
+		token: string, scene: string, played?: LightBeatmap,
+	): Promise<void> {
 		// The scene marks a play complete when it tears down: it has shown the
 		// result and logged it, and doing either again is one score reported twice.
 		// While it is still up it owns its play's result even though it has not said
@@ -840,8 +845,14 @@ export default class PlayManager {
 		// (one that ended as the player launched another) is still ours to log.
 		if (token === this.completedToken || (scene === SCENE.GAME && this.known.has(token))) return;
 		const res = await fetchPlayResult(token, false, false).catch(() => null);
-		if (!res || res.failed || !res.score) return;
+		if (!res) return;
+		if (res.failed || !res.score) {
+			const failedOn = this.known.get(token) ?? played;
+			if (res.failed && failedOn) recordResult(failedOn.metadata.id, true);
+			return;
+		}
 		const dto = res.score;
+		recordResult(dto.beatmapId, false, dto, res.gains);
 
 		// the one started keeps its playlist's locked rate and mods
 		const beatmap = this.known.get(token) ?? await this.findDownloaded(dto.beatmapId);

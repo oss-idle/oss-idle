@@ -5,12 +5,13 @@ import type {
 	PrivateMessage,
 } from '@oss-idle/shared/community/wire';
 import {
+	GROUP_BADGE,
 	MAKISEBOT_ID,
 	MAKISEBOT_USER_ID,
 } from '@oss-idle/shared/groups';
 
 /** MakiseBot, our BanchoBot, speaks in pink. */
-export const BOT_COLOR = '#ff66aa';
+export const BOT_COLOR = GROUP_BADGE.bot.colour;
 
 const NAME = 'MakiseBot';
 

@@ -1,3 +1,7 @@
+import {
+	type Big,
+	fromWire,
+} from '@oss-idle/shared/big';
 import Synced from '@oss-idle/shared/helpers/synced';
 import type { SkillGain } from '@oss-idle/shared/play';
 
@@ -14,7 +18,7 @@ const t = table('score_xp', {
 	characterId: integer(),
 	beatmapId:   integer(),
 	playedAt:    integer(),
-	/** JSON: xp per skill, by the play's ruleset's skill names */
+	/** JSON: xp per skill, by the play's ruleset's skill names, in wire form */
 	gains:       text().default('{}'),
 }, {
 	indexes: {
@@ -38,8 +42,9 @@ export const xpGainsChanged = (beatmapId?: number) =>
 export class ScoreXP extends DAO(t) {
 
 	/** What the play gained on `skill`. */
-	public gainOf(skill: string): number {
-		return (JSON.parse(this.gains) as Record<string, number | undefined>)[skill] ?? 0;
+	public gainOf(skill: string): Big {
+		const gains = JSON.parse(this.gains) as Record<string, number | string | undefined>;
+		return fromWire(gains[skill] ?? 0);
 	}
 
 	async add() {
@@ -54,10 +59,9 @@ export class ScoreXP extends DAO(t) {
 		score: Score,
 		gains: readonly SkillGain[] | undefined,
 	): Promise<void> {
-		if (!score.id || !gains?.some(g => g.gained > 0)) return;
-		const skillGains = Object.fromEntries(
-			gains.filter(g => g.gained > 0).map(g => [g.skill, g.gained]),
-		);
+		const earned = gains?.filter(g => g.gained.gt(0));
+		if (!score.id || !earned?.length) return;
+		const skillGains = Object.fromEntries(earned.map(g => [g.skill, g.gained]));
 		await new ScoreXP({
 			scoreId:     score.id,
 			characterId: score.characterId,

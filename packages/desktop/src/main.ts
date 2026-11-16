@@ -17,6 +17,7 @@ import {
 	getToken,
 	loadToken,
 	logout,
+	signInWithCode,
 	startLogin,
 } from './auth';
 import {
@@ -250,8 +251,10 @@ if (!app.requestSingleInstanceLock()) {
 		focusWindow();
 	});
 
-	void app.whenReady().then(() => {
+	void app.whenReady().then(async () => {
 		loadToken();
+		const launchCode = app.commandLine.getSwitchValue('sign-in-code');
+		if (launchCode) await signInWithCode(launchCode);
 		authorizeApiRequests();
 		// the oss-idle:// links stay the real game's
 		if (!OTHER_INSTALL) registerProtocolClient();

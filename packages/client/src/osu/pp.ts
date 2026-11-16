@@ -2,6 +2,7 @@ import { Beatmap } from 'osu-classes';
 import * as ppjs from 'rosu-pp-js-web';
 
 import type { Mod } from '@oss-idle/shared/mods';
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
 import type {
 	PerformanceScore,
 	RulesetDef,
@@ -26,7 +27,7 @@ const calculatePP = async (
 
 	await rosuReady();
 	return new ppjs.Performance(def.performanceArgs(score, rate, mods))
-		.calculate(new ppjs.Beatmap(osu)).pp;
+		.calculate(new ppjs.Beatmap(playableChart(osu))).pp;
 };
 
 export default calculatePP;

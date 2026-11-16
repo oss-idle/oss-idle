@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import type { Big } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	CLIMAXX_SYMBOL,
@@ -10,12 +11,12 @@ import ConvertText from './ConvertText';
 
 type Props = {
 	skill: string,
-	climaxx: number,
-	overdrive: number,
+	climaxx: Big,
+	overdrive: Big,
 	/** overdrive the next tier needs; none when there is nothing to convert */
-	need?: number,
+	need?: Big,
 	/** overdrive the skill already turned into climaxx */
-	converted: number,
+	converted: Big,
 	busy: boolean,
 	onConvert: () => void,
 };
@@ -30,7 +31,7 @@ export default function ClimaxxBalance({
 				<b>{CLIMAXX_SYMBOL}<BigNum value={climaxx} theme="royal" /></b> <Trans>{skill} climaxx</Trans>
 			</div>
 			{need !== undefined && (
-				<button className="climaxx__convert" disabled={busy || overdrive < need} onClick={onConvert}>
+				<button className="climaxx__convert" disabled={busy || overdrive.lt(need)} onClick={onConvert}>
 					<span>
 						<ConvertText need={need} overdrive={overdrive} gain={conversionGain(converted, need)} />
 					</span>

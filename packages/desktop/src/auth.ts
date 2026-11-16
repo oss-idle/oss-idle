@@ -147,6 +147,16 @@ export async function startLogin(): Promise<void> {
 	}
 }
 
+/** Sign in with a one-time code given at launch (`--sign-in-code=`), for an account whose
+ *  code does not come from the browser. A refused code leaves the saved session as it was. */
+export async function signInWithCode(code: string): Promise<void> {
+	try {
+		setToken(await redeem(code));
+	} catch (e) {
+		console.error('[auth] launch sign-in failed', e);
+	}
+}
+
 export function logout(): void {
 	activeLogin?.close();
 	activeLogin = null;

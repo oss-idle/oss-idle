@@ -1,9 +1,9 @@
+import { characterDTO } from '@oss-idle/shared/character';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import Character from '../../db/schema/character';
 import { SETTINGS } from '../../db/settings';
 import Entities from '../../entity/entities';
-import { resetMods } from '../../gameplay/playMods';
 import {
 	loadRuleset,
 	selectedRuleset,
@@ -24,8 +24,6 @@ const pickLocally = async (character: Character, ruleset: RulesetId): Promise<bo
 	const lock = guestLock(character);
 	if (currentLocalPlay() || (lock && lock !== ruleset)) return false;
 	await loadRuleset(ruleset);
-	resetMods();
-	void SETTINGS.rate.set(1);
 	void SETTINGS.guestRuleset.set(ruleset);
 	void selectedRuleset.set(ruleset);
 	Entities.character.set(await Character.guest());
@@ -41,6 +39,6 @@ export const pickRuleset = async (ruleset: RulesetId): Promise<boolean> => {
 	void loadRuleset(ruleset);
 	const res = await rpc.v1.me.ruleset.$put({ json: { ruleset } });
 	if (!res.ok) return false;
-	Account.character.set(await res.json());
+	Account.character.set(characterDTO.parse(await res.json()));
 	return true;
 };

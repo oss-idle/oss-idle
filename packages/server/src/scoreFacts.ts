@@ -9,6 +9,7 @@ export type ScoreFacts = {
 	possessed: boolean,
 	parallax: boolean,
 	wonderful: boolean,
+	diva: boolean,
 	grades: string[],
 };
 
@@ -23,5 +24,6 @@ export const mergeFacts = (old: ScoreFacts, now: ScoreFacts): ScoreFacts => ({
 	possessed: old.possessed || now.possessed,
 	parallax: old.parallax || now.parallax,
 	wonderful: old.wonderful || now.wonderful,
+	diva: old.diva || now.diva,
 	grades: [...new Set([...old.grades, ...now.grades])],
 });

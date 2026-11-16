@@ -17,6 +17,7 @@ import type {
 	ApiMatch,
 	ApiRanking,
 	ApiSkillRanking,
+	ApiUser,
 	ApiUserRanking,
 } from '@oss-idle/shared/apiV2';
 import { batchIds } from '@oss-idle/shared/oauth';
@@ -35,6 +36,7 @@ import {
 	beatmapListColumns,
 	beatmaps,
 } from '../db/schema/beatmap';
+import { mostPlayedRows } from '../db/schema/beatmaps_played';
 import { beatmapset } from '../db/schema/beatmapset';
 import { bestPPRows } from '../db/schema/best_pp';
 import {
@@ -51,6 +53,7 @@ import {
 } from '../db/schema/score';
 import { users } from '../db/schema/user';
 import { matchHistory } from '../matchHistory';
+import { medalMultiplier } from '../medals';
 import {
 	apiToken,
 	needs,
@@ -132,15 +135,16 @@ const fullUser = async (
 	r: ServerRuleset,
 	{ user, character }: Awaited<ReturnType<typeof byCharacter>>,
 ) => {
-	const [profile, totals, global, country] = await Promise.all([
+	const [profile, totals, global, country, medals] = await Promise.all([
 		profileOf(r, character.id),
 		getCharacterTotals(r, character.id),
 		globalRank(r, 'pp', character.id),
 		countryRank(r, 'pp', user.country, character.id),
+		medalMultiplier(r, character.id),
 	]);
 	return apiUser(r.def, user, character, profile, totals, {
 		global, country,
-	}, r.play.tiredness(profile));
+	}, r.play.tiredness(profile), medals);
 };
 
 const listQuery = valid('query', z.object({
@@ -298,7 +302,11 @@ export const apiV2Routes = new Hono()
 	.get(`/me/${MODE}?`, needs('identify'), async c => {
 		const userId = c.get('token').userId;
 		if (userId === undefined) throw new HTTPException(403, { message: 'This request needs a user token' });
-		return c.json(await fullUser(apiRuleset(c), await byUser(String(userId))));
+		const row = await byUser(String(userId));
+		return c.json({
+			...await fullUser(apiRuleset(c), row),
+			twitch_id: row.user.twitchId ?? undefined,
+		} satisfies ApiUser);
 	})
 
 	.get('/friends', needs('friends.read'), async c => {
@@ -339,6 +347,18 @@ export const apiV2Routes = new Hono()
 		const { limit, offset } = c.req.valid('query');
 		const type = scoreType.parse(c.req.param('type'));
 		return c.json(await characterScores(apiRuleset(c), character.id, type, offset, limit));
+	})
+
+	.get('/users/:user/beatmapsets/most_played', needs('public'), listQuery, async c => {
+		const { character } = await byUser(c.req.param('user'));
+		const { limit, offset } = c.req.valid('query');
+		const rows = await mostPlayedRows(apiRuleset(c), character.id, offset, limit);
+		return c.json(rows.map(r => ({
+			beatmap_id: r.beatmap.id,
+			count: r.beatmaps_played.plays,
+			beatmap: apiBeatmap(r.beatmap, r.beatmapset),
+			beatmapset: apiBeatmapset(r.beatmapset),
+		})));
 	})
 
 	.get('/characters', needs('public'), async c => {

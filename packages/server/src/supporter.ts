@@ -244,6 +244,15 @@ const grant = async (
 	}
 };
 
+/** Admin: months added by hand, with no order behind them. */
+export const giveMonths = async (userId: number, months: number): Promise<void> => {
+	const [{ affectedRows }] = await db.update(users).set({
+		supporterUntil: sql`DATE_ADD(${tagStart}, INTERVAL ${months} MONTH)`,
+		supporterMonths: sql`${users.supporterMonths} + ${months}`,
+	}).where(eq(users.id, userId));
+	if (!affectedRows) throw new HTTPException(404, { message: 'Player not found' });
+};
+
 const WAIVER_TEXT = 'The supporter tag starts right away: you gave up the 14-day withdrawal right.';
 
 const account = async (userId: number) => {

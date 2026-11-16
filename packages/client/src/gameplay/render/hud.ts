@@ -137,9 +137,9 @@ export const drawWarmupGauge = (
 
 type Size = Pick<Viewport, 'w' | 'h'>;
 
-// the strain panel, right of the playfield: a sparkline per skill, its name right of it, the
-// warm-up bar under them. Where that doesn't fit, each name stacks over its sparkline, as wide
-// as the room left allows.
+// the strain panel, at the right edge: a sparkline per skill, its name right of it, the
+// warm-up bar under them, sized by the screen like the leaderboard (--mp-u, these sizes at
+// 1080p). In portrait, each name stacks over its sparkline, as wide as the room left allows.
 const SPARK_W = 140;
 const NAME_W = 90;
 const SPARK_H = 15;
@@ -147,8 +147,10 @@ const STACKED_MIN = 64;
 const STACKED_H = 12;
 // clear of the playfield's HP bar
 const FIELD_GAP = 16;
+const strainScale = (vp: Size) =>
+	vp.w < vp.h ? 1 : Math.max(5.5, Math.min(vp.h / 100, vp.w * 0.005625)) / 10.8;
 const strainLayout = (vp: Size, fieldRight: number, gauges: number) => {
-	const stacked = vp.w - 28 - (SPARK_W + NAME_W) < fieldRight + FIELD_GAP;
+	const stacked = vp.w < vp.h;
 	const width = stacked
 		? Math.max(STACKED_MIN, Math.min(SPARK_W, vp.w - 12 - fieldRight - FIELD_GAP))
 		: SPARK_W + NAME_W;
@@ -296,7 +298,12 @@ const drawStrainPanel = (
 	profile: Float32Array,
 ) => {
 	const { ctx, game, now, vp, g } = f;
-	const l = strainLayout(vp, g.right, strain.gauges.length);
+	const s = strainScale(vp);
+	const l = strainLayout({
+		w: vp.w / s, h: vp.h / s,
+	}, g.right, strain.gauges.length);
+	ctx.save();
+	ctx.scale(s, s);
 	const strains = strain.source.strainsAt(now);
 	const progress = Math.max(0, Math.min(1, now / game.songEndMs));
 	const hot = easeGauges(strain, strains, display);
@@ -313,10 +320,13 @@ const drawStrainPanel = (
 		drawSkillName(ctx, label, v, i === hot, right, l.stacked ? y : base - 2);
 	}
 	g.warmup.width = 0;
-	if (strain.warmupBar === undefined) return;
-	g.warmup.left = l.x;
-	g.warmup.top = l.warmup - 12;
-	g.warmup.width = l.width;
+	if (strain.warmupBar === undefined) {
+		ctx.restore();
+		return;
+	}
+	g.warmup.left = l.x * s;
+	g.warmup.top = (l.warmup - 12) * s;
+	g.warmup.width = l.width * s;
 	ctx.font = '600 11px "Exo 2", sans-serif';
 	drawWarmupGauge(
 		f,
@@ -328,6 +338,7 @@ const drawStrainPanel = (
 		strain.warmupTrend,
 		l.width,
 	);
+	ctx.restore();
 };
 
 // debug-only telemetry over the playfield (nps, visible notes, transitions, ...)

@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 
+import Link from '../../components/Link';
 import OutLink from '../../components/OutLink';
 import type { Entry } from './builds';
 
@@ -25,6 +26,15 @@ export default function ChangelogEntry({ entry }: { entry: Entry }) {
 				<FontAwesomeIcon icon={ICONS[entry.type]} className='changelog-entry__icon' />
 			</span>
 			{title(entry.title)}
+			{entry.thanks && <span className='changelog-entry__user'>
+				<Trans>
+					thanks to <Link
+						to='/c/$id'
+						params={{ id: String(entry.thanks.character) }}
+						className='changelog-entry__user-link'
+					>{ph({ player: entry.thanks.name })}</Link>
+				</Trans>
+			</span>}
 			{entry.pr && <>
 				{' ('}
 				<OutLink href={`${REPO}/pull/${entry.pr}`} target='_blank' className='changelog-entry__link'>

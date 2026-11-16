@@ -12,14 +12,16 @@ import Flag from '../Flag';
 import Link from '../Link';
 import {
 	type Goal,
+	isBelowBest,
 	LINE_NAMES,
 	lineStanding,
+	type LineValue,
 	lineValue,
 } from './medalLine';
 import MedalLineIcon from './MedalLineIcon';
 import { useBoardRuleset } from './useBoardRuleset';
 
-type Row = { id: number, name: string, country: string, value: number, current: number };
+type Row = { id: number, name: string, country: string, value: LineValue, current: LineValue };
 
 /** One medal line on the overview: its medals and the players furthest along it.
  *  The whole card opens the line's board. */
@@ -52,7 +54,7 @@ export default function MedalProgressCard({ line, goals, rows }: {
 					<Flag country={row.country} />
 					<Link to='/c/$id' params={{ id: String(row.id) }} className='medal-progress__name'>{row.name}</Link>
 					<span className='medal-progress__value'>
-						{row.current < row.value && <span className='medal-progress__now'>
+						{isBelowBest(row) && <span className='medal-progress__now'>
 							<Trans>now {ph({ now: lineValue(line, row.current) })}</Trans>
 						</span>}
 						{lineValue(line, row.value)}

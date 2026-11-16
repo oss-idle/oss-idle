@@ -8,9 +8,15 @@ import {
 } from '@lingui/react/macro';
 import { useState } from 'react';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import HoverCard from '@oss-idle/shared/display/HoverCard';
 import HoverCardRow from '@oss-idle/shared/display/HoverCardRow';
+import { formatBig } from '@oss-idle/shared/display/num';
+import PrestigeDiamonds from '@oss-idle/shared/display/PrestigeDiamonds';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import {
 	CLIMAXX_SYMBOL,
@@ -30,15 +36,17 @@ import {
 	prestigeXPMultiplier,
 	UPGRADES_PER_PRESTIGE,
 } from '@oss-idle/shared/upgrades';
-import { levelProgress } from '@oss-idle/shared/xp';
-import { xpToLevel } from '@oss-idle/shared/xp';
+import {
+	heldTotal,
+	levelProgress,
+	xpToLevel,
+} from '@oss-idle/shared/xp';
 
 import Controls from '../../input/Controls';
 import { selectedDef } from '../../rulesets/registry';
 import ConfirmMenu, { type Confirm } from '../ConfirmMenu';
 import PrestigeAction from './PrestigeAction';
 import PrestigeClimaxxPop from './PrestigeClimaxxPop';
-import PrestigeDiamonds from './PrestigeDiamonds';
 import usePrestige from './usePrestige';
 
 /** The rates a skill keeps through its next prestige: the rate skill keeps a step per
@@ -57,13 +65,13 @@ export default function PrestigeRow({
 	skill: SkillState,
 	locked: boolean,
 	/** the skill's overdrive already turned into climaxx; none without genetics */
-	converted?: number,
+	converted?: Big,
 	/** the genes' raise on overdrive an upgrade adds */
 	overdriveBonus?: number,
 	/** the skill's climaxx, read when the prestige starts */
-	climaxxNow?: () => number,
+	climaxxNow?: () => Big,
 	/** xp ever earned on the skill, shown as a level behind it on hover */
-	lifetimeXp?: number,
+	lifetimeXp?: Big,
 }) {
 	const { t } = useLingui();
 	const [level] = useSynced(skill.level);
@@ -81,17 +89,17 @@ export default function PrestigeRow({
 	// a way out of a bad build: the reset without the prestige
 	const forcing = !locked && !ready && shift;
 	const multiplier = prestigeXPMultiplier(prestige);
-	const factor = multiplier.toFixed(2);
+	const factor = formatBig(multiplier, 2);
 	const next = prestigeXPMultiplier(prestige + 1);
 	const keptRates = ratesKept(skill.name, prestige);
 	const at = level + levelProgress(level, xp);
-	const earned = xpToLevel(level) + xp;
+	const earned = heldTotal(level, xp);
 	const needed = xpToLevel(required);
-	const progress = Math.min(1, earned / needed);
+	const progress = Math.min(1, earned.div(needed).toNumber());
 	const overdrive = prestigeOverdrive({
 		level, xp, upgrades, overdrive: held, prestige,
 	}, overdriveBonus);
-	const gain = converted === undefined ? 0 : conversionGain(converted, overdrive);
+	const gain = converted === undefined ? ZERO : conversionGain(converted, overdrive);
 	const {
 		busy, run, transfer, closeTransfer,
 	} = usePrestige(skill.name, overdrive, gain, climaxxNow);
@@ -122,7 +130,7 @@ export default function PrestigeRow({
 					one: '# bonus level', other: '# bonus levels', 
 				})}, ${plural(ph({ slots: maxUpgrades(prestige + 1) }), {
 					one: '# gear slot', other: '# gear slots', 
-				})} and x${ph({ multiplier: next.toFixed(2) })} XP`,
+				})} and x${ph({ multiplier: formatBig(next, 2) })} XP`,
 				...keptRates ? [t`Keeps ${ph({ rates: keptRates })} rates`] : [],
 				...note ? [note] : [],
 			].join(' · '),
@@ -134,12 +142,12 @@ export default function PrestigeRow({
 
 	const card = <>
 		<HoverCardRow label={<Trans>XP</Trans>}>
-			<BigNum value={Math.floor(earned)} theme="heat" /> / <BigNum value={needed} theme="heat" />
+			<BigNum value={earned.floor()} theme="heat" /> / <BigNum value={needed} theme="heat" />
 		</HoverCardRow>
 		{!ready && <HoverCardRow label={<Trans>To go</Trans>}>
-			<BigNum value={Math.ceil(needed - earned)} theme="heat" />
+			<BigNum value={needed.sub(earned).ceil()} theme="heat" />
 		</HoverCardRow>}
-		{gain > 0 && <HoverCardRow label={<Trans>Climaxx</Trans>}>
+		{gain.gt(0) && <HoverCardRow label={<Trans>Climaxx</Trans>}>
 			+{CLIMAXX_SYMBOL}<BigNum value={gain} theme="royal" />
 		</HoverCardRow>}
 	</>;
@@ -163,7 +171,7 @@ export default function PrestigeRow({
 					<PrestigeDiamonds prestige={prestige} />
 					<span className="ladder-row__next">
 						<span className="ladder-row__arrow">›</span>
-						<Trans>+{ph({ bonus: 1 })} Lv · +{ph({ slots: UPGRADES_PER_PRESTIGE })} gear slot · x{ph({ multiplier: next.toFixed(2) })} XP</Trans>
+						<Trans>+{ph({ bonus: 1 })} Lv · +{ph({ slots: UPGRADES_PER_PRESTIGE })} gear slot · x{ph({ multiplier: formatBig(next, 2) })} XP</Trans>
 						{keptRates && <> · <Trans>keeps {ph({ rates: keptRates })} rates</Trans></>}
 					</span>
 					<span className="ladder-row__count">{at.toFixed(2)} / {required}</span>

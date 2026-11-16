@@ -243,8 +243,9 @@ test.describe('genetics of a reborn character', () => {
 		await game.waitForPlay();
 		await game.skipToEnd();
 		await game.expectScene('RESULT');
-		await expect.poll(async () => (await query<{ xp: number }>(
+		// XP is stored as text
+		await expect.poll(async () => Number((await query<{ xp: string }>(
 			'SELECT overall_lifetime_xp AS xp FROM mania4k_character WHERE id = ?', [uma.characterId],
-		))[0].xp).toBeGreaterThan(0);
+		))[0].xp)).toBeGreaterThan(0);
 	});
 });

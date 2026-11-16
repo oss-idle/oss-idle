@@ -22,6 +22,6 @@ describe('the sim API\'s body', () => {
 				},
 			},
 		});
-		expect(body.skills.speed?.overdrive).toBe(28504.40487685265);
+		expect(body.skills.speed?.overdrive.toJSON()).toBe(28504.40487685265);
 	});
 });

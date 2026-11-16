@@ -18,6 +18,7 @@ import {
 	BOARD_SORTS,
 	type BoardSort,
 	PAGE_SIZE,
+	rankScore,
 } from '@oss-idle/shared/rankings';
 import { rankValue } from '@oss-idle/shared/scoreOrder';
 import { playLevelOf } from '@oss-idle/shared/xp';
@@ -52,8 +53,8 @@ import type { ServerRuleset } from './rulesets/ruleset';
  * One member per character per set, scored by the metric. A score change is a
  * single ZADD - no row-by-row rank rewrites, and because the set lives in the
  * cluster's shared Redis every worker sees the update at once (an in-process
- * cache could not). Sorted-set scores are float64: exact for integers below
- * 2^53, far above any realistic xp/score.
+ * cache could not). Sorted-set scores are float64: XP and overdrive boards
+ * score `rankScore`, the same order in a double however large they grow.
  */
 
 // Skills/overall are scored by *total* xp: it rises monotonically with level
@@ -76,7 +77,7 @@ const NEXT_ROOT = `${redisKeyPrefix}rankingnext:`;
 // in parallel).
 const META = `${redisKeyPrefix}rankmeta:`;
 // Bump when the set layout changes so the next deploy rebuilds from MySQL.
-const SCHEMA = 15;  // beatmap boards by pp
+const SCHEMA = 16;  // XP boards by rankScore
 const builtKey = (r: ServerRuleset) => `${META}built:v${SCHEMA}:${r.def.id}`;
 const lockKey = (r: ServerRuleset) => `${META}lock:v${SCHEMA}:${r.def.id}`;
 // The characters and beatmaps whose boards changed lately: a rebuild re-indexes
@@ -150,14 +151,15 @@ function index(
 	pipeline.zadd(countryKey('medals', data.user.country), weight, member);
 	pipeline.zadd(globalKey('pp'), Number(data.profile.pp), member);
 	pipeline.zadd(globalKey('score'), data.totals?.rankedScore ?? 0, member);
-	pipeline.zadd(globalKey('overall'), data.profile.overallLifetimeXp, member);
+	const overall = rankScore(data.profile.overallLifetimeXp);
+	pipeline.zadd(globalKey('overall'), overall, member);
 	pipeline.zadd(countryKey('pp', data.user.country), Number(data.profile.pp), member);
 	pipeline.zadd(
 		countryKey('score', data.user.country),
 		data.totals?.rankedScore ?? 0,
 		member,
 	);
-	pipeline.zadd(countryKey('overall', data.user.country), data.profile.overallLifetimeXp, member);
+	pipeline.zadd(countryKey('overall', data.user.country), overall, member);
 	// skill boards rank on the level the listings show, so the page reads in the
 	// same order as its own numbers
 	let prestiges = 0;
@@ -168,7 +170,7 @@ function index(
 		pipeline.zadd(countryKey(skill, data.user.country), level, member);
 
 		// what the skill has ever earned - spending never takes from this
-		const lifetime = columns.lifetimeXp;
+		const lifetime = rankScore(columns.lifetimeXp);
 		pipeline.zadd(globalKey(`lifetime:${skill}`), lifetime, member);
 		pipeline.zadd(countryKey(`lifetime:${skill}`, data.user.country), lifetime, member);
 
@@ -178,12 +180,8 @@ function index(
 		pipeline.zadd(countryKey(`prestige:${skill}`, data.user.country), prestige, member);
 	}
 	// the summed columns: lifetime overall is already the sum of the skills'
-	pipeline.zadd(globalKey('lifetime:overall'), data.profile.overallLifetimeXp, member);
-	pipeline.zadd(
-		countryKey('lifetime:overall', data.user.country),
-		data.profile.overallLifetimeXp,
-		member,
-	);
+	pipeline.zadd(globalKey('lifetime:overall'), overall, member);
+	pipeline.zadd(countryKey('lifetime:overall', data.user.country), overall, member);
 	pipeline.zadd(globalKey('prestige:total'), prestiges, member);
 	pipeline.zadd(countryKey('prestige:total', data.user.country), prestiges, member);
 	let allgrades = 0;
@@ -324,9 +322,9 @@ const rankIn = async (key: string, id: number): Promise<number | undefined> => {
 export const globalRank = (r: ServerRuleset, m: GlobalMetric, id: number) =>
 	rankIn(keysOf(r).globalKey(m), id);
 
-/** The rank a value would take on a global board: just behind whoever has more. */
-export const wouldBeRank = async (r: ServerRuleset, m: GlobalMetric, value: number) =>
-	1 + await redis.zcount(keysOf(r).globalKey(m), `(${value}`, '+inf');
+/** The rank a board score would take on a global board (`rankScore` on an XP board): just behind whoever has more. */
+export const wouldBeRank = async (r: ServerRuleset, m: GlobalMetric, score: number) =>
+	1 + await redis.zcount(keysOf(r).globalKey(m), `(${score}`, '+inf');
 
 /** The share of players with pp that rank at or above this character, in percent. */
 export const ppTopPercent = async (r: ServerRuleset, id: number): Promise<number | undefined> => {

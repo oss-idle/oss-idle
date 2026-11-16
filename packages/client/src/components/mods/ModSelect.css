@@ -213,6 +213,14 @@
 	}
 }
 
+/* phones: the heading above its mods */
+@media (max-width: 600px), (max-height: 500px) {
+	.mod-select__row {
+		grid-template-columns: 1fr;
+		row-gap: 8px;
+	}
+}
+
 /* landscape phones: the two rows side by side */
 @media (max-height: 500px) {
 	.mod-select__panel {

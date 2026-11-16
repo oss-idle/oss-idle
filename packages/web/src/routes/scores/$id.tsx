@@ -1,15 +1,15 @@
-import { msg } from '@lingui/core/macro';
-import { createFileRoute } from '@tanstack/react-router';
+import {
+	createFileRoute,
+	redirect,
+} from '@tanstack/react-router';
 
-import { getScore } from '../../api/scores';
-import ScorePage from '../../pages/scores/ScorePage';
-
+// links from before scores took their ruleset were all 4K
 export const Route = createFileRoute('/scores/$id')({
-	loader: ({ params }) => getScore(params.id),
-	component: ScoreRoute,
-	staticData: { title: msg`score info` },
+	beforeLoad: ({ params }) => {
+		throw redirect({
+			to: '/scores/$ruleset/$id', params: {
+				ruleset: 'mania4k', id: params.id, 
+			}, replace: true,
+		});
+	},
 });
-
-function ScoreRoute() {
-	return <ScorePage show={Route.useLoaderData()} />;
-}

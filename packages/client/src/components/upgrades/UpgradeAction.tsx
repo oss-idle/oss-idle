@@ -1,6 +1,10 @@
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import HoverCard from '@oss-idle/shared/display/HoverCard';
 import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import useShiftHeld from '@oss-idle/shared/hooks/useShiftHeld';
@@ -25,7 +29,7 @@ export default function UpgradeAction({
 	/** 0..1 from the last upgrade's required level to the next one's */
 	progress: number,
 	maxed: boolean,
-	overdrive: number,
+	overdrive: Big,
 	preview: UpgradePurchase | undefined,
 	busy: boolean,
 	minLevel: number,
@@ -35,7 +39,7 @@ export default function UpgradeAction({
 	tip: ReactNode,
 }) {
 	const instant = useShiftHeld();
-	const gain = preview ? preview.overdrive - overdrive : 0;
+	const gain = preview ? preview.overdrive.sub(overdrive) : ZERO;
 	const gainText = <OverdriveNum value={gain} />;
 	const required = minLevel;
 
@@ -67,9 +71,9 @@ export default function UpgradeAction({
 		<div className="ladder-act">
 			<HoverCard
 				className="ladder-act__od"
-				card={preview && gain > 0 ? <OverdriveGainTip ratio={preview.ratio} gain={gain} /> : undefined}
+				card={preview && gain.gt(0) ? <OverdriveGainTip ratio={preview.ratio} gain={gain} /> : undefined}
 			>
-				{gain > 0 && <Trans>Overdrive +{gainText}</Trans>}
+				{gain.gt(0) && <Trans>Overdrive +{gainText}</Trans>}
 			</HoverCard>
 			<div className="ladder-act__main">
 				<HoverCard className="ladder-act__hover" card={maxed ? undefined : tip}>

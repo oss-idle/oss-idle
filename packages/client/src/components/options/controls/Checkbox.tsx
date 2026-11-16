@@ -7,6 +7,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { uiSound } from '../../../audio/uiSounds';
 import { isChanged } from '../../../db/settings';
+import SettingRuleset from './SettingRuleset';
 
 interface Props {
 	/** Backing flag. Pass a shared `Synced` so the toggle stays subscribable. */
@@ -46,6 +47,7 @@ export default function Checkbox({ value, label, onChange, disabled }: Props) {
 			disabled={disabled}
 			data-sound="hover"
 		>
+			<SettingRuleset value={value} />
 			<span className="opt-checkbox__box" aria-hidden>
 				<span className="opt-checkbox__tick" />
 			</span>

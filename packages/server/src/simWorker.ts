@@ -1,7 +1,9 @@
 import { parentPort } from 'node:worker_threads';
 
 import {
-	type SimInput,
+	simInputFromWire,
+	type SimInputWire,
+	simResultToWire,
 	simulateState,
 } from './rulesets/mania/4k/simState';
 import {
@@ -15,9 +17,10 @@ import { readChart } from './simCharts';
 
 const port = parentPort!;
 await loadSim();
-port.on('message', (input: SimInput) => {
+port.on('message', (input: SimInputWire) => {
 	try {
-		port.postMessage({ result: simulateState(input, () => readChart(input.checksum)) });
+		const played = simulateState(simInputFromWire(input), () => readChart(input.checksum));
+		port.postMessage({ result: simResultToWire(played) });
 	} catch (e) {
 		port.postMessage({ error: e instanceof Error ? e.message : String(e) });
 	}

@@ -70,7 +70,7 @@ const STATISTICS = {
 	play_time: 1703259,
 	total_hits: 22214916,
 	level: {
-		current: 100, progress: 18, total_xp: 2870299,
+		current: 100, progress: 18, total_xp: '2870299',
 	},
 	grade_counts: {
 		xx: 0, x: 0, ss: 84, s: 347, a: 1,
@@ -95,7 +95,11 @@ const USER = {
 	},
 	skills: {
 		stamina: {
-			level: 100, progress: 42, total_xp: 5294299, prestige: 0, upgrades: 4,
+			level: 100, progress: 42, lifetime_level: 100, xp_level: 61, xp: '18204', total_xp: '5294299',
+			prestige: 0, upgrades: 4, overdrive: '3.2', upgrade_overdrive: '1.4', climaxx: '126',
+			xp_multipliers: {
+				upgrades: '1.92', prestige: '1', genetics: '1.15', medals: '1.31', total: '2.89',
+			},
 		},
 	},
 	rank_history: {
@@ -502,7 +506,8 @@ export const ENDPOINTS: EndpointSection[] = [
 					{
 						name: 'skills', type: 'object', optional: true,
 						about: `By skill (${Skills.join(', ')}): { level, xp, lifetime_xp, prestige, upgrades,`
-							+ ' overdrive }, all but level optional (0). A skill left out plays at level 0.',
+							+ ' overdrive }, all but level optional (0). A skill left out plays at level 0. xp, lifetime_xp'
+							+ ' and overdrive take a number or a decimal string.',
 					},
 				],
 				example: {
@@ -515,7 +520,7 @@ export const ENDPOINTS: EndpointSection[] = [
 						map_plays: 3,
 						skills: {
 							speed: {
-								level: 120, lifetime_xp: 123456, prestige: 1, upgrades: 5,
+								level: 120, lifetime_xp: '123456', prestige: 1, upgrades: 5,
 							},
 							stamina: { level: 110 },
 						},
@@ -538,14 +543,15 @@ export const ENDPOINTS: EndpointSection[] = [
 					unstable_rate: 87.2,
 					strained_minutes: 1.42,
 					xp: {
-						speed: 1234, stamina: 980,
+						speed: '1234', stamina: '980',
 					},
 				},
 				format: 'Score\'s fields but id, character_id and ended_at; passed; unstable_rate;'
 					+ ' strained_minutes, the minutes of it the physical skills strained for (what fatigue counts);'
 					+ ' fail_progress (0 to 1) and fail_seconds when it failed, but not with EZ or NF; xp:'
 					+ ' by skill, what the play earns (nothing for a fail), leaving out what depends on the'
-					+ ' character\'s history: the medal bonus, mindblock and the bonus for a first X.',
+					+ ' character\'s history: the medal bonus, mindblock and the bonus for a first X. Each is a'
+					+ ' decimal string (see Objects).',
 			},
 		],
 	},
@@ -593,6 +599,22 @@ export const ENDPOINTS: EndpointSection[] = [
 					...SCORE, beatmap: BEATMAP, beatmapset: BEATMAPSET,
 				}],
 				format: 'Score[].',
+			},
+			{
+				id: 'get-user-most-played',
+				title: 'Get User Most Played',
+				path: '/users/{user}/beatmapsets/most_played',
+				scope: 'public',
+				about: 'Returns the difficulties the character the user plays as now, or the character named, played most, with how many times.',
+				url: [USER_PARAM],
+				query: LIST_QUERY,
+				example: {
+					path: '/users/1375479/beatmapsets/most_played', query: { limit: '5' },
+				},
+				response: [{
+					beatmap_id: BEATMAP.id, count: 42, beatmap: BEATMAP, beatmapset: BEATMAPSET,
+				}],
+				format: 'BeatmapPlaycount[]: beatmap_id, count, beatmap and beatmapset.',
 			},
 			{
 				id: 'get-user',
@@ -785,6 +807,7 @@ export const OBJECTS: ObjectDoc[] = [
 			['generation', 'integer', 'How many times the account was reborn, plus one.'],
 			['is_supporter', 'boolean', ''],
 			['support_level', 'integer', '0 to 3: the hearts on the profile.'],
+			['twitch_id', 'string?', 'The id of the Twitch account the player linked. On /me only.'],
 			['join_date', 'Timestamp', ''],
 			['statistics', 'UserStatistics', ''],
 			['fatigue', 'object', 'The session the character is in: minutes, the strained minutes it has'
@@ -793,9 +816,20 @@ export const OBJECTS: ObjectDoc[] = [
 			['warmup', 'object', 'level, 0 cold to 1 warm, and bar, where the warm-up bar\'s needle'
 				+ ' sits, 0 to 1. Both are a function of the fatigue minutes and the character\'s'
 				+ ' stamina upgrades.'],
-			['skills', 'object', 'Each skill with its level, progress, total_xp, prestige and upgrades.'
+			['skills', 'object', 'Each skill with its level, progress, lifetime_level, xp_level, xp, total_xp,'
+				+ ' prestige, upgrades, overdrive, upgrade_overdrive, climaxx and xp_multipliers.'
 				+ ' The level shown in game is level + progress / 100, prestige bonus levels included;'
-				+ ' total_xp is every xp the skill ever earned.'],
+				+ ' lifetime_level is that level without them;'
+				+ ' xp_level is the level the skill holds now, the one upgrades spend and a prestige'
+				+ ' resets, and xp what it holds into that level; total_xp is every xp the skill ever'
+				+ ' earned; overdrive is what the skill holds;'
+				+ ' upgrade_overdrive is what buying the next upgrade now would add to it, absent while'
+				+ ' the upgrade can\'t be bought; climaxx is what it has to spend on genes.'
+				+ ' xp_multipliers is what its xp gains are multiplied by: upgrades (with overdrive\'s'
+				+ ' boost), prestige, genetics, medals (the character\'s, the same on every skill) and'
+				+ ' total, their product. xp, total_xp, overdrive, upgrade_overdrive, climaxx and every'
+				+ ' multiplier are decimal strings: these values can exceed any number type, so they are'
+				+ ' always strings.'],
 			['rank_history', 'object', 'mode, and data: the global rank of each of the last 90 days.'],
 		],
 	},
@@ -828,7 +862,7 @@ export const OBJECTS: ObjectDoc[] = [
 			['level', 'object',
 				'current: the overall level, without prestige bonus levels. progress: how far into the'
 				+ ' next one, in percent (0 to 99). total_xp: every xp ever earned, what the level and'
-				+ ' its progress stand for.'],
+				+ ' its progress stand for. A decimal string, like every xp value.'],
 			['grade_counts', 'object', 'xx, x, ss, s and a.'],
 			['statistics', 'object', `Judgement counts over the best scores: ${JUDGEMENTS}.`],
 		],

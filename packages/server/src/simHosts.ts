@@ -1,7 +1,11 @@
 import type { Refusal } from './api/simulate';
-import type {
-	SimInput,
-	SimResult,
+import {
+	type SimInput,
+	simInputToWire,
+	type SimInputWire,
+	type SimResult,
+	simResultFromWire,
+	type SimResultWire,
 } from './rulesets/mania/4k/simState';
 
 /**
@@ -14,7 +18,7 @@ import type {
 const DOWN_MS = 30_000;
 const downUntil = new Map<string, number>();
 
-type SimBody = SimInput & { chart?: string };
+type SimBody = SimInputWire & { chart?: string };
 
 const send = (url: string, secret: string, body: SimBody) => fetch(`${url}/simulate`, {
 	method: 'POST',
@@ -30,13 +34,14 @@ const send = (url: string, secret: string, body: SimBody) => fetch(`${url}/simul
 const playOn = async (
 	url: string, secret: string, input: SimInput, chart: string,
 ): Promise<SimResult | 'busy' | 'failed'> => {
-	let res = await send(url, secret, input);
+	const wire = simInputToWire(input);
+	let res = await send(url, secret, wire);
 	if (res?.status === 409) res = await send(url, secret, {
-		...input, chart,
+		...wire, chart,
 	});
 	if (res?.ok) {
 		downUntil.delete(url);
-		return await res.json() as SimResult;
+		return simResultFromWire(await res.json() as SimResultWire);
 	}
 	if (res?.status === 429) return 'busy';
 	// no answer, or its proxy's: the service is down or restarting (a deploy), the next one plays it

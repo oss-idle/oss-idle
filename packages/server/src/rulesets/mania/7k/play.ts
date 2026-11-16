@@ -2,6 +2,7 @@ import '@oss-idle/shared/osu/controlPointPatch';
 
 import { BeatmapDecoder } from 'osu-parsers';
 
+import { ZERO } from '@oss-idle/shared/big';
 import { warmupTrend } from '@oss-idle/shared/fatigue';
 import {
 	allowedRate,
@@ -50,7 +51,7 @@ export const play: RulesetPlay = {
 	},
 	warmupTrend: ({ minutes, strained }) => warmupTrend(minutes, strained),
 	async simulate(r, {
-		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired,
+		profile, beatmapId, chart: text, sr, rate, mods, round, board, tired, xpMultiplier,
 	}) {
 		const { fatigue, warmup: warm } = tired;
 		const divine = hasUnlock(profile.generation, 'DIVINE');
@@ -63,7 +64,7 @@ export const play: RulesetPlay = {
 		const native = sim().mania7k.play;
 		if (native) {
 			const {
-				xpScore: score, skillXp, rawXp, strainedShare, totalLength, ...played
+				xpScore: score, rawXp, strainedShare, totalLength, ...played
 			} = native({
 				chart: text,
 				play: {
@@ -72,18 +73,19 @@ export const play: RulesetPlay = {
 				rate, mods, divine, round, strained: STRAINED_7K, gauged: r.def.gauged as SkillName7k[],
 			});
 			if (board) return {
-				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+				...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, ZERO])),
 			};
 			const length = totalLength / rate;
 			return {
 				...played,
-				skillXp: await serverXp(r, profile.id, beatmapId, skillXp, {
+				skillXp: await serverXp(r, profile, beatmapId, rawXp, {
 					mindblock: MINDBLOCK_SKILLS_7K,
 					modMultipliers: modXpMultipliers7k(mods),
 					grade: score.grade,
 					stars: sr,
 					fatigue,
 					genetics: await geneticsXp(r, profile, beatmapId),
+					xpMultiplier,
 				}),
 				rawXp,
 				strain: {
@@ -102,20 +104,23 @@ export const play: RulesetPlay = {
 			...run, strains: strainSamples(bot, r.def.gauged, run.endSongTime),
 		};
 		if (board) return {
-			...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, 0])),
+			...played, skillXp: Object.fromEntries(r.def.skills.map(s => [s, ZERO])),
 		};
 		const length = chart.totalLength / rate;
 		const score = xpScore(chart, game, options);
+		const rawXp = bot.getRawXP(length, score);
 		return {
 			...played,
-			skillXp: await serverXp(r, profile.id, beatmapId, bot.getSkillsXP(length, score), {
+			skillXp: await serverXp(r, profile, beatmapId, rawXp, {
 				mindblock: MINDBLOCK_SKILLS_7K,
 				modMultipliers: modXpMultipliers7k(mods),
 				grade: score.grade,
 				stars: sr,
 				fatigue,
 				genetics: await geneticsXp(r, profile, beatmapId),
+				xpMultiplier,
 			}),
+			rawXp,
 			strain: {
 				minutes: length / 60_000,
 				strained: playStrain(STRAINED_7K, bot, length),

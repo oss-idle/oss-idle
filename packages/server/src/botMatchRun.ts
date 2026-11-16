@@ -1,3 +1,4 @@
+import { ZERO } from '@oss-idle/shared/big';
 import {
 	BOT_FIRST_STEPS,
 	BOT_MATCH_SKILLS,
@@ -201,11 +202,11 @@ const skillsAt = (levels: BotMatchLevels) => Object.fromEntries(
 		const whole = Math.floor(level);
 		return [skill, {
 			level: whole,
-			xp: (level - whole) * xpForLevel(whole),
-			lifetimeXp: 0,
+			xp: xpForLevel(whole).mul(level - whole),
+			lifetimeXp: ZERO,
 			prestige: 0,
 			upgrades: 0,
-			overdrive: 0,
+			overdrive: ZERO,
 		}];
 	}),
 );

@@ -1,5 +1,9 @@
 import type { Database } from 'sql.js';
 
+import {
+	Big,
+	toText,
+} from '@oss-idle/shared/big';
 import { GRADE } from '@oss-idle/shared/grade';
 import { rankValueSQL } from '@oss-idle/shared/scoreOrder';
 import {
@@ -243,7 +247,7 @@ const backfillTotals: Migration = db => {
 		const sets: string[] = [];
 		skills.forEach((skill, i) => {
 			const [level, xp, total] = row.slice(1 + i * 3, 4 + i * 3);
-			const lifetime = total || Math.round(xpToLevel(level) + xp);
+			const lifetime = total || Math.round(xpToLevel(level).toNumber() + xp);
 			overall += lifetime;
 			sets.push(`${skill}TotalXp = ${lifetime}`);
 		});
@@ -460,6 +464,35 @@ const addGuestRulesetLock: Migration = db => {
 	addColumn(db, 'character', 'rulesetLock', 'TEXT DEFAULT \'\'');
 };
 
+/** XP, overall totals and overdrive grow past what a double holds: TEXT columns, each value
+ *  its exact text form. A NULL (SQLite stores NaN as one) is the column's default, 0, as
+ *  every reader took it. A table the live schema just made is TEXT already. Every value is
+ *  converted before the schema changes: a bad one leaves the save as it was. */
+const bigNumbers: Migration = db => {
+	for (const table of ['character', 'character_mania7k']) {
+		const columns = db.exec(`SELECT name FROM pragma_table_info('${table}')
+			WHERE (name LIKE '%XP' OR name LIKE '%TotalXp' OR name LIKE '%LifetimeXp'
+				OR name LIKE '%Overdrive') AND type != 'TEXT';`)[0]?.values.map(([c]) => String(c));
+		if (!columns) continue;
+		const rows = (db.exec(`SELECT rowid, ${columns.join(', ')} FROM ${table};`)[0]?.values ?? [])
+			.map(([rowid, ...values]) => [...values.map((v, i) => {
+				try {
+					return toText(Big.from((v ?? 0) as number | string));
+				} catch {
+					throw new Error(`${table}.${columns[i]} of row ${rowid} holds ${String(v)}`);
+				}
+			}), rowid]);
+		for (const c of columns)
+			db.run(`ALTER TABLE ${table} ADD COLUMN ${c}_text TEXT NOT NULL DEFAULT '0';`);
+		const set = columns.map(c => `${c}_text = ?`).join(', ');
+		for (const row of rows) db.run(`UPDATE ${table} SET ${set} WHERE rowid = ?;`, row);
+		for (const c of columns) {
+			db.run(`ALTER TABLE ${table} DROP COLUMN ${c};`);
+			db.run(`ALTER TABLE ${table} RENAME COLUMN ${c}_text TO ${c};`);
+		}
+	}
+};
+
 const migrations: Migration[] = [
 	recomputeBests,
 	addOnlineId,
@@ -490,6 +523,7 @@ const migrations: Migration[] = [
 	addGenetics,
 	addScoreUnranked,
 	addGuestRulesetLock,
+	bigNumbers,
 ];
 
 /** A database just created from the live schema already is what every migration makes. */

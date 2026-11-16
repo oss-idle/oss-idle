@@ -9,6 +9,7 @@ import {
 	vi,
 } from 'vitest';
 
+import { Big } from '@oss-idle/shared/big';
 import { Judgements } from '@oss-idle/shared/rulesets/mania/judgement';
 import type { ScoreDTO } from '@oss-idle/shared/score';
 
@@ -73,11 +74,11 @@ describe('Score.addServerScores', () => {
 
 	it('keeps the XP the server says a play earned, under its local copy, once', async () => {
 		const gained = {
-			...dto(9, false, 400, 3), gains: { speed: 1234 }, 
+			...dto(9, false, 400, 3), gains: { speed: Big.from(1234) },
 		};
 		const [saved] = await Score.addServerScores([gained]);
 		await Score.addServerScores([{
-			...gained, gains: { speed: 1 }, 
+			...gained, gains: { speed: Big.from(1) },
 		}]);
 		const xp = db.exec('SELECT scoreId, gains FROM score_xp')[0]?.values;
 		expect(xp).toEqual([[saved.id, JSON.stringify({ speed: 1234 })]]);

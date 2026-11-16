@@ -61,7 +61,7 @@ export type DrawOptions = {
 
 /** What the field layers draw: a game's, or a chart's in the editor's preview. */
 export type Field = Pick<
-	ManiaGame, 'keyCount' | 'notes' | 'scroll' | 'barlines' | 'columnFlash' | 'visibleNotesAt'
+	ManiaGame, 'keyCount' | 'notes' | 'tailOnly' | 'scroll' | 'barlines' | 'columnFlash' | 'visibleNotesAt'
 >;
 
 /** A page canvas's 2D context, or a worker's (the editor draws its playfield in one). */
@@ -118,6 +118,13 @@ export const noteY = (f: Frame<Field>, time: number): number =>
 /** y of scroll position `pos` (a note's or bar line's, worked out once). */
 export const posY = (f: Frame<Field>, pos: number): number =>
 	f.g.lineY - (pos - f.nowPos) * f.g.pxPerUnit;
+
+/** y of a hold's tail as osu!stable draws it: its head's y less its length, both float32. A
+ *  hold across a huge teleport snaps to the float32 grid, which SV maps use on purpose. */
+export const holdTailY = (f: Frame<Field>, note: { headPos: number, tailPos: number }): number => {
+	const length = (note.tailPos - note.headPos) * f.g.pxPerUnit;
+	return Math.fround(Math.fround(posY(f, note.headPos)) - Math.fround(length));
+};
 
 export const roundRect = (
 	ctx: Context2D,

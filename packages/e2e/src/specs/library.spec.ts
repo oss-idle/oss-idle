@@ -55,7 +55,7 @@ test.describe('library', () => {
 		// the only result is selected on its own: another click would play it
 		await expect(game.card(diffId)).toHaveClass(/is-active/, { timeout: 30_000 });
 		const tab = async (name: string) => {
-			await page.locator('.lb__select .dropdown__current').click();
+			await page.locator('.lb__select').first().locator('.dropdown__current').click();
 			await page.locator('.lb__select .dropdown__option', { hasText: name }).click();
 		};
 		await tab('Global');

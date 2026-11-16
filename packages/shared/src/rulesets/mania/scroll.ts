@@ -6,14 +6,15 @@
  *     speed(t) = (bpm(t) / baseBpm) * sv(t)
  *
  * - baseBpm is the map's nominal BPM, i.e. the BPM of the beat length that
- *   covers the most time (the parser computes this as `beatmap.bpm`). The bulk
+ *   covers the most time, unclamped (`beatmap.bpmUnlimited`): clamped, a map's
+ *   many 0-BPM stops all read as 1 BPM and win it. The bulk
  *   of the map scrolls at "1x" and tempo changes scroll proportionally faster /
  *   slower (a 2x-BPM section scrolls twice as fast). Stable does scale scroll
  *   speed by BPM - this is *not* a lazer-only behaviour.
  * - sv(t) is the inherited ("green line") slider-velocity multiplier, clamped
- *   to [0.1, 10] exactly like osu!stable. The previous code used the *unclamped*
- *   value (`scrollSpeedUnlimited`), which is the lazer behaviour and is what
- *   made heavy-SV maps render incorrectly.
+ *   to [0.01, 10]. Stable scrolls 0.01x where osu-classes floors at 0.1x
+ *   (measured on Cubibibibism's 0.01x lines); fully unclamped values made
+ *   heavy-SV maps render incorrectly.
  *
  * To position notes correctly even across speed changes, we integrate speed
  * over time into a cumulative "scroll distance" D(t). A note at time T sits at
@@ -26,6 +27,8 @@ import type {
 	EffectPoint,
 	TimingPoint,
 } from 'osu-classes';
+
+import { redLinesOf } from '../../osu/controlPointPatch.js';
 
 interface Segment {
 	time: number
@@ -41,12 +44,24 @@ export interface Barline {
 	pos: number
 }
 
-type Red = Pick<TimingPoint, 'startTime' | 'bpm'>;
-type Green = Pick<EffectPoint, 'startTime' | 'scrollSpeed'>;
+type Red = Pick<TimingPoint, 'startTime' | 'bpm' | 'beatLengthUnlimited'>;
+
+/** Bounds BPM-trick speeds (red lines down to 6e-96ms) so later positions keep their
+ *  precision. Teleports up to 1e10x stay whole: a hold across one glitches as in stable. */
+const MAX_SPEED = 1e12;
+
+/** The red line's own BPM: stable scrolls by it unclamped, which is how mappers
+ *  teleport (tiny beat length) and stop (huge one). */
+const bpmOf = (red: Red) =>
+	(red.beatLengthUnlimited > 0 ? 60000 / red.beatLengthUnlimited : red.bpm);
+type Green = Pick<EffectPoint, 'startTime' | 'scrollSpeedUnlimited'>;
+
+const SV_MIN = 0.01;
+const SV_MAX = 10;
 
 /** What the scroll is built from: a beatmap, or a chart's points in the editor. */
 export type ScrollSource = {
-	bpm: number,
+	bpmUnlimited: number,
 	difficulty: { clockRate: number },
 	controlPoints: { timingPoints: Red[], effectPoints: Green[] },
 };
@@ -69,9 +84,9 @@ export class ScrollModel {
 		const reds = beatmap.controlPoints.timingPoints;
 		const greens = beatmap.controlPoints.effectPoints;
 		// The map's nominal BPM (most-common beat length) is the 1x reference, as
-		// stable uses. `beatmap.bpm` already folds in the active clock-rate; we
+		// stable uses. `bpmUnlimited` already folds in the active clock-rate; we
 		// keep raw beatmap time everywhere else, so divide it back out.
-		this.baseBpm = beatmap.bpm / beatmap.difficulty.clockRate;
+		this.baseBpm = beatmap.bpmUnlimited / beatmap.difficulty.clockRate;
 		this.segments = this.buildSegments(reds, greens).map(s => ({
 			time: s.time / rate, cumulative: s.cumulative / rate, speed: s.speed,
 		}));
@@ -91,8 +106,7 @@ export class ScrollModel {
 		// active red/green only ever moves forward: walk all three with monotonic
 		// pointers. (Per-segment linear scans for the active point made this
 		// O(segments × control points) - multi-second to build on SV-heavy maps
-		// such as Singularity's ~23k points.) `scrollSpeed` is osu!stable's clamped
-		// SV; the unclamped value would be a lazer-ism.
+		// such as Singularity's ~23k points.)
 		const segments: Segment[] = [];
 		let ri = -1;
 		let gi = -1;
@@ -104,9 +118,9 @@ export class ScrollModel {
 			const t = sorted[i];
 			while (ri + 1 < reds.length && reds[ri + 1].startTime <= t) ri++;
 			while (gi + 1 < greens.length && greens[gi + 1].startTime <= t) gi++;
-			const bpm = ri >= 0 ? reds[ri].bpm : this.baseBpm;
-			const sv = gi >= 0 ? greens[gi].scrollSpeed : 1;
-			const speed = (bpm / this.baseBpm) * sv;
+			const bpm = ri >= 0 ? bpmOf(reds[ri]) : this.baseBpm;
+			const sv = gi >= 0 ? Math.min(SV_MAX, Math.max(SV_MIN, greens[gi].scrollSpeedUnlimited)) : 1;
+			const speed = Math.min(MAX_SPEED, (bpm / this.baseBpm) * sv);
 
 			if (i > 0) cumulative += prevSpeed * (t - prevTime);
 			segments.push({
@@ -173,6 +187,9 @@ export class ScrollModel {
 	}
 }
 
+/** How close to the next red line a bar line may fall: only float error. */
+const BARLINE_EPSILON = 1e-6;
+
 /**
  * Measure barlines across the whole map: within each timing section we step by
  * one measure (beatLength * meter) from the section start to the next section.
@@ -180,17 +197,22 @@ export class ScrollModel {
 export function buildBarlines(
 	beatmap: Beatmap, songEndMs: number, scroll: ScrollModel, rate = 1,
 ): Barline[] {
-	const reds = beatmap.controlPoints.timingPoints;
-	if (reds.length === 0) return [];
+	const reds = redLinesOf(beatmap) ?? beatmap.controlPoints.timingPoints.map(tp => ({
+		time: tp.startTime,
+		beatLength: tp.beatLength,
+		meter: tp.timeSignature,
+		omitFirstBarline: beatmap.controlPoints.effectPointAt(tp.startTime).omitFirstBarLine,
+	}));
 	const lines: Barline[] = [];
 	for (let i = 0; i < reds.length; i++) {
-		const tp = reds[i];
-		const end = i + 1 < reds.length ? reds[i + 1].startTime : songEndMs * rate;
-		// Clamped beatLength (6 to 60000ms): gimmick maps put red lines as short
+		const red = reds[i];
+		const end = i + 1 < reds.length ? reds[i + 1].time : songEndMs * rate;
+		// Clamped beat length (6 to 60000ms): gimmick maps put red lines as short
 		// as 6e-96ms, a step that never advances `t` past the section start.
-		const measure = tp.beatLength * Math.max(1, tp.timeSignature);
-		const omitFirst = beatmap.controlPoints.effectPointAt(tp.startTime).omitFirstBarLine;
-		for (let t = tp.startTime + (omitFirst ? measure : 0); t < end - 1; t += measure) {
+		const measure = Math.min(60000, Math.max(6, red.beatLength)) * Math.max(1, red.meter);
+		// a section shorter than a ms keeps its line: SV maps draw art with them
+		const from = red.time + (red.omitFirstBarline ? measure : 0);
+		for (let t = from; t < end - BARLINE_EPSILON; t += measure) {
 			lines.push({
 				time: t / rate, pos: scroll.positionAt(t / rate),
 			});

@@ -21,7 +21,7 @@ msgstr "(partie en cours)"
 msgid "(only admins can see this)"
 msgstr "(visible seulement des administrateurs)"
 
-#. placeholder {0}: bignum(plays)
+#. placeholder {0}: formatBig(plays)
 #: src/pages/bot/BotLive.tsx
 msgid "{0} plays so far"
 msgstr "{0} parties jouées pour l'instant"
@@ -913,6 +913,18 @@ msgstr "cadeau de {name}"
 msgid "gift to player"
 msgstr "offrir à un joueur"
 
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Give"
+msgstr "Offrir"
+
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Give oss!supporter to {name}?"
+msgstr "Offrir oss!supporter à {name} ?"
+
+#: src/components/character/ProfileMenu.tsx
+msgid "Give supporter"
+msgstr "Offrir supporter"
+
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
 msgid "global"
@@ -1288,6 +1300,10 @@ msgstr "Mods"
 #: src/pages/store/SupportSlider.tsx
 msgid "months"
 msgstr "mois"
+
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Months to add"
+msgstr "Mois à ajouter"
 
 #: src/components/character/ProfileMenu.tsx
 msgid "more"
@@ -2002,7 +2018,7 @@ msgstr "score"
 msgid "Score"
 msgstr "Score"
 
-#: src/routes/scores/$id.tsx
+#: src/routes/scores/$ruleset/$id.tsx
 msgid "score info"
 msgstr "infos sur le score"
 
@@ -2301,6 +2317,10 @@ msgstr "Conditions"
 msgid "Thank you! Your donations gave you {days, plural, one {# day} other {# days}} of oss!supporter."
 msgstr "Merci ! Tes dons t'ont rapporté {days, plural, one {# jour} other {# jours}} d'oss!supporter."
 
+#: src/pages/changelog/ChangelogEntry.tsx
+msgid "thanks to <0>{player}</0>"
+msgstr "merci à <0>{player}</0>"
+
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "That .osz is another set: it went to the nomination queue, this request stays open"
 msgstr "Ce .osz est un autre set : il est parti dans la file de nomination, cette demande reste ouverte"
@@ -2312,6 +2332,10 @@ msgstr "Les <0>Administrateurs</0> gèrent oss!idle: ils développent le jeu, ra
 #: src/pages/groups/GroupPage.tsx
 msgid "The <0>Beatmap Nominators</0> review the maps players propose and rank them."
 msgstr "Les <0>Beatmap Nominators</0> examinent les maps proposées par les joueurs et les classent."
+
+#: src/pages/groups/GroupPage.tsx
+msgid "The <0>Bots</0> are oss!idle's own accounts: nobody plays behind them."
+msgstr "Les <0>Bots</0> sont les comptes d'oss!idle : personne ne joue derrière."
 
 #: src/pages/groups/GroupPage.tsx
 msgid "The <0>Global Moderation Team</0> keeps the community a fun and welcoming place: they handle reports and moderate the chat, silencing or restricting players who break the rules."
@@ -2431,6 +2455,10 @@ msgstr "Désactiver le vote pour cette compétence"
 #: src/pages/levels/SkillVote.tsx
 msgid "Turn voting on for this skill"
 msgstr "Activer le vote pour cette compétence"
+
+#: src/routes/auth/twitch.tsx
+msgid "Twitch linked"
+msgstr "Twitch relié"
 
 #: src/components/character/DeleteAccountDialog.tsx
 msgid "Type the osu! username to confirm."
@@ -2598,7 +2626,7 @@ msgstr "Pourquoi mon jeu s'arrête-t-il en arrière-plan ?"
 msgid "Withdraw"
 msgstr "Retirer"
 
-#. placeholder {0}: bignum(ranks.performance)
+#. placeholder {0}: formatBig(ranks.performance)
 #. placeholder {1}: num(result.performance)
 #: src/pages/bot/BotTopScores.tsx
 msgid "Would be <0>#{0}</0> on oss!idle, with <1>{1}pp</1>"
@@ -2644,6 +2672,10 @@ msgstr "Tu as déjà {max} propositions en attente. Attends que l'une d'entre el
 #: src/pages/bot/BotPlayCta.tsx
 msgid "You can close this tab and come back later"
 msgstr "Tu peux fermer cet onglet et revenir plus tard"
+
+#: src/pages/TwitchLinked.tsx
+msgid "You can close this tab."
+msgstr "Tu peux fermer cet onglet."
 
 #: src/pages/store/SupporterStatus.tsx
 msgid "You don't have a supporter tag right now."
@@ -2741,6 +2773,10 @@ msgstr "Ton skillset pour l'instant"
 #: src/pages/store/SupporterStatus.tsx
 msgid "Your supporter tag is valid until <0>{until}</0>."
 msgstr "Ton tag supporter est valide jusqu'au <0>{until}</0>."
+
+#: src/pages/TwitchLinked.tsx
+msgid "Your Twitch account is linked!"
+msgstr "Ton compte Twitch est relié !"
 
 #: src/pages/levels/LevelChartLegend.tsx
 msgid "your vote"

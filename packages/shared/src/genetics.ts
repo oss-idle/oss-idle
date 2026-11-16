@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+import {
+	Big,
+	type BigLike,
+	bigSchema,
+	ZERO,
+} from './big.js';
+
 /** What a gene does outside the play itself. Genes without one act inside the play. */
 export type GeneEffect =
 	| 'xp'
@@ -61,9 +68,9 @@ export const geneticsSchema = z.object({
 	})),
 	genes: z.record(z.string(), z.number()),
 	/** each skill's overdrive ever turned into climaxx */
-	converted: z.record(z.string(), z.number()),
+	converted: z.record(z.string(), bigSchema),
 	/** each skill's selling fees ever paid */
-	fees: z.record(z.string(), z.number()),
+	fees: z.record(z.string(), bigSchema),
 	/** what medals read, kept by the server: genetics replaced, the last gene learned, and
 	 *  whether a gene was ever sold within a minute of learning it */
 	changes: z.number().optional(),
@@ -84,7 +91,13 @@ export const NO_GENETICS: Genetics = {
 	fees: {},
 };
 
-type Saved = Partial<Genetics> & { genetic?: string, changedAt?: number };
+type SavedBig = Record<string, BigLike | string>;
+type Saved = Omit<Partial<Genetics>, 'converted' | 'fees'> & {
+	converted?: SavedBig, fees?: SavedBig, genetic?: string, changedAt?: number,
+};
+
+const bigRecord = (saved: SavedBig = {}): Record<string, Big> =>
+	Object.fromEntries(Object.entries(saved).map(([skill, v]) => [skill, Big.from(v)]));
 
 /** A character's saved genetics; test builds saved one `genetic` rather than `picks`. */
 export const readGenetics = (saved?: Saved | null): Genetics => {
@@ -97,6 +110,8 @@ export const readGenetics = (saved?: Saved | null): Genetics => {
 			}],
 		} : {},
 		...rest,
+		converted: bigRecord(rest.converted),
+		fees: bigRecord(rest.fees),
 	};
 };
 
@@ -124,12 +139,12 @@ export const tiersPrice = (count: number): number => {
 	return sum;
 };
 
-export const climaxxOfOverdrive = (converted: number): number =>
-	Math.floor(CLIMAXX_SCALE * Math.max(0, converted) ** CLIMAXX_EXPONENT);
+export const climaxxOfOverdrive = (converted: BigLike): Big =>
+	Big.from(converted).max(0).pow(CLIMAXX_EXPONENT).mul(CLIMAXX_SCALE).floor();
 
 /** What converting `overdrive` more pays, after `converted` already. */
-export const conversionGain = (converted: number, overdrive: number): number =>
-	climaxxOfOverdrive(converted + overdrive) - climaxxOfOverdrive(converted);
+export const conversionGain = (converted: BigLike, overdrive: BigLike): Big =>
+	climaxxOfOverdrive(Big.from(converted).add(overdrive)).sub(climaxxOfOverdrive(converted));
 
 export const milestonesAt = (playLevel: number): number =>
 	MILESTONES.filter(level => level <= playLevel).length;
@@ -157,11 +172,11 @@ export const climaxxOf = (
 	g: Genetics,
 	skill: string,
 	playLevel: number,
-): number =>
-	climaxxOfOverdrive(g.converted[skill] ?? 0)
-	+ tiersPrice(milestonesAt(playLevel))
-	- (g.fees[skill] ?? 0)
-	- tiersPrice(tiersHeld(def, g, skill));
+): Big =>
+	climaxxOfOverdrive(g.converted[skill] ?? ZERO)
+		.add(tiersPrice(milestonesAt(playLevel)))
+		.sub(g.fees[skill] ?? ZERO)
+		.sub(tiersPrice(tiersHeld(def, g, skill)));
 
 /** The overdrive, to a tenth, that buys just the climaxx the skill's next tier lacks; none when
  *  the skill already has it or holds every tier. */
@@ -170,14 +185,19 @@ export const overdriveForNextTier = (
 	g: Genetics,
 	skill: string,
 	playLevel: number,
-): number | undefined => {
-	const short = nextTierPrice(def, g, skill) - climaxxOf(def, g, skill, playLevel);
-	if (short <= 0 || tiersHeld(def, g, skill) >= tiersMax(def, skill)) return undefined;
-	const converted = g.converted[skill] ?? 0;
-	const total = ((climaxxOfOverdrive(converted) + short) / CLIMAXX_SCALE) ** (1 / CLIMAXX_EXPONENT);
-	let tenths = Math.ceil((total - converted) * 10);
-	while (conversionGain(converted, tenths / 10) < short) tenths++;
-	return tenths / 10;
+): Big | undefined => {
+	const short = Big.from(nextTierPrice(def, g, skill)).sub(climaxxOf(def, g, skill, playLevel));
+	if (short.lte(0) || tiersHeld(def, g, skill) >= tiersMax(def, skill)) return undefined;
+	const converted = g.converted[skill] ?? ZERO;
+	let need = climaxxOfOverdrive(converted).add(short).div(CLIMAXX_SCALE)
+		.pow(1 / CLIMAXX_EXPONENT).sub(converted);
+	// the closed form is off by rounding: nudge it up relatively, a few times at most
+	for (let i = 0; i < 4; i++) {
+		need = need.mul(10).ceil().div(10);
+		if (conversionGain(converted, need).gte(short)) break;
+		need = need.mul(1 + 2 ** -40);
+	}
+	return need.mul(10).ceil().div(10);
 };
 
 /** A character gets one genetic per generation. */
@@ -239,12 +259,12 @@ export const geneticsCounts = (def: GeneticsDef, g: Genetics) => {
 		held: tiersHeld(def, g, skill),
 		total: tiersMax(def, skill),
 		power: strength(def, picked, skill),
-		climaxx: climaxxOfOverdrive(g.converted[skill] ?? 0),
+		climaxx: climaxxOfOverdrive(g.converted[skill] ?? ZERO),
 	}));
 	return {
 		tiers: Object.values(g.genes).reduce((sum, tier) => sum + tier, 0),
 		maxed: def.genes.filter(gene => tierOf(g, gene.id) >= gene.max).length,
-		climaxx: Math.max(...trees.map(t => t.climaxx)),
+		climaxx: trees.reduce((best, t) => best.max(t.climaxx), ZERO),
 		fullest: Math.floor(Math.max(...trees.map(t => t.held / t.total)) * 100),
 		strongest: Math.round(Math.max(...trees.map(t => t.power)) * 100),
 		reached: trees.filter(t => t.power > 0).length,
@@ -304,7 +324,7 @@ export const learnRefusal = (
 	if (gene.parent && !tierOf(g, gene.parent)) return GENE_REFUSAL.needsParent;
 	if (tierOf(g, id) >= gene.max) return GENE_REFUSAL.maxed;
 	const left = climaxxOf(def, g, gene.skill, levels[gene.skill] ?? 0);
-	if (left < nextTierPrice(def, g, gene.skill)) return GENE_REFUSAL.tooPoor;
+	if (left.lt(nextTierPrice(def, g, gene.skill))) return GENE_REFUSAL.tooPoor;
 	return undefined;
 };
 
@@ -328,7 +348,7 @@ export const sellRefusal = (
 	if (!gene) return GENE_REFUSAL.unknown;
 	if (!tierOf(g, id)) return GENE_REFUSAL.notHeld;
 	if (def.genes.some(c => c.parent === id && tierOf(g, c.id))) return GENE_REFUSAL.heldChildren;
-	if (climaxxOf(def, dropGene(g, id), gene.skill, levels[gene.skill] ?? 0) < SELL_FEE) {
+	if (climaxxOf(def, dropGene(g, id), gene.skill, levels[gene.skill] ?? 0).lt(SELL_FEE)) {
 		return GENE_REFUSAL.tooPoor;
 	}
 	return undefined;
@@ -350,7 +370,7 @@ export const sell = (def: GeneticsDef, g: Genetics, id: string, levels: PlayLeve
 	const dropped = dropGene(g, id);
 	return {
 		...dropped, fees: {
-			...g.fees, [skill]: (g.fees[skill] ?? 0) + SELL_FEE, 
+			...g.fees, [skill]: (g.fees[skill] ?? ZERO).add(SELL_FEE), 
 		}, 
 	};
 };
@@ -408,11 +428,11 @@ export const pick = (
 };
 
 /** Turn `overdrive` of a skill into climaxx. */
-export const convert = (g: Genetics, skill: string, overdrive: number): Genetics =>
-	overdrive > 0
+export const convert = (g: Genetics, skill: string, overdrive: BigLike): Genetics =>
+	Big.from(overdrive).gt(0)
 		? {
 			...g, converted: {
-				...g.converted, [skill]: (g.converted[skill] ?? 0) + overdrive, 
+				...g.converted, [skill]: (g.converted[skill] ?? ZERO).add(overdrive), 
 			}, 
 		}
 		: g;

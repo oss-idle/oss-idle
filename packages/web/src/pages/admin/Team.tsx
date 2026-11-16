@@ -43,8 +43,8 @@ export default function Team() {
 			Moderation Team ({GROUP_BADGE.gmt.short}) silences, restricts and handles reports from the
 			chat console, the restricted accounts page and a profile's ⋮ menu. Beatmap Nominators
 			({GROUP_BADGE.bn.short}) review requests and rank maps in the rulesets ticked beside their
-			name. All show their badge on their profile and their colour in chat; admins can't be
-			sanctioned.
+			name. Bots ({GROUP_BADGE.bot.short}) are the game's own accounts: no power, no #team. All
+			show their badge on their profile and their colour in chat; admins can't be sanctioned.
 		</p>
 		{error && <p>{error}</p>}
 		{!team && <p>Loading…</p>}

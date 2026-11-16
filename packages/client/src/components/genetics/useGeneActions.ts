@@ -1,7 +1,11 @@
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
+import { formatBig } from '@oss-idle/shared/display/num';
 import {
 	CLIMAXX_SYMBOL,
 	conversionGain,
@@ -36,11 +40,11 @@ import type { Confirm } from '../ConfirmMenu';
 import { geneName } from './geneText';
 
 type Converting = {
-	overdrive: number,
+	overdrive: Big,
 	/** overdrive the next tier needs; none when there is nothing to convert */
-	need?: number,
+	need?: Big,
 	/** the skill's climaxx before */
-	climaxx: number,
+	climaxx: Big,
 	upgrades: number,
 };
 
@@ -70,7 +74,7 @@ export default function useGeneActions(
 	const question = (gene: string, selling: boolean, go: () => void): Confirm => {
 		const name = geneName(gene), skill = def && geneOf(def, gene)?.skill;
 		const tier = tierOf(genetics, gene) + 1;
-		const price = `${CLIMAXX_SYMBOL}${def && skill ? bignum(nextTierPrice(def, genetics, skill)) : ''}`;
+		const price = `${CLIMAXX_SYMBOL}${def && skill ? formatBig(nextTierPrice(def, genetics, skill)) : ''}`;
 		const fee = `${CLIMAXX_SYMBOL}${SELL_FEE}`;
 		if (selling) {
 			return {
@@ -105,22 +109,22 @@ export default function useGeneActions(
 	};
 
 	const convert = (skill: string, { overdrive, need, climaxx, upgrades }: Converting) => {
-		if (busy || need === undefined || overdrive < need) return uiSound('ui/default-select-disabled');
-		const earned = conversionGain(genetics.converted[skill] ?? 0, need);
+		if (busy || need === undefined || overdrive.lt(need)) return uiSound('ui/default-select-disabled');
+		const earned = conversionGain(genetics.converted[skill] ?? ZERO, need);
 		const go = () => void run(async () => {
 			const landed = await convertOverdrive(skill);
 			if (landed) setTransfer({
-				skill, overdrive: need, kept: overdrive - need, before: climaxx, gain: earned,
+				skill, overdrive: need, kept: overdrive.sub(need), before: climaxx, gain: earned,
 			});
 			return landed;
 		}, 'ui/notification-done');
 		if (instant) return go();
 		uiSound('ui/default-select');
-		const od = `${OVERDRIVE_SYMBOL}${need.toFixed(1)}`;
-		const gain = `${CLIMAXX_SYMBOL}${earned}`;
+		const od = `${OVERDRIVE_SYMBOL}${formatBig(need, 1)}`;
+		const gain = `${CLIMAXX_SYMBOL}${formatBig(earned)}`;
 		const name = selectedDef().skillName(skill);
-		const before = upgradeXPMultiplier(upgrades, overdrive).toFixed(2);
-		const after = upgradeXPMultiplier(upgrades, overdrive - need).toFixed(2);
+		const before = formatBig(upgradeXPMultiplier(upgrades, overdrive), 2);
+		const after = formatBig(upgradeXPMultiplier(upgrades, overdrive.sub(need)), 2);
 		setConfirming({
 			title: t`Turn ${od} overdrive into ${gain} climaxx?`,
 			sub: t`${name} XP boost from upgrades drops from x${before} to x${after}`,

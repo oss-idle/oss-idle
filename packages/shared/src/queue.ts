@@ -6,6 +6,7 @@ import {
 } from './helpers/mapped.js';
 import { modsSchema } from './mods.js';
 import { rateSchema } from './rate.js';
+import { RULESET_IDS } from './rulesets/ids.js';
 
 /**
  * The play queue lives on the server, one per character, and the server chains
@@ -107,6 +108,8 @@ export const queueEditDTO = z.discriminatedUnion('op', [
 export type QueueEdit = z.infer<typeof queueEditDTO>;
 
 export const queueStateDTO = queueSourceDTO.extend({
+	/** the slot's ruleset: `prefs` are that ruleset's */
+	ruleset: z.enum(RULESET_IDS),
 	entries: z.array(queueEntryDTO).max(MAX_QUEUE),
 	paused: z.boolean(),
 	/** server clock: when the next map starts, while one is scheduled */

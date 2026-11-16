@@ -194,14 +194,17 @@ export default class Controls {
 						await this.openOptions.trigger(press, release);
 					}
 					break;
-				// Ctrl+B: oss!direct, Ctrl+Shift+B: the in-game browser, outside a play or the editor
-				case 'b':
+				// Ctrl+B: oss!direct, outside a play or the editor. Ctrl+Shift+B: the in-game browser, outside the editor
+				case 'b': {
+					const scene = SceneManager.current.get();
+					const web = this.mode_Shift.get();
 					if (this.mode_Control.get() && !this.mode_Alt.get()
-						&& SceneManager.current.get() !== SCENE.GAME && SceneManager.current.get() !== SCENE.EDITOR) {
+						&& scene !== SCENE.EDITOR && (web || scene !== SCENE.GAME)) {
 						e.preventDefault();
-						await (this.mode_Shift.get() ? this.web : this.direct).trigger(press, release);
+						await (web ? this.web : this.direct).trigger(press, release);
 					}
 					break;
+				}
 				case 'f8':
 					e.preventDefault();
 					await this.chat.trigger(press, release);

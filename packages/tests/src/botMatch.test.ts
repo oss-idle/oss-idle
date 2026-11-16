@@ -364,7 +364,7 @@ describe('botOverall', () => {
 		expect(botOverall({
 			a: 100, b: 100,
 		})).toBeGreaterThan(100);
-		const total = xpToLevel(50) + xpToLevel(50);
+		const total = xpToLevel(50).toNumber() + xpToLevel(50).toNumber();
 		expect(total).toBeGreaterThan(0);
 		expect(botOverall({
 			a: 50, b: 50,

@@ -527,6 +527,10 @@ msgstr ""
 msgid "Diamond skin notes"
 msgstr ""
 
+#: src/rulesets/mania/medalText.ts
+msgid "Diva"
+msgstr ""
+
 #: src/display/medals.ts
 msgid "Divine medal"
 msgstr ""
@@ -773,6 +777,10 @@ msgstr ""
 
 #: src/rulesets/mania/medalText.ts
 msgid "Get an S on The Parallax II: Future Sequence [Marathon]"
+msgstr ""
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an SS on After School - Diva [Insane]"
 msgstr ""
 
 #: src/rulesets/mania/medalText.ts

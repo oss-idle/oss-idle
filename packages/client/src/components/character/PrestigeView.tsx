@@ -2,6 +2,7 @@ import '../upgrades/ladder.css';
 
 import { Trans } from '@lingui/react/macro';
 
+import { ZERO } from '@oss-idle/shared/big';
 import {
 	climaxxOf,
 	effectOf,
@@ -29,7 +30,7 @@ export default function PrestigeView({ character }: { character: Character }) {
 						key={`${character.id}:${skill.name}`}
 						skill={skill}
 						locked={locked}
-						converted={genetics ? held.converted[skill.name] ?? 0 : undefined}
+						converted={genetics ? held.converted[skill.name] ?? ZERO : undefined}
 						overdriveBonus={genetics && effectOf(genetics, held, 'overdrive', skill.name)}
 						climaxxNow={genetics && (() => climaxxOf(
 							genetics, character.genetics.get(), skill.name, playLevels(character)[skill.name] ?? 0,

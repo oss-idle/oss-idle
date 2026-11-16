@@ -4,6 +4,11 @@ import type {
 	ApiSimulateRequest,
 	ApiSimulation,
 } from '@oss-idle/shared/apiV2';
+import {
+	bigNonNegSchema,
+	toText,
+	ZERO,
+} from '@oss-idle/shared/big';
 import { STRAIN_CAP } from '@oss-idle/shared/fatigue';
 import {
 	cleanMods,
@@ -38,16 +43,17 @@ import { rulesetFor } from '../rulesets/registry';
 import { playOnHosts } from '../simHosts';
 import { statistics } from './objects';
 
-const count = (max: number) => z.number().int().min(0).max(max);
+const unbounded = z.number().int().min(0);
+const count = (max: number) => unbounded.max(max);
 
 const skillState = z.object({
-	level: count(1000),
-	xp: z.number().min(0).max(1e15).default(0),
-	lifetime_xp: z.number().min(0).max(1e15).default(0),
-	prestige: count(1000).default(0),
-	upgrades: count(1000).default(0),
-	// overdrive has no limit, and grows by fractions (the overspend ratio)
-	overdrive: z.number().min(0).default(0),
+	level: unbounded,
+	xp: bigNonNegSchema.default(ZERO),
+	lifetime_xp: bigNonNegSchema.default(ZERO),
+	prestige: unbounded.default(0),
+	upgrades: unbounded.default(0),
+	// overdrive grows by fractions (the overspend ratio)
+	overdrive: bigNonNegSchema.default(ZERO),
 }).refine(s => s.upgrades <= maxUpgrades(s.prestige), {
 	message: 'More upgrades than the prestige allows', path: ['upgrades'],
 });
@@ -60,7 +66,7 @@ export const simulateBody = z.object({
 		`Rates go in steps of ${RATE_STEP}`,
 	).default(1),
 	mods: modsSchema.default([]),
-	generation: count(1000).min(1).default(1),
+	generation: unbounded.min(1).default(1),
 	strain_minutes: z.number().min(0).max(STRAIN_CAP).default(0),
 	map_plays: count(1_000_000).default(0),
 	skills: z.partialRecord(z.enum(Skills), skillState).default({}),
@@ -129,6 +135,6 @@ export const simulate = async (body: SimulateBody): Promise<ApiSimulation | Refu
 		...result.failProgress !== undefined && {
 			fail_progress: result.failProgress, fail_seconds: result.failSeconds,
 		},
-		xp: result.xp,
+		xp: Object.fromEntries(Object.entries(result.xp).map(([name, x]) => [name, toText(x)])),
 	};
 };

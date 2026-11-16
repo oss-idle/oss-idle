@@ -3,6 +3,12 @@ import '@oss-idle/shared/osu/controlPointPatch';
 import { BeatmapDecoder } from 'osu-parsers';
 
 import {
+	type Big,
+	fromWire,
+	toText,
+	ZERO,
+} from '@oss-idle/shared/big';
+import {
 	fatigueLevel,
 	warmup,
 } from '@oss-idle/shared/fatigue';
@@ -24,7 +30,10 @@ import type {
 	SimPlayed,
 } from '@oss-idle/shared/rulesets/mania/sim';
 import { xpScore } from '@oss-idle/shared/rulesets/mania/xpScore';
-import type { UpgradeState } from '@oss-idle/shared/upgrades';
+import {
+	skillXPMultiplier,
+	type UpgradeState,
+} from '@oss-idle/shared/upgrades';
 
 import { calculatePP } from '../../../pp';
 import { sim } from '../../../sim';
@@ -44,7 +53,7 @@ export const STRAINED_4K = {
 	coordination: 0.3,
 };
 
-export type SkillStateInput = UpgradeState & { lifetimeXp: number };
+export type SkillStateInput = UpgradeState & { lifetimeXp: Big };
 
 /** A character as the sim API takes it: no database behind it. */
 export type SimState = {
@@ -71,7 +80,7 @@ export type ChartText = string | (() => string);
 const textOf = (chart: ChartText): string => typeof chart === 'string' ? chart : chart();
 
 const NONE: SkillStateInput = {
-	level: 0, xp: 0, lifetimeXp: 0, prestige: 0, upgrades: 0, overdrive: 0,
+	level: 0, xp: ZERO, lifetimeXp: ZERO, prestige: 0, upgrades: 0, overdrive: ZERO,
 };
 
 type Played = Pick<
@@ -79,11 +88,11 @@ type Played = Pick<
 	'score' | 'accuracy' | 'maxCombo' | 'grade' | 'pfc' | 'counts' | 'ur' | 'failedAt' | 'failProgress' | 'failSeconds'
 >;
 
-/** The play, the xp its strain earns and the minutes it strained the physical skills for
+/** The play, the raw xp its strain earns and the minutes it strained the physical skills for
  *  (what fatigue counts), natively when the sim plays that way. */
 const playOf = (
 	chart: ChartText, checksum: string, play: SimPlay<SkillName>, rate: number, mods: Mod[], divine: boolean,
-): { played: Played, xp: Record<SkillName, number>, strained: number } => {
+): { played: Played, raw: Record<SkillName, number>, strained: number } => {
 	const native = sim().mania4k.play;
 	if (native) {
 		const played = native({
@@ -92,7 +101,7 @@ const playOf = (
 		});
 		return {
 			played,
-			xp: played.skillXp,
+			raw: played.rawXp,
 			strained: playStrain(
 				STRAINED_4K, { strainedShare: () => played.strainedShare }, played.totalLength / rate,
 			),
@@ -107,7 +116,7 @@ const playOf = (
 	const length = beatmap.totalLength / rate;
 	return {
 		played,
-		xp: bot.getSkillsXP(length, xpScore(beatmap, game, options)),
+		raw: bot.getRawXP(length, xpScore(beatmap, game, options)),
 		strained: playStrain(STRAINED_4K, bot, length),
 	};
 };
@@ -127,15 +136,17 @@ export const simulateState = ({
 		plays: state.mapPlays,
 	};
 	const divine = hasUnlock(state.generation, 'DIVINE');
-	const { played, xp, strained } = playOf(chart, checksum, play, rate, mods, divine);
+	const { played, raw, strained } = playOf(chart, checksum, play, rate, mods, divine);
 	const earns = !played.failedAt && isRankedMods(mods);
-	if (earns) {
-		applyXpRules(mania4k.physicalSkills, xp, {
+	const own = (name: SkillName) => {
+		const { upgrades, overdrive, prestige } = skill(name);
+		return skillXPMultiplier(upgrades, overdrive, prestige);
+	};
+	const xp = earns
+		? applyXpRules(mania4k.physicalSkills, raw, own, {
 			mindblock: MINDBLOCK_SKILLS, modMultipliers: modXpMultipliers(mods), fatigue,
-		}, NO_HISTORY);
-	} else {
-		for (const name of Object.keys(xp) as SkillName[]) xp[name] = 0;
-	}
+		}, NO_HISTORY)
+		: Object.fromEntries(Object.keys(raw).map(name => [name, ZERO])) as Record<SkillName, Big>;
 	return {
 		score: played.score,
 		accuracy: played.accuracy,
@@ -155,3 +166,45 @@ export const simulateState = ({
 };
 
 export type SimResult = ReturnType<typeof simulateState>;
+
+type BigWire = number | string;
+type SkillStateWire = Omit<SkillStateInput, 'xp' | 'lifetimeXp' | 'overdrive'> & {
+	xp: BigWire, lifetimeXp: BigWire, overdrive: BigWire,
+};
+/** What crosses to the sim services: every Big as its text form. */
+export type SimInputWire = Omit<SimInput, 'state'> & {
+	state: Omit<SimState, 'skills'> & { skills: Partial<Record<SkillName, SkillStateWire>> },
+};
+export type SimResultWire = Omit<SimResult, 'xp'> & { xp: Record<string, BigWire> };
+
+export const simInputToWire = (input: SimInput): SimInputWire => ({
+	...input,
+	state: {
+		...input.state,
+		skills: Object.fromEntries(Object.entries(input.state.skills).map(([name, s]) => [name, {
+			...s, xp: toText(s.xp), lifetimeXp: toText(s.lifetimeXp), overdrive: toText(s.overdrive),
+		}])),
+	},
+});
+
+export const simInputFromWire = (input: SimInputWire): SimInput => ({
+	...input,
+	state: {
+		...input.state,
+		skills: Object.fromEntries(Object.entries(input.state.skills).map(([name, s]) => [name, {
+			...s, xp: fromWire(s.xp), lifetimeXp: fromWire(s.lifetimeXp), overdrive: fromWire(s.overdrive),
+		}])),
+	},
+});
+
+export const simResultToWire = (result: SimResult): SimResultWire => ({
+	...result,
+	xp: Object.fromEntries(Object.entries(result.xp).map(([name, x]) => [name, toText(x)])),
+});
+
+export const simResultFromWire = (result: SimResultWire): SimResult => ({
+	...result,
+	xp: Object.fromEntries(
+		Object.entries(result.xp).map(([name, x]) => [name, fromWire(x)]),
+	) as SimResult['xp'],
+});

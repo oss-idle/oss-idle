@@ -4,6 +4,10 @@ import {
 } from 'drizzle-orm';
 import { HTTPException } from 'hono/http-exception';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import type { DebugCharacterBody } from '@oss-idle/shared/debug';
 import {
 	convert,
@@ -23,6 +27,7 @@ import {
 	type UpgradeState,
 } from '@oss-idle/shared/upgrades';
 import {
+	heldTotal,
 	xpGivesLevel,
 	xpToLevel,
 } from '@oss-idle/shared/xp';
@@ -32,6 +37,7 @@ import {
 	type CharacterRow,
 	characters,
 	geneticsOf,
+	overallTotals,
 	profileOf,
 	type ProfileRow,
 	skillColumnsFor,
@@ -90,16 +96,13 @@ const skillState = (row: ProfileRow, skill: string): UpgradeState => {
 	};
 };
 
-/** Spending is global: the spent XP also leaves the lifetime totals that
- *  rankings and the overall level are built on. */
-const spendTotals = (row: ProfileRow, skill: string, spent: number) => {
-	const overallTotalXp = Math.max(0, row.overallTotalXp - spent);
-	const overall = xpGivesLevel(overallTotalXp);
+/** Spending is global: the spent XP also leaves the totals that rankings and the overall
+ *  level are built on. They are set from what the skill now holds, never subtracted. */
+const spendTotals = (r: ServerRuleset, row: ProfileRow, skill: string, level: number, xp: Big) => {
+	const totalXp = heldTotal(level, xp);
 	return {
-		...skillColumnsFor(skill, { totalXp: Math.max(0, skillOf(row, skill).totalXp - spent) }),
-		overallTotalXp,
-		overallLevel: overall.level,
-		overallXp: Math.round(overall.xp),
+		...skillColumnsFor(skill, { totalXp }),
+		...overallTotals(r, row, { [skill]: totalXp }),
 	};
 };
 
@@ -169,7 +172,7 @@ export const performUpgrade = async (
 	r: ServerRuleset,
 	characterId: number,
 	skill: string,
-): Promise<{ spent: number, ratio: number }> => {
+): Promise<{ spent: Big, ratio: Big }> => {
 	assertSkill(r, skill);
 	await profileOf(r, characterId);
 	const purchase = await db.transaction(async tx => {
@@ -186,16 +189,16 @@ export const performUpgrade = async (
 		const genetics = r.def.genetics;
 		const bonus = genetics ? effectOf(genetics, geneticsOf(current), 'overdrive', skill) : 0;
 		const next = applyUpgrade(state, bonus);
-		const spent = Math.round(next.spent);
+		const xp = next.xp.round();
 
 		const updates: Partial<ProfileRow> = {
 			...skillColumnsFor(skill, {
 				level: next.level,
-				xp: Math.round(next.xp),
+				xp,
 				upgrades: next.upgrades,
 				overdrive: next.overdrive,
 			}),
-			...spendTotals(current, skill, spent),
+			...spendTotals(r, current, skill, next.level, xp),
 			// lifetime counts for the medals; prestige resets the upgrades themselves
 			upgradesBought: current.upgradesBought + 1,
 			laddersCompleted: current.laddersCompleted
@@ -204,7 +207,7 @@ export const performUpgrade = async (
 
 		await tx.update(r.profile).set(updates).where(eq(r.profile.id, characterId));
 		return {
-			spent, ratio: next.ratio,
+			spent: next.spent.round(), ratio: next.ratio,
 		};
 	});
 
@@ -227,14 +230,14 @@ export const performDebugCharacter = async (
 	await db.transaction(async tx => {
 		const current = await lockProfile(tx, r, characterId);
 		let updates: Partial<ProfileRow> = {};
-		let overallTotalXp = current.overallTotalXp;
+		const totals: Record<string, Big> = {};
 		for (const [skill, level] of Object.entries(levels)) {
-			const totalXp = Math.ceil(xpToLevel(level));
-			overallTotalXp = Math.max(0, overallTotalXp + totalXp - skillOf(current, skill).totalXp);
+			const totalXp = xpToLevel(level).ceil();
+			totals[skill] = totalXp;
 			updates = {
 				// the level is the level: the sim plays it, not what the lifetime bought
 				...updates, ...skillColumnsFor(skill, {
-					level, xp: 0, totalXp, lifetimeXp: totalXp,
+					level, xp: ZERO, totalXp, lifetimeXp: totalXp,
 				}),
 			};
 		}
@@ -245,9 +248,8 @@ export const performDebugCharacter = async (
 				}),
 			};
 		}
-		const overall = xpGivesLevel(overallTotalXp);
 		await tx.update(r.profile).set({
-			...updates, overallTotalXp, overallLevel: overall.level, overallXp: Math.round(overall.xp),
+			...updates, ...overallTotals(r, current, totals),
 			...fatigueMinutes === undefined ? {} : {
 				fatigue: {
 					at: Date.now(), minutes: fatigueMinutes,
@@ -279,15 +281,16 @@ export const performUpgradeRevert = async (
 			throw new HTTPException(400, { message: 'Anchor is above the current level' });
 		}
 		const prev = revertUpgrade(state, anchor);
+		const xp = prev.xp.round();
 
 		const updates: Partial<ProfileRow> = {
 			...skillColumnsFor(skill, {
 				level: prev.level,
-				xp: Math.round(prev.xp),
+				xp,
 				upgrades: prev.upgrades,
 				overdrive: prev.overdrive,
 			}),
-			...spendTotals(current, skill, -Math.round(prev.refund)),
+			...spendTotals(r, current, skill, prev.level, xp),
 			upgradesBought: Math.max(0, current.upgradesBought - 1),
 			laddersCompleted: Math.max(0, current.laddersCompleted
 				- (state.upgrades === BASE_MAX_UPGRADES ? 1 : 0)),
@@ -327,8 +330,6 @@ export const performPrestige = async (
 		// the levels it just reset stop counting toward the overall level too,
 		// so prestiging everything actually walks the character back down.
 		// Lifetime is deliberately left alone - the tooltip reads off it.
-		const spent = Math.round(next.spent);
-
 		const updates: Partial<ProfileRow> = {
 			...skillColumnsFor(skill, {
 				level: next.level,
@@ -337,7 +338,7 @@ export const performPrestige = async (
 				overdrive: next.overdrive,
 				prestige: next.prestige,
 			}),
-			...spendTotals(current, skill, spent),
+			...spendTotals(r, current, skill, next.level, next.xp),
 			// what overdrive is left becomes climaxx instead of being lost
 			...genetics && ready ? { genetics: convert(held, skill, prestigeOverdrive(state, bonus)) } : {},
 		};
@@ -404,14 +405,15 @@ export const performRebirth = async (
 			name,
 			ruleset: r.def.id,
 			rulesetLock: r.def.id,
-			autopilotMode: row.autopilotMode,
-			autopilotDelay: row.autopilotDelay,
 		});
 		await tx.insert(r.profile).values({
 			id: created.insertId,
 			generation: profile.generation + 1,
 			playRate: profile.playRate,
 			playMods: profile.playMods,
+			autopilotMode: profile.autopilotMode,
+			autopilotDelay: profile.autopilotDelay,
+			queuePlayOnce: profile.queuePlayOnce,
 		});
 		await tx.update(users)
 			.set({ currentCharacter: created.insertId })

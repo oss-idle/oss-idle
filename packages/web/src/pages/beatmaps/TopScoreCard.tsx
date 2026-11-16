@@ -3,7 +3,8 @@ import { Trans } from '@lingui/react/macro';
 
 import accuracy from '@oss-idle/shared/display/accuracy';
 import { dateAgo } from '@oss-idle/shared/display/ago';
-import num, { bignum } from '@oss-idle/shared/display/num';
+import num, { formatBig } from '@oss-idle/shared/display/num';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import type { BoardRow } from '../../api/maps';
 import Flag from '../../components/Flag';
@@ -14,7 +15,11 @@ import ScoreLink from '../../components/score/ScoreLink';
 import { judgementColumns } from './judgementColumns';
 
 /** osu!'s card for the map's #1, above the table. */
-export default function TopScoreCard({ row, loved }: { row: BoardRow; loved: boolean }) {
+export default function TopScoreCard({ row, ruleset, loved }: {
+	row: BoardRow;
+	ruleset: RulesetId;
+	loved: boolean;
+}) {
 	const { score, player } = row;
 	const stats = [
 		{
@@ -24,17 +29,17 @@ export default function TopScoreCard({ row, loved }: { row: BoardRow; loved: boo
 			label: <Trans>Accuracy</Trans>, value: accuracy(score.accuracy),
 		},
 		{
-			label: <Trans>Max combo</Trans>, value: `${bignum(score.maxCombo)}x`,
+			label: <Trans>Max combo</Trans>, value: `${formatBig(score.maxCombo)}x`,
 		},
 		...judgementColumns([score.judgements.DIVINE]).map(j => ({
-			label: j.label, value: bignum(score.judgements[j.judgement]),
+			label: j.label, value: formatBig(score.judgements[j.judgement]),
 		})),
 		...loved ? [] : [{
 			label: 'pp', value: num(score.pp),
 		}],
 	];
 	return <div className='mapset__top'>
-		<ScoreLink id={score.id} label='#1' />
+		<ScoreLink id={score.id} ruleset={ruleset} label='#1' />
 		<div className='mapset__top-player'>
 			<span className='mapset__top-rank'>#1</span>
 			<Grade grade={score.grade} />

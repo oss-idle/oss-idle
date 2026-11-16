@@ -4,6 +4,8 @@ import {
 	it,
 } from 'vitest';
 
+import { Big } from '@oss-idle/shared/big';
+
 import {
 	logParts,
 	mark,
@@ -37,15 +39,15 @@ describe('#logs marks', () => {
 	it('colours XP by its size, as BigNum does', () => {
 		const [xp] = logParts(mark('xp', '92.92k', 92_926));
 		expect(xp).toEqual({
-			text: '92.92k', kind: 'xp', amount: 92_926,
+			text: '92.92k', kind: 'xp', amount: Big.from(92_926),
 		});
 		expect(unmarked(`+${mark('xp', '92.92k', 92_926)}`)).toBe('+92.92k');
 		expect(partStyle(xp)?.color).toBeDefined();
 		expect(partStyle({
-			text: '3', kind: 'xp', amount: 3,
+			text: '3', kind: 'xp', amount: Big.from(3),
 		})).toBeUndefined();
 		expect(partStyle(xp)).not.toEqual(partStyle({
-			text: '5.41M', kind: 'xp', amount: 5_412_000,
+			text: '5.41M', kind: 'xp', amount: Big.from(5_412_000),
 		}));
 	});
 });

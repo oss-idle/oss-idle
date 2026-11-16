@@ -104,9 +104,13 @@ img.result__judge-label {
 	min-width: 0;
 }
 .result__skills {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
+	display: grid;
+	/* one set of columns for every row: the level and the gain take the widest
+	   of them, so a long number never runs into its neighbour */
+	grid-template-columns: 5.5rem max-content 1fr max-content;
+	column-gap: 0.6rem;
+	row-gap: 0.25rem;
+	min-width: 470px;
 }
 .result__skills-empty {
 	color: var(--text-dim);
@@ -138,11 +142,9 @@ img.result__judge-label {
 /* ---- skill progression rows ---- */
 .skillxp__row {
 	display: grid;
-	/* level holds "Lv100.45▲6", gain holds a suffixed number like "+298.00k" */
-	grid-template-columns: 5.5rem 4.6rem 1fr 4.6rem;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
 	align-items: center;
-	gap: 0.6rem;
-	min-width: 470px;
 	/* every row is the same height whether or not it shows decimals or a
 	   level-up badge, so a list of them does not jump about */
 	height: 2.1rem;
@@ -169,6 +171,7 @@ img.result__judge-label {
 	text-overflow: ellipsis;
 }
 .skillxp__level {
+	min-width: 4.6rem;
 	display: flex;
 	align-items: baseline;
 	justify-content: flex-end;
@@ -216,6 +219,7 @@ img.result__judge-label {
 	box-shadow: 0 0 12px rgba(255, 210, 74, 0.5);
 }
 .skillxp__gain {
+	min-width: 4.6rem;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
@@ -519,11 +523,7 @@ img.result__judge-label {
 
 	.result__skills {
 		width: 100%;
-	}
-
-	.skillxp__row {
 		min-width: 0;
-		width: 100%;
 	}
 
 	.result__graphs {

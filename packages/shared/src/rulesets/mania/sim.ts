@@ -1,5 +1,6 @@
 import type { Beatmap } from 'osu-classes';
 
+import type { Big } from '../../big.js';
 import type { Grade } from '../../grade.js';
 import type { Mod } from '../../mods.js';
 import type { StrainSamples } from '../../play.js';
@@ -20,7 +21,7 @@ import type {
 export interface SimBot<S extends string, Score> extends Bot {
 	getSkillsXP(length: number, score: Score): Record<S, number>;
 	/** {@link getSkillsXP} before the character's own multipliers: the same for anyone at that level. */
-	getRawXP?(length: number, score: Score): Record<S, number>;
+	getRawXP(length: number, score: Score): Record<S, number>;
 	/** The share of the play's notes on which any skill in `thresholds` strained past its threshold. */
 	strainedShare(thresholds: Partial<Record<S, number>>): number;
 	/** each skill's strain at song time `t`, 0-1 above its resting baseline: what the gauges show */
@@ -30,7 +31,7 @@ export interface SimBot<S extends string, Score> extends Bot {
 /** What a play is simulated from. */
 export type SimPlay<S extends string> = {
 	/** each skill's progress, and all the xp it ever earned */
-	progress: (skill: S) => UpgradeState & { lifetimeXp: number },
+	progress: (skill: S) => UpgradeState & { lifetimeXp: Big },
 	/** how tired, 0 rested to 1 exhausted */
 	fatigue: number,
 	/** how warmed up, 0 cold to 1 warm */
@@ -96,8 +97,7 @@ export type SimPlayed<S extends string> = {
 	strains: StrainSamples,
 	/** the score xp reads (`xpScore`: the play judged at the map's own windows) */
 	xpScore: { accuracy: number, MISS: number, grade: Grade },
-	/** the bot's xp for that score over `totalLength / rate`: getSkillsXP, getRawXP */
-	skillXp: Record<S, number>,
+	/** the bot's raw xp for that score over `totalLength / rate`: getRawXP */
 	rawXp: Record<S, number>,
 	/** `strainedShare` of the input's thresholds */
 	strainedShare: number,

@@ -2,9 +2,14 @@ import '../components/BeatmapCarousel.css';
 
 import type { CSSProperties } from 'react';
 
+import {
+	Big,
+	type BigLike,
+} from '@oss-idle/shared/big';
+
 import BeatmapCardXP from '../components/BeatmapCardXP';
 
-const SIZES: [top: number, total: number][] = [
+const SIZES: [top: BigLike, total: BigLike][] = [
 	[612, 4_410], [8_450, 61_230], [184_000, 2_100_000], [3_400_000, 1_200_000_000], [740_000_000, 1.6e12],
 ];
 
@@ -14,16 +19,16 @@ const card = {
 } as CSSProperties;
 
 /** Song select XP chips at every size. */
-export default function BigNumbersChips() {
+export default function BigNumbersChips({ sizes = SIZES }: { sizes?: typeof SIZES }) {
 	return <div style={{ padding: 24 }}>
-		{SIZES.map(([top, total], i) => (
+		{sizes.map(([top, total], i) => (
 			<div key={i} style={card}>
 				<BeatmapCardXP insight={{
-					beatmapId: i, source: 'history', playedAt: 0, total,
+					beatmapId: i, source: 'history', playedAt: 0, total: Big.from(total),
 					bySkill: {
-						speed: top, stamina: total - top, 
+						speed: Big.from(top), stamina: Big.from(total).sub(top),
 					}, top: {
-						skill: 'speed', gained: top, 
+						skill: 'speed', gained: Big.from(top),
 					},
 				}} />
 			</div>

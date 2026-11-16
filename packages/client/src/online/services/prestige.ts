@@ -51,14 +51,11 @@ const prestigeLocally = async (
 	const skill = character.skills.find(s => s.name === skillName);
 	if (!skill) return false;
 	const ready = canPrestige(skill.state());
-	let spent = 0;
 	const genetics = selectedDef().genetics;
 	const bonus = genetics ? effectOf(genetics, character.genetics.get(), 'overdrive', skillName) : 0;
 	const overdrive = prestigeOverdrive(skill.state(), bonus);
 	try {
-		const next = applyPrestige(skill.state(), force);
-		skill.apply(next);
-		spent = next.spent;
+		skill.apply(applyPrestige(skill.state(), force));
 	} catch {
 		return false;
 	}
@@ -71,7 +68,7 @@ const prestigeLocally = async (
 	selectedProgression()?.afterPrestige(character, skillName);
 	// and the levels it reset stop counting toward the overall level, the
 	// same way the server route drops them
-	await character.spendXP(skillName, spent);
+	await character.setHeldTotals(skill);
 	return true;
 };
 

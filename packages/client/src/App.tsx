@@ -14,6 +14,8 @@ import {
 
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 
+import { followGame } from './addons/followGame';
+import { followGenes } from './addons/followGenes';
 import { installInterfaceSounds } from './audio/interfaceSounds';
 import { installOverlaySounds } from './audio/overlaySounds';
 import { installTypingSounds } from './audio/typingSounds';
@@ -54,6 +56,8 @@ import TransitionOverlay from './scenes/Transition';
 import MenuWarmup from './warmup/MenuWarmup';
 
 PlayManager.start();
+followGame();
+followGenes();
 Presence.start();
 Socket.start();
 Multiplayer.start();

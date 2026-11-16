@@ -15,6 +15,9 @@ import {
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
+import { AMADEUS_USER_ID } from '@oss-idle/shared/groups';
+
+import { keyMatches } from '../auth/amadeus';
 import {
 	discordAuthorizeUrl,
 	fetchDiscordId,
@@ -42,6 +45,11 @@ import {
 	exchangeCode,
 	fetchOsuUser,
 } from '../auth/osu';
+import {
+	fetchTwitchId,
+	twitchAuthorizeUrl,
+	twitchConfigured,
+} from '../auth/twitch';
 import { pushCharacter } from '../character/push';
 import { db } from '../db/client';
 import {
@@ -184,6 +192,20 @@ export const authRoutes = new Hono()
 		return c.json({ token });
 	})
 
+	// Amadeus (shared/groups.ts) has no osu! account: its stream machine sends this server's
+	// key and gets a one-time code, which the desktop app redeems like any sign-in.
+	.post('/amadeus', async c => {
+		const key = env.AMADEUS_KEY;
+		if (!key) throw new HTTPException(404, { message: 'Not found' });
+		const { key: given } = await c.req.json().catch(() => ({ key: undefined })) as { key?: unknown };
+		if (typeof given !== 'string' || !keyMatches(given, key)) throw new HTTPException(401, { message: 'Invalid key' });
+		const code = crypto.randomUUID();
+		await storeHandoff(code, await signSession({
+			id: AMADEUS_USER_ID, username: 'Amadeus', 
+		}));
+		return c.json({ code });
+	})
+
 	// The move from osu.idle to oss.idle (shared/src/hostMove.ts): the old host's
 	// page swaps its session cookie for a one-time code, and the new host's
 	// move.html redeems it for a cookie of its own.
@@ -262,6 +284,41 @@ export const authRoutes = new Hono()
 		if (user?.currentCharacter) await pushCharacter(user.currentCharacter);
 
 		return c.redirect(`${clientUrl}/web/auth/discord`);
+	})
+
+	// Twitch link: whether one is linked, and a fresh URL to link (or relink) one.
+	.get('/twitch', requireAuth, async c => {
+		if (!twitchConfigured()) throw new HTTPException(503, { message: 'Twitch linking is not configured' });
+		const user = await getUserById(c.get('userId'));
+		if (!user) throw new HTTPException(401, { message: 'User not found' });
+		return c.json({
+			linked: !!user.twitchId,
+			url: twitchAuthorizeUrl(await signLinkState(user.id, 'twitch')),
+		});
+	})
+
+	.get('/twitch/callback', async c => {
+		const code = c.req.query('code');
+		const state = c.req.query('state');
+		if (!code || !state) return c.redirect(`${clientUrl}/web/auth/error`);
+
+		let uid: number;
+		let nonce: string;
+		try {
+			({ uid, nonce } = await verifyLinkState(state, 'twitch'));
+		} catch {
+			throw new HTTPException(400, { message: 'Invalid or expired state' });
+		}
+		if (!await claimStateNonce(nonce)) return c.redirect(`${clientUrl}/web/auth/twitch`);
+
+		const twitchId = await fetchTwitchId(code);
+		// One oss!idle account per Twitch account: a relink moves it.
+		await db.update(users)
+			.set({ twitchId: null })
+			.where(and(eq(users.twitchId, twitchId), ne(users.id, uid)));
+		await db.update(users).set({ twitchId }).where(eq(users.id, uid));
+
+		return c.redirect(`${clientUrl}/web/auth/twitch`);
 	})
 
 	.post('/logout', c => {

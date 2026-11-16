@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
+import type { Big } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import HoverCard from '@oss-idle/shared/display/HoverCard';
 import { CLIMAXX_SYMBOL } from '@oss-idle/shared/genetics';
@@ -21,12 +22,12 @@ export default function PrestigeAction({
 	busy: boolean,
 	required: number,
 	/** climaxx earned by prestiging now */
-	gain: number,
+	gain: Big,
 	card: ReactNode,
 	onConfirm: () => void,
 }) {
 	const climaxx = <BigNum value={gain} theme='royal' />;
-	const shown = ready && gain > 0;
+	const shown = ready && gain.gt(0);
 	return (
 		<div className="ladder-act">
 			<span className="ladder-act__od">

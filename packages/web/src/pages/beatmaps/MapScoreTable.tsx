@@ -1,11 +1,17 @@
 import { Trans } from '@lingui/react/macro';
 
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
+
 import type { BoardRow } from '../../api/maps';
 import { judgementColumns } from './judgementColumns';
 import ScoreboardRow from './ScoreboardRow';
 
 /** The board's table, with a DIVINE column when any score on it has one. */
-export default function MapScoreTable({ rows, loved }: { rows: BoardRow[]; loved: boolean }) {
+export default function MapScoreTable({ rows, ruleset, loved }: {
+	rows: BoardRow[];
+	ruleset: RulesetId;
+	loved: boolean;
+}) {
 	const columns = judgementColumns(rows.map(row => row.score.judgements.DIVINE));
 	return <table className='mapset__table'>
 		<thead>
@@ -27,6 +33,7 @@ export default function MapScoreTable({ rows, loved }: { rows: BoardRow[]; loved
 				key={row.score.id}
 				row={row}
 				rank={i + 1}
+				ruleset={ruleset}
 				loved={loved}
 				columns={columns}
 			/>)}

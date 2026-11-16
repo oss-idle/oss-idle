@@ -1,4 +1,8 @@
 import {
+	Big,
+	type BigLike,
+} from '../big.js';
+import {
 	effectiveLevelOf,
 	playLevelOf,
 } from '../xp.js';
@@ -25,18 +29,19 @@ export default function SkillLevel({
 	xpLevel,
 }: {
 	level: number,
-	xp: number,
+	xp: BigLike,
 	prestige?: number,
 	/** xp ever earned on the skill, shown as the level it would be worth */
-	lifetimeXp?: number,
+	lifetimeXp?: BigLike,
 	/** show the xp level, the one upgrade and prestige costs count */
 	xpLevel?: boolean,
 }) {
 	const total = playLevelOf(level, xp, lifetimeXp ?? 0, prestige);
 	const shown = xpLevel ? effectiveLevelOf(level, xp) : total;
+	const lifetime = lifetimeXp !== undefined && !Big.from(lifetimeXp).isZero();
 
 	return <HoverCard card={<>
-		{!!lifetimeXp && <HoverCardRow label="Lifetime">{levelFromTotalXp(lifetimeXp)}</HoverCardRow>}
+		{lifetime && <HoverCardRow label="Lifetime">{levelFromTotalXp(lifetimeXp)}</HoverCardRow>}
 		{prestige > 0 && <HoverCardRow label="Prestige">+{prestige}</HoverCardRow>}
 		<HoverCardRow label="XP level">{levelFromXp(level, xp)}</HoverCardRow>
 		{xpLevel && shown !== total && <HoverCardRow label="Level">

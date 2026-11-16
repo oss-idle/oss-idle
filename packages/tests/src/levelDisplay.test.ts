@@ -36,24 +36,24 @@ describe('how a level is drawn', () => {
 
 	it('reads progress as a fraction of what the next level costs', () => {
 		expect(levelProgress(105, 0)).toBe(0);
-		expect(levelProgress(105, xpForLevel(105) * 0.45)).toBeCloseTo(0.45, 5);
-		expect(levelProgress(105, xpForLevel(105))).toBe(1);
+		expect(levelProgress(105, xpForLevel(105).toNumber() * 0.45)).toBeCloseTo(0.45, 5);
+		expect(levelProgress(105, xpForLevel(105).toNumber())).toBe(1);
 	});
 
 	it('never lets progress leave [0, 1]', () => {
 		expect(levelProgress(105, -50)).toBe(0);
-		expect(levelProgress(105, xpForLevel(105) * 10)).toBe(1);
+		expect(levelProgress(105, xpForLevel(105).toNumber() * 10)).toBe(1);
 	});
 });
 
 describe('levelPercent', () => {
 	it('is the share of the next level banked, floored to a whole percent', () => {
 		expect(levelPercent(100, 0)).toBe(0);
-		expect(levelPercent(100, xpForLevel(100) * 0.185)).toBe(18);
-		expect(levelPercent(5, xpForLevel(5) / 2)).toBe(50);
+		expect(levelPercent(100, xpForLevel(100).toNumber() * 0.185)).toBe(18);
+		expect(levelPercent(5, xpForLevel(5).toNumber() / 2)).toBe(50);
 	});
 	it('stays within 0 to 99', () => {
-		expect(levelPercent(100, xpForLevel(100))).toBe(99);
+		expect(levelPercent(100, xpForLevel(100).toNumber())).toBe(99);
 		expect(levelPercent(100, -5)).toBe(0);
 	});
 });

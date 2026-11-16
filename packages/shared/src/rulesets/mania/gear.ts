@@ -1,9 +1,19 @@
 import { __ } from '../../i18n/translate.js';
 
-const TIERS = [
-	'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
-	'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX',
+const NUMERALS: [number, string][] = [
+	[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'],
+	[50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
 ];
+
+/** A gear tier: Roman numerals up to 3999, a grouped number past that. */
+export const romanTier = (n: number): string => {
+	if (n > 3999) return n.toLocaleString('en-US');
+	let out = '';
+	for (const [value, numeral] of NUMERALS) {
+		for (; n >= value; n -= value) out += numeral;
+	}
+	return out;
+};
 
 /** Gear past the base ladder keeps climbing its number instead of repeating a
  *  name. Continues by the ladder's own last step. */
@@ -39,6 +49,6 @@ export function gearLabel(
 	if (tier <= 0) return name;
 	// the final ladder entry is itself Tier I, so the first extra slot is Tier II
 	return __('{name} Tier {tier}', undefined, {
-		name, tier: TIERS[tier] ?? String(tier + 1),
+		name, tier: romanTier(tier + 1),
 	});
 }

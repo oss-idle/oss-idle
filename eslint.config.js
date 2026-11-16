@@ -23,6 +23,9 @@ export default tseslint.config(
 	{
 		ignores: [
 			'.claude/**',
+			// other worktrees of this repo, and the reports `idle e2e` brings back
+			'.worktrees/**',
+			'**/e2e-results/**',
 			'**/dist/**',
 			'**/node_modules/**',
 			'**/out/**',

@@ -46,6 +46,7 @@ import SongSelectFooter from '../components/songselect/SongSelectFooter';
 import TopBar from '../components/songselect/TopBar';
 import useQueueMode from '../components/songselect/useQueueMode';
 import UserCard from '../components/songselect/UserCard';
+import useShownSelection from '../components/songselect/useShownSelection';
 import useSongSelectAudio from '../components/songselect/useSongSelectAudio';
 import {
 	getPlaylistIndex,
@@ -295,6 +296,7 @@ export default function SongSelect({ mode = 'launch' }: Props) {
 
 	const [version] = useSynced(selection);
 	const [downloads, setDownloads] = useState<Record<number, DownloadState>>({});
+	useShownSelection(!overlay, version, downloads);
 	const [debugBeatmap, setDebugBeatmap] = useState<LightBeatmap>();
 	const [search] = useSynced(SETTINGS.search);
 	const searchRef = useRef<HTMLInputElement>(null);

@@ -10,7 +10,6 @@ import {
 	int,
 	mysqlTable,
 	primaryKey,
-	smallint,
 	varchar,
 } from 'drizzle-orm/mysql-core';
 
@@ -32,7 +31,7 @@ import {
 export const xpGainTable = (name: string) => mysqlTable(name as 'xp_gain', {
 	day: date({ mode: 'string' }).notNull(),
 	skill: varchar({ length: 32 }).notNull(),
-	level: smallint().notNull(),
+	level: int().notNull(),
 	plays: int().notNull(),
 	xp: double().notNull(),
 }, table => [
@@ -43,7 +42,7 @@ export const xpGainTable = (name: string) => mysqlTable(name as 'xp_gain', {
 export const xpGainMapTable = (name: string) => mysqlTable(name as 'xp_gain_map', {
 	beatmapId: int('beatmap_id').notNull(),
 	skill: varchar({ length: 32 }).notNull(),
-	band: smallint().notNull(),
+	band: int().notNull(),
 	plays: int().notNull(),
 	xp: double().notNull(),
 }, table => [

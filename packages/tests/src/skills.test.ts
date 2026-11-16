@@ -4,6 +4,7 @@ import {
 	it,
 } from 'vitest';
 
+import { ZERO } from '@oss-idle/shared/big';
 import { SKILL } from '@oss-idle/shared/rulesets/mania/4k/skills';
 import Accuracy from '@oss-idle/shared/rulesets/mania/4k/skills/accuracy';
 import Consistency from '@oss-idle/shared/rulesets/mania/4k/skills/consistency';
@@ -20,12 +21,12 @@ import {
 
 describe('xpForLevel curve', () => {
 	it('costs exactly 100 to leave level 0', () => {
-		expect(xpForLevel(0)).toBe(100);
+		expect(xpForLevel(0).toNumber()).toBe(100);
 	});
 
 	it('is strictly increasing across the level range', () => {
 		for (let level = 1; level <= 120; level++) {
-			expect(xpForLevel(level)).toBeGreaterThan(xpForLevel(level - 1));
+			expect(xpForLevel(level).toNumber()).toBeGreaterThan(xpForLevel(level - 1).toNumber());
 		}
 	});
 
@@ -49,28 +50,28 @@ describe('xpForLevel curve', () => {
 describe('Skill.gainXP', () => {
 	it('levels up once when xp crosses the threshold, carrying the remainder', () => {
 		const skill = makeOrderedSkills().find(s => s.name === SKILL.accuracy) as Accuracy;
-		const gained = skill.gainXP(xpForLevel(0) + 1); // 101
+		const gained = skill.gainXP(xpForLevel(0).toNumber() + 1); // 101
 		expect(gained).toBe(1);
 		expect(skill.level.get()).toBe(1);
-		expect(skill.xp.get()).toBeCloseTo(1, 10);
+		expect(skill.xp.get().toNumber()).toBeCloseTo(1, 10);
 	});
 
 	// TODO fix this is bullshit
 	it('does NOT level up at exactly the threshold (strict >)', () => {
 		const skill = makeOrderedSkills().find(s => s.name === SKILL.accuracy) as Accuracy;
-		const gained = skill.gainXP(xpForLevel(0)); // exactly 100
+		const gained = skill.gainXP(xpForLevel(0).toNumber()); // exactly 100
 		expect(gained).toBe(0);
 		expect(skill.level.get()).toBe(0);
-		expect(skill.xp.get()).toBe(xpForLevel(0));
+		expect(skill.xp.get().toNumber()).toBe(xpForLevel(0).toNumber());
 	});
 
 	it('cascades through several levels from a single large grant', () => {
 		const skill = makeOrderedSkills().find(s => s.name === SKILL.accuracy) as Accuracy;
-		const cost = xpForLevel(0) + xpForLevel(1) + xpForLevel(2);
+		const cost = xpForLevel(0).toNumber() + xpForLevel(1).toNumber() + xpForLevel(2).toNumber();
 		const gained = skill.gainXP(cost + 1);
 		expect(gained).toBe(3);
 		expect(skill.level.get()).toBe(3);
-		expect(skill.xp.get()).toBeCloseTo(1, 6);
+		expect(skill.xp.get().toNumber()).toBeCloseTo(1, 6);
 	});
 
 	it('accumulates xp below the threshold without levelling', () => {
@@ -78,7 +79,7 @@ describe('Skill.gainXP', () => {
 		expect(skill.gainXP(40)).toBe(0);
 		expect(skill.gainXP(40)).toBe(0);
 		expect(skill.level.get()).toBe(0);
-		expect(skill.xp.get()).toBeCloseTo(80, 10);
+		expect(skill.xp.get().toNumber()).toBeCloseTo(80, 10);
 	});
 });
 
@@ -94,7 +95,7 @@ describe('play level', () => {
 	it('keeps what the lifetime bought through a prestige, plus the bonus, and climbs on', () => {
 		const skill = accuracy();
 		skill.apply({
-			level: 0, xp: 0, upgrades: 0, overdrive: 0, prestige: 1,
+			level: 0, xp: ZERO, upgrades: 0, overdrive: ZERO, prestige: 1,
 		});
 		skill.lifetimeXp.set(xpToLevel(100));
 		expect(skill.playLevel()).toBeCloseTo(101, 6);

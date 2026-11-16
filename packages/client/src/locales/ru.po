@@ -8,7 +8,7 @@ msgstr ""
 "Language: ru\n"
 "Project-Id-Version: osu-idle\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-11-10 09:01+0000\n"
+"PO-Revision-Date: 2026-11-14 16:23+0000\n"
 "Last-Translator: Adri <adrien.boitelle@gmail.com>\n"
 "Language-Team: Russian <https://translate.oss.idle.rhythmgamers.net/projects/oss-idle/client/ru/>\n"
 "Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
@@ -2835,6 +2835,10 @@ msgstr "Линейная"
 msgid "Link Discord account"
 msgstr "Привязать Discord аккаунт"
 
+#: src/components/options/LinkTwitch.tsx
+msgid "Link Twitch account"
+msgstr ""
+
 #: src/editor/EditorBpmTools.tsx
 msgid "Listening…"
 msgstr "Прослушиваем…"
@@ -3138,6 +3142,10 @@ msgstr "Отзеркалить всю карту"
 msgid "Mixed"
 msgstr "Смешанные"
 
+#: src/components/dock/DockModeButton.tsx
+msgid "mode"
+msgstr ""
+
 #: src/components/songselect/SongSelectFooter.tsx
 msgid "Mode"
 msgstr "Режим"
@@ -3321,6 +3329,10 @@ msgstr "Новый адрес вебхука"
 #: src/components/skins/BrowseSkinsView.tsx
 msgid "Newest"
 msgstr "Новейшие"
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Newly ranked and loved maps."
+msgstr ""
 
 #: src/components/community/MusicControls.tsx
 #: src/components/Tutorial.tsx
@@ -4262,6 +4274,10 @@ msgstr ""
 
 #: src/components/options/LinkDiscord.tsx
 msgid "Relink Discord account"
+msgstr ""
+
+#: src/components/options/LinkTwitch.tsx
+msgid "Relink Twitch account"
 msgstr ""
 
 #: src/components/WebBrowser.tsx
@@ -5514,6 +5530,10 @@ msgstr ""
 
 #: src/components/genetics/ConvertText.tsx
 msgid "Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}"
+msgstr ""
+
+#: src/scenes/Options.tsx
+msgid "twitch|link|stream"
 msgstr ""
 
 #: src/editor/builtinActions.ts

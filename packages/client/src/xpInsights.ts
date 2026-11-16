@@ -1,3 +1,8 @@
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
+
 import { ScoreXP } from './db/schema/score_xp';
 import { selectedDef } from './rulesets/registry';
 import {
@@ -14,9 +19,9 @@ export type BeatmapXPInsight = {
 	source: XPInsightSource;
 	/** when the play behind the data happened (history source) */
 	playedAt: number;
-	total: number;
-	bySkill: Record<string, number>;
-	top?: { skill: string, gained: number };
+	total: Big;
+	bySkill: Record<string, Big>;
+	top?: { skill: string, gained: Big };
 };
 
 type XPInsightProvider = {
@@ -32,19 +37,19 @@ const historyProvider: XPInsightProvider = {
 	load: async (characterId, only) => {
 		const insights = new Map<number, BeatmapXPInsight>();
 		for (const [beatmapId, row] of await ScoreXP.latestByBeatmap(characterId, only)) {
-			const bySkill: Record<string, number> = {};
-			let total = 0;
+			const bySkill: Record<string, Big> = {};
+			let total = ZERO;
 			let top: BeatmapXPInsight['top'];
 			for (const skill of selectedDef().skills) {
 				const gained = row.gainOf(skill);
-				if (gained <= 0) continue;
+				if (!gained.gt(0)) continue;
 				bySkill[skill] = gained;
-				total += gained;
-				if (!top || gained > top.gained) top = {
+				total = total.add(gained);
+				if (!top || gained.gt(top.gained)) top = {
 					skill, gained,
 				};
 			}
-			if (total > 0) insights.set(beatmapId, {
+			if (total.gt(0)) insights.set(beatmapId, {
 				beatmapId,
 				source: 'history',
 				playedAt: row.playedAt,

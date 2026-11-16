@@ -36,6 +36,7 @@ import {
 	startPlay,
 } from '@oss-idle/shared/sim/playLifecycle';
 
+import { recordResult } from '../addons/state';
 import { effects } from '../audio/EffectPlayer';
 import {
 	makeComboBreakSound,
@@ -108,7 +109,11 @@ import BeatmapStore from '../osu/beatmap/beatmap_store';
 import LightBeatmap from '../osu/beatmap/LightBeatmap';
 import { loadStoryboardAssets } from '../osu/beatmap/storyboard';
 import calculatePP from '../osu/pp';
-import { currentSkin } from '../osu/skin/Skin';
+import { beatmapSkin } from '../osu/skin/beatmapSkin';
+import Skin, {
+	currentSkin,
+	currentSkinDAO,
+} from '../osu/skin/Skin';
 import {
 	autoSkip,
 	PBE,
@@ -188,6 +193,23 @@ export default function Gameplay({
 	music.mode.set(PLAYER_MODE.SINGLE);
 
 	const [skin] = useSynced(currentSkin);
+	const [skinDao] = useSynced(currentSkinDAO);
+	// the map's own skin files over the player's skin, as osu!stable plays it
+	const mapSkinRef = useRef<Skin | undefined>(undefined);
+	useEffect(() => {
+		if (!beatmapInfo.metadata.runtime) return;
+		let alive = true;
+		let made: Skin | undefined;
+		void beatmapSkin(beatmapInfo.set.metadata.id, skinDao).then((mapSkin) => {
+			if (!alive) return mapSkin?.dispose();
+			made = mapSkinRef.current = mapSkin;
+		});
+		return () => {
+			alive = false;
+			mapSkinRef.current = undefined;
+			made?.dispose();
+		};
+	}, [beatmapInfo, skinDao]);
 	const [scrollSpeed] = useSynced(scrollSpeedOf(beatmapInfo.ruleset()));
 	const SCROLL_MS = scrollSpeedToMs(scrollSpeed);
 	const [debug] = useSynced(debugMode);
@@ -504,6 +526,7 @@ export default function Gameplay({
 		console.log('[play] server result', JSON.stringify(result).slice(0, 160));
 		medalsRef.current = result.medals;
 		if (result.failed || !('score' in result) || !result.score) {
+			if (result.failed) recordResult(beatmapInfo.metadata.id, true);
 			dispatch({
 				type: 'owner-result', hasScore: false,
 			});
@@ -511,6 +534,7 @@ export default function Gameplay({
 		}
 		// mirror the server's score locally so it shows in history/leaderboards
 		const score = Score.fromDTO(result.score);
+		recordResult(score.beatmapId, false, score, result.gains);
 		try {
 			logPlayFinished(score, beatmapInfo, result.gains);
 		} catch (e) {
@@ -1061,7 +1085,7 @@ export default function Gameplay({
 			syncVideo(now);
 			// the renderer derives its own geometry (picks up a live scroll-speed
 			// change) and hands it back for the play-only chrome to align to
-			renderer.setSkin(currentSkin.get());
+			renderer.setSkin(mapSkinRef.current ?? currentSkin.get());
 			const g = renderer.draw(now, {
 				w,
 				h,

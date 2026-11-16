@@ -5,6 +5,10 @@ import {
 import * as ppjs from 'rosu-pp-js';
 
 import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
+import {
 	billionsMessage,
 	firstPlaceMessage,
 	isSkillLevelMilestone,
@@ -15,9 +19,11 @@ import {
 import { ANNOUNCE_CHANNEL } from '@oss-idle/shared/community/wire';
 import { RANK_EVENT_MAX } from '@oss-idle/shared/events';
 import { parseMods } from '@oss-idle/shared/mods';
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
 import { betterScore } from '@oss-idle/shared/scoreOrder';
 import {
 	gainLevels,
+	heldTotal,
 	playLevelOf,
 	xpGivesLevel,
 } from '@oss-idle/shared/xp';
@@ -38,6 +44,7 @@ import {
 } from './db/schema/best_pp';
 import {
 	getCharacterById,
+	overallTotals,
 	profileOf,
 	type ProfileRow,
 	skillColumnsFor,
@@ -203,7 +210,7 @@ export const repriceBeatmapScores = async (beatmapId: number, loved: boolean): P
 	if (!rows.length) return;
 
 	const chart = loved ? undefined : (await getBeatmapById(beatmapId))?.chart;
-	const map = chart ? new ppjs.Beatmap(chart) : undefined;
+	const map = chart ? new ppjs.Beatmap(playableChart(chart)) : undefined;
 	const priced = rows.map(row => ({
 		...row,
 		pp: String(map ? calculatePP(def, {
@@ -389,7 +396,7 @@ const announceSkillLevels = async (
 export async function applySkillXp(
 	ruleset: ServerRuleset,
 	characterId: number,
-	xp: Readonly<Record<string, number>>,
+	xp: Readonly<Record<string, Big>>,
 	/** Off when catching xp up after a rollback: those milestones were announced
 	 *  when they were first reached, and the channel should not hear them twice. */
 	announceMilestones = true,
@@ -409,11 +416,11 @@ export async function applySkillXp(
 			.for('update');
 		if (!row) throw new Error(`character ${characterId} not found`);
 
-		let overallXpGained = 0;
+		let overallXpGained = ZERO;
 		const gains = def.skills.map(skill => {
 			const { level: fromLevel, xp: fromXp } = skillOf(row, skill);
-			const gained = xp[skill] ?? 0;
-			overallXpGained += gained;
+			const gained = xp[skill] ?? ZERO;
+			overallXpGained = overallXpGained.add(gained);
 			const to = gainLevels(fromLevel, fromXp, gained);
 			return {
 				skill,
@@ -421,28 +428,24 @@ export async function applySkillXp(
 				fromLevel,
 				fromXp,
 				toLevel: to.level,
-				toXp: Math.round(to.xp),
+				toXp: to.xp.round(),
 				levels: to.levels,
-				xp: gained,
 			};
 		});
 
-		const overall = gainLevels(row.overallLevel, row.overallXp, overallXpGained);
-
+		const lifetime = { overallLifetimeXp: row.overallLifetimeXp.add(overallXpGained) };
+		const totals = Object.fromEntries(
+			gains.map(g => [g.skill, heldTotal(g.toLevel, g.toXp)]),
+		);
 		const updates = Object.assign({}, ...gains.map(g => {
 			const was = skillOf(row, g.skill);
 			return skillColumnsFor(g.skill, {
 				level: g.toLevel,
 				xp: g.toXp,
-				totalXp: was.totalXp + g.xp,
-				lifetimeXp: was.lifetimeXp + g.xp,
+				totalXp: totals[g.skill],
+				lifetimeXp: was.lifetimeXp.add(g.gained),
 			});
-		}), {
-			overallLevel: overall.level,
-			overallXp: overall.xp,
-			overallTotalXp: row.overallTotalXp + overallXpGained,
-			overallLifetimeXp: row.overallLifetimeXp + overallXpGained,
-		}) as Partial<ProfileRow>;
+		}), overallTotals(ruleset, row, totals), lifetime) as Partial<ProfileRow>;
 
 		await tx.update(profile).set(updates).where(eq(profile.id, characterId));
 		return {
@@ -457,13 +460,13 @@ export async function applySkillXp(
 			return {
 				skill: g.skill,
 				from: Math.floor(playLevelOf(was.level, was.xp, was.lifetimeXp, was.prestige)),
-				to: Math.floor(playLevelOf(g.toLevel, g.toXp, was.lifetimeXp + g.xp, was.prestige)),
+				to: Math.floor(playLevelOf(g.toLevel, g.toXp, was.lifetimeXp.add(g.gained), was.prestige)),
 			};
 		}),
 		{
 			skill: 'overall',
 			from: xpGivesLevel(row.overallLifetimeXp).level,
-			to: xpGivesLevel(row.overallLifetimeXp + gains.reduce((sum, g) => sum + g.xp, 0)).level,
+			to: xpGivesLevel(gains.reduce((sum, g) => sum.add(g.gained), row.overallLifetimeXp)).level,
 		},
 	]);
 	return gains;

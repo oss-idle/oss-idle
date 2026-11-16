@@ -17,7 +17,7 @@ export default function BugMessage({ message }: { message: Bug['messages'][numbe
 		<div className='bug-message__head'>
 			{author.characterId
 				? <Link to='/c/$id' params={{ id: String(author.characterId) }}>{author.name}</Link>
-				: <span>{t`deleted account`}</span>}
+				: <span>{author.name ?? t`deleted account`}</span>}
 			{message.team && <span className='bug-message__team'>{t`team`}</span>}
 			<span className='bugs__muted'>{dateAgo(message.createdAt)}</span>
 			{message.status && <span className='bugs__muted'>

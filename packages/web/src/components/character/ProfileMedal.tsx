@@ -24,7 +24,7 @@ const day = new Intl.DateTimeFormat(undefined, {
 export default function ProfileMedal({ medal, unlockedAt, progress, holders, players }: {
 	medal: MedalDef,
 	unlockedAt?: number,
-	progress?: { value: number, current: number, goal: number },
+	progress?: { value: number | string, current: number | string, goal: number },
 	holders: number,
 	players: number,
 }) {

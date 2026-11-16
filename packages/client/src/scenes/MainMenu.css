@@ -61,7 +61,8 @@
 	opacity: 0.85;
 }
 
-.menu__discord {
+.menu__discord,
+.menu__twitch {
 	/* on the text's baseline: centring in the row put it above the letters */
 	align-self: baseline;
 	margin-left: 0.4rem;
@@ -74,6 +75,10 @@
 }
 .menu__discord:hover {
 	color: #5865f2;
+	opacity: 1;
+}
+.menu__twitch:hover {
+	color: #9146ff;
 	opacity: 1;
 }
 

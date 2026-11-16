@@ -1,8 +1,9 @@
 import type { RulesetId } from './rulesets/ids.js';
 
 /** osu!'s user groups. Admins manage the team and everything else; the Global Moderation
- *  Team applies every sanction; Beatmap Nominators rank maps in the rulesets an admin grants. */
-export const GROUPS = ['admin', 'gmt', 'bn'] as const;
+ *  Team applies every sanction; Beatmap Nominators rank maps in the rulesets an admin grants;
+ *  Bots are the game's own accounts, with no power. */
+export const GROUPS = ['admin', 'gmt', 'bn', 'bot'] as const;
 export type Group = typeof GROUPS[number];
 
 /** The profile badge's short name, its hover name and the group's colour (badge, profile title). */
@@ -16,6 +17,9 @@ export const GROUP_BADGE: Record<Group, { short: string; name: string; colour: s
 	bn: {
 		short: 'BN', name: 'Beatmap Nominators', colour: '#a6cc00',
 	},
+	bot: {
+		short: 'BOT', name: 'Bots', colour: '#ff66aa',
+	},
 };
 
 /** Adri: always an admin, and the curator of the ranked maps nobody proposed. */
@@ -25,6 +29,10 @@ export const OWNER_ID = 4579132;
 export const MAKISEBOT_ID = 1;
 /** MakiseBot's account: osu!'s BanchoBot id, which no one can sign in as. */
 export const MAKISEBOT_USER_ID = 3;
+
+/** Amadeus's account (server migration 0129), the character that plays by itself on stream:
+ *  osu! has no user 1, so no one can sign in as it. */
+export const AMADEUS_USER_ID = 1;
 
 /** Whether an account edits a character's profile: its own, and Adri MakiseBot's. */
 export const editsCharacter = (
@@ -37,6 +45,10 @@ export const isAdmin = (groups?: readonly Group[]): boolean => !!groups?.include
 /** May apply sanctions and handle reports. */
 export const isModerator = (groups?: readonly Group[]): boolean =>
 	isAdmin(groups) || !!groups?.includes('gmt');
+
+/** On the team: reads `#team`. */
+export const inTeam = (groups?: readonly Group[]): boolean =>
+	!!groups?.some(group => group !== 'bot');
 
 /** May rank maps in `ruleset`. */
 export const nominatesIn = (

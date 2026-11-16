@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { bigNonNegSchema } from './big.js';
 import { Grades } from './grade.js';
 import { modsSchema } from './mods.js';
 import { rateSchema } from './rate.js';
@@ -28,6 +29,6 @@ export const scoreDTO = z.object({
 	mods: modsSchema.default([]),
 	playedAt: z.number().int(), // epoch ms
 	/** XP earned per skill that gained: only on the account's own synced plays */
-	gains: z.record(z.string(), z.number()).optional(),
+	gains: z.record(z.string(), bigNonNegSchema).optional(),
 });
 export type ScoreDTO = z.infer<typeof scoreDTO>;

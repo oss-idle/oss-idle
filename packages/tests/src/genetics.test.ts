@@ -4,6 +4,7 @@ import {
 	it,
 } from 'vitest';
 
+import { Big } from '@oss-idle/shared/big';
 import {
 	CHANGE_COOLDOWN_MS,
 	climaxxOf,
@@ -41,6 +42,7 @@ import {
 	RING,
 } from '@oss-idle/shared/rulesets/mania/4k/genes';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
+import { GENETICS_7K } from '@oss-idle/shared/rulesets/mania/7k/genes';
 
 const def = GENETICS_4K;
 const levels = {
@@ -49,11 +51,12 @@ const levels = {
 const rich = (g: Genetics, skill: string): Genetics =>
 	({
 		...g, converted: {
-			...g.converted, [skill]: 1e6, 
+			...g.converted, [skill]: Big.from(1e6), 
 		}, 
 	});
 const speed = rich(pick(def, NO_GENETICS, 'speed', 0, 1), 'speed');
-const left = (g: Genetics, skill = 'speed', level = 0) => climaxxOf(def, g, skill, level);
+const left = (g: Genetics, skill = 'speed', level = 0) =>
+	climaxxOf(def, g, skill, level).toNumber();
 
 describe('gene catalogue', () => {
 	it('has every skill on the ring once', () => {
@@ -105,7 +108,7 @@ describe('strength', () => {
 
 describe('climaxx', () => {
 	it('grows slower than overdrive, and splitting a conversion gains nothing', () => {
-		expect(conversionGain(0, 10_000)).toBeLessThan(10_000 * conversionGain(0, 1));
+		expect(conversionGain(0, 10_000).toNumber()).toBeLessThan(10_000 * conversionGain(0, 1).toNumber());
 		let split = NO_GENETICS;
 		for (let i = 0; i < 100; i++) split = convert(split, 'speed', 1);
 		expect(left(split)).toBe(left(convert(NO_GENETICS, 'speed', 100)));
@@ -117,14 +120,28 @@ describe('climaxx', () => {
 		for (const converted of [0, 3.7, 250, 1e5]) {
 			const g = {
 				...convert(learn(def, poor, 'pacing', levels), 'speed', converted),
-				fees: { speed: climaxxOfOverdrive(converted) + 1 },
+				fees: { speed: climaxxOfOverdrive(converted).add(1) },
 			};
 			const short = tierPrice(1) - left(g);
 			const need = overdriveForNextTier(def, g, 'speed', 0)!;
-			expect(conversionGain(converted, need)).toBeGreaterThanOrEqual(short);
-			expect(conversionGain(converted, need - 0.1)).toBeLessThan(short);
+			expect(conversionGain(converted, need).toNumber()).toBeGreaterThanOrEqual(short);
+			expect(conversionGain(converted, need.sub(0.1)).toNumber()).toBeLessThan(short);
 			expect(overdriveForNextTier(def, convert(g, 'speed', need), 'speed', 0)).toBeUndefined();
 		}
+	});
+
+	it('returns on huge conversions instead of walking tenths', () => {
+		const converted = Big.from(1.7225e18);
+		const g: Genetics = {
+			picks: [{ skill: 'jacks' }],
+			genes: {},
+			converted: { jacks: converted },
+			fees: { jacks: climaxxOfOverdrive(converted).add(6.1e6) },
+		};
+		const short = Big.from(tierPrice(0)).sub(climaxxOf(GENETICS_7K, g, 'jacks', 120));
+		const need = overdriveForNextTier(GENETICS_7K, g, 'jacks', 120);
+		expect(need).toBeDefined();
+		expect(conversionGain(converted, need!).gte(short)).toBe(true);
 	});
 
 	it('pays one tier per milestone reached', () => {
@@ -221,14 +238,14 @@ describe('what medals count', () => {
 			...speed, genes: {
 				adrenaline: 5, pacing: 2, 
 			}, converted: {
-				speed: 1000, memory: 10, 
+				speed: Big.from(1000), memory: Big.from(10), 
 			}, 
 		};
 		const counts = geneticsCounts(def, g);
 		expect(counts).toMatchObject({
 			tiers: 7, maxed: 1, strongest: 100, reached: 3, 
 		});
-		expect(counts.climaxx).toBe(climaxxOfOverdrive(1000));
+		expect(counts.climaxx.eq(climaxxOfOverdrive(1000))).toBe(true);
 		expect(counts.fullest).toBe(Math.floor(7 / 50 * 100));
 		const siblings = pick(def, speed, 'stamina', 0, 2);
 		expect(geneticsCounts(def, siblings).strongest).toBe(150);
@@ -300,6 +317,14 @@ describe('picking a genetic', () => {
 			skill: 'speed', changedAt: 5, 
 		}]);
 		expect(readGenetics(undefined).picks).toEqual([]);
+	});
+
+	it('reads saved conversions and fees as Big, numbers and text alike', () => {
+		const g = readGenetics({
+			converted: { speed: 1200 }, fees: { speed: '1e400' }, 
+		});
+		expect(convert(g, 'speed', 300).converted.speed!.toString()).toBe('1500');
+		expect(g.fees.speed!.add(1).toString()).toBe('1e400');
 	});
 });
 

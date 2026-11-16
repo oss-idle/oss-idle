@@ -9,8 +9,8 @@ import { Trans } from '@lingui/react/macro';
 
 import { length } from '@oss-idle/shared/display/length';
 import {
-	bignum,
 	bpm,
+	formatBig,
 } from '@oss-idle/shared/display/num';
 
 import {
@@ -29,10 +29,10 @@ export default function BeatmapsetStats({ setId, diff }: { setId: number; diff: 
 			icon: faMusic, label: <Trans>BPM</Trans>, value: bpm(diff.bpm),
 		},
 		{
-			icon: faDrum, label: <Trans>Notes</Trans>, value: bignum(diff.rice),
+			icon: faDrum, label: <Trans>Notes</Trans>, value: formatBig(diff.rice),
 		},
 		{
-			icon: faGripLines, label: <Trans>Long notes</Trans>, value: bignum(diff.ln),
+			icon: faGripLines, label: <Trans>Long notes</Trans>, value: formatBig(diff.ln),
 		},
 	];
 	const bars = [

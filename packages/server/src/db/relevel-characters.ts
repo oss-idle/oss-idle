@@ -12,7 +12,7 @@
  *
  * A total of 0 under a level above it is a row that predates the backfill, not
  * a character with nothing: deriving from it would erase the level. Those are
- * reported and left alone - run `fix:overall` first, which is what puts the
+ * reported and left alone - run `snap:totals` first, which is what puts the
  * totals back in step with the levels.
  *
  *   npm -w @oss-idle/server run relevel:prod -- --dry-run [--ruleset mania4k]
@@ -54,7 +54,7 @@ const main = async () => {
 	for (const row of rows) {
 		const untotalled = r.def.skills.filter(s => {
 			const { totalXp, level } = skillOf(row, s);
-			return totalXp === 0 && level > 0;
+			return totalXp.isZero() && level > 0;
 		});
 		if (untotalled.length) {
 			console.log(`  ! ${row.name} (${row.id}): no total behind ${untotalled.join(', ')} - skipped`);
@@ -69,7 +69,7 @@ const main = async () => {
 			const was = skillOf(row, skill);
 			const next = xpGivesLevel(was.totalXp);
 			Object.assign(updates, skillColumnsFor(skill, {
-				level: next.level, xp: Math.round(next.xp), 
+				level: next.level, xp: next.xp.floor(), 
 			}));
 			if (next.level !== was.level) {
 				dropped.push(`${skill} ${was.level}->${next.level}`);
@@ -78,7 +78,7 @@ const main = async () => {
 
 		const overall = xpGivesLevel(row.overallTotalXp);
 		updates.overallLevel = overall.level;
-		updates.overallXp = Math.round(overall.xp);
+		updates.overallXp = overall.xp.floor();
 
 		if (!dropped.length && overall.level === row.overallLevel) continue;
 
@@ -97,7 +97,7 @@ const main = async () => {
 
 	const plural = relevelled === 1 ? '' : 's';
 	console.log(`\n${relevelled} character${plural} ${dryRun ? 'would be' : ''} relevelled`);
-	if (stale) console.log(`${stale} skipped with no totals - run fix:overall, then this again`);
+	if (stale) console.log(`${stale} skipped with no totals - run snap:totals, then this again`);
 	process.exit(0);
 };
 

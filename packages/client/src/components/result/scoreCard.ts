@@ -7,10 +7,11 @@ import {
 	type GlyphName,
 	GLYPHS,
 } from '@oss-idle/shared/achievements/glyphs';
+import type { Big } from '@oss-idle/shared/big';
 import accuracy from '@oss-idle/shared/display/accuracy';
 import { bigStyle } from '@oss-idle/shared/display/bigTheme';
 import { MOD_LOOK } from '@oss-idle/shared/display/mods';
-import num, { bignum } from '@oss-idle/shared/display/num';
+import num, { formatBig } from '@oss-idle/shared/display/num';
 import type { Mod } from '@oss-idle/shared/mods';
 import type { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
 
@@ -50,7 +51,7 @@ export type Gain = {
 	/** the level reached, as the result screen shows it */
 	level: string,
 	levels: number,
-	gained: number,
+	gained: Big,
 };
 
 export type Standing = {
@@ -295,6 +296,9 @@ const drawGraphs = (
 	});
 };
 
+const LEVEL_X = 150;
+const GAINS_GAP = 12;
+
 const drawGains = (ctx: CanvasRenderingContext2D, gains: Gain[], top: number) => {
 	gains.forEach((g, i) => {
 		const y = top + i * LINE;
@@ -303,20 +307,26 @@ const drawGains = (ctx: CanvasRenderingContext2D, gains: Gain[], top: number) =>
 		ctx.fillText(g.name, SIDE, y);
 		ctx.font = font(700, 18);
 		const level = `Lv ${g.level}`;
-		ctx.fillText(level, SIDE + 150, y);
-		if (g.levels > 0) {
-			ctx.fillStyle = '#ffd24a';
-			ctx.fillText(` ▲${g.levels}`, SIDE + 150 + ctx.measureText(level).width, y);
-		}
+		const up = g.levels > 0 ? ` ▲${g.levels}` : '';
+		const amount = formatBig(g.gained);
+		// a huge level and gain squeeze together rather than run into each other
+		const room = SIDE_W - LEVEL_X - GAINS_GAP;
+		const squeeze = Math.min(1, room / ctx.measureText(`${level}${up}+${amount}xp`).width);
+		const put = (text: string, x: number) => {
+			const width = ctx.measureText(text).width * squeeze;
+			ctx.fillText(text, x, y, width);
+			return width;
+		};
+		const levelWidth = put(level, SIDE + LEVEL_X);
+		ctx.fillStyle = '#ffd24a';
+		put(up, SIDE + LEVEL_X + levelWidth);
 		ctx.textAlign = 'right';
 		ctx.fillStyle = PINK;
-		ctx.fillText('xp', W - PAD, y);
-		const at = W - PAD - ctx.measureText('xp').width;
-		const amount = bignum(g.gained);
+		let at = W - PAD - put('xp', W - PAD);
 		ctx.fillStyle = bigStyle(g.gained, 'heat')?.color ?? PINK;
-		ctx.fillText(amount, at, y);
+		at -= put(amount, at);
 		ctx.fillStyle = PINK;
-		ctx.fillText('+', at - ctx.measureText(amount).width, y);
+		put('+', at);
 		ctx.textAlign = 'left';
 	});
 };

@@ -69,9 +69,9 @@ export async function verifyState(
 	};
 }
 
-type Link = 'discord' | 'itch';
+type Link = 'discord' | 'itch' | 'twitch';
 
-/** State for linking a Discord or itch.io account: names the signed-in account, since the
+/** State for linking a Discord, itch.io or Twitch account: names the signed-in account, since the
  *  round-trip may run in a browser that holds no session (desktop). */
 export const signLinkState = (uid: number, link: Link = 'discord'): Promise<string> => sign({
 	nonce: crypto.randomUUID(), uid, link, iat: now(), exp: now() + STATE_TTL,

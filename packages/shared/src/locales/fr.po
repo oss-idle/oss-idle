@@ -527,6 +527,10 @@ msgstr "DFJK"
 msgid "Diamond skin notes"
 msgstr "Notes avec skin diamants"
 
+#: src/rulesets/mania/medalText.ts
+msgid "Diva"
+msgstr "Diva"
+
 #: src/display/medals.ts
 msgid "Divine medal"
 msgstr "Médaille divine"
@@ -774,6 +778,10 @@ msgstr "{count, plural, one {Être ajouté en ami par # joueur} other {Être ajo
 #: src/rulesets/mania/medalText.ts
 msgid "Get an S on The Parallax II: Future Sequence [Marathon]"
 msgstr "Obtenir un S sur The Parallax II: Future Sequence [Marathon]"
+
+#: src/rulesets/mania/medalText.ts
+msgid "Get an SS on After School - Diva [Insane]"
+msgstr "Obtenir un SS sur After School - Diva [Insane]"
 
 #: src/rulesets/mania/medalText.ts
 msgid "Get an SS on AiAe [Wafles' SHD]"

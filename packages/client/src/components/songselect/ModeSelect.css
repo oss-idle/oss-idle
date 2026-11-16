@@ -81,3 +81,17 @@
 .mode-select__variant:hover {
 	background: rgba(255, 255, 255, 0.25);
 }
+
+/* no hover to split a mode: its variants show at once */
+@media (hover: none), (max-width: 900px) {
+	/* as wide as the dock it opens over, so each variant is a thumb-sized target */
+	.mode-select__panel {
+		min-width: min(420px, 92vw);
+	}
+	.mode-select__row.has-variants .mode-select__name {
+		display: none;
+	}
+	.mode-select__row.has-variants .mode-select__variants {
+		display: flex;
+	}
+}

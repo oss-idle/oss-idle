@@ -37,17 +37,14 @@ const spendLocally = async (
 ): Promise<boolean> => {
 	const skill = character.skills.find(s => s.name === skillName);
 	if (!skill) return false;
-	let spent = 0;
 	try {
 		const genetics = selectedDef().genetics;
 		const bonus = genetics ? effectOf(genetics, character.genetics.get(), 'overdrive', skillName) : 0;
-		const purchase = applyUpgrade(skill.state(), bonus);
-		skill.apply(purchase);
-		spent = purchase.spent;
+		skill.apply(applyUpgrade(skill.state(), bonus));
 	} catch {
 		return false;
 	}
 	selectedProgression()?.afterUpgrade(character, skillName);
-	await character.spendXP(skillName, spent);
+	await character.setHeldTotals(skill);
 	return true;
 };

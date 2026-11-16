@@ -124,10 +124,10 @@ describe('client database migrations', () => {
 
 		migrate(db);
 
-		const expected = Math.round(xpToLevel(40) + 500);
-		expect(one(db, 'SELECT accuracyTotalXp FROM character')).toBe(expected);
+		const expected = Math.round(xpToLevel(40).toNumber() + 500);
+		expect(one(db, 'SELECT accuracyTotalXp FROM character')).toBe(String(expected));
 		expect(one(db, 'SELECT overallTotalXp FROM character'))
-			.toBe(expected + Math.round(xpToLevel(30) + 250));
+			.toBe(String(expected + Math.round(xpToLevel(30).toNumber() + 250)));
 		expect(one(db, 'SELECT overallLevel FROM character') as number).toBeGreaterThan(0);
 	});
 
@@ -221,5 +221,49 @@ describe('client database migrations', () => {
 
 		expect(db.exec('SELECT onlineId, unranked FROM score ORDER BY id')[0].values)
 			.toEqual([[-1, 0], [42, 0], [1500000007, 1]]);
+	});
+
+	it('keeps progress as exact text, on 4K\'s row and in 7K\'s table', () => {
+		const db = oldDatabase();
+		db.run(`INSERT INTO character (id, name, local, speedXP, speedOverdrive)
+			VALUES (1, 'Guest', 1, 936381, 2780.500308474033);`);
+		db.run(`CREATE TABLE character_mania7k (characterId INTEGER PRIMARY KEY,
+			jacksXP INTEGER DEFAULT 0, jacksOverdrive REAL DEFAULT 0, overallTotalXp INTEGER DEFAULT 0);`);
+		db.run('INSERT INTO character_mania7k VALUES (-1, 12, 0.1, 1e25);');
+
+		migrate(db);
+
+		expect(rows(db, 'SELECT speedXP, speedOverdrive, typeof(speedXP) FROM character'))
+			.toEqual([['936381', '2780.500308474033', 'text']]);
+		expect(rows(db, 'SELECT jacksXP, jacksOverdrive, overallTotalXp FROM character_mania7k'))
+			.toEqual([['12', '0.1', '1e25']]);
+		db.run('INSERT INTO character_mania7k (characterId) VALUES (-2);');
+		expect(one(db, 'SELECT jacksXP FROM character_mania7k WHERE characterId = -2')).toBe('0');
+	});
+
+	it('reads a NULL progress value as 0', () => {
+		const db = oldDatabase();
+		db.run('INSERT INTO character (id, name, local, speedXP) VALUES (1, \'Guest\', 1, NULL);');
+
+		migrate(db);
+
+		expect(one(db, 'SELECT speedXP FROM character')).toBe('0');
+	});
+
+	it('refuses a bad progress value by name, leaving the save as it was', () => {
+		const db = oldDatabase();
+		db.run(`INSERT INTO character (id, name, local, speedOverdrive)
+			VALUES (1, 'Guest', 1, 'abc');`);
+		const columns = () => rows(db, 'SELECT name, type FROM pragma_table_info(\'character\')');
+
+		expect(() => migrate(db)).toThrow('character.speedOverdrive of row -1 holds abc');
+		const before = columns();
+		const version = one(db, 'PRAGMA user_version');
+		expect(before).toContainEqual(['speedOverdrive', 'REAL']);
+		expect(before.some(([name]) => String(name).endsWith('_text'))).toBe(false);
+		// the boot retries: the same refusal, nothing moved
+		expect(() => migrate(db)).toThrow('character.speedOverdrive of row -1 holds abc');
+		expect(columns()).toEqual(before);
+		expect(one(db, 'PRAGMA user_version')).toBe(version);
 	});
 });

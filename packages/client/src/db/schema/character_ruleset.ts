@@ -1,36 +1,43 @@
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import { Skills7k } from '@oss-idle/shared/rulesets/mania/7k/skills';
 
 import {
+	big,
 	type Column,
 	DAO,
 	type DaoStatic,
 	integer,
-	real,
 	table,
 	text,
 } from '../dao';
 
 type ProgressColumns<S extends string> =
 	& Record<S, Column<number, true>>
-	& Record<`${S}XP`, Column<number, true>>
+	& Record<`${S}XP`, Column<Big, true>>
 	& Record<`${S}Upgrades`, Column<number, true>>
-	& Record<`${S}Overdrive`, Column<number, true>>
+	& Record<`${S}Overdrive`, Column<Big, true>>
 	& Record<`${S}Prestige`, Column<number, true>>
-	& Record<`${S}TotalXp`, Column<number, true>>
-	& Record<`${S}LifetimeXp`, Column<number, true>>;
+	& Record<`${S}TotalXp`, Column<Big, true>>
+	& Record<`${S}LifetimeXp`, Column<Big, true>>;
+
+const count = () => integer().default(0);
+const amount = () => big().default(ZERO);
 
 /** One column per skill and progression field, grouped by field. */
 export const progressColumns = <S extends string>(skills: readonly S[]) => Object.fromEntries(
 	([
-		['', integer], ['XP', integer], ['Upgrades', integer], ['Overdrive', real],
-		['Prestige', integer], ['TotalXp', integer], ['LifetimeXp', integer],
-	] as const).flatMap(([field, type]) => skills.map(s => [`${s}${field}`, type().default(0)])),
+		['', count], ['XP', amount], ['Upgrades', count], ['Overdrive', amount],
+		['Prestige', count], ['TotalXp', amount], ['LifetimeXp', amount],
+	] as const).flatMap(([field, column]) => skills.map(s => [`${s}${field}`, column()])),
 ) as ProgressColumns<S>;
 
 /** What a character has progressed in one ruleset, wherever it is stored. */
 export type Progress = {
-	overallTotalXp: number,
+	overallTotalXp: Big,
 	overallLevel: number,
 	// when memory was last prestiged: plays before it no longer train it
 	memoryResetAt: number,
@@ -46,7 +53,7 @@ const rulesetTable = (ruleset: RulesetId, skills: readonly string[]) =>
 	table(`character_${ruleset}`, {
 		characterId:    integer().primaryKey(),
 		...progressColumns(skills),
-		overallTotalXp: integer().default(0),
+		overallTotalXp: big().default(ZERO),
 		overallLevel:   integer().default(0),
 		memoryResetAt:  integer().default(0),
 		memoryForgetAt: text().default('[]'),

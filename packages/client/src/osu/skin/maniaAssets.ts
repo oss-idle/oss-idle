@@ -55,6 +55,9 @@ export type ColumnAssets = {
 	keyDown?: Sprite,
 	/** the stage light, tinted with the column's light colour */
 	light?: Sprite,
+	/** what a hold stable never plays shows: the map's own tail image when it brings one, else
+	 *  the note (they are fake notes, never meant to look like tails) */
+	decoration?: { sprite: Sprite, note: boolean },
 };
 
 export type Scorebar = {
@@ -123,6 +126,17 @@ const sprite = async (
 		h: decoded[0].h / density,
 		frameMs: frameMs(decoded.length),
 		loop,
+	};
+};
+
+const decoration = (
+	tail: Sprite | undefined, note: Sprite | undefined,
+): ColumnAssets['decoration'] => {
+	if (tail) return {
+		sprite: tail, note: false,
+	};
+	return note && {
+		sprite: note, note: true,
 	};
 };
 
@@ -269,7 +283,10 @@ const column = async (
 	const def = (name: string): [OsuSkin, string] => [fallback, name];
 	const note = `mania-note${type}`;
 
-	const [noteS, head, body, tail, key, keyDown, light] = await Promise.all([
+	// a map's tail image comes by its standard name, whatever the player's skin.ini names
+	const standard = first([skin, `${note}T`]);
+	const mapTail = standard?.skin.fromMap(standard.frames[0].path) ? standard : undefined;
+	const [noteS, head, body, tail, key, keyDown, light, mapTailS] = await Promise.all([
 		sprite(first(...own(`NoteImage${c}`, note), def(note)), noteMs, true),
 		sprite(first(
 			...own(`NoteImage${c}H`, `${note}H`), ...own(`NoteImage${c}`, note), def(`${note}H`), def(note),
@@ -286,12 +303,14 @@ const column = async (
 		sprite(first(...own(`KeyImage${c}D`, `mania-key${type}D`), def(`mania-key${type}D`)), sixty, false),
 		sprite(first(...own('StageLight', 'mania-stage-light'), def('mania-stage-light')),
 			() => 1000 / cfg.lightFramePerSecond, true),
+		sprite(mapTail, noteMs, true),
 	]);
 	return {
 		note: noteS,
 		head,
 		body,
 		tail,
+		decoration: decoration(mapTailS, noteS),
 		dimHead: tint(head, DARK_GRAY),
 		dimBody: tint(body, DARK_GRAY),
 		dimTail: tint(tail, DARK_GRAY),

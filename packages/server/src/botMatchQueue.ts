@@ -14,6 +14,7 @@ import {
 	type BotMatchResult,
 	botOverallXp,
 } from '@oss-idle/shared/botMatch';
+import { rankScore } from '@oss-idle/shared/rankings';
 
 import {
 	BotMatchRefused,
@@ -73,7 +74,7 @@ const ranksOf = async ({ levels, performance }: BotMatchResult): Promise<BotMatc
 	const skills = Object.entries(levels);
 	const [ownPerformance, overall, ...ranks] = await Promise.all([
 		wouldBeRank(ruleset, 'pp', performance),
-		wouldBeRank(ruleset, 'overall', botOverallXp(levels)),
+		wouldBeRank(ruleset, 'overall', rankScore(botOverallXp(levels))),
 		...skills.map(([skill, level]) => wouldBeRank(ruleset, skill, level)),
 	]);
 	return {

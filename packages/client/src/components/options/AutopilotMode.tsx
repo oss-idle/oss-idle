@@ -6,6 +6,7 @@ import {
 	AutopilotModes,
 } from '../../gameplay/playQueue';
 import Dropdown from '../dropdown/Dropdown';
+import SettingRuleset from './controls/SettingRuleset';
 
 export default function AutopilotMode() {
 	const labels = autopilotModeLabels();
@@ -15,7 +16,9 @@ export default function AutopilotMode() {
 	}));
 	return (
 		<div className="opt-row">
-			<span className="opt-row__label"><Trans>Autopilot mode</Trans></span>
+			<span className="opt-row__label">
+				<SettingRuleset value={SETTINGS.autopilotMode} /><Trans>Autopilot mode</Trans>
+			</span>
 			<Dropdown value={SETTINGS.autopilotMode} options={options} />
 		</div>
 	);

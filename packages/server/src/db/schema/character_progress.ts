@@ -6,6 +6,7 @@ import {
 	varchar,
 } from 'drizzle-orm/mysql-core';
 
+import { bigColumn } from './bigColumn';
 import { characters } from './character';
 
 /** The best value each character ever reached on a medal line, so a lost #1 or
@@ -14,8 +15,10 @@ export const progressTable = (name: string) => mysqlTable(name as 'character_pro
 	characterId: int().notNull()
 		.references(() => characters.id, { onDelete: 'cascade' }),
 	line: varchar({ length: 16 }).notNull(),
-	value: double().notNull(),
-	current: double().notNull()
+	value: bigColumn(),
+	current: bigColumn(),
+	/** `rankScore(value)`, what the boards sort on. After `value`: an upsert sets columns in this order */
+	rankScore: double().notNull()
 		.default(0),
 }, table => [
 	primaryKey({ columns: [table.characterId, table.line] }),

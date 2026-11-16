@@ -2,7 +2,10 @@ import { InferResponseType } from 'hono/client';
 
 import { unwrap } from '@oss-idle/shared/apiBase';
 import type { BoardSort } from '@oss-idle/shared/rankings';
-import type { ScoreDTO } from '@oss-idle/shared/score';
+import {
+	type ScoreDTO,
+	scoreDTO,
+} from '@oss-idle/shared/score';
 import MemCache from '@oss-idle/shared/storage/memcache';
 
 import Character from '../../db/schema/character';
@@ -20,6 +23,7 @@ type ScoreResponse = InferResponseType<typeof endpoint[':id']['$get'], 200>;
 type BeatmapBoardResponse = InferResponseType<typeof endpoint['beatmap'][':beatmap']['board']['$get'], 200>;
 export type BoardPlayer = BeatmapBoardResponse[number]['player'];
 type MyBeatmapScoreResponse = InferResponseType<typeof endpoint['beatmap'][':beatmap']['me']['$get'], 200>;
+type MyBeatmapScore = { score: ScoreDTO, rank: number | undefined } | null;
 
 export const getScore = (id: number): Promise<ScoreResponse> =>
 	unwrap<ScoreResponse>(endpoint[':id'].$get({ param: { id: String(id) } }));
@@ -30,7 +34,7 @@ export const getMyBeatmapScore = (
 	beatmap: number, 
 	sort: BoardSort,
 	country?: string,
-): Promise<MyBeatmapScoreResponse> => unwrap<MyBeatmapScoreResponse>(country === undefined
+): Promise<MyBeatmapScore> => unwrap<MyBeatmapScoreResponse>(country === undefined
 	? endpoint['beatmap'][':beatmap']['me']
 		.$get({
 			param: { beatmap: String(beatmap) }, query: { sort },
@@ -41,16 +45,18 @@ export const getMyBeatmapScore = (
 				beatmap: String(beatmap), country,
 			},
 			query: { sort },
-		}));
+		})).then(mine => mine && {
+	...mine, score: scoreDTO.parse(mine.score),
+});
 
-const boards = MemCache.get<BeatmapBoardResponse>('API.getBeatmapScores');
+const boards = MemCache.get<BoardRow[]>('API.getBeatmapScores');
 
 /** Every cached board of a map: global, country and friends, by score and by pp. */
 export const flushBeatmapScores = async (beatmap: number) => {
 	for (const key of boards.keys()) if (String(key).startsWith(`${beatmap}:`)) boards.delete(key);
 };
 
-const importScores = (scores: BeatmapBoardResponse[number]['score'][]) => {
+const importScores = (scores: ScoreDTO[]) => {
 	void (async () => {
 		const mine = [];
 		for (const score of scores) if (await Character.get(score.characterId)) mine.push(score);
@@ -66,7 +72,7 @@ const getBeatmapScores = async (
 	country?: string,
 	friends?: boolean,
 	rate?: number,
-): Promise<BeatmapBoardResponse> => boards
+): Promise<BoardRow[]> => boards
 	.process(`${beatmap}:${country ?? (friends ? 'friends' : '')}:${sort}:${rate ?? ''}`, async () => {
 		const rows = await unwrap<BeatmapBoardResponse>(endpoint['beatmap'][':beatmap']['board'].$get({
 			param: { beatmap: String(beatmap) },
@@ -74,8 +80,11 @@ const getBeatmapScores = async (
 				country, friends: friends ? '1' : undefined, sort, rate: rate?.toString(),
 			},
 		}));
-		importScores(rows.map(r => r.score));
-		return rows;
+		const parsed = rows.map(r => ({
+			...r, score: scoreDTO.parse(r.score),
+		}));
+		importScores(parsed.map(r => r.score));
+		return parsed;
 	}, 1000 * 60);
 
 export type BoardRow = { score: Score | ScoreDTO, player?: BoardPlayer };
@@ -150,5 +159,9 @@ export const fetchMyScores = async (
 			playedAfter: playedAfter === undefined ? undefined : String(playedAfter),
 		},
 	});
-	return res.ok ? await res.json() : undefined;
+	if (!res.ok) return undefined;
+	const page = await res.json();
+	return {
+		...page, scores: scoreDTO.array().parse(page.scores),
+	};
 };

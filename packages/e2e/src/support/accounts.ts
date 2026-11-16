@@ -128,15 +128,15 @@ export const testAccounts = async (spec: keyof typeof TEST_USERS): Promise<Accou
 			await db.query('UPDATE user SET current_character = ? WHERE id = ?', [row.id, id]);
 			await db.query(
 				`UPDATE \`character\`
-				SET autopilot_mode = 'PLAYLIST', autopilot_delay = 3,
-					ruleset = 'mania4k', ruleset_lock = NULL
+				SET ruleset = 'mania4k', ruleset_lock = NULL
 				WHERE id = ?`,
 				[row.id],
 			);
-			// its 4K profile: skills, fatigue, rate and mods are a ruleset's
+			// its 4K profile: skills, fatigue and the queue's preferences are a ruleset's
 			await db.query(
-				`INSERT INTO mania4k_character (id) VALUES (?)
-				ON DUPLICATE KEY UPDATE speed_upgrades = 0, fatigue = NULL, play_rate = 1, play_mods = NULL`,
+				`INSERT INTO mania4k_character (id, autopilot_mode, autopilot_delay) VALUES (?, 'PLAYLIST', 3)
+				ON DUPLICATE KEY UPDATE speed_upgrades = 0, fatigue = NULL, play_rate = 1, play_mods = NULL,
+					autopilot_mode = 'PLAYLIST', autopilot_delay = 3, queue_play_once = 0`,
 				[row.id],
 			);
 			accounts.push({

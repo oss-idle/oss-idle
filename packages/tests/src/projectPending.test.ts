@@ -5,6 +5,7 @@ import {
 	vi,
 } from 'vitest';
 
+import { Big } from '@oss-idle/shared/big';
 import { NO_GENETICS } from '@oss-idle/shared/genetics';
 import Synced from '@oss-idle/shared/helpers/synced';
 import { GENETICS_4K } from '@oss-idle/shared/rulesets/mania/4k/genes';
@@ -22,7 +23,7 @@ const character = (level: number, overdrive: number) => {
 	const skill = new SkillState('speed');
 	void skill.level.set(level);
 	void skill.upgrades.set(10);
-	void skill.overdrive.set(overdrive);
+	void skill.overdrive.set(Big.from(overdrive));
 	return {
 		skills: [skill], genetics: new Synced(NO_GENETICS),
 	} as unknown as Character;
@@ -35,7 +36,7 @@ describe('projectPending', () => {
 			type: 'prestige', ruleset: 'mania4k', skill: 'speed', requestedAt: 1,
 		}]);
 		expect(c.skills[0]!.prestige.get()).toBe(1);
-		expect(c.genetics.get().converted.speed).toBeGreaterThan(0);
+		expect(c.genetics.get().converted.speed?.gt(0)).toBe(true);
 	});
 
 	it('grants none for a forced prestige', () => {

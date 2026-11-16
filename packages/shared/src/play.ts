@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { bigNonNegSchema } from './big.js';
 import { Grades } from './grade.js';
 import { modsSchema } from './mods.js';
 import { rateSchema } from './rate.js';
@@ -132,11 +133,11 @@ export type PlayState = z.infer<typeof playStateDTO>;
 export const skillGainDTO = z.object({
 	/** one of the play's ruleset's skills */
 	skill: z.string(),
-	gained: z.number(),
+	gained: bigNonNegSchema,
 	fromLevel: z.number().int(),
-	fromXp: z.number(),
+	fromXp: bigNonNegSchema,
 	toLevel: z.number().int(),
-	toXp: z.number(),
+	toXp: bigNonNegSchema,
 	levels: z.number().int(),
 });
 export type SkillGain = z.infer<typeof skillGainDTO>;
@@ -190,7 +191,7 @@ export const playClientMessages = [
 		 *  progression thresholds are reachable while testing. Deliberately
 		 *  unbounded - a ceiling here rejects the whole start message, so a debug
 		 *  knob could stop a song from starting at all. */
-		xpMultiplier: z.number().int().positive().optional(),
+		xpMultiplier: z.number().positive().optional(),
 		/** held to what the character has unlocked; x1 when left out */
 		rate: rateSchema.optional(),
 		/** NF answers unranked: the client plays it locally */

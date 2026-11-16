@@ -11,6 +11,7 @@ import {
 import { BeatmapDecoder } from 'osu-parsers';
 import * as ppjs from 'rosu-pp-js-web';
 
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
 import { unwrapArchive } from '@oss-idle/shared/osuSkin/files';
 import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
 import { emptyIn } from '@oss-idle/shared/rulesets/mania/editor/chart';
@@ -83,7 +84,7 @@ export const localMetadata = async (files: Unzipped, setId?: number): Promise<St
 		id: localId(`${id}\n${file}`),
 		file,
 		difficulty: Math.round(new ppjs.Difficulty({ lazer: false })
-			.calculate(new ppjs.Beatmap(text)).stars * 100) / 100,
+			.calculate(new ppjs.Beatmap(playableChart(text))).stars * 100) / 100,
 	}));
 	return {
 		id, artist, title, creator, versions,

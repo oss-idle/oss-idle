@@ -3,6 +3,7 @@ import './ProfileMenu.css';
 import {
 	faBan,
 	faEllipsisVertical,
+	faHeart,
 	faRotateLeft,
 	faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
@@ -25,7 +26,7 @@ import ProfileMenuDialog, { type ProfileDialog } from './ProfileMenuDialog';
 import SanctionItems from './SanctionItems';
 
 /** osu!web's ⋮ menu on someone else's profile: block and report, silence and restrict for the
- *  moderators, account deletion and upgrade rollback for admins. */
+ *  moderators, account deletion, supporter months and upgrade rollback for admins. */
 export default function ProfileMenu({ userId, characterId, name, restricted, sanctionable }: {
 	userId: number;
 	characterId: number;
@@ -75,6 +76,10 @@ export default function ProfileMenu({ userId, characterId, name, restricted, san
 					{t`Report`}
 				</button>
 				{moderator && <SanctionItems userId={userId} restricted={restricted} onPick={pick} />}
+				{admin && <button type='button' className='profile-menu__item' onClick={() => pick('supporter')}>
+					<FontAwesomeIcon icon={faHeart} />
+					{t`Give supporter`}
+				</button>}
 				{admin && <button type='button' className='profile-menu__item' onClick={() => pick('rollback')}>
 					<FontAwesomeIcon icon={faRotateLeft} />
 					{t`Roll back upgrade`}

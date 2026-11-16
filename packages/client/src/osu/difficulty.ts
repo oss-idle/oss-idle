@@ -1,6 +1,8 @@
 import { Beatmap } from 'osu-classes';
 import * as ppjs from 'rosu-pp-js-web';
 
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
+
 import BeatmapStore from './beatmap/beatmap_store';
 import rosuReady from './rosu';
 
@@ -15,7 +17,7 @@ export const starsAt = async (
 	await rosuReady();
 	return new ppjs.Difficulty({
 		lazer: false, clockRate: rate,
-	}).calculate(new ppjs.Beatmap(osu)).stars;
+	}).calculate(new ppjs.Beatmap(playableChart(osu))).stars;
 };
 
 const calculateSR = async (beatmap: Beatmap, rate = 1): Promise<number> => {
@@ -26,7 +28,7 @@ const calculateSR = async (beatmap: Beatmap, rate = 1): Promise<number> => {
 	await rosuReady();
 	return new ppjs.Difficulty({
 		lazer: false, clockRate: rate,
-	}).calculate(new ppjs.Beatmap(osu)).stars;
+	}).calculate(new ppjs.Beatmap(playableChart(osu))).stars;
 };
 
 export default calculateSR;

@@ -1,7 +1,15 @@
 import { z } from 'zod';
 
 import {
+	Big,
+	type BigLike,
+	ONE,
+	ZERO,
+} from './big.js';
+import {
+	heldTotal,
 	xpForLevel,
+	xpGivesLevel,
 	xpToLevel,
 } from './xp.js';
 
@@ -34,15 +42,15 @@ export const OVERDRIVE_SYMBOL = 'σ';
 
 export type UpgradeState = {
 	level: number,
-	xp: number,
+	xp: Big,
 	upgrades: number,
-	overdrive: number,
+	overdrive: Big,
 	prestige: number,
 };
 
 export type UpgradePurchase = UpgradeState & {
-	spent: number,
-	ratio: number,
+	spent: Big,
+	ratio: Big,
 };
 
 /** Slots available on a skill: the base ladder plus one per prestige. */
@@ -64,9 +72,9 @@ export const upgradeCost = (upgrades: number): number =>
 	upgrades < BASE_MAX_UPGRADES ? UPGRADE_LEVELS : GEAR_TIER_LEVELS;
 
 /** Cost of the next upgrade bought exactly at its required level. */
-export const upgradeMinSpend = (upgrades: number): number => {
+export const upgradeMinSpend = (upgrades: number): Big => {
 	const min = upgradeMinLevel(upgrades);
-	return xpToLevel(min) - xpToLevel(min - upgradeCost(upgrades));
+	return xpToLevel(min).sub(xpToLevel(min - upgradeCost(upgrades)));
 };
 
 export const canUpgrade = (
@@ -80,15 +88,15 @@ export const applyUpgrade = (state: UpgradeState, overdriveBonus = 0): UpgradePu
 	if (!canUpgrade(state)) throw new Error('upgrade not purchasable');
 
 	const level = state.level - upgradeCost(state.upgrades);
-	const xp = state.xp / xpForLevel(state.level) * xpForLevel(level);
-	const spent = xpToLevel(state.level) + state.xp - xpToLevel(level) - xp;
-	const ratio = spent / upgradeMinSpend(state.upgrades);
+	const xp = state.xp.div(xpForLevel(state.level)).mul(xpForLevel(level));
+	const spent = heldTotal(state.level, state.xp).sub(heldTotal(level, xp));
+	const ratio = spent.div(upgradeMinSpend(state.upgrades));
 
 	return {
 		level,
 		xp,
 		upgrades: state.upgrades + 1,
-		overdrive: state.overdrive + (ratio > 1 ? ratio * (1 + overdriveBonus) : 0),
+		overdrive: state.overdrive.add(ratio.gt(1) ? ratio.mul(1 + overdriveBonus) : ZERO),
 		prestige: state.prestige,
 		spent,
 		ratio,
@@ -102,30 +110,22 @@ export const applyUpgrade = (state: UpgradeState, overdriveBonus = 0): UpgradePu
 export const revertUpgrade = (
 	state: UpgradeState,
 	anchor = state.level,
-): UpgradeState & { refund: number } => {
+): UpgradeState & { refund: Big } => {
 	if (state.upgrades === 0) throw new Error('no upgrade to revert');
 
 	const upgrades = state.upgrades - 1;
 	const top = anchor + upgradeCost(upgrades);
-	const fraction = state.xp / xpForLevel(state.level);
-	const refund = xpToLevel(top) + fraction * xpForLevel(top)
-		- xpToLevel(anchor) - fraction * xpForLevel(anchor);
-	const ratio = refund / upgradeMinSpend(upgrades);
-
-	let level = state.level;
-	let xp = state.xp + refund;
-	// the refund is summed in another order than this walk, so a level it
-	// lands exactly on can come out a hair short
-	while (xp + 1e-3 >= xpForLevel(level)) {
-		xp = Math.max(0, xp - xpForLevel(level));
-		level++;
-	}
+	const fraction = state.xp.div(xpForLevel(state.level));
+	const refund = heldTotal(top, fraction.mul(xpForLevel(top)))
+		.sub(heldTotal(anchor, fraction.mul(xpForLevel(anchor))));
+	const ratio = refund.div(upgradeMinSpend(upgrades));
+	const { level, xp } = xpGivesLevel(heldTotal(state.level, state.xp).add(refund));
 
 	return {
 		level,
 		xp,
 		upgrades,
-		overdrive: Math.max(0, state.overdrive - (ratio > 1 ? ratio : 0)),
+		overdrive: ZERO.max(state.overdrive.sub(ratio.gt(1) ? ratio : ZERO)),
 		prestige: state.prestige,
 		refund,
 	};
@@ -143,33 +143,32 @@ export const canPrestige = (
 /** Prestige a skill: level, xp, upgrades and overdrive all go, and the skill
  *  keeps a bonus level, an extra gear tier and a bigger multiplier.
  *
- *  `spent` is everything the reset levels were worth. The caller takes it off
- *  the running totals, so the overall level falls with the skill - a character
- *  who has prestiged everything is not still carrying the level it all bought.
- *  Lifetime is the exception and never moves: it is what the tooltip hints at.
+ *  `spent` is everything the reset levels were worth. The running totals are set
+ *  from what the skill now holds, so the overall level falls with the skill.
+ *  Lifetime never moves.
  *
  *  `force` resets a skill that is not ready yet: the same reset, without the
  *  prestige it would count. */
 export const applyPrestige = (
 	state: UpgradeState,
 	force = false,
-): UpgradeState & { spent: number } => {
+): UpgradeState & { spent: Big } => {
 	const ready = canPrestige(state);
 	if (!ready && !force) throw new Error('prestige not available');
 
 	return {
 		level: 0,
-		xp: 0,
+		xp: ZERO,
 		upgrades: 0,
-		overdrive: 0,
+		overdrive: ZERO,
 		prestige: state.prestige + (ready ? 1 : 0),
-		spent: xpToLevel(state.level) + state.xp,
+		spent: heldTotal(state.level, state.xp),
 	};
 };
 
 /** The overdrive a prestige turns into climaxx: what the skill holds, plus what
  *  the next upgrade would add if it can be bought now. */
-export const prestigeOverdrive = (state: UpgradeState, overdriveBonus = 0): number =>
+export const prestigeOverdrive = (state: UpgradeState, overdriveBonus = 0): Big =>
 	canUpgrade(state) ? applyUpgrade(state, overdriveBonus).overdrive : state.overdrive;
 
 export const rebirthMinLevel = (generation: number): number =>
@@ -179,27 +178,26 @@ export const canRebirth = (overallLevel: number, generation: number): boolean =>
 	overallLevel >= rebirthMinLevel(generation);
 
 /** Effective boost of raw overdrive: degressive power law, floored at x1. */
-export const overdriveMultiplier = (overdrive: number): number =>
-	Math.max(1, Math.min(
-		overdrive,
-		OVERDRIVE_SCALE * Math.pow(overdrive, OVERDRIVE_EXPONENT),
-	));
+export const overdriveMultiplier = (overdrive: BigLike): Big => {
+	const od = Big.from(overdrive);
+	return ONE.max(od.min(od.pow(OVERDRIVE_EXPONENT).mul(OVERDRIVE_SCALE)));
+};
 
 /** XP-gain multiplier: additive upgrade bonus, amplified by overdrive. */
-export const upgradeXPMultiplier = (upgrades: number, overdrive: number): number =>
-	1 + UPGRADE_XP_BONUS * upgrades * overdriveMultiplier(overdrive);
+export const upgradeXPMultiplier = (upgrades: number, overdrive: BigLike): Big =>
+	overdriveMultiplier(overdrive).mul(UPGRADE_XP_BONUS * upgrades).add(1);
 
 /** Its own pool: multiplicative, and multiplied with the upgrade bonus. */
-export const prestigeXPMultiplier = (prestige: number): number =>
-	Math.pow(1 + PRESTIGE_XP_BONUS, prestige);
+export const prestigeXPMultiplier = (prestige: number): Big =>
+	Big.from(1 + PRESTIGE_XP_BONUS).pow(prestige);
 
 /** Everything a skill's xp gain is multiplied by. */
 export const skillXPMultiplier = (
 	upgrades: number,
-	overdrive: number,
+	overdrive: BigLike,
 	prestige: number,
-): number =>
-	upgradeXPMultiplier(upgrades, overdrive) * prestigeXPMultiplier(prestige);
+): Big =>
+	upgradeXPMultiplier(upgrades, overdrive).mul(prestigeXPMultiplier(prestige));
 
 /** A skill of the character's picked ruleset. */
 export const upgradeBody = z.object({ skill: z.string() });

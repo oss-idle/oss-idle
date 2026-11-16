@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -31,12 +31,12 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>Best Performance</Trans>
 				<div className='character__block-section-title-count'>
-					{bignum(Math.min(200, countplayed ?? 0))}
+					{formatBig(Math.min(200, countplayed ?? 0))}
 				</div>
 			</div>
 			<div className='character__best_pp'>
 				{bestpp.items?.map(score => (
-					<ScoreRow key={score.best_pp.id} score={score.best_pp} beatmap={score.beatmap} />
+					<ScoreRow key={score.best_pp.id} score={score.best_pp} ruleset={ruleset} beatmap={score.beatmap} />
 				))}
 			</div>
 			<ShowMoreLink {...bestpp} onClick={bestpp.more} />
@@ -45,13 +45,13 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>First Place Ranks</Trans>
 				<div className='character__block-section-title-count'
-				>{bignum(countfirstplaces)}
+				>{formatBig(countfirstplaces ?? 0)}
 				</div>
 			</div>
 			<div className='character__first_places'>
 				{firstplaces.items?.map(score => (
 					<ScoreRow
-						key={score.first_place.id} score={score.first_place} beatmap={score.beatmap}
+						key={score.first_place.id} score={score.first_place} ruleset={ruleset} beatmap={score.beatmap}
 						loved={score.beatmapset.status === 'loved'}
 					/>
 				))}
@@ -62,13 +62,13 @@ export default function CharacterTopRanks({ id, ruleset, countplayed }: {
 			<div className='character__block-section-title'>
 				<Trans>Recent scores</Trans>
 				<div className='character__block-section-title-count'>
-					{bignum(recentscores.items?.length)}
+					{formatBig(recentscores.items?.length ?? 0)}
 				</div>
 			</div>
 			<div className='character__first_places'>
 				{recentscores.items?.map(score => (
 					<ScoreRow
-						key={score.score.id} score={score.score} beatmap={score.beatmap}
+						key={score.score.id} score={score.score} ruleset={ruleset} beatmap={score.beatmap}
 						loved={score.beatmapset.status === 'loved'}
 					/>
 				))}

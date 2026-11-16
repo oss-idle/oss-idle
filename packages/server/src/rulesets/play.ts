@@ -1,3 +1,4 @@
+import type { Big } from '@oss-idle/shared/big';
 import type { Grade } from '@oss-idle/shared/grade';
 import type { Mod } from '@oss-idle/shared/mods';
 import type { StrainSamples } from '@oss-idle/shared/play';
@@ -29,6 +30,8 @@ export type PlayInput = {
 	/** onto an unranked map's leaderboard: no xp */
 	board: boolean,
 	tired: Tiredness,
+	/** debug xp scaling (dev) */
+	xpMultiplier?: number,
 };
 
 /** A simulated play, everything the server stores and streams of it. */
@@ -54,8 +57,8 @@ export type Simulated = {
 	failedAt?: number,
 	failProgress?: number,
 	failSeconds?: number,
-	/** per-skill xp, mods applied, before any debug scaling */
-	skillXp: Record<string, number>,
+	/** per-skill xp: the raw xp times every multiplier, floored once */
+	skillXp: Record<string, Big>,
 	/** per-skill xp the play's strain is worth before anything multiplies it */
 	rawXp?: Record<string, number>,
 	/** the strain gauges over the play, streamed with its offsets */

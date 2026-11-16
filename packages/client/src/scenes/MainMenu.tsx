@@ -1,6 +1,7 @@
 import './MainMenu.css';
 
 import { faDiscord } from '@fortawesome/free-brands-svg-icons/faDiscord';
+import { faTwitch } from '@fortawesome/free-brands-svg-icons/faTwitch';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
 	ph,
@@ -71,6 +72,8 @@ import Background from './Background';
 import SceneManager, { SCENE } from './SceneManager';
 import useAwayHours from './useAwayHours';
 
+/** Adri's Twitch channel, where Amadeus plays the game by itself and chat steers it. */
+const TWITCH_URL = 'https://www.twitch.tv/adri_osu';
 const EXIT_FADE_MS = 2000;
 /** the window stays up this long after the seeya ends */
 const SEEYA_TAIL_MS = 600;
@@ -407,6 +410,15 @@ export default function MainMenu({ flash = false }: Props) {
 					aria-label="Discord"
 				>
 					<FontAwesomeIcon icon={faDiscord} />
+				</a>
+				<a
+					className="menu__twitch"
+					href={TWITCH_URL}
+					target="_blank"
+					rel="noreferrer"
+					aria-label="Twitch"
+				>
+					<FontAwesomeIcon icon={faTwitch} />
 				</a>
 				<Changelog />
 			</div>

@@ -1,4 +1,7 @@
-import type { CharacterDTO } from '@oss-idle/shared/character';
+import {
+	type CharacterDTO,
+	characterDTO,
+} from '@oss-idle/shared/character';
 import { desktop } from '@oss-idle/shared/desktop';
 import Log, { POPUP_TYPE } from '@oss-idle/shared/helpers/log';
 import sleep from '@oss-idle/shared/helpers/sleep';
@@ -136,7 +139,7 @@ export default class Account {
 	public static async refresh(): Promise<void> {
 		const res = await rpc.v1.me.character.$get();
 		if (!res.ok) return;
-		await Account.character.set(await res.json());
+		await Account.character.set(characterDTO.nullable().parse(await res.json()));
 	}
 
 	/** Onboard: create the account's character. Always fresh - local Guest
@@ -148,9 +151,9 @@ export default class Account {
 			throw new Error(`onboarding failed (${res.status})${detail ? `: ${detail}` : ''}`);
 		}
 
-		const characterDTO = await res.json();
+		const character = characterDTO.parse(await res.json());
 		await Account.needsOnboarding.set(false);
-		await Account.character.set(characterDTO);
+		await Account.character.set(character);
 	}
 }
 
@@ -173,7 +176,7 @@ async function probeSession(): Promise<boolean> {
 		let character: CharacterDTO | null = null;
 		if (user) {
 			const charRes = await rpc.v1.me.character.$get(undefined, { init: { signal } });
-			character = charRes.ok ? await charRes.json() : null;
+			character = charRes.ok ? characterDTO.nullable().parse(await charRes.json()) : null;
 		}
 
 		// Commit only once both calls have answered, so the avatar (user) and the

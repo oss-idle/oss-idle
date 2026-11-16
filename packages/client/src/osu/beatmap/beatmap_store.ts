@@ -20,6 +20,7 @@ import {
 	diskChart,
 	diskCharts,
 	diskFile,
+	diskFileNames,
 	diskFiles,
 	diskMeta,
 	diskOsbName,
@@ -668,7 +669,16 @@ export default class BeatmapStore {
 		);
 	}
 
-	private static async file(setId: number, name: string): Promise<Blob | undefined> {
+	/** The names of a set's stored files but its charts. */
+	public static async fileNames(setId: number): Promise<string[]> {
+		if (await onDisk()) return diskFileNames(setId);
+		const keys = await request<IDBValidKey[]>('files', 'readonly',
+			(s) => s.getAllKeys(IDBKeyRange.bound(`${setId}/`, `${setId}/\uffff`)),
+		);
+		return keys.map(key => String(key).slice(`${setId}/`.length));
+	}
+
+	public static async file(setId: number, name: string): Promise<Blob | undefined> {
 		if (await onDisk()) return diskFile(setId, name);
 		return request<Blob | undefined>('files', 'readonly', 
 			(s) => s.get(fileKey(setId, name)),

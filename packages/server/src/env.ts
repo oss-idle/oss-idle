@@ -27,6 +27,8 @@ const schema = z.object({
 	API_URL: z.url().optional(),
 	// The PBE: production, plus its players' tools (pbe/). Never set on prod.
 	PBE: z.literal('1').optional(),
+	// Amadeus's sign-in (routes/auth.ts): without it nobody can sign in as that account.
+	AMADEUS_KEY: z.string().min(32).optional(),
 	API_URL_PROD: z.url().default('https://api.oss.idle.rhythmgamers.net'),
 	// The session cookie, for a production server sharing prod's domain with its own sessions.
 	SESSION_COOKIE_NAME: z.string().min(1).default('session'),
@@ -101,6 +103,9 @@ const schema = z.object({
 	// (packages/discord) can give them their level role. No secret, no linking.
 	DISCORD_CLIENT_ID: z.string().min(1).default('1517803750968918037'),
 	DISCORD_CLIENT_SECRET: z.string().optional(),
+	// The oss!idle Twitch app: OAuth links a player's Twitch account. No secret, no linking.
+	TWITCH_CLIENT_ID: z.string().min(1).default('94q0n54u4thbiubh3izgns7thwkm3y'),
+	TWITCH_CLIENT_SECRET: z.string().optional(),
 
 	// Bytes/s a supporter's "download every ranked beatmap" gets, so one bulk
 	// download can't take the uplink from players. Tune to the host's upload.
@@ -200,6 +205,9 @@ export const OSU_REDIRECT_URI = `${apiBaseUrl}/v1/auth/osu/callback`;
 
 /** Discord OAuth callback (both dev + prod variants are registered on the app). */
 export const DISCORD_REDIRECT_URI = `${apiBaseUrl}/v1/auth/discord/callback`;
+
+/** Twitch OAuth callback, registered on the Twitch app. */
+export const TWITCH_REDIRECT_URI = `${apiBaseUrl}/v1/auth/twitch/callback`;
 
 /** itch.io OAuth callback, registered on the itch.io app. */
 export const ITCH_REDIRECT_URI = `${apiBaseUrl}/v1/store/itch/callback`;

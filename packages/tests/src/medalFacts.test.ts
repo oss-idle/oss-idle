@@ -11,7 +11,7 @@ import {
 
 const none: ScoreFacts = {
 	pass: 0, fc: 0, topPlay: 0, rice: false, ln: false, combo727: false,
-	possessed: false, parallax: false, wonderful: false, grades: [],
+	possessed: false, parallax: false, wonderful: false, diva: false, grades: [],
 };
 
 describe('mergeFacts', () => {

@@ -7,17 +7,22 @@ import {
 import {
 	type Anchor,
 	skillsAt,
+	type SkillTuple,
 	windowsOf,
 } from '../../server/src/db/reprocess/state';
+import { Big } from '../../shared/src/big';
 
 // [level, xp, upgrades, overdrive, prestige, lifetime xp]
+const tuple = (t: number[]): SkillTuple => [
+	t[0], Big.from(t[1]), t[2], Big.from(t[3]), t[4], Big.from(t[5]),
+];
 const anchor = (
 	maxScoreId: number, speed: number[], stamina = [0, 0, 0, 0, 0, 0], fatigue = true,
 ): Anchor => ({
 	maxScoreId, fatigue, profile: {
 		skills: {
-			speed, stamina, 
-		}, 
+			speed: tuple(speed), stamina: tuple(stamina),
+		},
 	},
 });
 const skills = ['speed', 'stamina'];
@@ -37,7 +42,7 @@ describe('score reprocessing state', () => {
 		const start = anchor(10, [5, 0, 0, 0, 0, 1000]);
 		const at = skillsAt(start, anchor(20, [9, 0, 0, 0, 0, 3000]), 0.25, skills, discrete);
 		expect(at.ambiguous).toBe(false);
-		expect(at.progress.speed.lifetimeXp).toBe(1500);
+		expect(at.progress.speed.lifetimeXp.eq(1500)).toBe(true);
 		expect(at.old?.speed.level).toBeGreaterThanOrEqual(5);
 	});
 
@@ -60,7 +65,8 @@ describe('score reprocessing state', () => {
 		expect(ambiguous(start, anchor(20, [5, 0, 0, 0, 0, 3000], [0, 0, 1, 0, 0, 0]))).toBe(true);
 		// before the first dump, at the first skills known after it
 		expect(ambiguous(undefined, start)).toBe(true);
-		expect(skillsAt(undefined, start, 0.1, skills, discrete).progress.speed.lifetimeXp).toBe(1000);
+		expect(skillsAt(undefined, start, 0.1, skills, discrete).progress.speed.lifetimeXp.eq(1000))
+			.toBe(true);
 		// fatigue went live in between
 		const cold = anchor(10, [5, 0, 0, 0, 0, 1000], undefined, false);
 		expect(ambiguous(cold, anchor(20, [5, 0, 0, 0, 0, 3000]))).toBe(true);

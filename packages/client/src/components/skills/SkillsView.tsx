@@ -42,7 +42,7 @@ export default function SkillsView({ character }: { character: Character }) {
 		genetics && geneticsXpParts(genetics, held, skill.name),
 	));
 	// every bar is drawn against the biggest total; all at x1 draws nothing
-	const scale = Math.log(Math.max(...stats.map(s => s.total))) || 1;
+	const scale = Math.max(...stats.map(s => s.total.log10())) || 1;
 
 	return (
 		<div className="ladder">

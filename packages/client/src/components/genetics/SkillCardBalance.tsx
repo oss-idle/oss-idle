@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import { ZERO } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import {
 	CLIMAXX_SYMBOL,
@@ -47,7 +48,7 @@ export default function SkillCardBalance({
 				<div className="gene-card__acts">
 					<button
 						className="gene-card__sell"
-						disabled={busy || overdrive < need}
+						disabled={busy || overdrive.lt(need)}
 						onMouseEnter={() => uiSound('ui/default-hover')}
 						onClick={onConvert}
 					>
@@ -55,7 +56,7 @@ export default function SkillCardBalance({
 							<ConvertText
 								need={need}
 								overdrive={overdrive}
-								gain={conversionGain(genetics.converted[skill] ?? 0, need)}
+								gain={conversionGain(genetics.converted[skill] ?? ZERO, need)}
 							/>
 						</span>
 					</button>

@@ -1,6 +1,7 @@
 import { HTTPException } from 'hono/http-exception';
 import { BeatmapDecoder } from 'osu-parsers';
 
+import { ZERO } from '@oss-idle/shared/big';
 import type { DebugSimBody } from '@oss-idle/shared/debug';
 import {
 	fatigueLevel,
@@ -41,8 +42,8 @@ const debugPlay = (profile: ProfileRow, knobs: DebugSimBody): SimPlay<SkillName>
 		return {
 			level,
 			prestige,
-			xp: kept ? own.xp : 0,
-			lifetimeXp: kept && own.prestige === prestige ? own.lifetimeXp : 0,
+			xp: kept ? own.xp : ZERO,
+			lifetimeXp: kept && own.prestige === prestige ? own.lifetimeXp : ZERO,
 			upgrades: Math.min(own.upgrades, maxUpgrades(prestige)),
 			overdrive: own.overdrive,
 		};

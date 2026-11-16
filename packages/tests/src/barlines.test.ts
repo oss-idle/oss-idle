@@ -37,3 +37,34 @@ describe('buildBarlines', () => {
 		expect(lines.filter(l => l.time >= 58409 && l.time < 58609)).toHaveLength(9);
 	});
 });
+
+// Bar line art as Amethyst Aurora [Aspire] (5965315) draws it: red lines without the omit flag
+// whose green line at the same time has it, and red lines less than a ms apart.
+const ART = `osu file format v14
+
+[General]
+Mode: 3
+
+[Difficulty]
+CircleSize:4
+OverallDifficulty:8
+
+[TimingPoints]
+0,500,9999,1,0,100,1,8
+1000,500,9999,1,0,100,1,0
+1000,-50,4,1,0,100,0,8
+2000,500,9999,1,0,100,1,0
+2000.4,500,9999,1,0,100,1,0
+2000.6,500,9999,1,0,100,1,8
+
+[HitObjects]
+64,192,5000,1,0,0:0:0:0:
+`;
+
+describe('bar line art', () => {
+	it('draws a line for each red line by its own omit flag, however close the next one is', () => {
+		const beatmap = new BeatmapDecoder().decodeFromString(ART);
+		const lines = buildBarlines(beatmap, 6000, new ScrollModel(beatmap));
+		expect(lines.map(l => l.time)).toEqual([1000, 2000, 2000.4]);
+	});
+});

@@ -11,7 +11,7 @@ import type { PresenceEntry } from '@oss-idle/shared/community/presence';
 import accuracyText from '@oss-idle/shared/display/accuracy';
 import { statusName } from '@oss-idle/shared/display/community';
 import { countryName } from '@oss-idle/shared/display/country';
-import num, { bignum } from '@oss-idle/shared/display/num';
+import num, { formatBig } from '@oss-idle/shared/display/num';
 import {
 	rankTier,
 	rankTierGradient,
@@ -48,7 +48,7 @@ export default function NameCard({ p, offline = false, color, bannerUrl, friends
 					<span
 						className="name-card__rank"
 						style={tier ? { backgroundImage: rankTierGradient(tier) } : undefined}
-					>#{bignum(p.rank)}</span>
+					>#{formatBig(p.rank)}</span>
 				) : undefined}
 			</div>
 			<div className="name-card__status" data-status={offline ? 'offline' : p.status}>

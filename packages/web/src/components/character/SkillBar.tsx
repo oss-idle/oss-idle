@@ -1,10 +1,13 @@
 import './SkillBar.css';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import type { BigLike } from '@oss-idle/shared/big';
+import { formatBig } from '@oss-idle/shared/display/num';
+import PrestigeDiamonds from '@oss-idle/shared/display/PrestigeDiamonds';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 import {
 	levelProgress,
+	playLevelOf,
 	xpForLevel,
 	xpGivesLevel,
 } from '@oss-idle/shared/xp';
@@ -17,7 +20,7 @@ export function SkillBar({ ruleset, skill, progress: {
 	ruleset: RulesetId,
 	skill: string,
 	progress: {
-		level: number, xp: number, prestige?: number, lifetimeXp?: number
+		level: number, xp: BigLike, prestige?: number, lifetimeXp?: BigLike
 	}
 }) {
 	// the bar fills toward the next level shown: lifetime's when it is ahead, as the level is
@@ -38,24 +41,25 @@ export function SkillBar({ ruleset, skill, progress: {
 			<div
 				className='skill__track'
 				title={
-					`${bignum(at.xp)} / ${bignum(toNext)} XP to next level`
+					`${formatBig(at.xp)} / ${formatBig(toNext)} XP to next level`
 				}
 			>
 				<div className='skill__fill' style={{ width: `${percent*100}%` }} />
 			</div>
 			<span className='skill__level'>
 				<SkillLevel level={level} xp={xp} prestige={prestige} lifetimeXp={lifetimeXp} />
-				{overall && <span className='skill__cap'>{level < 100 && '/100'}</span>}
+				{overall && <span className='skill__cap'>
+					{playLevelOf(level, xp, lifetimeXp ?? 0, prestige) < 100 && '/100'}
+				</span>}
 			</span>
-			{/* one star per prestige, on a line under the whole row - a count
-			    beside the name was too small to read. The line is always there,
-			    so one prestiged skill does not make its row taller than the rest. */}
+			{/* the game's prestige diamonds, on a line under the whole row. The line is
+			    always there, so one prestiged skill does not make its row taller. */}
 			<span
 				className='skill__prestige'
 				title={prestige
 					? `Prestiged ${prestige} time${prestige === 1 ? '' : 's'}`
 					: undefined}
-			>{'★'.repeat(prestige ?? 0)}</span>
+			>{(prestige ?? 0) > 0 && <PrestigeDiamonds prestige={prestige ?? 0} />}</span>
 		</li>
 	);
 }

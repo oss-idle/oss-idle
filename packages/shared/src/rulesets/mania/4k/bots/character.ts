@@ -5,6 +5,7 @@ import normalize from '../../../../math/normalize.js';
 import transpose from '../../../../math/transpose.js';
 import type { Mod } from '../../../../mods.js';
 import type { SkillGain } from '../../../../play.js';
+import { scaleXp } from '../../../../xpGain.js';
 import {
 	Bot,
 	type BotContext,
@@ -12,7 +13,7 @@ import {
 import { JUDGEMENT } from '../../judgement.js';
 import type RuntimeNote from '../../runtimeNote.js';
 import type { HitWindows } from '../../scoring.js';
-import { modXp } from '../modXp.js';
+import { modXpMultipliers } from '../modXp.js';
 import { skillProfiler } from '../profiler.js';
 import {
 	PRESSURE_SKILLS,
@@ -548,6 +549,8 @@ export default class CharacterBot extends Bot {
 	}
 
 	private xp?: Record<SkillName, number>;
+	/** What the play's strain is worth before anything of the character's multiplies it. */
+	private raw = {} as Record<SkillName, number>;
 	getSkillsXP(
 		length: number, 
 		score: ScoreLike, 
@@ -595,21 +598,28 @@ export default class CharacterBot extends Bot {
 
 		for (const skill of this.skills) {
 			const level = skill.level.get();
-			this.xp[skill.name] = Math.floor(
-				skill.xpMultiplier()
-				* factorXP(skill.name, this.xp[skill.name], level, score, notes, nonAcc, length),
+			this.raw[skill.name] = factorXP(
+				skill.name, this.xp[skill.name], level, score, notes, nonAcc, length,
 			);
+			this.xp[skill.name] = Math.floor(this.raw[skill.name]);
 		}
 
 		return this.xp;
 	}
 
-	/** The share of the play's notes on which any skill in `thresholds` strained past its threshold. */
+	/** {@link getSkillsXP} unfloored: the same for anyone at that level. */
+	getRawXP(length: number, score: ScoreLike): Record<SkillName, number> {
+		this.getSkillsXP(length, score);
+		return this.raw;
+	}
+
+	/** The share of the play's notes on which any skill in `thresholds` strained past its threshold, above its resting baseline. */
 	strainedShare(thresholds: Partial<Record<SkillName, number>>): number {
 		const strained = new Set<RuntimeNote>();
 		for (const [skill, threshold] of Object.entries(thresholds) as [SkillName, number][]) {
 			for (const s of this.mapStrain[skill]) {
-				if (Math.max(s.strain, s.release ?? 0) > threshold) strained.add(s.note);
+				const base = Math.min(s.baseline ?? 0, 0.99);
+				if ((Math.max(s.strain, s.release ?? 0) - base) / (1 - base) > threshold) strained.add(s.note);
 			}
 		}
 		return this.noteStrains.size ? strained.size / this.noteStrains.size : 0;
@@ -627,11 +637,10 @@ export default class CharacterBot extends Bot {
 	): SkillProgress[] {
 		if (this.progression) return this.progression;
 
-		const xp = modXp(this.getSkillsXP(length, score), mods);
-		for (const name of Object.keys(xp) as SkillName[]) {
-			const factor = Math.max(1, xpMultiplier) * (perSkill[name] ?? 1);
-			if (factor !== 1) xp[name] = Math.floor(xp[name] * factor);
-		}
+		const modded = modXpMultipliers(mods);
+		const xp = scaleXp(this.getRawXP(length, score), name =>
+			this.skills.find(s => s.name === name)!.xpMultiplier()
+				.mul(modded[name] * Math.max(1, xpMultiplier) * (perSkill[name] ?? 1)));
 		this.progression = this.skills.map((skill) => {
 			const gained = xp[skill.name];
 			const fromLevel = skill.level.get();

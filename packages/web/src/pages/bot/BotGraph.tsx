@@ -8,7 +8,7 @@ import {
 	type BotMatchRanks,
 } from '@oss-idle/shared/botMatch';
 import { levelNode } from '@oss-idle/shared/display/levelDisplay';
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import { skillName } from '@oss-idle/shared/rulesets/mania/4k/display';
 
 import BotGraphLevel from './BotGraphLevel';
@@ -55,7 +55,7 @@ export default function BotGraph({ levels, overall, ranks, rough, measured }: {
 			left: `${cx / width * 100}%`, top: `${cy / height * 100}%`, 
 		}}>
 			<div className='bot-graph__overall'>{levelNode(middle, middle - Math.floor(middle))}</div>
-			{ranks && <div className='bot-graph__place'>#{bignum(ranks.overall)}</div>}
+			{ranks && <div className='bot-graph__place'>#{formatBig(ranks.overall)}</div>}
 		</div>
 	</div>;
 }

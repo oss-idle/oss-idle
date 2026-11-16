@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { bigNonNegSchema } from './big.js';
 import { geneticsSchema } from './genetics.js';
 import {
 	type Grade,
@@ -10,12 +11,12 @@ import { RULESET_IDS } from './rulesets/ids.js';
 
 export const skillProgressDTO = z.object({
 	level: z.number().int().min(0),
-	xp: z.number().int().min(0),
+	xp: bigNonNegSchema,
 	upgrades: z.number().int().min(0),
-	overdrive: z.number().min(0),
+	overdrive: bigNonNegSchema,
 	prestige: z.number().int().min(0),
 	/** Xp ever earned on the skill: spending never takes it back. */
-	lifetimeXp: z.number().int().min(0),
+	lifetimeXp: bigNonNegSchema,
 });
 export type SkillProgressDTO = z.infer<typeof skillProgressDTO>;
 

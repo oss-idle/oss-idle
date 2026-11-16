@@ -14,6 +14,7 @@ import type {
 	ReplayOffset,
 } from '@oss-idle/shared/rulesets/mania/maniaGame';
 
+import { recordResult } from '../addons/state';
 import Character from '../db/schema/character';
 import { MemoryFail } from '../db/schema/memory_fail';
 import { Score } from '../db/schema/score';
@@ -342,6 +343,7 @@ export const finalizeLocalPlay = async (token: string): Promise<void> => {
 		}
 		logPlayFinished(saved, run.beatmap, gains);
 	}
+	recordResult(run.beatmapId, failed, failed ? undefined : saved, gains);
 
 	result = {
 		at: Date.now(),

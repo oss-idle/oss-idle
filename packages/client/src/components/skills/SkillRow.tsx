@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import { Big } from '@oss-idle/shared/big';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 
 import { selectedDef } from '../../rulesets/registry';
@@ -8,7 +9,7 @@ import SkillEquation from './SkillEquation';
 import type { SkillStats } from './skillStats';
 
 /** One skill: what it does, its gear, its XP multiplier part by part, and a bar of what
- *  each source adds. `scale` is the log of the biggest total, the full bar. */
+ *  each source adds. `scale` is the log10 of the biggest total, the full bar. */
 export default function SkillRow({
 	s,
 	scale,
@@ -16,7 +17,7 @@ export default function SkillRow({
 }: {
 	s: SkillStats,
 	scale: number,
-	lifetimeXp?: number,
+	lifetimeXp?: Big,
 }) {
 	const name = s.skill.name;
 	const parts = [
@@ -27,7 +28,7 @@ export default function SkillRow({
 	] as const;
 
 	return (
-		<div className={`skill-row ${s.total > 1 ? '' : 'is-base'}`}>
+		<div className={`skill-row ${s.total.gt(1) ? '' : 'is-base'}`}>
 			<div className="skill-row__skill">
 				<span className="skill-row__name">{selectedDef().skillName(name)}</span>
 				<span className="skill-row__lv">
@@ -44,8 +45,8 @@ export default function SkillRow({
 			<div className="skill-row__mult">
 				<SkillEquation s={s} />
 				<div className="skill-bar">
-					{parts.map(([kind, factor]) => factor > 1 && (
-						<span key={kind} className={kind} style={{ width: `${Math.log(factor) / scale * 100}%` }} />
+					{parts.map(([kind, factor]) => Big.from(factor).gt(1) && (
+						<span key={kind} className={kind} style={{ width: `${Big.from(factor).log10() / scale * 100}%` }} />
 					))}
 				</div>
 			</div>

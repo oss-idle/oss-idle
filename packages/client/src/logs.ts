@@ -5,7 +5,7 @@ import {
 
 import type { ChatLine } from '@oss-idle/shared/community/wire';
 import accuracyText from '@oss-idle/shared/display/accuracy';
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import type { Grade } from '@oss-idle/shared/grade';
 import Synced from '@oss-idle/shared/helpers/synced';
 import type { Mod } from '@oss-idle/shared/mods';
@@ -57,9 +57,9 @@ export const log = (text: string, color = LOG_COLOR, at = Date.now()): void => {
 
 const gainsSummary = (progression?: SkillGain[]): string => {
 	const gains = (progression ?? [])
-		.filter(g => g.gained > 0)
-		.sort((a, b) => b.gained - a.gained)
-		.map(g => `+${mark('xp', bignum(g.gained), g.gained)} ${mark('skill', selectedDef().skillName(g.skill))}`
+		.filter(g => g.gained.gt(0))
+		.sort((a, b) => b.gained.cmp(a.gained))
+		.map(g => `+${mark('xp', formatBig(g.gained), g.gained)} ${mark('skill', selectedDef().skillName(g.skill))}`
 			+ (g.toLevel > g.fromLevel ? ` (${mark('level', `lv${g.fromLevel} to lv${g.toLevel}`)})` : ''));
 	return gains.length ? gains.join(', ') : t`No XP gained.`;
 };
@@ -90,16 +90,15 @@ export const logPlayFinished = (
 	logSkillLevelUps(progression, score.playedAt);
 };
 
-/** One #logs line per level crossed this play, every level, every time. */
+/** One #logs line per skill that levelled up this play. */
 const logSkillLevelUps = (progression?: SkillGain[], at = Date.now()): void => {
 	for (const g of progression ?? []) {
+		if (g.toLevel <= g.fromLevel) continue;
 		const skill = selectedDef().skillName(g.skill);
-		for (let level = g.fromLevel + 1; level <= g.toLevel; level++) {
-			log(
-				t`${ph({ skill: mark('skill', skill) })} reached level ${ph({ level: mark('level', String(level)) })}!`,
-				PLAY_COLOR,
-				at,
-			);
-		}
+		log(
+			t`${ph({ skill: mark('skill', skill) })} reached level ${ph({ level: mark('level', String(g.toLevel)) })}!`,
+			PLAY_COLOR,
+			at,
+		);
 	}
 };

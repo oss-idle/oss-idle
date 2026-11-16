@@ -1,7 +1,7 @@
 import { keptShare } from '../../../fatigue.js';
 import {
+	heldTotal,
 	xpGivesLevel,
-	xpToLevel,
 } from '../../../xp.js';
 import { PHYSICAL_SKILLS } from './skills.js';
 import { makeOrderedSkills } from './skills/factory.js';
@@ -13,9 +13,10 @@ export const tireSkill = (skill: Skill, fatigue: number, warm = 1) => {
 	if (!PHYSICAL_SKILLS.includes(skill.name)) return;
 	const kept = keptShare(skill.playLevel(), fatigue, warm);
 	if (kept >= 1) return;
-	const { level, xp } = xpGivesLevel((xpToLevel(skill.level.get()) + skill.xp.get()) * kept);
+	const { level, xp } = xpGivesLevel(heldTotal(skill.level.get(), skill.xp.get()).mul(kept));
 	skill.level.set(level);
 	skill.xp.set(xp);
+	skill.lifetimeXp.set(skill.lifetimeXp.get().mul(kept));
 };
 
 /** A tired copy of `skills`, leaving the originals as they are. */

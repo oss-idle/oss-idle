@@ -4,11 +4,18 @@ import '../components/addons/addons.css';
 import type { ReactNode } from 'react';
 
 import { ADDON_KIND } from '@oss-idle/shared/addon';
+import {
+	Big,
+	type BigLike,
+	ZERO,
+} from '@oss-idle/shared/big';
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
 import {
 	ANNOUNCE_CHANNEL,
 	type ChatLine,
+	MAPS_CHANNEL,
 } from '@oss-idle/shared/community/wire';
+import { climaxxOfOverdrive } from '@oss-idle/shared/genetics';
 import type { Grade } from '@oss-idle/shared/grade';
 import type { Mod } from '@oss-idle/shared/mods';
 import type { Match } from '@oss-idle/shared/multiplayer';
@@ -33,6 +40,7 @@ import type {
 	JudgementCounts,
 	ScoreDTO,
 } from '@oss-idle/shared/score';
+import { gainLevels } from '@oss-idle/shared/xp';
 
 import type { MedalUnlock } from '../achievements/medalUnlocks';
 import AddonView, {
@@ -47,7 +55,10 @@ import ChannelPicker from '../components/community/chat/ChannelPicker';
 import Chat from '../components/community/chat/Chat';
 import ChatText from '../components/community/chat/ChatText';
 import NameCard from '../components/community/chat/NameCard';
-import { activeChatTab } from '../components/community/chat/state';
+import {
+	activeChatTab,
+	chatTabs,
+} from '../components/community/chat/state';
 import LinkMenu from '../components/community/LinkMenu';
 import { showChat } from '../components/community/state';
 import ConfirmMenu from '../components/ConfirmMenu';
@@ -137,6 +148,7 @@ import TimingPointPreview from './TimingPointPreview';
 import {
 	bigNumbersCharacter,
 	convertingCharacter,
+	hugeCharacter,
 	REBORN_GENETICS,
 	SAMPLE_GENETICS_7K,
 	sampleCharacter,
@@ -149,15 +161,15 @@ const gain = (
 	skill: string,
 	fromLevel: number,
 	toLevel: number,
-	gained: number,
+	gained: BigLike,
 	toFill = 0,
 ): SkillProgress => ({
 	skill,
-	gained,
+	gained: Big.from(gained),
 	fromLevel,
-	fromXp: 0,
+	fromXp: ZERO,
 	toLevel,
-	toXp: toFill * Skill.xpForLevel(toLevel),
+	toXp: Skill.xpForLevel(toLevel).mul(toFill),
 	levels: toLevel - fromLevel,
 } as SkillProgress);
 
@@ -172,6 +184,20 @@ const BIG_SKILLS = [
 ];
 const BIG_GAINS = [812, 14_230, 420_000, 2_810_000, 95_000_000, 4_200_000_000, 1.3e12]
 	.map((xp, i) => gain(BIG_SKILLS[i], 0, 3 + i * 4, xp));
+
+/** XP, overdrive and climaxx far past anything played yet. */
+const HUGE: [tag: string, xp: string][] = [
+	['1e30', '1e30'], ['1e300', '1e300'], ['1e3000', '1e3000'], ['1e1e15', '1e1000000000000000'],
+];
+
+/** Skills that each crossed thousands of levels and more in one play. */
+const hugeGains = (xp: string): SkillProgress[] => BIG_SKILLS.slice(0, 3).map((skill, i) => {
+	const gained = Big.from(xp).div(Big.from(10).pow(i * 3));
+	const to = gainLevels(0, ZERO, gained);
+	return {
+		skill, gained, fromLevel: 0, fromXp: ZERO, toLevel: to.level, toXp: to.xp, levels: to.levels,
+	} as SkillProgress;
+});
 
 /** A queue of maps that were never downloaded - enough for the dock and the
  *  rail to render, which is all these cases need. */
@@ -326,9 +352,9 @@ type PlaygroundCase = {
 const tieredSkill = () => {
 	const skill = makeOrderedSkills().find(s => s.name === 'accuracy')!;
 	void skill.level.set(101);
-	void skill.xp.set(Skill.xpForLevel(101) * 0.35);   // decimals visible
+	void skill.xp.set(Skill.xpForLevel(101).mul(0.35));   // decimals visible
 	void skill.upgrades.set(10);
-	void skill.overdrive.set(4.2);
+	void skill.overdrive.set(Big.from(4.2));
 	void skill.prestige.set(1);
 	return skill;
 };
@@ -426,6 +452,42 @@ const NAME_CARD_SAMPLES = [
 	[2, 'pink', 'playing'], [3, '#6cf', 'idle'], [4, '#fc6', 'afk'],
 ] as const;
 
+/** Every screen showing XP, overdrive and climaxx, at one huge size. */
+const hugeCases = ([tag, xp]: [string, string]): PlaygroundCase[] => {
+	const total = Big.from(xp);
+	const climaxx = climaxxOfOverdrive(total);
+	const tab = (view: 'upgrades' | 'skills' | 'prestige' | 'genetics', render: () => ReactNode) => ({
+		id: `huge-${view}-${tag}`,
+		label: `Huge numbers - ${view} at ${tag} XP`,
+		render: () => <UpgradesPreview tab={view}>{render()}</UpgradesPreview>,
+	});
+	return [
+		tab('upgrades', () => <UpgradesView character={hugeCharacter(xp)} />),
+		tab('skills', () => <SkillsView character={hugeCharacter(xp)} />),
+		tab('prestige', () => <PrestigeView character={hugeCharacter(xp)} />),
+		tab('genetics', () => <GeneticsView character={hugeCharacter(xp)} />),
+		{
+			id: `huge-result-${tag}`,
+			label: `Huge numbers - result at ${tag} XP`,
+			render: () => <Result score={sampleScore()} progression={hugeGains(xp)} beatmap={fakeQueue()[0]} />,
+		},
+		{
+			id: `huge-chips-${tag}`,
+			label: `Huge numbers - song select XP chips at ${tag}`,
+			render: () => <BigNumbersChips sizes={[[total, total]]} />,
+		},
+		{
+			id: `huge-climaxx-${tag}`,
+			label: `Huge numbers - overdrive becoming climaxx at ${tag}`,
+			render: () => (
+				<PrestigeClimaxxPop
+					skill="accuracy" overdrive={total} before={climaxx} gain={climaxx} onClose={() => {}}
+				/>
+			),
+		},
+	];
+};
+
 /** Each case renders one component in isolation, with the inputs that are
  *  awkward to reach by playing the game. */
 export const PLAYGROUND_CASES: PlaygroundCase[] = [
@@ -491,17 +553,23 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 	{
 		id: 'xpbar-single',
 		label: 'XP bar - one level',
-		render: () => <SkillXPBar progress={gain('accuracy', 3, 4, 420)} />,
+		render: () => <div className="result__skills">
+			<SkillXPBar progress={gain('accuracy', 3, 4, 420)} />
+		</div>,
 	},
 	{
 		id: 'xpbar-many',
 		label: 'XP bar - 81 levels',
-		render: () => <SkillXPBar progress={gain('accuracy', 0, 81, 298_000)} budgetMs={4000} />,
+		render: () => <div className="result__skills">
+			<SkillXPBar progress={gain('accuracy', 0, 81, 298_000)} budgetMs={4000} />
+		</div>,
 	},
 	{
 		id: 'xpbar-past-100',
 		label: 'XP bar - 98 to 104, coloured decimals',
-		render: () => <SkillXPBar progress={gain('accuracy', 98, 104, 90_000_000, 0.45)} />,
+		render: () => <div className="result__skills">
+			<SkillXPBar progress={gain('accuracy', 98, 104, 90_000_000, 0.45)} />
+		</div>,
 	},
 	{
 		id: 'big-xp',
@@ -636,7 +704,10 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		id: 'prestige-climaxx',
 		label: 'Prestige - overdrive becoming climaxx',
 		render: () => (
-			<PrestigeClimaxxPop skill="accuracy" overdrive={5000} before={300} gain={498} onClose={() => {}} />
+			<PrestigeClimaxxPop
+				skill="accuracy" overdrive={Big.from(5000)} before={Big.from(300)} gain={Big.from(498)}
+				onClose={() => {}}
+			/>
 		),
 	},
 	{
@@ -644,7 +715,9 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		label: 'Genetics - part of the overdrive becoming climaxx',
 		render: () => (
 			<PrestigeClimaxxPop
-				skill="speed" overdrive={12.4} kept={30.1} before={60} gain={48} onClose={() => {}}
+				skill="speed" overdrive={Big.from(12.4)} kept={Big.from(30.1)}
+				before={Big.from(60)} gain={Big.from(48)}
+				onClose={() => {}}
 			/>
 		),
 	},
@@ -790,6 +863,34 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		render: () => <div style={{ height: 300 }}><Chat /></div>,
 	},
 	{
+		id: 'chat-maps',
+		label: '#maps - a ranked 4K map, a loved 7K map',
+		setup: () => {
+			const line = (
+				verb: string, creator: string, name: string, color: string, ruleset: RulesetId, mapper?: number,
+			): ChatLine => ({
+				id: name, kind: 'system', channel: MAPS_CHANNEL, color, at: Date.now(), ruleset,
+				text: `New ${verb} map by ${creator}: ${name}`, quiet: [name],
+				link: {
+					label: name, path: `maps/1?ruleset=${ruleset}`,
+				},
+				...mapper && {
+					user: {
+						name: creator, characterId: mapper, userId: mapper,
+					},
+				},
+			});
+			void Socket.chat.set([
+				line('ranked', 'Sky3rr', 'BEMANI Sound Team - TWO-TORIAL', '#58b9ff', 'mania4k', 2),
+				line('loved', 'Adri', 'Camellia - Ghost', '#ff66aa', 'mania7k', 1),
+				line('ranked', 'xi', 'xi - FREEDOM DiVE', '#58b9ff', 'mania4k'),
+			]);
+			void chatTabs.set([...new Set([...chatTabs.get(), MAPS_CHANNEL])]);
+			void activeChatTab.set(MAPS_CHANNEL);
+		},
+		render: () => <div style={{ height: 300 }}><Chat /></div>,
+	},
+	{
 		id: 'away-chip',
 		label: 'Away time - beside the queue length, hovered',
 		setup: () => awayAs(false, true),
@@ -867,6 +968,15 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		label: 'Song select - widescreen shows the logo play button bottom right',
 		setup: () => void SceneManager.current.set(SCENE.SELECT),
 		render: () => <SongSelect />,
+	},
+	{
+		id: 'songselect-phone',
+		label: 'Song select - with the dock: at phone size Mode and Mods move into it',
+		setup: () => void SceneManager.current.set(SCENE.SELECT),
+		render: () => (<>
+			<SongSelect />
+			<PlayDock />
+		</>),
 	},
 	{
 		id: 'mode-select',
@@ -1146,4 +1256,5 @@ export const PLAYGROUND_CASES: PlaygroundCase[] = [
 		label: 'Editor - a BPM point, its time nudged by 1 ms (10 with Shift)',
 		render: () => <TimingPointPreview />,
 	},
+	...HUGE.flatMap(hugeCases),
 ];

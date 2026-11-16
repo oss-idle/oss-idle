@@ -97,10 +97,9 @@ export const convertOverdrive = (skillName: string) => change(
 	'Overdrive',
 	(def, g, character) => {
 		const skill = character.skills.find(s => s.name === skillName);
-		const overdrive = skill?.overdrive.get() ?? 0;
 		const need = skill && overdriveForNextTier(def, g, skillName, skill.playLevel());
-		if (!skill || need === undefined || overdrive < need) throw new Error('not enough overdrive');
-		void skill.overdrive.set(Math.max(0, overdrive - need));
+		if (!skill || need === undefined || skill.overdrive.get().lt(need)) throw new Error('not enough overdrive');
+		void skill.overdrive.set(skill.overdrive.get().sub(need));
 		if (character.isGuest()) void character.persistSkills();
 		return convert(g, skillName, need);
 	},

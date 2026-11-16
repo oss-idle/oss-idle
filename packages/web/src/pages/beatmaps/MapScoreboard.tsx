@@ -4,6 +4,7 @@ import {
 } from '@lingui/react/macro';
 
 import useAsync from '@oss-idle/shared/hooks/useAsync';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { getMapBoard } from '../../api/maps';
 import Link from '../../components/Link';
@@ -15,9 +16,10 @@ export type Board = 'global' | 'country' | 'friends';
 
 /** osu!'s scoreboard: global, country or friends, the #1's card, then the table.
  *  A loved map's scores give no pp: no pp column. */
-export default function MapScoreboard({ setId, beatmapId, board, loved }: {
+export default function MapScoreboard({ setId, beatmapId, ruleset, board, loved }: {
 	setId: number;
 	beatmapId: number;
+	ruleset: RulesetId;
 	board: Board;
 	loved: boolean;
 }) {
@@ -59,8 +61,8 @@ export default function MapScoreboard({ setId, beatmapId, board, loved }: {
 			<Trans>No one has set a score on this difficulty yet.</Trans>
 		</p>}
 		{!signedOut && !!rows?.length && <>
-			<TopScoreCard row={rows[0]} loved={loved} />
-			<MapScoreTable rows={rows} loved={loved} />
+			<TopScoreCard row={rows[0]} ruleset={ruleset} loved={loved} />
+			<MapScoreTable rows={rows} ruleset={ruleset} loved={loved} />
 		</>}
 	</section>;
 }

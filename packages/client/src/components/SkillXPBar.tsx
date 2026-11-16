@@ -3,10 +3,12 @@ import {
 	useState,
 } from 'react';
 
+import type { Big } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
 import type { SkillGain } from '@oss-idle/shared/play';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
+import { levelProgress } from '@oss-idle/shared/xp';
 
 import { selectedDef } from '../rulesets/registry';
 
@@ -20,11 +22,14 @@ const easeInOutCubic = (t: number) =>
 
 type Segment = { level: number, from: number, to: number };
 
+/** Levels crossed that get a fill of their own; the ones before share the first fill. */
+const SHOWN_LEVELS = 3;
+
 /**
  * Break the gain into per-level fill segments. Every segment but the last ends
  * flush at a level boundary (fill 1), so the bar visibly tops out, pops the
- * level, and refills from empty for each level crossed - landing exactly on the
- * persisted (toLevel, toXp).
+ * level, and refills from empty for each of the last levels crossed - landing
+ * exactly on the persisted (toLevel, toXp). The level number jumps over the rest.
  */
 function buildSegments({ 
 	fromLevel,
@@ -32,24 +37,24 @@ function buildSegments({
 	toLevel, 
 	toXp,
 }: SkillGain): Segment[] {
-	const startFill = fromXp / SkillState.xpForLevel(fromLevel);
+	const startFill = levelProgress(fromLevel, fromXp);
 	if (toLevel === fromLevel) {
 		return [{ 
 			level: fromLevel, 
 			from: startFill, 
-			to: toXp / SkillState.xpForLevel(toLevel), 
+			to: levelProgress(toLevel, toXp), 
 		}];
 	}
 	const segs: Segment[] = [{
 		level: fromLevel, from: startFill, to: 1, 
 	}];
-	for (let l = fromLevel + 1; l < toLevel; l++) {
+	for (let l = Math.max(fromLevel + 1, toLevel - SHOWN_LEVELS); l < toLevel; l++) {
 		segs.push({
 			level: l, from: 0, to: 1, 
 		});
 	}
 	segs.push({
-		level: toLevel, from: 0, to: toXp / SkillState.xpForLevel(toLevel), 
+		level: toLevel, from: 0, to: levelProgress(toLevel, toXp), 
 	});
 	return segs;
 }
@@ -75,10 +80,10 @@ export default function SkillXPBar({
 	/** the skill's prestige and lifetime total, so the xp level hovers with the
 	 *  level shown on the skill pages */
 	prestige?: number
-	lifetimeXp?: number
+	lifetimeXp?: Big
 }) {
 	const { skill, gained, fromLevel } = progress;
-	const startFill = progress.fromXp / SkillState.xpForLevel(fromLevel);
+	const startFill = levelProgress(fromLevel, progress.fromXp);
 	const [state, setState] = useState({
 		level: fromLevel, fill: startFill, 
 	});
@@ -130,7 +135,7 @@ export default function SkillXPBar({
 			<span className="skillxp__level" key={state.level}>
 				<i>XP Lv</i><SkillLevel
 					level={state.level}
-					xp={state.fill * SkillState.xpForLevel(state.level)}
+					xp={SkillState.xpForLevel(state.level).mul(state.fill)}
 					prestige={prestige}
 					lifetimeXp={lifetimeXp}
 					xpLevel
@@ -146,7 +151,7 @@ export default function SkillXPBar({
 				<div className="skillxp__fill" style={{ width: `${state.fill * 100}%` }} />
 			</div>
 			<span className="skillxp__gain">
-				{gained > 0 ? <span>+<BigNum value={gained} theme="heat" />xp</span> : '--'}
+				{gained.gt(0) ? <span>+<BigNum value={gained} theme="heat" />xp</span> : '--'}
 			</span>
 		</div>
 	);

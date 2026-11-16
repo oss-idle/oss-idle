@@ -1,3 +1,7 @@
+import {
+	type Big,
+	ZERO,
+} from './big.js';
 import type { Grade } from './grade.js';
 import type { Mod } from './mods.js';
 import { RING } from './rulesets/mania/4k/genes.js';
@@ -97,11 +101,11 @@ export const botLiveLevels = (live: Pick<BotMatchLive, 'levels'>): Record<string
 	Object.fromEntries(BOT_MATCH_SKILLS.map(skill => [skill, live.levels[skill] ?? 0]));
 
 /** All the xp a character at these levels has earned. */
-export const botOverallXp = (levels: Record<string, number>): number =>
+export const botOverallXp = (levels: Record<string, number>): Big =>
 	Object.values(levels).reduce((sum, level) => {
 		const whole = Math.floor(level);
-		return sum + xpToLevel(whole) + (level - whole) * xpForLevel(whole);
-	}, 0);
+		return sum.add(xpToLevel(whole)).add(xpForLevel(whole).mul(level - whole));
+	}, ZERO);
 
 /** That xp, as one level. */
 export const botOverall = (levels: Record<string, number>): number => {

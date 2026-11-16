@@ -7,15 +7,18 @@ import {
 } from 'drizzle-orm';
 
 import { APPROVED_STATUSES } from '@oss-idle/shared/beatmap';
+import { MAPS_CHANNEL } from '@oss-idle/shared/community/wire';
 import { rulesetLabel } from '@oss-idle/shared/rulesets/display';
 
 import { db } from '../db/client';
 import { beatmaps } from '../db/schema/beatmap';
 import { beatmapset } from '../db/schema/beatmapset';
+import { currentCharacterOf } from '../db/schema/character';
 import { mapperEvent } from '../events';
 import { recordCurators } from '../medals';
 import { enabledRulesets } from '../rulesets/registry';
 import type { ServerRuleset } from '../rulesets/ruleset';
+import { announce } from '../ws/chat';
 import { announceRanked } from './announce';
 import {
 	diffsOf,
@@ -76,8 +79,29 @@ const announceDue = async (r: ServerRuleset): Promise<boolean> => {
 				eq(beatmaps.setId, set.id), eq(beatmaps.ranked, true), diffsOf(r),
 			));
 
+		const loved = status === 'loved';
+		const name = `${set.artist} - ${set.title}`;
+		const mapper = set.ownerUserId === null ? undefined : await currentCharacterOf(set.ownerUserId);
+		announce(
+			MAPS_CHANNEL,
+			`New ${loved ? 'loved' : 'ranked'} map by ${set.creator}: ${name}`,
+			loved ? '#ff66aa' : '#58b9ff',
+			r.def.id,
+			[name],
+			{
+				link: {
+					label: name, path: `maps/${set.id}?ruleset=${r.def.id}`,
+				},
+				...mapper && {
+					user: {
+						name: set.creator, characterId: mapper.character.id, userId: mapper.user.id,
+					},
+				},
+			},
+		);
+
 		await announceRanked({
-			loved: status === 'loved',
+			loved,
 			ruleset: rulesetLabel(r.def.id),
 			id: set.id,
 			osuId: set.osuId,

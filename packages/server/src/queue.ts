@@ -20,7 +20,6 @@ import {
 import { db } from './db/client';
 import {
 	type CharacterRow,
-	characters,
 	getCharacterById,
 	profileOf,
 } from './db/schema/character';
@@ -114,42 +113,47 @@ const read = async (slot: Slot): Promise<Stored> => {
 	return raw ? JSON.parse(raw) as Stored : { ...EMPTY };
 };
 
-/** The rate and mods the slot plays at: its ruleset's own. */
-const playPrefs = async (slot: Slot): Promise<Pick<QueuePrefs, 'rate' | 'mods'>> => {
+type SlotPrefs = Pick<QueuePrefs, 'mode' | 'delay' | 'playOnce' | 'rate' | 'mods'>;
+
+/** How the slot's queue plays: its ruleset's own. */
+const slotPrefs = async (slot: Slot): Promise<SlotPrefs> => {
 	const { characterId, ruleset } = parseSlot(slot);
 	const profile = await profileOf(rulesetFor(ruleset), characterId);
 	return {
-		rate: profile.playRate, mods: profile.playMods ?? [],
+		mode: profile.autopilotMode,
+		delay: profile.autopilotDelay,
+		playOnce: profile.queuePlayOnce,
+		rate: profile.playRate,
+		mods: profile.playMods ?? [],
 	};
 };
-
-const prefsOf = async (slot: Slot, row: CharacterRow, user: UserRow): Promise<QueuePrefs> => ({
-	mode: row.autopilotMode,
-	delay: row.autopilotDelay,
-	...await playPrefs(slot),
-	keepPlaying: user.keepPlaying,
-	playOnce: row.queuePlayOnce,
-	...isPbe && { autoSkip: await autoSkipOf(row.id) },
-});
 
 const userOf = async (row: CharacterRow): Promise<UserRow | undefined> =>
 	(await db.select().from(users).where(eq(users.id, row.userId)).limit(1))[0];
 
-const disabled = (row: CharacterRow) => row.autopilotMode === AUTOPILOT_MODE.DISABLED;
+const disabled = (p: SlotPrefs) => p.mode === AUTOPILOT_MODE.DISABLED;
 
 const toDTO = async (
 	slot: Slot, s: Stored, row: CharacterRow, user: UserRow,
-): Promise<QueueState> => ({
-	label: s.label,
-	mode: s.mode,
-	groupKey: s.groupKey,
-	entries: s.entries,
-	paused: s.paused || disabled(row),
-	nextAt: s.nextAt,
-	remaining: s.remaining,
-	prefs: await prefsOf(slot, row, user),
-	serverNow: Date.now(),
-});
+): Promise<QueueState> => {
+	const p = await slotPrefs(slot);
+	return {
+		ruleset: parseSlot(slot).ruleset,
+		label: s.label,
+		mode: s.mode,
+		groupKey: s.groupKey,
+		entries: s.entries,
+		paused: s.paused || disabled(p),
+		nextAt: s.nextAt,
+		remaining: s.remaining,
+		prefs: {
+			...p,
+			keepPlaying: user.keepPlaying,
+			...isPbe && { autoSkip: await autoSkipOf(row.id) },
+		},
+		serverNow: Date.now(),
+	};
+};
 
 export const queueState = async (slot: Slot): Promise<QueueState | undefined> => {
 	const row = await getCharacterById(characterOfSlot(slot));
@@ -187,16 +191,16 @@ const change = async (slot: Slot, fn: (s: Stored) => void): Promise<Stored> => {
 
 const MIN_DELAY = isPbe ? AUTOPILOT_DELAY.pbeMin : AUTOPILOT_DELAY.min;
 
-const delayMs = (row: CharacterRow) => row.autopilotDelay * 1000;
+const delayMs = (p: SlotPrefs) => p.delay * 1000;
 
 /** Schedule the head, unless something holds the queue. */
-const schedule = (s: Stored, row: CharacterRow, ms: number): void => {
-	const at = nextStart(s, row.autopilotMode, Date.now(), ms);
+const schedule = (s: Stored, p: SlotPrefs, ms: number): void => {
+	const at = nextStart(s, p.mode, Date.now(), ms);
 	s.nextAt = at === undefined ? undefined : Math.max(at, s.holdUntil ?? 0);
 };
 
-const rotate = (s: Stored, played: QueueEntry, row: CharacterRow): void => {
-	s.entries = rotateQueue(s.entries, played, playsOnce(row.queuePlayOnce, s.mode));
+const rotate = (s: Stored, played: QueueEntry, p: SlotPrefs): void => {
+	s.entries = rotateQueue(s.entries, played, playsOnce(p.playOnce, s.mode));
 };
 
 // --- client edits ---------------------------------------------------------
@@ -234,8 +238,8 @@ const busy = async (slot: Slot, s: Stored) =>
 	await isPlaying(slot) || (s.localUntil ?? 0) > Date.now();
 
 export const pauseQueue = async (slot: Slot, paused: boolean): Promise<void> => {
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
 	const running = await busy(slot, await read(slot));
 	await change(slot, s => {
 		if (paused) {
@@ -244,22 +248,23 @@ export const pauseQueue = async (slot: Slot, paused: boolean): Promise<void> => 
 			s.nextAt = undefined;
 			return;
 		}
-		if (disabled(row)) return;
+		if (disabled(p)) return;
 		s.paused = false;
 		// a running play's end schedules the next one
-		if (!running && s.nextAt === undefined) schedule(s, row, s.remaining ?? delayMs(row));
+		if (!running && s.nextAt === undefined) schedule(s, p, s.remaining ?? delayMs(p));
 		s.remaining = undefined;
 	});
 };
 
 export const startQueue = async (slot: Slot): Promise<void> => {
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row || disabled(row)) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
+	if (disabled(p)) return;
 	await change(slot, s => {
 		s.paused = false;
 		s.remaining = undefined;
 		s.holdUntil = undefined;
-		schedule(s, row, 0);
+		schedule(s, p, 0);
 	});
 };
 
@@ -268,12 +273,12 @@ export const skipQueue = async (slot: Slot): Promise<void> => {
 	const state = await playState(slot);
 	// the abort schedules the next one with the delay; this brings it forward
 	if (state.phase === 'active') await abortPlay(slot, state.token);
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
 	await change(slot, s => {
 		s.localUntil = undefined;
 		s.holdUntil = undefined;
-		schedule(s, row, 0);
+		schedule(s, p, 0);
 	});
 };
 
@@ -285,18 +290,14 @@ export const setPrefs = async (slot: Slot, prefs: Partial<QueuePrefs>): Promise<
 		autopilotMode: prefs.mode,
 		autopilotDelay: prefs.delay && Math.max(prefs.delay, MIN_DELAY),
 		queuePlayOnce: prefs.playOnce,
+		playRate: prefs.rate,
+		playMods: prefs.mods && cleanMods(prefs.mods),
 	};
 	if (Object.values(own).some(v => v !== undefined)) {
-		await db.update(characters).set(own).where(eq(characters.id, characterId));
-	}
-	const play = {
-		playRate: prefs.rate, playMods: prefs.mods && cleanMods(prefs.mods),
-	};
-	if (Object.values(play).some(v => v !== undefined)) {
 		const r = rulesetFor(ruleset);
 		// a ruleset never played has no row yet
 		await profileOf(r, characterId);
-		await db.update(r.profile).set(play).where(eq(r.profile.id, characterId));
+		await db.update(r.profile).set(own).where(eq(r.profile.id, characterId));
 	}
 	if (prefs.keepPlaying !== undefined) {
 		await db.update(users).set({ keepPlaying: prefs.keepPlaying }).where(eq(users.id, row.userId));
@@ -310,13 +311,13 @@ export const setPrefs = async (slot: Slot, prefs: Partial<QueuePrefs>): Promise<
 };
 
 export const claimOffer = async (slot: Slot, serial: number): Promise<boolean> => {
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return false;
+	if (!await getCharacterById(characterOfSlot(slot))) return false;
+	const p = await slotPrefs(slot);
 	let ok = false;
 	await change(slot, s => {
 		if (s.offer?.serial !== serial) return;
 		ok = true;
-		rotate(s, s.offer.entry, row);
+		rotate(s, s.offer.entry, p);
 		s.offer = undefined;
 		s.failures = 0;
 		// if the client never says it started, carry on without it
@@ -327,11 +328,11 @@ export const claimOffer = async (slot: Slot, serial: number): Promise<boolean> =
 };
 
 export const localStart = async (slot: Slot, ms: number): Promise<void> => {
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
 	await change(slot, s => {
 		s.localUntil = Date.now() + ms;
-		schedule(s, row, ms + delayMs(row));
+		schedule(s, p, ms + delayMs(p));
 	});
 };
 
@@ -343,12 +344,12 @@ export const holdQueue = (slot: Slot, ms: number) => change(slot, s => {
 });
 
 export const localEnd = async (slot: Slot, skip: boolean): Promise<void> => {
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
 	await change(slot, s => {
 		s.localUntil = undefined;
 		if (skip) s.holdUntil = undefined;
-		schedule(s, row, skip ? 0 : delayMs(row));
+		schedule(s, p, skip ? 0 : delayMs(p));
 	});
 };
 
@@ -359,10 +360,10 @@ export const localEnd = async (slot: Slot, skip: boolean): Promise<void> => {
 export const playEnded = async (slot: Slot, again?: QueueEntry): Promise<void> => {
 	// a match round ends into the match, not into the queue
 	if (await ownMatch(characterOfSlot(slot))) return;
-	const row = await getCharacterById(characterOfSlot(slot));
-	if (!row) return;
+	if (!await getCharacterById(characterOfSlot(slot))) return;
+	const p = await slotPrefs(slot);
 	const held = await read(slot);
-	if (again && !held.paused && !disabled(row)) {
+	if (again && !held.paused && !disabled(p)) {
 		await change(slot, s => {
 			s.again = again;
 			s.nextAt = Date.now();
@@ -371,7 +372,7 @@ export const playEnded = async (slot: Slot, again?: QueueEntry): Promise<void> =
 	}
 	// a character that never had a queue has nothing to chain, nor to be told
 	if (!await redis.exists(queueKey(slot))) return;
-	const s = await change(slot, s => schedule(s, row, delayMs(row)));
+	const s = await change(slot, s => schedule(s, p, delayMs(p)));
 	if (s.nextAt === undefined && await isAway(slot)) await logOff(slot);
 };
 
@@ -410,22 +411,21 @@ const startFailed = async (slot: Slot): Promise<void> => {
 
 /** What happened trying to start the head. `next` means try the one after it now. */
 const tryHead = async (
-	slot: Slot, row: CharacterRow, head: QueueEntry, away: boolean,
+	slot: Slot, row: CharacterRow, p: SlotPrefs, head: QueueEntry, away: boolean,
 ): Promise<'done' | 'next'> => {
 	// a seated player's only play is the round's
 	if (await ownMatch(characterOfSlot(slot))) {
 		await stop(slot, 'inMatch');
 		return 'done';
 	}
-	const prefs = await playPrefs(slot);
 	const result = await startPlay(slot, row, head.beatmapId, {
-		rate: head.rate ?? prefs.rate, mods: head.mods ?? prefs.mods,
+		rate: head.rate ?? p.rate, mods: head.mods ?? p.mods,
 	});
 	switch (result.status) {
 		case 'ranked':
 			if (!result.joined) {
 				await change(slot, s => {
-					rotate(s, head, row);
+					rotate(s, head, p);
 					s.failures = 0;
 				});
 			}
@@ -435,7 +435,7 @@ const tryHead = async (
 				await offer(slot, head);
 				return 'done';
 			}
-			await change(slot, s => rotate(s, head, row));
+			await change(slot, s => rotate(s, head, p));
 			return 'next';
 		case 'refused':
 			await startFailed(slot);
@@ -450,36 +450,39 @@ const tryHead = async (
 };
 
 /** Play a failed SD / PF map again. */
-const retry = async (slot: Slot, row: CharacterRow, again: QueueEntry): Promise<boolean> => {
+const retry = async (
+	slot: Slot, row: CharacterRow, p: SlotPrefs, again: QueueEntry,
+): Promise<boolean> => {
 	await change(slot, s => void (s.again = undefined));
 	// a round's fail is the match's business
 	if (await ownMatch(characterOfSlot(slot))) return true;
-	const prefs = await playPrefs(slot);
 	const result = await startPlay(slot, row, again.beatmapId, {
-		rate: again.rate ?? prefs.rate, mods: again.mods ?? prefs.mods,
+		rate: again.rate ?? p.rate, mods: again.mods ?? p.mods,
 	});
 	return result.status === 'ranked';
 };
 
 /** Nobody took the unranked head: play on without it. */
-const dropOffer = async (slot: Slot, s: Stored, row: CharacterRow): Promise<Stored> => {
+const dropOffer = async (slot: Slot, s: Stored, p: SlotPrefs): Promise<Stored> => {
 	if (!s.offer) return s;
 	const skipped = s.offer.entry;
 	return change(slot, s => {
-		rotate(s, skipped, row);
+		rotate(s, skipped, p);
 		s.offer = undefined;
 	});
 };
 
 /** Walk the queue from its head until something starts. With the game closed,
  *  what can't start here is skipped, and nothing left to play logs off. */
-const startFromHead = async (slot: Slot, row: CharacterRow, away: boolean): Promise<void> => {
+const startFromHead = async (
+	slot: Slot, row: CharacterRow, p: SlotPrefs, away: boolean,
+): Promise<void> => {
 	let s = await read(slot);
 	const tries = s.entries.length;
 	for (let i = 0; i < tries; i++) {
 		const head = s.entries[0];
-		if (!head || s.paused || disabled(row)) break;
-		if (await tryHead(slot, row, head, away) === 'done') return;
+		if (!head || s.paused || disabled(p)) break;
+		if (await tryHead(slot, row, p, head, away) === 'done') return;
 		s = await read(slot);
 	}
 	if (away) await logOff(slot);
@@ -499,21 +502,22 @@ const autoSkipAway = async (slot: Slot): Promise<void> => {
 const runNext = async (slot: Slot): Promise<void> => {
 	const row = await getCharacterById(characterOfSlot(slot));
 	if (!row) return;
+	const p = await slotPrefs(slot);
 	const away = await isAway(slot);
 	// nobody connected and no closed-game window: there is no one to play for
 	if (!away && !await isListed(slot)) {
 		await halt(slot);
 		return;
 	}
-	const s = await dropOffer(slot, await read(slot), row);
+	const s = await dropOffer(slot, await read(slot), p);
 	if (await busy(slot, s)) {
 		// a client already started the retry itself
 		if (s.again) await change(slot, s => void (s.again = undefined));
 		return;
 	}
-	const retrying = s.again && !s.paused && !disabled(row);
-	const retried = retrying && await retry(slot, row, s.again!);
-	if (!retried) await startFromHead(slot, row, away);
+	const retrying = s.again && !s.paused && !disabled(p);
+	const retried = retrying && await retry(slot, row, p, s.again!);
+	if (!retried) await startFromHead(slot, row, p, away);
 	if (away) await autoSkipAway(slot);
 };
 
@@ -555,10 +559,10 @@ export const isAway = async (slot: Slot): Promise<boolean> =>
 
 /** A slot's queue for the roster: playing (watched, or on with the game closed),
  *  held, or left behind; none when nothing is queued. */
-export const slotQueue = async (slot: Slot, row: CharacterRow, watched: boolean) => {
+export const slotQueue = async (slot: Slot, watched: boolean) => {
 	const s = await read(slot);
 	if (!s.entries.length) return undefined;
-	const state = s.paused || disabled(row) ? 'paused'
+	const state = s.paused || disabled(await slotPrefs(slot)) ? 'paused'
 		: watched || await isAway(slot) ? 'playing' : 'stopped';
 	return {
 		entries: s.entries, state,
@@ -577,7 +581,7 @@ const playsOn = async (slot: Slot): Promise<UserRow | undefined> => {
 	if (!row || !user || user.restrictedAt) return undefined;
 	if (!user.keepPlaying && !await hasClient(user.id)) return undefined;
 	const s = await read(slot);
-	return s.paused || disabled(row) || !s.entries.length ? undefined : user;
+	return s.paused || disabled(await slotPrefs(slot)) || !s.entries.length ? undefined : user;
 };
 
 const windowEnd = async (user: UserRow): Promise<number> =>

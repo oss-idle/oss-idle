@@ -1,3 +1,4 @@
+import type { Big } from '@oss-idle/shared/big';
 import type {
 	Genetics,
 	GeneticsDef,
@@ -27,10 +28,10 @@ const cardAt = ([x, y]: Point) => ({
 /** What a character can do from the cards; the preview's cards only tell. */
 export type GeneActions = {
 	levels: PlayLevels,
-	climaxx: number,
-	overdrive: number,
+	climaxx: Big,
+	overdrive: Big,
 	/** overdrive the next tier needs; none when there is nothing to convert */
-	need?: number,
+	need?: Big,
 	local: boolean,
 	busy: boolean,
 	onLearn: (gene: string) => void,

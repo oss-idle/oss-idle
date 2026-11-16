@@ -14,7 +14,12 @@ import {
 	AutopilotMode,
 } from '@oss-idle/shared/queue';
 import type { BoardSort } from '@oss-idle/shared/rankings';
-import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
+import {
+	RULESET_IDS,
+	type RulesetId,
+} from '@oss-idle/shared/rulesets/ids';
+
+import { selectedRuleset } from '../rulesets/registry';
 
 export const SCORE_TAB = mapped(['LOCAL', 'GLOBAL', 'COUNTRY', 'FRIENDS', 'MINE', 'RATE']);
 export type ScoreTab = ValueIn<typeof SCORE_TAB>;
@@ -61,15 +66,58 @@ export class Setting<T, K extends string = string> extends Synced<T> {
 
 }
 
+/**
+ * A setting each ruleset keeps its own of: it reads and sets the selected
+ * ruleset's, and follows the pick. 4K keeps the bare key, the one saved before
+ * the setting was per ruleset; another ruleset starts from 4K's.
+ */
+export class RulesetSetting<T, K extends string = string> extends Synced<T> {
+
+	private readonly each: Record<RulesetId, Setting<T>>;
+
+	constructor(
+		public readonly key: K,
+		public readonly defaultValue: T,
+	) {
+		const first = new Setting<T>(key, defaultValue);
+		super(first.get());
+		this.each = Object.fromEntries(RULESET_IDS.map(id => [
+			id, id === 'mania4k' ? first : new Setting<T>(`${key}:${id}`, first.get()),
+		])) as Record<RulesetId, Setting<T>>;
+		for (const id of RULESET_IDS) {
+			this.each[id].forceSync(value => {
+				if (id === selectedRuleset.get()) void super.set(value);
+			});
+		}
+		selectedRuleset.forceSync(id => void super.set(this.each[id].get()));
+	}
+
+	override set(value: T): Promise<void> {
+		return this.each[selectedRuleset.get()].set(value);
+	}
+
+	/** The setting in `ruleset`, picked or not. */
+	of(ruleset: RulesetId): Setting<T> {
+		return this.each[ruleset];
+	}
+
+}
+
 /** Moved off its default; a plain `Synced` has none, so never counts. */
 export const isChanged = <T>(value: Synced<T>, current: T): boolean =>
-	value instanceof Setting && JSON.stringify(current) !== JSON.stringify(value.defaultValue);
+	(value instanceof Setting || value instanceof RulesetSetting)
+	&& JSON.stringify(current) !== JSON.stringify(value.defaultValue);
 
-export type DefaultSettings = readonly Setting<any, string>[];
+export type DefaultSettings = readonly (Setting<any, string> | RulesetSetting<any, string>)[];
 
 const option = <T>() =>
 	<K extends string>(key: K, defaultValue: T) =>
 		new Setting<T, K>(key, defaultValue);
+
+/** An option each ruleset keeps its own of. */
+const rulesetOption = <T>() =>
+	<K extends string>(key: K, defaultValue: T) =>
+		new RulesetSetting<T, K>(key, defaultValue);
 
 /** Keys this device had saved before this load wrote the defaults. */
 const stored = new Set(Object.keys(localStorage));
@@ -141,7 +189,7 @@ const defaults = [
 	 * Playback rate picked in song select (held to what Speed upgrades unlock), and
 	 * whether the music's pitch follows it.
 	 */
-	option<number>()('rate', 1),
+	rulesetOption<number>()('rate', 1),
 	option<boolean>()('pitchFollowsRate', true),
 	/** every sound fades out while the game's window or tab is in the background */
 	option<boolean>()('muteInBackground', false),
@@ -149,7 +197,7 @@ const defaults = [
 	option<number>()('fasterRate', 1.05),
 	option<number>()('slowerRate', 0.95),
 	/** the other mods picked in song select (EZ, NF, HR, SD, PF, JT) */
-	option<Mod[]>()('mods', []),
+	rulesetOption<Mod[]>()('mods', []),
 	/** the ruleset a guest plays: a signed-in character's is the server's */
 	option<RulesetId>()('guestRuleset', 'mania4k'),
 	/**
@@ -183,10 +231,10 @@ const defaults = [
 	option<boolean>()('editorPreview', true),
 	/** BPMs over the editor's cap go in without asking: said yes to it once */
 	option<boolean>()('editorHighBpm', false),
-	option<number>()('autopilotDelay', 30),
+	rulesetOption<number>()('autopilotDelay', 30),
 	// every setting is written on first load, so an existing player keeps Playlist
-	option<AutopilotMode>()('autopilotMode', AUTOPILOT_MODE.NEXT),
-	option<boolean>()('queuePlayOnce', false),
+	rulesetOption<AutopilotMode>()('autopilotMode', AUTOPILOT_MODE.NEXT),
+	rulesetOption<boolean>()('queuePlayOnce', false),
 ] as const satisfies DefaultSettings;
 
 type SettingsByKey<T extends DefaultSettings> = {

@@ -62,7 +62,7 @@ test.describe('server queue', () => {
 
 	test('a Disabled queue is never built and never runs', async ({ playerAs }) => {
 		await query(
-			'UPDATE `character` SET autopilot_mode = \'DISABLED\' WHERE id = ?', [grace.characterId],
+			'UPDATE `mania4k_character` SET autopilot_mode = \'DISABLED\' WHERE id = ?', [grace.characterId],
 		);
 		const game = new Game(await playerAs(grace));
 		await queueTwo(game);

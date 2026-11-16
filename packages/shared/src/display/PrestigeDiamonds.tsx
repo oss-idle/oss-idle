@@ -1,7 +1,7 @@
 import {
 	layerClass,
 	layerOf,
-} from '../upgrades/layers';
+} from './layers.js';
 
 const SIZE = 5;
 

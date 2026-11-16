@@ -15,6 +15,7 @@ import { Redis } from 'ioredis';
 import mysql, { type RowDataPacket } from 'mysql2/promise';
 import { z } from 'zod';
 
+import { fromWire } from '@oss-idle/shared/big';
 import type { ServerMessage } from '@oss-idle/shared/community/wire';
 import {
 	GROUP_BADGE,
@@ -76,7 +77,8 @@ const colourOf = (tier: number) => {
 /** Above the ladder so their colour wins, not hoisted so the member list still reads by level.
  *  Highest first. */
 const BADGES = [
-	...GROUPS.map(group => ({
+	// the bots have no Discord
+	...GROUPS.filter(group => group !== 'bot').map(group => ({
 		key: group, ...GROUP_BADGE[group], 
 	})),
 	{
@@ -151,7 +153,7 @@ const linkedMembers = async (filter = '', args: unknown[] = []) => {
 		if (row.supporter) keys.add(row.levelColour ? 'supporterLevelColour' : 'supporter');
 		const linked: Linked = {
 			nickname: row.name === null ? undefined : nicknameOf(row.name, Boolean(row.supporter)),
-			level: row.lifetimeXp === null ? undefined : xpGivesLevel(Number(row.lifetimeXp)).level,
+			level: row.lifetimeXp === null ? undefined : xpGivesLevel(fromWire(row.lifetimeXp)).level,
 			badges: BADGES.filter(badge => keys.has(badge.key)).map(badge => badge.name),
 		};
 		return [row.discordId as string, linked];

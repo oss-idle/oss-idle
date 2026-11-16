@@ -111,6 +111,10 @@ export const diskFiles = async (id: number): Promise<Unzipped> => {
 	return files;
 };
 
+/** The paths of the set's files but its charts. */
+export const diskFileNames = async (id: number): Promise<string[]> =>
+	(await setEntry(id))?.files.map(file => file.path).filter(path => !isChart(path)) ?? [];
+
 export const diskOsbName = async (id: number) =>
 	(await setEntry(id))?.files.find(file => file.path.toLowerCase().endsWith('.osb'))?.path;
 

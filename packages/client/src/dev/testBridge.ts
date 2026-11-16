@@ -1,3 +1,4 @@
+import { toJson } from '@oss-idle/shared/big';
 import type Synced from '@oss-idle/shared/helpers/synced';
 import {
 	type SkillName,
@@ -40,9 +41,9 @@ import { menuWarmed } from '../warmup/menuWarmed';
 type SkillView = {
 	name: string;
 	level: number;
-	xp: number;
+	xp: number | string;
 	upgrades: number;
-	overdrive: number;
+	overdrive: number | string;
 	prestige: number;
 };
 
@@ -52,7 +53,7 @@ type CharacterView = {
 	guest: boolean;
 	generation: number;
 	overallLevel: number;
-	overallTotalXp: number;
+	overallTotalXp: number | string;
 	skills: SkillView[];
 };
 
@@ -87,13 +88,13 @@ const character = (): CharacterView => {
 		guest: c.isGuest(),
 		generation: c.generation,
 		overallLevel: c.progress.overallLevel,
-		overallTotalXp: c.progress.overallTotalXp,
+		overallTotalXp: toJson(c.progress.overallTotalXp),
 		skills: c.skills.map(s => ({
 			name: s.name,
 			level: s.level.get(),
-			xp: s.xp.get(),
+			xp: toJson(s.xp.get()),
 			upgrades: s.upgrades.get(),
-			overdrive: s.overdrive.get(),
+			overdrive: toJson(s.overdrive.get()),
 			prestige: s.prestige.get(),
 		})),
 	};
@@ -230,9 +231,10 @@ const bridge = {
 		return rows.map(row => ({
 			scoreId: row.scoreId,
 			beatmapId: row.beatmapId,
-			gains: Object.fromEntries(
-				Skills.map(s => [s, row.gainOf(s)]).filter(([, gained]) => (gained as number) > 0),
-			) as Partial<Record<SkillName, number>>,
+			gains: Object.fromEntries(Skills
+				.map(s => [s, row.gainOf(s)] as const)
+				.filter(([, gained]) => gained.gt(0))
+				.map(([s, gained]) => [s, toJson(gained)])) as Partial<Record<SkillName, number | string>>,
 		}));
 	},
 	catalog,

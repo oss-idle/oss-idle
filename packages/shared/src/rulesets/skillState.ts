@@ -1,3 +1,8 @@
+import {
+	Big,
+	type BigLike,
+	ZERO,
+} from '../big.js';
 import Synced from '../helpers/synced.js';
 import {
 	skillXPMultiplier,
@@ -5,6 +10,7 @@ import {
 } from '../upgrades.js';
 import {
 	effectiveLevelOf,
+	gainLevels,
 	playLevelOf,
 	xpForLevel,
 } from '../xp.js';
@@ -14,12 +20,12 @@ import {
 export default class SkillState<S extends string = string> {
 
 	public readonly level = new Synced(0);
-	public readonly xp = new Synced(0);
+	public readonly xp = new Synced<Big>(ZERO);
 	public readonly upgrades = new Synced(0);
-	public readonly overdrive = new Synced(0);
+	public readonly overdrive = new Synced<Big>(ZERO);
 	public readonly prestige = new Synced(0);
 	/** Everything the skill ever earned, prestige or not: what it plays at follows it. */
-	public readonly lifetimeXp = new Synced(0);
+	public readonly lifetimeXp = new Synced<Big>(ZERO);
 
 	constructor(
 		public readonly name: S,
@@ -28,11 +34,11 @@ export default class SkillState<S extends string = string> {
 		if (def !== 0) this.level.set(def);
 	}
 
-	public static xpForLevel(level: number): number {
+	public static xpForLevel(level: number): Big {
 		return xpForLevel(level);
 	}
 
-	public xpMultiplier(): number {
+	public xpMultiplier(): Big {
 		return skillXPMultiplier(
 			this.upgrades.get(),
 			this.overdrive.get(),
@@ -77,21 +83,13 @@ export default class SkillState<S extends string = string> {
 		void this.lifetimeXp.set(from.lifetimeXp.get());
 	}
 
-	gainXP(xp: number): number {
-		this.lifetimeXp.set(this.lifetimeXp.get() + xp);
-		this.xp.set(this.xp.get() + xp);
-		let levelsGained = 0;
-		do {
-			const xpNeeded = SkillState.xpForLevel(this.level.get());
-			if (this.xp.get() > xpNeeded) {
-				this.xp.set(this.xp.get() - xpNeeded);
-				this.level.set(this.level.get() + 1);
-				levelsGained++;
-			} else {
-				break;
-			}
-		} while(true);
-
-		return levelsGained;
+	/** Earn `xp`: the levels it crossed. */
+	gainXP(xp: BigLike): number {
+		const gained = Big.from(xp);
+		void this.lifetimeXp.set(this.lifetimeXp.get().add(gained));
+		const next = gainLevels(this.level.get(), this.xp.get(), gained);
+		void this.xp.set(next.xp);
+		void this.level.set(next.level);
+		return next.levels;
 	}
 }

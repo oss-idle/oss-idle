@@ -7,6 +7,7 @@ import {
 	it,
 } from 'vitest';
 
+import { ZERO } from '@oss-idle/shared/big';
 import Bot7k from '@oss-idle/shared/rulesets/mania/7k/bots/character';
 import { Skills7k } from '@oss-idle/shared/rulesets/mania/7k/skills';
 import { ManiaGame } from '@oss-idle/shared/rulesets/mania/maniaGame';
@@ -43,7 +44,7 @@ const playAt = (level: number) => {
 	const chart = new BeatmapDecoder().decodeFromString(CHART);
 	const bot = new Bot7k({
 		progress: () => ({
-			level, xp: 0, upgrades: 0, overdrive: 0, prestige: 0, lifetimeXp: 0,
+			level, xp: ZERO, upgrades: 0, overdrive: ZERO, prestige: 0, lifetimeXp: ZERO,
 		}),
 		fatigue: 0,
 		warm: 1,
@@ -70,11 +71,23 @@ describe('7K public bot', () => {
 		expect(Object.keys(bot.strainsAt(5000))).toContain('jacks');
 		expect(Object.keys(bot.strainsAt(5000))).not.toContain('jackspeed');
 		expect(bot.strainedShare({ stamina: -1 })).toBeGreaterThan(0);
+		// a hold every 1.8 s rests: its release floor is no strain
+		expect(bot.strainedShare({ ln: 0.2 })).toBe(0);
 	});
 
 	it('gains on 7K skills', () => {
 		const { chart, bot, game } = playAt(10);
 		const gains = bot.applyProgression(chart.totalLength, xpScore(chart, game, { rate: 1 }));
 		expect(gains.map(g => g.skill)).toEqual([...Skills7k]);
+	});
+
+	it('gains raw xp x multiplier, floored once', () => {
+		const { chart, bot, game } = playAt(50);
+		const score = xpScore(chart, game, { rate: 1 });
+		const raw = { ...bot.getRawXP(chart.totalLength, score) };
+		expect(Object.values(raw).some(x => !Number.isInteger(x))).toBe(true);
+		const gains = bot.applyProgression(chart.totalLength, score, 1e6);
+		expect(Object.fromEntries(gains.map(g => [g.skill, g.gained.toNumber()])))
+			.toEqual(Object.fromEntries(Skills7k.map(s => [s, Math.floor(raw[s] * 1e6)])));
 	});
 });

@@ -26,6 +26,8 @@ import { i18n } from '@lingui/core';
 import { eq } from 'drizzle-orm';
 import { BeatmapDecoder } from 'osu-parsers';
 
+import type { Big } from '@oss-idle/shared/big';
+import { ZERO } from '@oss-idle/shared/big';
 import {
 	fatigueLevel,
 	restedFatigue,
@@ -130,7 +132,7 @@ const xpFor = async (row: DumpedScore) => {
 	game.update(game.songEndMs + 1000); // straight to the end: only the blame matters
 
 	const xp = await getServerXP(
-		r, characterId, beatmapId, bot, chart, asScoreLike(row) as never, rate,
+		r, profile, beatmapId, bot, chart, asScoreLike(row) as never, rate,
 		Number(row.sr ?? beatmap.sr), parseMods(row.mods ?? ''), fatigue,
 	);
 	return {
@@ -154,7 +156,7 @@ const main = async () => {
 	const rows = JSON.parse(readFileSync(file, 'utf8')) as DumpedScore[];
 	console.log(`replaying ${rows.length} scores from ${file}${dryRun ? ' (dry run)' : ''}`);
 
-	const totals = new Map<number, Record<SkillName, number>>();
+	const totals = new Map<number, Record<SkillName, Big>>();
 	let done = 0, skipped = 0;
 
 	for (const row of rows) {
@@ -170,8 +172,8 @@ const main = async () => {
 		} = replayed;
 		const characterId = Number(row.character_id);
 		const seen = totals.get(characterId)
-			?? Object.fromEntries(Skills.map(s => [s, 0])) as Record<SkillName, number>;
-		for (const s of Skills) seen[s] += xp[s];
+			?? Object.fromEntries(Skills.map(s => [s, ZERO])) as Record<SkillName, Big>;
+		for (const s of Skills) seen[s] = seen[s].add(xp[s]);
 		totals.set(characterId, seen);
 
 		if (!dryRun) {
@@ -194,8 +196,8 @@ const main = async () => {
 
 	console.log(`\ndone: ${done} replayed, ${skipped} skipped`);
 	for (const [characterId, xp] of totals) {
-		const sum = Skills.reduce((n, s) => n + xp[s], 0);
-		console.log(`  character ${characterId}: ${sum.toLocaleString()} xp`);
+		const sum = Skills.reduce((n, s) => n.add(xp[s]), ZERO);
+		console.log(`  character ${characterId}: ${sum} xp`);
 	}
 	process.exit(0);
 };

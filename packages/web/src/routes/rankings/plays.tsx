@@ -4,6 +4,7 @@ import { zodValidator } from '@tanstack/zod-adapter';
 
 import { getTopPlays } from '../../api/rankings';
 import PlaysRankings from '../../pages/rankings/TopPlays';
+import { ENABLED_RULESETS } from '../../rulesets';
 import { pageSearch } from '../-rankingSearch';
 
 export const Route = createFileRoute('/rankings/plays')({
@@ -15,6 +16,6 @@ export const Route = createFileRoute('/rankings/plays')({
 });
 
 function PlaysRoute() {
-	const { page } = Route.useSearch();
-	return <PlaysRankings page={page} plays={Route.useLoaderData()} />;
+	const { page, ruleset = ENABLED_RULESETS[0] } = Route.useSearch();
+	return <PlaysRankings page={page} ruleset={ruleset} plays={Route.useLoaderData()} />;
 }

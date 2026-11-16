@@ -19,6 +19,7 @@ import ReactPicker from './ReactPicker';
 import ReplyRef from './ReplyRef';
 import RulesetTag from './RulesetTag';
 import SenderName from './SenderName';
+import SystemText from './SystemText';
 
 /** A line as the log renders it; no `name` = a system line, coloured whole. */
 export type LogLine = {
@@ -34,6 +35,8 @@ export type LogLine = {
 	fromId?: number,
 	fromColor?: string,
 	link?: { label: string, path: string },
+	/** the player a system line names */
+	user?: MenuTarget,
 	sender?: MenuTarget,
 	replyTo?: ReplyQuote,
 	reactions?: LineReactions,
@@ -56,7 +59,7 @@ export default memo(function ChatLogLine({ line, channel, actions, there, onRepl
 				<span className="chat__text" style={{ color: line.color }}>
 					{time} {line.ruleset && <RulesetTag ruleset={line.ruleset} />}{line.parts
 						? line.parts.map((part, i) => <span key={i} style={partStyle(part)}>{part.text}</span>)
-						: line.text}
+						: <SystemText text={line.text} link={line.link} user={line.user} />}
 				</span>
 			</div>
 		);

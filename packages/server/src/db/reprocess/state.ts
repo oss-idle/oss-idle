@@ -5,12 +5,24 @@
  * a memory forget) happened at some play we can't tell, so it makes the play
  * ambiguous.
  */
+import {
+	Big,
+	fromWire,
+	ZERO,
+} from '@oss-idle/shared/big';
 import type { Fatigue } from '@oss-idle/shared/fatigue';
 import type { UpgradeState } from '@oss-idle/shared/upgrades';
 import { gainLevels } from '@oss-idle/shared/xp';
 
 /** [level, xp, upgrades, overdrive, prestige, lifetime xp], as the snapshots store a skill. */
-export type SkillTuple = number[];
+export type SkillTuple = [
+	level: number, xp: Big, upgrades: number, overdrive: Big, prestige: number, lifetimeXp: Big,
+];
+
+/** A dumped tuple: its xp fields are numbers or text. */
+export const tupleFromWire = (t: readonly (number | string)[]): SkillTuple => [
+	Number(t[0]), fromWire(t[1]), Number(t[2]), fromWire(t[3]), Number(t[4]), fromWire(t[5]),
+];
 
 export type Profile = { skills: Record<string, SkillTuple>, fatigue?: Fatigue };
 
@@ -23,7 +35,7 @@ export type Anchor = {
 	profile?: Profile,
 };
 
-export type Progress = UpgradeState & { lifetimeXp: number };
+export type Progress = UpgradeState & { lifetimeXp: Big };
 
 export type SkillsAt = {
 	/** what the new sim reads: lifetime xp, prestige and gear */
@@ -33,7 +45,9 @@ export type SkillsAt = {
 	ambiguous: boolean,
 };
 
-const ZERO: SkillTuple = [0, 0, 0, 0, 0, 0];
+const differs = (a: number | Big, b: number | Big) => Big.from(a).cmp(b) !== 0;
+
+const ZERO_TUPLE: SkillTuple = [0, ZERO, 0, ZERO, 0, ZERO];
 
 /** Plays (in id order) by the window they fall in: after the last dump before them
  *  (`start`, undefined before the first) and up to the first that holds them. */
@@ -68,31 +82,31 @@ export const skillsAt = (
 	const pairs = skills.map(skill => {
 		const b = end.profile?.skills[skill];
 		// before the first dump, the first skills known after the play: the most it can have had
-		const a = start ? start.profile?.skills[skill] ?? ZERO : b ?? ZERO;
+		const a = start ? start.profile?.skills[skill] ?? ZERO_TUPLE : b ?? ZERO_TUPLE;
 		return [skill, a, b ?? a] as const;
 	});
 	const moved = pairs.flatMap(([skill, a, b]) =>
 		([[2, 'upgrades'], [3, 'overdrive'], [4, 'prestige']] as const)
-			.filter(([i]) => a[i] !== b[i])
+			.filter(([i]) => differs(a[i], b[i]))
 			.map(([, field]) => discrete(skill, field)));
 	// a rollback between the dumps takes lifetime xp back
-	const rolledBack = pairs.some(([, a, b]) => b[5] < a[5]);
+	const rolledBack = pairs.some(([, a, b]) => b[5].lt(a[5]));
 	let ambiguous = start === undefined || moved.includes(true) || rolledBack;
 	const exact = start !== undefined && !moved.length;
 	const progress: Record<string, Progress> = {};
 	const old: Record<string, Progress> = {};
 	for (const [skill, a, b] of pairs) {
 		const [level, xp, , , , fromXp] = a;
-		const lifetimeXp = fromXp + share * Math.max(0, b[5] - fromXp);
+		const lifetimeXp = fromXp.add(b[5].sub(fromXp).max(0).mul(share));
 		const side = share < 0.5 ? a : b;
-		const held = gainLevels(level, xp, lifetimeXp - fromXp);
+		const held = gainLevels(level, xp, lifetimeXp.sub(fromXp));
 		old[skill] = {
 			level: held.level, xp: held.xp, upgrades: a[2], overdrive: a[3], prestige: a[4], lifetimeXp,
 		};
 		progress[skill] = {
 			// the held level only counts above the lifetime one, and only an exact window knows it
 			level: exact ? held.level : 0,
-			xp: exact ? held.xp : 0,
+			xp: exact ? held.xp : ZERO,
 			upgrades: side[2],
 			overdrive: side[3],
 			prestige: side[4],

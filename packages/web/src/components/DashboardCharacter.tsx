@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/react/macro';
 
+import { ZERO } from '@oss-idle/shared/big';
 import num from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
@@ -16,7 +17,7 @@ export default function DashboardCharacter() {
 	const stats = useAsync(() => character && getCharacterStats(character.id), [character]);
 	if (!character) return null;
 	const overallLevel = xpGivesLevel(Object.values(character.skills)
-		.reduce((n, s) => n + s.lifetimeXp, 0)).level;
+		.reduce((n, s) => n.add(s.lifetimeXp), ZERO)).level;
 
 	return <Link to='/c/$id' params={{ id: String(character.id) }} className='dashboard-character'>
 		<ProfilePicture avatarUrl={character.avatarUrl} className='dashboard-character__avatar' />

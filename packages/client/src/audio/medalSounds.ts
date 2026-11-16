@@ -11,6 +11,7 @@ import * as synth from './medalSynth';
 const mainVolume = () => {
 	const gain = audioContext.createGain();
 	gain.connect(speakers);
+	gain.gain.value = SETTINGS.mainVolume.get();
 	void SETTINGS.mainVolume.sync(v => gain.gain.setTargetAtTime(v, audioContext.currentTime, 0.02));
 	return gain;
 };

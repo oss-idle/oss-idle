@@ -1,10 +1,11 @@
 import DeleteAccountDialog from './DeleteAccountDialog';
+import GiveSupporterDialog from './GiveSupporterDialog';
 import ReportDialog from './ReportDialog';
 import RestrictDialog from './RestrictDialog';
 import RollbackUpgradeDialog from './RollbackUpgradeDialog';
 import SilenceDialog from './SilenceDialog';
 
-export type ProfileDialog = 'report' | 'silence' | 'restrict' | 'delete' | 'rollback';
+export type ProfileDialog = 'report' | 'silence' | 'restrict' | 'delete' | 'rollback' | 'supporter';
 
 const reload = () => window.location.reload();
 
@@ -29,6 +30,8 @@ export default function ProfileMenuDialog({ dialog, userId, characterId, name, o
 				onDone={() => window.location.assign('/web/')}
 				onClose={onClose}
 			/>;
+		case 'supporter':
+			return <GiveSupporterDialog userId={userId} name={name} onDone={reload} onClose={onClose} />;
 		case 'rollback':
 			return <RollbackUpgradeDialog
 				characterId={characterId}

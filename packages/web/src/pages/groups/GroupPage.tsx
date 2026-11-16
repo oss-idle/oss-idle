@@ -35,6 +35,9 @@ export default function GroupPage({ group, filter, sort }: {
 		bn: <Trans>
 			The <b>Beatmap Nominators</b> review the maps players propose and rank them.
 		</Trans>,
+		bot: <Trans>
+			The <b>Bots</b> are oss!idle's own accounts: nobody plays behind them.
+		</Trans>,
 	};
 
 	if (!members) return <div className='page-contents'><Trans>Loading…</Trans></div>;

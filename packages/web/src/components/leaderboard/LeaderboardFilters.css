@@ -99,11 +99,12 @@
 	width: 100%;
 	max-height: min(320px, 60vh);
 	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 102, 171, 0.5) transparent;
 
 	background-color: hsl(var(--hsl-b4));
 	border-radius: 4px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-	overflow: hidden;
 }
 
 .lb_select_dropdown_item {

@@ -29,6 +29,7 @@ import {
 	INTRO_SET_ID,
 	isApproved,
 } from '@oss-idle/shared/beatmap';
+import { playableChart } from '@oss-idle/shared/osu/playableChart';
 import { rulesetOf } from '@oss-idle/shared/rulesets/ids';
 import {
 	fileIdsOf,
@@ -223,7 +224,7 @@ const chartStats = (text: string, decoded: Beatmap) => {
 	try { keys = mania.applyToBeatmap(decoded).totalColumns; } catch { /* non-mania intro */ }
 	let sr = 0, bpm = 0, objects = 0, rice = 0, ln = 0;
 	try {
-		const map = new rosu.Beatmap(Buffer.from(text));
+		const map = new rosu.Beatmap(Buffer.from(playableChart(text)));
 		sr = new rosu.Difficulty().calculate(map).stars;
 		bpm = map.bpm;
 		objects = map.nObjects;

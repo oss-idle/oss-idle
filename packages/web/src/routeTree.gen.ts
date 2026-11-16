@@ -52,6 +52,7 @@ import { Route as CIdRouteImport } from './routes/c/$id'
 import { Route as BugsNewRouteImport } from './routes/bugs/new'
 import { Route as BugsIdRouteImport } from './routes/bugs/$id'
 import { Route as BotUserIdRouteImport } from './routes/bot/$userId'
+import { Route as AuthTwitchRouteImport } from './routes/auth/twitch'
 import { Route as AuthErrorRouteImport } from './routes/auth/error'
 import { Route as AuthDiscordRouteImport } from './routes/auth/discord'
 import { Route as AuthDesktopRouteImport } from './routes/auth/desktop'
@@ -69,6 +70,7 @@ import { Route as AdminChatRouteImport } from './routes/admin/chat'
 import { Route as AdminBugsRouteImport } from './routes/admin/bugs'
 import { Route as AdminAddonsRouteImport } from './routes/admin/addons'
 import { Route as RankingsMedalsIndexRouteImport } from './routes/rankings/medals/index'
+import { Route as ScoresRulesetIdRouteImport } from './routes/scores/$ruleset/$id'
 import { Route as RankingsSkillsSkillRouteImport } from './routes/rankings/skills/$skill'
 import { Route as RankingsPrestigeSkillRouteImport } from './routes/rankings/prestige/$skill'
 import { Route as RankingsLifetimeSkillRouteImport } from './routes/rankings/lifetime/$skill'
@@ -291,6 +293,11 @@ const BotUserIdRoute = BotUserIdRouteImport.update({
   path: '/bot/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthTwitchRoute = AuthTwitchRouteImport.update({
+  id: '/auth/twitch',
+  path: '/auth/twitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthErrorRoute = AuthErrorRouteImport.update({
   id: '/auth/error',
   path: '/auth/error',
@@ -376,6 +383,11 @@ const RankingsMedalsIndexRoute = RankingsMedalsIndexRouteImport.update({
   path: '/rankings/medals/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScoresRulesetIdRoute = ScoresRulesetIdRouteImport.update({
+  id: '/scores/$ruleset/$id',
+  path: '/scores/$ruleset/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RankingsSkillsSkillRoute = RankingsSkillsSkillRouteImport.update({
   id: '/rankings/skills/$skill',
   path: '/rankings/skills/$skill',
@@ -437,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/twitch': typeof AuthTwitchRoute
   '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
@@ -473,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/rankings/lifetime/$skill': typeof RankingsLifetimeSkillRoute
   '/rankings/prestige/$skill': typeof RankingsPrestigeSkillRoute
   '/rankings/skills/$skill': typeof RankingsSkillsSkillRoute
+  '/scores/$ruleset/$id': typeof ScoresRulesetIdRoute
   '/rankings/medals/': typeof RankingsMedalsIndexRoute
   '/rankings/medals/progress/$line': typeof RankingsMedalsProgressLineRoute
   '/rankings/medals/progress/': typeof RankingsMedalsProgressIndexRoute
@@ -504,6 +518,7 @@ export interface FileRoutesByTo {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/twitch': typeof AuthTwitchRoute
   '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
@@ -540,6 +555,7 @@ export interface FileRoutesByTo {
   '/rankings/lifetime/$skill': typeof RankingsLifetimeSkillRoute
   '/rankings/prestige/$skill': typeof RankingsPrestigeSkillRoute
   '/rankings/skills/$skill': typeof RankingsSkillsSkillRoute
+  '/scores/$ruleset/$id': typeof ScoresRulesetIdRoute
   '/rankings/medals': typeof RankingsMedalsIndexRoute
   '/rankings/medals/progress/$line': typeof RankingsMedalsProgressLineRoute
   '/rankings/medals/progress': typeof RankingsMedalsProgressIndexRoute
@@ -573,6 +589,7 @@ export interface FileRoutesById {
   '/auth/desktop': typeof AuthDesktopRoute
   '/auth/discord': typeof AuthDiscordRoute
   '/auth/error': typeof AuthErrorRoute
+  '/auth/twitch': typeof AuthTwitchRoute
   '/bot/$userId': typeof BotUserIdRoute
   '/bugs/$id': typeof BugsIdRoute
   '/bugs/new': typeof BugsNewRoute
@@ -609,6 +626,7 @@ export interface FileRoutesById {
   '/rankings/lifetime/$skill': typeof RankingsLifetimeSkillRoute
   '/rankings/prestige/$skill': typeof RankingsPrestigeSkillRoute
   '/rankings/skills/$skill': typeof RankingsSkillsSkillRoute
+  '/scores/$ruleset/$id': typeof ScoresRulesetIdRoute
   '/rankings/medals/': typeof RankingsMedalsIndexRoute
   '/rankings/medals/progress/$line': typeof RankingsMedalsProgressLineRoute
   '/rankings/medals/progress/': typeof RankingsMedalsProgressIndexRoute
@@ -643,6 +661,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/auth/twitch'
     | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
@@ -679,6 +698,7 @@ export interface FileRouteTypes {
     | '/rankings/lifetime/$skill'
     | '/rankings/prestige/$skill'
     | '/rankings/skills/$skill'
+    | '/scores/$ruleset/$id'
     | '/rankings/medals/'
     | '/rankings/medals/progress/$line'
     | '/rankings/medals/progress/'
@@ -710,6 +730,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/auth/twitch'
     | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
@@ -746,6 +767,7 @@ export interface FileRouteTypes {
     | '/rankings/lifetime/$skill'
     | '/rankings/prestige/$skill'
     | '/rankings/skills/$skill'
+    | '/scores/$ruleset/$id'
     | '/rankings/medals'
     | '/rankings/medals/progress/$line'
     | '/rankings/medals/progress'
@@ -778,6 +800,7 @@ export interface FileRouteTypes {
     | '/auth/desktop'
     | '/auth/discord'
     | '/auth/error'
+    | '/auth/twitch'
     | '/bot/$userId'
     | '/bugs/$id'
     | '/bugs/new'
@@ -814,6 +837,7 @@ export interface FileRouteTypes {
     | '/rankings/lifetime/$skill'
     | '/rankings/prestige/$skill'
     | '/rankings/skills/$skill'
+    | '/scores/$ruleset/$id'
     | '/rankings/medals/'
     | '/rankings/medals/progress/$line'
     | '/rankings/medals/progress/'
@@ -835,6 +859,7 @@ export interface RootRouteChildren {
   AuthDesktopRoute: typeof AuthDesktopRoute
   AuthDiscordRoute: typeof AuthDiscordRoute
   AuthErrorRoute: typeof AuthErrorRoute
+  AuthTwitchRoute: typeof AuthTwitchRoute
   BotUserIdRoute: typeof BotUserIdRoute
   BugsIdRoute: typeof BugsIdRoute
   BugsNewRoute: typeof BugsNewRoute
@@ -870,6 +895,7 @@ export interface RootRouteChildren {
   RankingsLifetimeSkillRoute: typeof RankingsLifetimeSkillRoute
   RankingsPrestigeSkillRoute: typeof RankingsPrestigeSkillRoute
   RankingsSkillsSkillRoute: typeof RankingsSkillsSkillRoute
+  ScoresRulesetIdRoute: typeof ScoresRulesetIdRoute
   RankingsMedalsIndexRoute: typeof RankingsMedalsIndexRoute
   RankingsMedalsProgressLineRoute: typeof RankingsMedalsProgressLineRoute
   RankingsMedalsProgressIndexRoute: typeof RankingsMedalsProgressIndexRoute
@@ -1178,6 +1204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BotUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/twitch': {
+      id: '/auth/twitch'
+      path: '/auth/twitch'
+      fullPath: '/auth/twitch'
+      preLoaderRoute: typeof AuthTwitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/error': {
       id: '/auth/error'
       path: '/auth/error'
@@ -1297,6 +1330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RankingsMedalsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scores/$ruleset/$id': {
+      id: '/scores/$ruleset/$id'
+      path: '/scores/$ruleset/$id'
+      fullPath: '/scores/$ruleset/$id'
+      preLoaderRoute: typeof ScoresRulesetIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rankings/skills/$skill': {
       id: '/rankings/skills/$skill'
       path: '/rankings/skills/$skill'
@@ -1394,6 +1434,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthDesktopRoute: AuthDesktopRoute,
   AuthDiscordRoute: AuthDiscordRoute,
   AuthErrorRoute: AuthErrorRoute,
+  AuthTwitchRoute: AuthTwitchRoute,
   BotUserIdRoute: BotUserIdRoute,
   BugsIdRoute: BugsIdRoute,
   BugsNewRoute: BugsNewRoute,
@@ -1429,6 +1470,7 @@ const rootRouteChildren: RootRouteChildren = {
   RankingsLifetimeSkillRoute: RankingsLifetimeSkillRoute,
   RankingsPrestigeSkillRoute: RankingsPrestigeSkillRoute,
   RankingsSkillsSkillRoute: RankingsSkillsSkillRoute,
+  ScoresRulesetIdRoute: ScoresRulesetIdRoute,
   RankingsMedalsIndexRoute: RankingsMedalsIndexRoute,
   RankingsMedalsProgressLineRoute: RankingsMedalsProgressLineRoute,
   RankingsMedalsProgressIndexRoute: RankingsMedalsProgressIndexRoute,

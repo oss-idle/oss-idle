@@ -13,6 +13,11 @@ import {
 
 import { medalXPMultiplier } from '@oss-idle/shared/achievements/catalogue';
 import {
+	Big,
+	type BigLike,
+	ZERO,
+} from '@oss-idle/shared/big';
+import {
 	geneticsCounts,
 	geneticSlots,
 	pickedSkills,
@@ -21,6 +26,7 @@ import {
 import { OWNER_ID } from '@oss-idle/shared/groups';
 import { NO_MEDALS } from '@oss-idle/shared/mods';
 import type { MedalBatch } from '@oss-idle/shared/play';
+import { rankScore } from '@oss-idle/shared/rankings';
 import { BASE_MAX_UPGRADES } from '@oss-idle/shared/upgrades';
 import {
 	playLevelOf,
@@ -85,6 +91,8 @@ const PERFECT_SCORE = 1_000_000;
 const PARALLAX_ID = 1443309;
 /** Yuyoyuppe - AiAe [Wafles' SHD], the "Wonderful" medal's map */
 const AIAE_ID = 421066;
+/** After School - Diva (1.2x) [Insane], the "Diva" medal's map */
+const DIVA_ID = 1000000085;
 
 // a play with a mod that earns no medals (EZ) counts for none of the play feats
 const medalPlay = ({ score: scores }: ServerRuleset) =>
@@ -114,6 +122,8 @@ const scoreFactsRow = async (r: ServerRuleset, characterId: number, since?: Date
 			and ${scores.grade} in ('XX', 'X', 'SS', 'S')`),
 		wonderful: max(sql<number>`${scores.beatmapId} = ${AIAE_ID}
 			and ${scores.grade} in ('XX', 'X', 'SS') and ${scores.rate} >= 1`),
+		diva: max(sql<number>`${scores.beatmapId} = ${DIVA_ID}
+			and ${scores.grade} in ('XX', 'X', 'SS') and ${scores.rate} >= 1`),
 		last: max(scores.playedAt),
 	})
 		.from(scores)
@@ -134,6 +144,7 @@ const factsOf = (row: Awaited<ReturnType<typeof scoreFactsRow>>): Omit<ScoreFact
 	possessed: Number(row?.possessed) > 0,
 	parallax: Number(row?.parallax) > 0,
 	wonderful: Number(row?.wonderful) > 0,
+	diva: Number(row?.diva) > 0,
 });
 
 /** #1s held on ranked maps (loved ones don't count). */
@@ -159,7 +170,7 @@ const fullRateGrades = async (r: ServerRuleset, characterId: number, since?: Dat
 const FACTS_TTL_S = 6 * 3600;
 // bump the version with every new fact: the old keys lack it, so every score is read again
 const factsKey = (r: ServerRuleset, characterId: number) =>
-	`${redisKeyPrefix}scoreFacts:1:${r.def.id}:${characterId}`;
+	`${redisKeyPrefix}scoreFacts:2:${r.def.id}:${characterId}`;
 
 /** For anything that deletes or rewrites a character's scores. */
 export const forgetScoreFacts = async (r: ServerRuleset, characterId: number) => {
@@ -295,7 +306,7 @@ const live = async (
 		nearMiss: (play.failedAt ?? 0) >= FAIL_99,
 		earlyFail: play.failedSeconds !== undefined && play.failedSeconds < EARLY_FAIL_SECONDS,
 		// raw, as the game shows it ("2.4ω")
-		overdrive: Math.max(...skills.map(s => s.overdrive)),
+		overdrive: skills.reduce((best, s) => best.max(s.overdrive), ZERO),
 		prestige: skills.reduce((sum, s) => sum + s.prestige, 0),
 	};
 };
@@ -303,7 +314,7 @@ const live = async (
 type Live = Awaited<ReturnType<typeof live>>;
 
 /** What each line of threshold medals counts, by medal id prefix. */
-const countersOf = (r: ServerRuleset): Record<string, (p: Live) => number> => ({
+const countersOf = (r: ServerRuleset): Record<string, (p: Live) => BigLike> => ({
 	pass: p => p.pass,
 	fc: p => p.fc,
 	plays: p => p.totals.playCount,
@@ -338,29 +349,31 @@ const recordBest = async (
 	r: ServerRuleset,
 	characterId: number,
 	p: Live,
-): Promise<Record<string, number>> => {
+): Promise<Record<string, Big>> => {
 	const { progress: characterProgress } = r;
 	const stored = await db.select()
 		.from(characterProgress)
 		.where(eq(characterProgress.characterId, characterId));
 	const before = new Map(stored.map(r => [r.line, r]));
 	const changed = Object.entries(countersOf(r))
-		.map(([line, value]) => {
-			const current = value(p);
+		.map(([line, counter]) => {
+			const current = Big.from(counter(p));
+			const value = (before.get(line)?.value ?? ZERO).max(current);
 			return {
-				characterId, line, current, value: Math.max(current, before.get(line)?.value ?? 0),
+				characterId, line, current, value, rankScore: rankScore(value),
 			};
 		})
-		.filter(r => r.current !== (before.get(r.line)?.current ?? 0));
+		.filter(r => !r.current.eq(before.get(r.line)?.current ?? ZERO));
 	if (changed.length) await db.insert(characterProgress)
 		.values(changed)
 		.onDuplicateKeyUpdate({
 			set: {
-				value: sql`greatest(${characterProgress.value}, values(value))`,
+				value: sql`if(values(rank_score) >= ${characterProgress.rankScore}, values(value), ${characterProgress.value})`,
 				current: sql`values(current)`,
+				rankScore: sql`greatest(${characterProgress.rankScore}, values(rank_score))`,
 			},
 		});
-	const best: Record<string, number> = Object.fromEntries(stored.map(r => [r.line, r.value]));
+	const best: Record<string, Big> = Object.fromEntries(stored.map(r => [r.line, r.value]));
 	for (const r of changed) best[r.line] = r.value;
 	return best;
 };
@@ -387,8 +400,8 @@ type Rule = {
 	 *  takes it back when the replayed scores no longer earn it */
 	scores?: true,
 	/** the counted value (its best) and its goal, for medals earned at a threshold */
-	value?: (p: Progress) => number,
-	current?: (p: Progress) => number,
+	value?: (p: Progress) => Big,
+	current?: (p: Progress) => Big,
 	goal?: number,
 };
 
@@ -402,15 +415,15 @@ export const SCORE_LINES = ['pass', 'fc', 'hits', 'pp', 'play-pp'];
 
 /** A line of medals earned at thresholds of one counter's best. */
 const series = (
-	counters: Record<string, (p: Live) => number>,
+	counters: Record<string, (p: Live) => BigLike>,
 	label: string,
 	at: Record<string, number>,
 	counter: string,
 ): Record<string, Rule> => Object.fromEntries(Object.entries(at).map(([id, min]) => [id, {
-	test: (p: Progress) => (p.best[counter] ?? 0) >= min,
+	test: (p: Progress) => (p.best[counter] ?? ZERO).gte(min),
 	rule: `best ${label} ≥ ${amount(min)}`,
-	value: (p: Progress) => p.best[counter] ?? 0,
-	current: (p: Progress) => counters[counter](p),
+	value: (p: Progress) => p.best[counter] ?? ZERO,
+	current: (p: Progress) => Big.from(counters[counter](p)),
 	goal: min,
 	...SCORE_LINES.includes(counter) && { scores: true as const },
 }]));
@@ -548,6 +561,8 @@ const rulesFor = (r: ServerRuleset): Record<string, Rule> => {
 			p => p.parallax),
 		'wonderful': fromScores('an SS or better on Yuyoyuppe - AiAe [Wafles\' SHD] at 1.0x rate or faster',
 			p => p.wonderful),
+		'diva': fromScores('an SS or better on After School - Diva (1.2x) [Insane] at 1.0x rate or faster',
+			p => p.diva),
 	};
 };
 
@@ -592,9 +607,9 @@ export const earnedWithLive = async (
 	const stored = await db.select()
 		.from(r.progress)
 		.where(eq(r.progress.characterId, character.id));
-	const best: Record<string, number> = Object.fromEntries(stored.map(row => [row.line, row.value]));
+	const best: Record<string, Big> = Object.fromEntries(stored.map(row => [row.line, row.value]));
 	const counters = countersOf(r);
-	for (const line of lines) best[line] = counters[line](now);
+	for (const line of lines) best[line] = Big.from(counters[line](now));
 	return r.def.medals.medals.filter(m => RULES(r)[m.id].test({
 		...now, best,
 	})).map(m => m.id);
@@ -605,7 +620,7 @@ export const earnedWithLive = async (
 export const medalProgress = async (
 	r: ServerRuleset,
 	character: CharacterRow,
-): Promise<Record<string, { value: number, current: number, goal: number }>> => {
+): Promise<Record<string, { value: Big, current: Big, goal: number }>> => {
 	const p = await progress(r, character, {});
 	return Object.fromEntries(r.def.medals.medals.flatMap(m => {
 		const { value, current, goal } = RULES(r)[m.id];
@@ -682,9 +697,14 @@ export const recalculateMedals = async (
 	await recordProgress(r, characterId);
 	const changes = await scoreMedalChanges(r, character);
 	const { progress: lines } = r;
-	await db.update(lines)
-		.set({ value: sql`${lines.current}` })
+	const rows = await db.select()
+		.from(lines)
 		.where(and(eq(lines.characterId, characterId), inArray(lines.line, SCORE_LINES)));
+	await Promise.all(rows.map(row => db.update(lines)
+		.set({
+			value: row.current, rankScore: rankScore(row.current),
+		})
+		.where(and(eq(lines.characterId, characterId), eq(lines.line, row.line)))));
 	const batch = await addMedals(r, characterId, changes.added);
 	await removeMedals(r, characterId, changes.removed);
 	if (!batch.ids.length && !changes.removed.length) return changes;
@@ -789,13 +809,13 @@ export const progressPage = async (
 		.innerJoin(users, eq(users.id, characters.userId))
 		.where(and(
 			eq(characterProgress.line, line),
-			gt(characterProgress.value, 0),
+			gt(characterProgress.rankScore, 0),
 			isNull(users.restrictedAt),
 			perAccount && eq(characters.id, users.currentCharacter),
 			country === undefined ? undefined : eq(users.country, country),
 			among && inArray(characters.id, among.length ? among : [0]),
 		))
-		.orderBy(desc(characterProgress.value), characters.id)
+		.orderBy(desc(characterProgress.rankScore), characters.id)
 		.limit(size)
 		.offset((page - 1) * size);
 	return {

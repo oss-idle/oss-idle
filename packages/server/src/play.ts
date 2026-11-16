@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
 
+import type { Big } from '@oss-idle/shared/big';
 import {
 	STATUS,
 	type Status,
@@ -65,6 +66,10 @@ import { addFatigue } from './fatigue';
 import { awardMedals } from './medals';
 import { count } from './metrics';
 import {
+	readXp,
+	storedXp,
+} from './pendingXp';
+import {
 	calculatePP,
 	starsAt,
 } from './pp';
@@ -127,7 +132,7 @@ type Pending = {
 	/** the map's last note, where every viewer is told the play ends */
 	songEndMs?: number,
 	draft: NewScoreRow,
-	skillXp: Record<string, number>,
+	skillXp: Record<string, Big>,
 	/** raw xp per skill at the level each played at, recorded once the play pays */
 	xpGains?: XpGain[],
 	/** the play's minutes and those its physical skills were strained, for fatigue once it pays */
@@ -276,17 +281,6 @@ redis.call('ZADD', KEYS[2], d.endsAt, ARGV[4])
 return out
 `;
 
-/** Debug xp scaling, applied once as the play is stored so every later read -
- *  result screen, totals, rankings - agrees on what the play was worth. */
-const scaleXp = (
-	xp: Record<string, number>,
-	multiplier: number,
-): Record<string, number> => {
-	if (multiplier <= 1) return xp;
-	for (const name of Object.keys(xp)) xp[name] = Math.floor(xp[name] * multiplier);
-	return xp;
-};
-
 /** Mark a character active now (presence + the "online in the last hour" set). */
 const markOnline = (characterId: number) => redis.zadd(ONLINE_KEY, Date.now(), String(characterId));
 
@@ -295,11 +289,10 @@ export async function getPlaying(): Promise<number> {
 	return redis.zcount(PLAYING_KEY, Date.now(), '+inf');
 }
 
-/** Count of characters seen within the last hour (never below those playing). */
+/** Count of characters that started a play within the last hour. */
 export async function getOnline(): Promise<number> {
 	await redis.zremrangebyscore(ONLINE_KEY, '-inf', Date.now() - ONLINE_TTL);
-	const c = await redis.zcard(ONLINE_KEY);
-	return Math.max(await getPlaying(), c);
+	return redis.zcard(ONLINE_KEY);
 }
 
 type OffsetChunk = {
@@ -368,12 +361,19 @@ type Timeline = Pick<
 export const playTimeline = async (slot: Slot): Promise<Timeline | undefined> =>
 	readPlay(slot);
 
+type StoredPlay = Omit<Pending, 'skillXp'> & { skillXp: Record<string, number | string> };
+
+const parsePlay = (raw: string): Pending => {
+	const stored = JSON.parse(raw) as StoredPlay;
+	return {
+		...BEFORE_RULESETS, ...stored, skillXp: readXp(stored.skillXp),
+	};
+};
+
 /** Read the active play (if any) without claiming it. */
 async function readPlay(slot: Slot): Promise<Pending | undefined> {
 	const raw = await redis.get(playKey(slot));
-	return raw ? {
-		...BEFORE_RULESETS, ...JSON.parse(raw) as Pending, 
-	} : undefined;
+	return raw ? parsePlay(raw) : undefined;
 }
 
 /** True while the slot has a live (not-yet-ended) play. */
@@ -602,6 +602,7 @@ async function simulateAndStore(
 	const stars = rate === 1 ? Number(beatmap.sr) : starsAt(beatmap.chart, rate);
 	const played = await r.play.simulate(r, {
 		character: player, profile, beatmapId, chart: beatmap.chart, sr: stars, rate, mods, round, board, tired,
+		xpMultiplier,
 	});
 
 	const pp = calculatePP(r.def, played, beatmap.chart, rate, mods);
@@ -641,7 +642,7 @@ async function simulateAndStore(
 		songEndMs: played.lastNoteEnd,
 		draft,
 		samples: played.samples,
-		skillXp: scaleXp(played.skillXp, xpMultiplier),
+		skillXp: played.skillXp,
 		...played.strains && { strains: played.strains },
 		...played.rawXp && { xpGains: xpGainsOf(r, profile, played.rawXp) },
 		fatigue,
@@ -654,7 +655,9 @@ async function simulateAndStore(
 		...board ? { board: 'unranked' as const } : { strain: played.strain },
 	};
 	if (!isRankedMods(mods)) entry.unranked = true;
-	await redis.set(playKey(slot), JSON.stringify(entry));
+	await redis.set(playKey(slot), JSON.stringify({
+		...entry, skillXp: storedXp(entry.skillXp),
+	}));
 
 	// Promote the provisional lock to the real end time (drives the sweep + count).
 	await redis.zadd(PLAYING_KEY, endsAt, slot);
@@ -701,9 +704,7 @@ const getAndDeletePlay = async(slot: Slot): Promise<Pending | undefined> => {
 		String(characterOfSlot(slot)),
 	) as string | undefined;
 	if (!result) return;
-	return {
-		...BEFORE_RULESETS, ...JSON.parse(result) as Pending, 
-	};
+	return parsePlay(result);
 };
 
 /** A play on an unranked map's leaderboard: onto the board, nothing else moves. Dropped

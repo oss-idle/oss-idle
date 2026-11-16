@@ -4,6 +4,7 @@ import {
 	useState,
 } from 'react';
 
+import { Big } from '../big.js';
 import Listener from './listener.js';
 import Log from './log.js';
 
@@ -112,6 +113,7 @@ export default class Synced<T> {
 
 	public async set(value: T): Promise<void> {
 		if (typeof value !== 'object' && value === this.current) return;
+		if (value instanceof Big && this.current instanceof Big && value.eq(this.current)) return;
 		this.previous = this.current;
 		this.current = value;
 		return this.listener.trigger(this.current, this.previous);

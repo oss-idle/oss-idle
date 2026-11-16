@@ -33,7 +33,7 @@ export type ApiUserCompact = {
 	profile_url: string,
 };
 
-export type ApiLevel = { current: number, progress: number, total_xp: number };
+export type ApiLevel = { current: number, progress: number, total_xp: string };
 
 export type ApiUserStatistics = {
 	pp: number,
@@ -52,9 +52,30 @@ export type ApiUserStatistics = {
 export type ApiSkill = {
 	level: number,
 	progress: number,
-	total_xp: number,
+	/** the level all the XP it ever earned buys: `level` without prestige's bonus levels */
+	lifetime_level: number,
+	/** the level the skill holds now, which upgrades spend and a prestige resets */
+	xp_level: number,
+	/** the XP it holds into that level */
+	xp: string,
+	total_xp: string,
 	prestige: number,
 	upgrades: number,
+	overdrive: string,
+	/** what buying the next upgrade now would add to overdrive; absent while it can't be bought */
+	upgrade_overdrive?: string,
+	/** the climaxx it has to spend on genes; absent in a ruleset without genetics */
+	climaxx?: string,
+	/** what its XP gains are multiplied by: its upgrades with overdrive's boost, its prestiges,
+	 *  the genetics (absent without them) and the character's medals, the same on every skill.
+	 *  `total` is their product; a play's own modifiers (mods, fatigue, a map replayed) come on top */
+	xp_multipliers: {
+		upgrades: string,
+		prestige: string,
+		genetics?: string,
+		medals: string,
+		total: string,
+	},
 };
 
 export type ApiFatigue = { minutes: number, level: number, at?: string };
@@ -83,6 +104,8 @@ export type ApiUser = ApiUserCompact & {
 	generation: number,
 	is_supporter: boolean,
 	support_level: number,
+	/** the linked Twitch account's id; on `/me` only */
+	twitch_id?: string,
 	join_date?: string,
 	statistics: ApiUserStatistics,
 	/** the strained-minute accumulator, rested to the response, and how tired it leaves the character */
@@ -160,6 +183,14 @@ export type ApiNewsPost = {
 /** A character's score, with its map. */
 export type ApiScoreOnMap = ApiScore & { beatmap: ApiBeatmap, beatmapset: ApiBeatmapset };
 
+/** osu!'s BeatmapPlaycount: how often the character played a difficulty. */
+export type ApiBeatmapPlaycount = {
+	beatmap_id: number,
+	count: number,
+	beatmap: ApiBeatmap,
+	beatmapset: ApiBeatmapset,
+};
+
 /** A map's leaderboard entry. */
 export type ApiBoardScore = ApiScore & { user: ApiUserCompact };
 
@@ -220,11 +251,11 @@ export type ApiMatch = {
 /** A skill's state for `simulate`; what is left out counts as 0. */
 export type ApiSkillState = {
 	level: number,
-	xp?: number,
-	lifetime_xp?: number,
+	xp?: number | string,
+	lifetime_xp?: number | string,
 	prestige?: number,
 	upgrades?: number,
-	overdrive?: number,
+	overdrive?: number | string,
 };
 
 /** `POST /api/v2/simulate`'s body: a 4K character state and a live map. */
@@ -256,7 +287,7 @@ export type ApiSimulation = {
 	strained_minutes: number,
 	fail_progress?: number,
 	fail_seconds?: number,
-	xp: Record<string, number>,
+	xp: Record<string, string>,
 };
 
 /** How an `AddonApi` call fails: the server's message, and the HTTP status. */
@@ -281,6 +312,8 @@ export type AddonApi = {
 	simulate(body: ApiSimulateRequest): Promise<ApiSimulation>,
 	user(user: UserRef, options?: RulesetOption): Promise<ApiUser>,
 	userScores(user: UserRef, type: ApiScoreType, options?: ListOption): Promise<ApiScoreOnMap[]>,
+	/** the difficulties it played most, most first */
+	userMostPlayed(user: UserRef, options?: ListOption): Promise<ApiBeatmapPlaycount[]>,
 	characters(ids: number[], options?: RulesetOption): Promise<ApiUser[]>,
 	character(id: number, options?: RulesetOption): Promise<ApiUser>,
 	characterScores(id: number, type: ApiScoreType, options?: ListOption): Promise<ApiScoreOnMap[]>,

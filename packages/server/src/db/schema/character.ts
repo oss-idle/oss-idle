@@ -10,6 +10,10 @@ import {
 	varchar,
 } from 'drizzle-orm/mysql-core';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import type { CharacterDTO } from '@oss-idle/shared/character';
 import type { Fatigue } from '@oss-idle/shared/fatigue';
 import {
@@ -28,6 +32,7 @@ import { apiBaseUrl } from '../../env';
 import type { ServerRuleset } from '../../rulesets/ruleset';
 import { db } from '../client';
 import { jsonColumn } from '../columns';
+import { bigColumn } from './bigColumn';
 import { users } from './user';
 
 /** The profile's rank boards: global pp, country pp, score, overall, each of the ruleset's skills. */
@@ -44,30 +49,26 @@ export type RankHistory = {
 
 export const RANK_HISTORY_DAYS = 90;
 
-const skillColumn = () => int().notNull().default(0);
-const overdriveColumn = () => double().notNull().default(0);
-// Prestige cycles push a single skill past 1.6e9 and the overall total past
-// 1.6e10, well over a signed INT.
-const xpColumn = () => bigint({ mode: 'number' }).notNull().default(0);
+const skillColumn = () => bigint({ mode: 'number' }).notNull().default(0);
 
 type SkillColumns<S extends string> =
 	& { [K in S as `${K}Level`]: ReturnType<typeof skillColumn> }
-	& { [K in S as `${K}Xp`]: ReturnType<typeof xpColumn> }
-	& { [K in S as `${K}TotalXp`]: ReturnType<typeof xpColumn> }
-	& { [K in S as `${K}LifetimeXp`]: ReturnType<typeof xpColumn> }
+	& { [K in S as `${K}Xp`]: ReturnType<typeof bigColumn> }
+	& { [K in S as `${K}TotalXp`]: ReturnType<typeof bigColumn> }
+	& { [K in S as `${K}LifetimeXp`]: ReturnType<typeof bigColumn> }
 	& { [K in S as `${K}Upgrades`]: ReturnType<typeof skillColumn> }
 	& { [K in S as `${K}Prestige`]: ReturnType<typeof skillColumn> }
-	& { [K in S as `${K}Overdrive`]: ReturnType<typeof overdriveColumn> };
+	& { [K in S as `${K}Overdrive`]: ReturnType<typeof bigColumn> };
 
 const skillColumns = <S extends string>(skills: readonly S[]) => Object.fromEntries(
 	skills.flatMap(skill => [
 		[`${skill}Level`, skillColumn()],
-		[`${skill}Xp`, xpColumn()],
-		[`${skill}TotalXp`, xpColumn()],
-		[`${skill}LifetimeXp`, xpColumn()],
+		[`${skill}Xp`, bigColumn()],
+		[`${skill}TotalXp`, bigColumn()],
+		[`${skill}LifetimeXp`, bigColumn()],
 		[`${skill}Upgrades`, skillColumn()],
 		[`${skill}Prestige`, skillColumn()],
-		[`${skill}Overdrive`, overdriveColumn()],
+		[`${skill}Overdrive`, bigColumn()],
 	]),
 ) as SkillColumns<S>;
 
@@ -97,10 +98,6 @@ export const characters = mysqlTable('character', {
 	rulesetLock: varchar({ length: 16 }).$type<RulesetId>(),
 	/** The actions a running play has deferred to its end, in order. */
 	pendingAction: jsonColumn<PendingAction[]>(),
-	/** The play queue's preferences (see shared/queue.ts). */
-	autopilotMode: varchar({ length: 10 }).$type<AutopilotMode>().notNull().default('NEXT'),
-	autopilotDelay: int().notNull().default(30),
-	queuePlayOnce: boolean().notNull().default(false),
 });
 
 /** A character's progress in one ruleset: nothing in it carries over to another. */
@@ -112,9 +109,9 @@ export const profileTable = <S extends string>(
 		.references(() => characters.id, { onDelete: 'cascade' }),
 	...skillColumns(skills),
 	overallLevel: skillColumn(),
-	overallXp: xpColumn(),
-	overallTotalXp: xpColumn(),
-	overallLifetimeXp: xpColumn(),
+	overallXp: bigColumn(),
+	overallTotalXp: bigColumn(),
+	overallLifetimeXp: bigColumn(),
 	/** Rebirth number, 1 for a first character. Its unlock set is the first
 	 *  generation - 1 entries of the shared list. */
 	generation: int().notNull().default(1),
@@ -126,9 +123,12 @@ export const profileTable = <S extends string>(
 	}).notNull().default('0'),
 	rankHistory: jsonColumn<RankHistory>(),
 	fatigue: jsonColumn<Fatigue>(),
-	/** The play queue's rate and mods in this ruleset (see shared/queue.ts). */
+	/** The play queue's preferences in this ruleset (see shared/queue.ts). */
 	playRate: double().notNull().default(1),
 	playMods: jsonColumn<Mod[]>(),
+	autopilotMode: varchar({ length: 10 }).$type<AutopilotMode>().notNull().default('NEXT'),
+	autopilotDelay: int().notNull().default(30),
+	queuePlayOnce: boolean().notNull().default(false),
 	genetics: jsonColumn<Genetics>(),
 });
 
@@ -137,15 +137,15 @@ export type ProfileRow = ProfileTable['$inferSelect'];
 
 /** One skill's columns on a profile row, by the ruleset's skill name. */
 export const skillOf = (row: ProfileRow, skill: string) => {
-	const r = row as unknown as Record<string, number>;
+	const r = row as unknown as Record<string, unknown>;
 	return {
-		level: r[`${skill}Level`],
-		xp: r[`${skill}Xp`],
-		totalXp: r[`${skill}TotalXp`],
-		lifetimeXp: r[`${skill}LifetimeXp`],
-		upgrades: r[`${skill}Upgrades`],
-		prestige: r[`${skill}Prestige`],
-		overdrive: r[`${skill}Overdrive`],
+		level: r[`${skill}Level`] as number,
+		xp: r[`${skill}Xp`] as Big,
+		totalXp: r[`${skill}TotalXp`] as Big,
+		lifetimeXp: r[`${skill}LifetimeXp`] as Big,
+		upgrades: r[`${skill}Upgrades`] as number,
+		prestige: r[`${skill}Prestige`] as number,
+		overdrive: r[`${skill}Overdrive`] as Big,
 	};
 };
 export type SkillColumnsOf = ReturnType<typeof skillOf>;
@@ -169,6 +169,24 @@ export const profileDTO = (row: ProfileRow, def: RulesetDef) => {
 export const skillColumnsFor = (skill: string, state: Partial<SkillColumnsOf>) =>
 	Object.fromEntries(Object.entries(state).map(([k, v]) =>
 		[`${skill}${k[0].toUpperCase()}${k.slice(1)}`, v])) as Partial<ProfileRow>;
+
+/** The overall total as the sum of the skills' totals, `totals` written over the row's. */
+export const overallTotals = (
+	r: Pick<ServerRuleset, 'def'>,
+	row: ProfileRow,
+	totals: Readonly<Record<string, Big>>,
+) => {
+	const overallTotalXp = r.def.skills.reduce(
+		(sum, s) => sum.add(totals[s] ?? skillOf(row, s).totalXp),
+		ZERO,
+	);
+	const overall = xpGivesLevel(overallTotalXp);
+	return {
+		overallTotalXp,
+		overallLevel: overall.level,
+		overallXp: overall.xp.round(),
+	};
+};
 
 export type CharacterRow = typeof characters.$inferSelect;
 export type NewCharacterRow = typeof characters.$inferInsert;

@@ -5,7 +5,10 @@ import {
 	MAX_CHAT_LENGTH,
 	type PrivateMessage,
 } from '@oss-idle/shared/community/wire';
-import { MAKISEBOT_USER_ID } from '@oss-idle/shared/groups';
+import {
+	AMADEUS_USER_ID,
+	MAKISEBOT_USER_ID,
+} from '@oss-idle/shared/groups';
 
 import { getUserById } from '../db/schema/user';
 import {
@@ -14,6 +17,7 @@ import {
 } from '../social';
 import {
 	isMuted,
+	nameColor,
 	rateLimited,
 } from './chat';
 import { hub } from './hub';
@@ -52,6 +56,28 @@ const answerPm = async (from: PrivateMessage['from'], text: string): Promise<voi
 	});
 };
 
+/** Amadeus plays by itself on stream and reads no message: every one gets this back. */
+const AMADEUS_ANSWER = 'I am played by Twitch chat, so I cannot read this. Come and steer me: https://www.twitch.tv/adri_osu';
+
+/** Amadeus's one answer, past the same mute and rate limit. Nothing reaches its own client. */
+const answerForAmadeus = async (from: PrivateMessage['from']): Promise<void> => {
+	if (await isMuted(from.userId) || await rateLimited(from.characterId, 'pm')) return;
+	const characterId = (await getUserById(AMADEUS_USER_ID))?.currentCharacter;
+	if (!characterId) return;
+	hub.sendTo(from.characterId, {
+		type: 'pm',
+		message: {
+			id: randomUUID(),
+			from: {
+				userId: AMADEUS_USER_ID, characterId, name: 'Amadeus', color: await nameColor(AMADEUS_USER_ID),
+			},
+			to: from.userId,
+			text: AMADEUS_ANSWER,
+			at: Date.now(),
+		},
+	});
+};
+
 /**
  * Relay one private message. Nothing is stored. The sender always gets it back
  * as if delivered, whatever stopped it: mute, the rate limit, an offline
@@ -76,6 +102,7 @@ export const handlePm = async (
 		type: 'pm', message,
 	});
 	if (to === MAKISEBOT_USER_ID) return answerPm(from, message.text);
+	if (to === AMADEUS_USER_ID) return answerForAmadeus(from);
 	const recipient = await recipientOf(from, to);
 	if (recipient !== undefined) hub.sendTo(recipient, {
 		type: 'pm', message,

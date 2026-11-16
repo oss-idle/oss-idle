@@ -6,6 +6,11 @@ import initSqlJs, {
 } from 'sql.js';
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 
+import {
+	type Big,
+	fromWire,
+	toText,
+} from '@oss-idle/shared/big';
 import Synced from '@oss-idle/shared/helpers/synced';
 import {
 	LEGACY_SAVE_DB,
@@ -152,6 +157,8 @@ export class Column<V, Opt extends boolean = false> {
 export const integer = () => new Column<number>('INTEGER');
 export const real = () => new Column<number>('REAL');
 export const text = <T extends string = string>() => new Column<T>('TEXT');
+/** A growing number, stored as its text form. */
+export const big = () => new Column<Big>('TEXT', toText, v => fromWire(v as number | string));
 export const boolean = () => new Column<boolean>(
 	'INTEGER', 
 	v => (v ? 1 : 0),

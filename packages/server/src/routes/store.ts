@@ -2,7 +2,10 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import { checkoutBody } from '@oss-idle/shared/supporter';
+import {
+	checkoutBody,
+	giveBody,
+} from '@oss-idle/shared/supporter';
 
 import { requireAdmin } from '../auth/admin';
 import { claimStateNonce } from '../auth/handoff';
@@ -26,6 +29,7 @@ import {
 	adminOrders,
 	checkout,
 	findRecipient,
+	giveMonths,
 	handleWebhook,
 	ordersOf,
 	portal,
@@ -100,6 +104,11 @@ export const storeRoutes = new Hono()
 	// refunds the part of the tag not used yet; the webhook cuts the tag when Stripe confirms
 	.post('/admin/orders/:id/refund', requireAdmin, async c =>
 		c.json({ refunded: await refundUnused(idParam.parse(c.req.param('id'))) }))
+
+	.post('/admin/give/:userId', requireAdmin, valid('json', giveBody), async c => {
+		await giveMonths(idParam.parse(c.req.param('userId')), c.req.valid('json').months);
+		return c.json({ ok: true });
+	})
 
 	// Stripe calls this; the signature is the auth
 	.post('/webhook', async c => {

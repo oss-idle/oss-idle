@@ -160,7 +160,7 @@ describe('community wire contract', () => {
 				}],
 			},
 		};
-		expect(serverMessage.parse(msg)).toEqual(msg);
+		expect(JSON.parse(JSON.stringify(serverMessage.parse(msg)))).toEqual(msg);
 	});
 
 	it('round-trips a system chat message (no sender)', () => {

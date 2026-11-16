@@ -44,6 +44,9 @@ export const knowsLegacyChannel = (version: string): boolean => {
 /** Server announcements (#1 ranks, milestones); read-only for players. */
 export const ANNOUNCE_CHANNEL = '#announce';
 
+/** Newly ranked and loved maps; read-only for players. */
+export const MAPS_CHANNEL = '#maps';
+
 /** The admins' and GMT's own channel, reaching only them. */
 export const TEAM_CHANNEL = '#team';
 
@@ -100,6 +103,12 @@ export const chatLineDTO = z.discriminatedUnion('kind', [
 		link: z.object({
 			label: z.string(),
 			path: z.string(),
+		}).optional(),
+		/** the player `text` names, whose name opens their menu */
+		user: z.object({
+			name: z.string(),
+			characterId: z.number().int().positive(),
+			userId: z.number().int().positive(),
 		}).optional(),
 		/** the ruleset an announcement is about, drawn as its icon in front */
 		ruleset: z.enum(RULESET_IDS).optional(),

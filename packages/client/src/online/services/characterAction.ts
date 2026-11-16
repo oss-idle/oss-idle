@@ -1,4 +1,6 @@
-import type { CharacterDTO } from '@oss-idle/shared/character';
+import { z } from 'zod';
+
+import { characterDTO } from '@oss-idle/shared/character';
 import Log from '@oss-idle/shared/helpers/log';
 
 import Account from '../account';
@@ -11,8 +13,15 @@ type Response = {
 	ok: boolean,
 	status: number,
 	text: () => Promise<string>,
-	json: () => Promise<{ queued: true } | { queued?: false, character: CharacterDTO }>,
+	json: () => Promise<unknown>,
 };
+
+const actionResult = z.union([
+	z.object({ queued: z.literal(true) }),
+	z.object({
+		queued: z.literal(false).optional(), character: characterDTO,
+	}),
+]);
 
 /**
  * Sends a spend (upgrade, prestige, rebirth) of the signed-in character and
@@ -30,7 +39,7 @@ export const sendCharacterAction = async (
 		Log.errorPopup(`${what} failed (${res.status})${detail ? `: ${detail}` : ''}`);
 		return false;
 	}
-	const body = await res.json();
+	const body = actionResult.parse(await res.json());
 	if (body.queued) return queued();
 
 	const dto = body.character;

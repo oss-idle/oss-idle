@@ -11,6 +11,7 @@ import {
 import {
 	ANNOUNCE_CHANNEL,
 	type ChatLine,
+	MAPS_CHANNEL,
 } from '@oss-idle/shared/community/wire';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import useSyncedSelect from '@oss-idle/shared/hooks/useSyncedSelect';
@@ -50,7 +51,8 @@ import useReply from './useReply';
 /** How a channel line shows to you: `me` sees their mentions lit, blocked players' lines hidden. */
 const toLogLine = (l: LogEntry, blockedIds: ReadonlySet<number>, me?: number): LogLine => {
 	if (l.kind === 'system') return {
-		id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link, parts: l.parts, ruleset: l.ruleset,
+		id: l.id, at: l.at, text: l.text, color: l.color, name: l.name, link: l.link, user: l.user, parts: l.parts,
+		ruleset: l.ruleset,
 		sender: l.from && l.name !== undefined ? {
 			...l.from, name: l.name,
 		} : undefined,
@@ -149,7 +151,7 @@ export default function ChatTabContents({ channel, inputRef } : {
 			))}
 		</div>
 
-		{channel !== LOGS_CHANNEL && channel !== ANNOUNCE_CHANNEL && (
+		{channel !== LOGS_CHANNEL && channel !== ANNOUNCE_CHANNEL && channel !== MAPS_CHANNEL && (
 			<form className="chat__compose" onSubmit={submit}>
 				<ReplyBar
 					target={reply.target}

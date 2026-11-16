@@ -150,6 +150,8 @@ export type SkinSource = {
 	/** normalized paths */
 	paths: string[],
 	read: (path: string) => Promise<Blob | undefined>,
+	/** the paths a map's own files supply, over the player's skin */
+	map?: ReadonlySet<string>,
 };
 
 /**
@@ -187,6 +189,11 @@ export default class OsuSkin implements SkinIndex {
 
 	has(path: string): boolean {
 		return this.set.has(path);
+	}
+
+	/** Whether the file comes from the map being played rather than the player's skin. */
+	fromMap(path: string): boolean {
+		return this.source.map?.has(normalizePath(path)) ?? false;
 	}
 
 	get paths(): string[] {

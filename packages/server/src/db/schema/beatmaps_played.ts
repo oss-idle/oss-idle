@@ -110,12 +110,14 @@ const recallNow = (played: PlayedTable, genes: MemoryGenes): SQL<number> => {
 };
 
 
-export const getMostPlayed = (
+/** A character's maps by how often it played them, most first. */
+export const mostPlayedRows = (
 	r: ServerRuleset,
 	characterId: number,
-	page: number = 1,
+	offset: number,
+	limit: number,
 ) =>
-	profilePage(page, (offset, limit) => db
+	db
 		.select({
 			beatmaps_played: r.played, beatmap: beatmapListColumns, beatmapset: setColumns(r),
 		})
@@ -124,9 +126,12 @@ export const getMostPlayed = (
 		.innerJoin(beatmapset, eq(beatmapset.id, beatmaps.setId))
 		.innerJoin(r.setStatus, eq(r.setStatus.setId, beatmapset.id))
 		.where(and(eq(r.played.characterId, characterId), gt(r.played.plays, 0)))
-		.orderBy(desc(r.played.plays))
+		.orderBy(desc(r.played.plays), r.played.beatmapId)
 		.offset(offset)
-		.limit(limit));
+		.limit(limit);
+
+export const getMostPlayed = (r: ServerRuleset, characterId: number, page: number = 1) =>
+	profilePage(page, (offset, limit) => mostPlayedRows(r, characterId, offset, limit));
 
 export const getTotalPlayed = async (
 	{ played: beatmaps_played }: ServerRuleset,

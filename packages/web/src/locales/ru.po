@@ -21,7 +21,7 @@ msgstr "(игра в процессе)"
 msgid "(only admins can see this)"
 msgstr "(видно только администраторам)"
 
-#. placeholder {0}: bignum(plays)
+#. placeholder {0}: formatBig(plays)
 #: src/pages/bot/BotLive.tsx
 msgid "{0} plays so far"
 msgstr "{0} раз(а) сыграно"
@@ -913,6 +913,18 @@ msgstr "подарок от {name}"
 msgid "gift to player"
 msgstr "подарить игроку"
 
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Give"
+msgstr ""
+
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Give oss!supporter to {name}?"
+msgstr ""
+
+#: src/components/character/ProfileMenu.tsx
+msgid "Give supporter"
+msgstr ""
+
 #: src/HeaderLinks.tsx
 #: src/pages/rankings/RankingsNav.tsx
 msgid "global"
@@ -1287,6 +1299,10 @@ msgstr ""
 
 #: src/pages/store/SupportSlider.tsx
 msgid "months"
+msgstr ""
+
+#: src/components/character/GiveSupporterDialog.tsx
+msgid "Months to add"
 msgstr ""
 
 #: src/components/character/ProfileMenu.tsx
@@ -2002,7 +2018,7 @@ msgstr ""
 msgid "Score"
 msgstr ""
 
-#: src/routes/scores/$id.tsx
+#: src/routes/scores/$ruleset/$id.tsx
 msgid "score info"
 msgstr ""
 
@@ -2301,6 +2317,10 @@ msgstr ""
 msgid "Thank you! Your donations gave you {days, plural, one {# day} other {# days}} of oss!supporter."
 msgstr ""
 
+#: src/pages/changelog/ChangelogEntry.tsx
+msgid "thanks to <0>{player}</0>"
+msgstr ""
+
 #: src/pages/beatmaps/MapRequests.tsx
 msgid "That .osz is another set: it went to the nomination queue, this request stays open"
 msgstr ""
@@ -2311,6 +2331,10 @@ msgstr ""
 
 #: src/pages/groups/GroupPage.tsx
 msgid "The <0>Beatmap Nominators</0> review the maps players propose and rank them."
+msgstr ""
+
+#: src/pages/groups/GroupPage.tsx
+msgid "The <0>Bots</0> are oss!idle's own accounts: nobody plays behind them."
 msgstr ""
 
 #: src/pages/groups/GroupPage.tsx
@@ -2430,6 +2454,10 @@ msgstr ""
 
 #: src/pages/levels/SkillVote.tsx
 msgid "Turn voting on for this skill"
+msgstr ""
+
+#: src/routes/auth/twitch.tsx
+msgid "Twitch linked"
 msgstr ""
 
 #: src/components/character/DeleteAccountDialog.tsx
@@ -2598,7 +2626,7 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
-#. placeholder {0}: bignum(ranks.performance)
+#. placeholder {0}: formatBig(ranks.performance)
 #. placeholder {1}: num(result.performance)
 #: src/pages/bot/BotTopScores.tsx
 msgid "Would be <0>#{0}</0> on oss!idle, with <1>{1}pp</1>"
@@ -2643,6 +2671,10 @@ msgstr ""
 
 #: src/pages/bot/BotPlayCta.tsx
 msgid "You can close this tab and come back later"
+msgstr ""
+
+#: src/pages/TwitchLinked.tsx
+msgid "You can close this tab."
 msgstr ""
 
 #: src/pages/store/SupporterStatus.tsx
@@ -2740,6 +2772,10 @@ msgstr ""
 
 #: src/pages/store/SupporterStatus.tsx
 msgid "Your supporter tag is valid until <0>{until}</0>."
+msgstr ""
+
+#: src/pages/TwitchLinked.tsx
+msgid "Your Twitch account is linked!"
 msgstr ""
 
 #: src/pages/levels/LevelChartLegend.tsx

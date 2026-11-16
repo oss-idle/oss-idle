@@ -1,3 +1,4 @@
+import DockModeButton from './DockModeButton';
 import DockModsButton from './DockModsButton';
 import DockNowPlaying from './DockNowPlaying';
 import DockQueue from './DockQueue';
@@ -39,6 +40,7 @@ export default function DockPanel({
 			{!left && <DockUpNext />}
 			<div className="dock__bar">
 				<DockTransport />
+				<DockModeButton />
 				<DockModsButton />
 				<DockUpgradesButton />
 				<DockQueueButton open={left} />

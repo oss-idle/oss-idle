@@ -5,7 +5,7 @@ import {
 	useLingui,
 } from '@lingui/react/macro';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 
 import { getGeneralStats } from '../api/stats';
@@ -13,7 +13,7 @@ import { loginWithOsu } from '../auth';
 import AuthBackdrop from '../components/AuthBackdrop';
 import { Asset } from '../router';
 
-const count = (n = 0) => bignum(n);
+const count = (n = 0) => formatBig(n);
 
 export default function Login() {
 	const { t } = useLingui();

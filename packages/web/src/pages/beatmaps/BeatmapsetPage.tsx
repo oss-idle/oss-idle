@@ -15,7 +15,8 @@ export default function BeatmapsetPage({ mapset, diffId, board }: {
 	return <main className='mapset'>
 		<BeatmapsetHeader key={mapset.set.id} mapset={mapset} diff={diff} />
 		<MapScoreboard
-			setId={mapset.set.id} beatmapId={diff.id} board={board} loved={mapset.set.status === 'loved'}
+			setId={mapset.set.id} beatmapId={diff.id} ruleset={mapset.ruleset} board={board}
+			loved={mapset.set.status === 'loved'}
 		/>
 	</main>;
 }

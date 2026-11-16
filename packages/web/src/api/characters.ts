@@ -1,3 +1,5 @@
+import { fromWire } from '@oss-idle/shared/big';
+import { characterDTO } from '@oss-idle/shared/character';
 import type { ProfileSection } from '@oss-idle/shared/profile';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -8,11 +10,32 @@ import {
 
 type Id = number | string;
 
-/** Public: a single character by id. */
-export const getCharacter = (id: number | string, ruleset?: RulesetId) =>
+const fetchCharacter = (id: number | string, ruleset?: RulesetId) =>
 	unwrap(rpc.v1.characters[':id'].$get({
 		param: { id: String(id) }, query: { ruleset }, 
 	}));
+
+/** Public: a single character by id, its XP read as Big. */
+export const getCharacter = async (id: number | string, ruleset?: RulesetId) => {
+	const character = await fetchCharacter(id, ruleset);
+	const { profile } = character;
+	return {
+		...character,
+		profile: {
+			...profile,
+			overallXp: fromWire(profile.overallXp),
+			overallTotalXp: fromWire(profile.overallTotalXp),
+			overallLifetimeXp: fromWire(profile.overallLifetimeXp),
+			skills: Object.fromEntries(Object.entries(profile.skills).map(([name, skill]) => [name, {
+				...skill,
+				xp: fromWire(skill.xp),
+				totalXp: fromWire(skill.totalXp),
+				lifetimeXp: fromWire(skill.lifetimeXp),
+				overdrive: fromWire(skill.overdrive),
+			}])),
+		},
+	};
+};
 
 /** Public: the medals a character holds, newest first, and its progress toward the rest. */
 export const getCharacterMedals = (id: number | string, ruleset?: RulesetId) =>
@@ -27,12 +50,14 @@ export const getCharacterStats = (id: number | string, ruleset?: RulesetId) =>
 	}));
 
 /** The signed-in account's own character, or null when onboarding is needed. */
-export const getMyCharacter = () =>
-	unwrap(rpc.v1.me.character.$get());
+export const getMyCharacter = async () => {
+	const character = await unwrap(rpc.v1.me.character.$get());
+	return character && characterDTO.parse(character);
+};
 
 /** Every character the signed-in account owns, oldest first. */
-export const getMyCharacters = () =>
-	unwrap(rpc.v1.me.characters.$get());
+export const getMyCharacters = async () =>
+	characterDTO.array().parse(await unwrap(rpc.v1.me.characters.$get()));
 
 /** The ruleset the signed-in account's character plays, its profile's main mode. */
 export const setMyRuleset = (ruleset: RulesetId) =>

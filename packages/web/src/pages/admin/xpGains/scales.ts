@@ -1,8 +1,6 @@
-export const compact = (value: number): string => {
-	if (value >= 1e6) return `${(value / 1e6).toFixed(value >= 1e7 ? 0 : 1)}M`;
-	if (value >= 1e3) return `${(value / 1e3).toFixed(value >= 1e4 ? 0 : 1)}k`;
-	return value >= 10 ? Math.round(value).toString() : value.toFixed(1);
-};
+import { formatBig } from '@oss-idle/shared/display/num';
+
+export const compact = (value: number): string => formatBig(value, 1);
 
 const hex = (h: string) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const mix = (a: string, b: string, t: number) => {

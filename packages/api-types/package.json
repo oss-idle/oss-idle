@@ -1,6 +1,6 @@
 {
   "name": "@oss-idle/api-types",
-  "version": "1.3.0",
+  "version": "2.0.0",
   "type": "module",
   "license": "AGPL-3.0-only",
   "description": "Types of oss!idle's API v2: its objects, and the add-on host's api. Types only.",

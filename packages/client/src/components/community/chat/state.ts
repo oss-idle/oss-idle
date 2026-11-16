@@ -1,13 +1,16 @@
 import {
 	ANNOUNCE_CHANNEL,
 	DEFAULT_CHANNEL,
+	MAPS_CHANNEL,
 } from '@oss-idle/shared/community/wire';
 import Synced from '@oss-idle/shared/helpers/synced';
 
 import { LOGS_CHANNEL } from '../../../logs';
 
 /** The open chat tabs: channels, plus one `pm:<userId>` tab per conversation. */
-export const chatTabs = new Synced<string[]>([DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, LOGS_CHANNEL]);
+export const chatTabs = new Synced<string[]>([
+	DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, MAPS_CHANNEL, LOGS_CHANNEL,
+]);
 export const activeChatTab = new Synced<string | undefined>(DEFAULT_CHANNEL);
 /** The next open tab (`by` 1) or the previous one (-1), wrapping round. */
 export const stepChatTab = (by: 1 | -1): void => {

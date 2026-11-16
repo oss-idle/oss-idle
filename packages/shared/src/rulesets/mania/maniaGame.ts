@@ -6,6 +6,7 @@ import {
 	modsScoreMultiplier,
 	windowScale,
 } from '../../mods.js';
+import { tailOnlyOf } from '../../osu/controlPointPatch.js';
 import { scoreMultiplier } from '../../rate.js';
 import { noteSounds } from '../../sim/noteSounds.js';
 import beatSnap from './beat_snap.js';
@@ -40,6 +41,9 @@ import {
 /** The map through the mania ruleset, so its hit objects are notes and holds
  *  with a real `column` (osu-parsers alone decodes only generic objects). */
 export const toMania = (beatmap: Beatmap) => new ManiaRuleset().applyToBeatmap(beatmap);
+
+/** A NaN-start hold's tail, the only part of it that shows: its column, end time and scroll position. */
+export type TailOnlyNote = { column: number, time: number, pos: number };
 
 export type ReplayOffset = {
 	id: string,
@@ -96,6 +100,8 @@ export type HitRecord = {
 export class ManiaGame {
 	readonly keyCount: number;
 	readonly scroll: ScrollModel;
+	/** NaN-start holds: only their tail shows, never judged (see {@link tailOnlyOf}) */
+	readonly tailOnly: TailOnlyNote[];
 	readonly barlines: Barline[];
 	readonly notes: RuntimeNote[];
 	readonly score: ScoreState;
@@ -213,7 +219,15 @@ export class ManiaGame {
 			this.notes.reduce((m, n) => Math.min(m, n.time), Infinity) - 2000;
 
 		this.scroll = new ScrollModel(beatmap, rate);
-		this.barlines = buildBarlines(beatmap, this.songEndMs, this.scroll, rate);
+		const keys = this.keyCount;
+		this.tailOnly = tailOnlyOf(rawBeatmap)
+			.map(t => ({
+				column: Math.min(keys - 1, Math.max(0, Math.floor(t.x * keys / 512))),
+				time: t.end / rate,
+				pos: this.scroll.positionAt(t.end / rate),
+			}))
+			.sort((a, b) => a.time - b.time);
+		this.barlines = buildBarlines(rawBeatmap, this.songEndMs, this.scroll, rate);
 		this.windows = maniaWindows(
 			beatmap.difficulty.overallDifficulty, options.divine, windowScale(mods),
 		);

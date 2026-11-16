@@ -1,8 +1,11 @@
 import { Trans } from '@lingui/react/macro';
 
+import type { Big } from '@oss-idle/shared/big';
+import { formatBig } from '@oss-idle/shared/display/num';
 import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
-import SkillState from '@oss-idle/shared/rulesets/skillState';
+import type SkillState from '@oss-idle/shared/rulesets/skillState';
+import { levelProgress } from '@oss-idle/shared/xp';
 
 import { selectedDef } from '../../rulesets/registry';
 import ConfirmMenu from '../ConfirmMenu';
@@ -22,13 +25,13 @@ export default function UpgradeRow({
 	/** what the genes add to each overdrive gain */
 	overdriveBonus?: number,
 	/** xp ever earned on the skill, shown as a level behind it on hover */
-	lifetimeXp?: number,
+	lifetimeXp?: Big,
 }) {
 	const u = useUpgrade(skill, locked, overdriveBonus);
 	const from = u.minLevel - u.cost;
-	const at = u.level + u.xp / SkillState.xpForLevel(u.level);
+	const at = u.level + levelProgress(u.level, u.xp);
 	const progress = Math.min(1, Math.max(0, (at - from) / u.cost));
-	const factor = u.multiplier.toFixed(2);
+	const factor = formatBig(u.multiplier, 2);
 	const state = u.maxed ? 'is-maxed' : u.preview ? 'is-ready' : '';
 
 	return (
@@ -40,10 +43,10 @@ export default function UpgradeRow({
 						level={u.level} xp={u.xp} prestige={u.prestige} lifetimeXp={lifetimeXp} xpLevel
 					/></Trans>
 				</span>
-				<span className={`ladder-row__mult ${u.multiplier > 1 ? '' : 'is-base'}`}>
+				<span className={`ladder-row__mult ${u.multiplier.gt(1) ? '' : 'is-base'}`}>
 					<Trans>x{factor} XP</Trans>
 				</span>
-				{u.overdrive > 0 && <span className="ladder-row__od"><OverdriveNum value={u.overdrive} /></span>}
+				{u.overdrive.gt(0) && <span className="ladder-row__od"><OverdriveNum value={u.overdrive} /></span>}
 			</div>
 			<div className="ladder-row__ladder" title={selectedDef().upgradeDescription(skill.name)}>
 				<div className="ladder-row__gear">

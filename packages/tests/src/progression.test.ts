@@ -57,7 +57,7 @@ describe('level → skill mapping', () => {
 describe('the level the player is shown', () => {
 	it('is the xp level, its progress and the prestige bonus - not the mapping', () => {
 		// the spec keeps the display on real levels: 102.45 + 2 reads 104.45
-		expect(effectiveLevelOf(102, xpForLevel(102) * 0.45, 2)).toBeCloseTo(104.45, 2);
+		expect(effectiveLevelOf(102, xpForLevel(102).toNumber() * 0.45, 2)).toBeCloseTo(104.45, 2);
 	});
 
 	it('leaves the strain mapping out of it entirely', () => {
@@ -81,14 +81,14 @@ describe('the level the strain curves read', () => {
 
 	const ratesAt = (skill: Skill, level: number, progress: number): number[] => {
 		skill.level.set(level);
-		skill.xp.set(xpForLevel(level) * progress);
+		skill.xp.set(xpForLevel(level).mul(progress));
 		return rates(skill);
 	};
 
 	it('is the effective level - earned, progress and prestige', () => {
 		const skill = makeOrderedSkills()[0]!;
 		skill.level.set(50);
-		skill.xp.set(xpForLevel(50) * 0.5);
+		skill.xp.set(xpForLevel(50).mul(0.5));
 		skill.prestige.set(3);
 		expect(skill.effectiveLevel()).toBeCloseTo(53.5, 6);
 	});
@@ -96,7 +96,7 @@ describe('the level the strain curves read', () => {
 	it('never reads past the level the xp is about to buy', () => {
 		const skill = makeOrderedSkills()[0]!;
 		skill.level.set(50);
-		skill.xp.set(xpForLevel(50) * 4);
+		skill.xp.set(xpForLevel(50).mul(4));
 		expect(skill.effectiveLevel()).toBe(51);
 	});
 

@@ -34,6 +34,12 @@ export const listAllOrders = () =>
 
 export type AdminOrder = Awaited<ReturnType<typeof listAllOrders>>[number];
 
+/** Admin: add months of supporter to an account, with no order. */
+export const giveSupporter = (userId: number, months: number) =>
+	unwrap(rpc.v1.store.admin.give[':userId'].$post({
+		param: { userId: String(userId) }, json: { months },
+	}));
+
 /** Admin: refund the part of an order's tag not used yet. */
 export const refundUnused = (id: number) =>
 	unwrap(rpc.v1.store.admin.orders[':id'].refund.$post({ param: { id: String(id) } }));

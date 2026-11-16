@@ -1,11 +1,10 @@
 import type { CSSProperties } from 'react';
 
-import { BASE_MAX_UPGRADES } from '@oss-idle/shared/upgrades';
-
 import {
 	layerClass as colour,
 	layerOf,
-} from './layers';
+} from '@oss-idle/shared/display/layers';
+import { BASE_MAX_UPGRADES } from '@oss-idle/shared/upgrades';
 
 export default function UpgradeTrack({
 	upgrades,

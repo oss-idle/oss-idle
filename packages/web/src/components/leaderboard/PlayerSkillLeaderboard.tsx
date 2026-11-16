@@ -2,6 +2,7 @@ import './PlayerLeaderboard.css';
 
 import { Trans } from '@lingui/react/macro';
 
+import { fromWire } from '@oss-idle/shared/big';
 import { levelFromTotalXp } from '@oss-idle/shared/display/levelDisplay';
 import rank from '@oss-idle/shared/display/rank';
 import SkillLevel from '@oss-idle/shared/display/SkillLevel';
@@ -41,16 +42,16 @@ const cell = (board: Board, player: Player, s: SkillSort) => {
 			: p.skills[s].prestige;
 	}
 	if (board === 'lifetime') {
-		return levelFromTotalXp(s === 'overall' ? p.overallLifetimeXp : p.skills[s].lifetimeXp);
+		return levelFromTotalXp(fromWire(s === 'overall' ? p.overallLifetimeXp : p.skills[s].lifetimeXp));
 	}
 	// the level shown, with its parts on hover
 	return s === 'overall'
-		? levelFromTotalXp(p.overallLifetimeXp)
+		? levelFromTotalXp(fromWire(p.overallLifetimeXp))
 		: <SkillLevel
 			level={p.skills[s].level}
-			xp={p.skills[s].xp}
+			xp={fromWire(p.skills[s].xp)}
 			prestige={p.skills[s].prestige}
-			lifetimeXp={p.skills[s].lifetimeXp}
+			lifetimeXp={fromWire(p.skills[s].lifetimeXp)}
 		/>;
 };
 

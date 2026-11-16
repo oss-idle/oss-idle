@@ -12,7 +12,7 @@ import {
 } from 'react';
 
 import { countryName } from '@oss-idle/shared/display/country';
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import {
 	editsCharacter,
 	GROUP_BADGE,
@@ -202,7 +202,7 @@ export default function CharacterPage({ id, character, stats }: {
 						.map(j => (
 							<div key={j} className='character__stats-area'>
 								<div className={`character__stats-label character__stats-judge judge-${j}`}>{j}</div>
-								<div className='character__stats-num'>{bignum(countsOf(stats)[j])}</div>
+								<div className='character__stats-num'>{formatBig(countsOf(stats)[j])}</div>
 							</div>
 						))}
 				</CharacterFigures>

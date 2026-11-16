@@ -5,6 +5,10 @@ import {
 	it,
 } from 'vitest';
 
+import {
+	type Big,
+	ZERO,
+} from '@oss-idle/shared/big';
 import { Skills } from '@oss-idle/shared/rulesets/mania/4k/skills';
 
 import { simulateState } from '../../server/src/rulesets/mania/4k/simState';
@@ -22,11 +26,11 @@ const at = (level: number) => ({
 	strainMinutes: 60,
 	mapPlays: 0,
 	skills: Object.fromEntries(Skills.map(s => [s, {
-		level, xp: 0, lifetimeXp: 0, prestige: 0, upgrades: 0, overdrive: 0,
+		level, xp: ZERO, lifetimeXp: ZERO, prestige: 0, upgrades: 0, overdrive: ZERO,
 	}])),
 });
 
-const total = (xp: Record<string, number>) => Object.values(xp).reduce((a, b) => a + b, 0);
+const total = (xp: Record<string, Big>) => Object.values(xp).reduce((a, b) => a.add(b), ZERO);
 
 describe('a play simulated from a character state', () => {
 	let easy: string;
@@ -45,7 +49,7 @@ describe('a play simulated from a character state', () => {
 		expect(play.passed).toBe(true);
 		expect(play.failProgress).toBeUndefined();
 		expect(play.pp).toBeGreaterThan(0);
-		expect(total(play.xp)).toBeGreaterThan(0);
+		expect(total(play.xp).gt(0)).toBe(true);
 		expect(play.strainedMinutes).toBeGreaterThan(0);
 		expect(Object.keys(play.xp).sort()).toEqual([...Skills].sort());
 	});
@@ -58,7 +62,7 @@ describe('a play simulated from a character state', () => {
 		expect(play.failProgress).toBeGreaterThan(0);
 		expect(play.failSeconds).toBeGreaterThan(0);
 		expect(play.pp).toBe(0);
-		expect(total(play.xp)).toBe(0);
+		expect(total(play.xp).isZero()).toBe(true);
 	});
 
 	it('earns nothing with unranked mods', () => {
@@ -67,6 +71,6 @@ describe('a play simulated from a character state', () => {
 		}, hard);
 		expect(play.passed).toBe(true);
 		expect(play.pp).toBe(0);
-		expect(total(play.xp)).toBe(0);
+		expect(total(play.xp).isZero()).toBe(true);
 	});
 });

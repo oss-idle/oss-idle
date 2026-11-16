@@ -9,7 +9,7 @@ import {
 	difficultyTextColor,
 	starsText,
 } from '@oss-idle/shared/display/difficulty';
-import num, { bignum } from '@oss-idle/shared/display/num';
+import num, { formatBig } from '@oss-idle/shared/display/num';
 import rank from '@oss-idle/shared/display/rank';
 
 import { coverBackground } from '../../api/maps';
@@ -105,7 +105,7 @@ export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof ge
 					<div className='score-stats__stat'>
 						<div className='score-stats__label'><Trans>Max Combo</Trans></div>
 						<div className={`score-stats__value ${score.pfc ? 'score-stats__value--perfect' : ''}`}>
-							{bignum(score.maxCombo)}x
+							{formatBig(score.maxCombo)}x
 						</div>
 					</div>
 					<div className='score-stats__stat'>
@@ -118,7 +118,7 @@ export default function ScorePage({ show }: { show: Awaited<ReturnType<typeof ge
 				<div className='score-stats__row'>
 					{judgements.map(j => <div key={j.judgement} className='score-stats__stat'>
 						<div className='score-stats__label'>{j.label}</div>
-						<div className='score-stats__value'>{bignum(score.judgements[j.judgement])}</div>
+						<div className='score-stats__value'>{formatBig(score.judgements[j.judgement])}</div>
 					</div>)}
 				</div>
 			</div>

@@ -1,3 +1,5 @@
+import '@oss-idle/shared/osu/controlPointPatch';
+
 import { BeatmapDecoder } from 'osu-parsers';
 
 import {
@@ -7,6 +9,7 @@ import {
 	type Note,
 	writeChart,
 } from '@oss-idle/shared/rulesets/mania/editor/chart';
+import type { TailOnlyNote } from '@oss-idle/shared/rulesets/mania/maniaGame';
 import RuntimeNote from '@oss-idle/shared/rulesets/mania/runtimeNote';
 import {
 	type Barline,
@@ -22,6 +25,9 @@ const SKIPPED = {
 
 const endOf = (note: Note) => note.end ?? note.time;
 
+/** A hold the game shows as its tail alone: see `tailOnlyOf`. */
+const tailOnly = (n: Note) => Number.isFinite(n.end) && !(n.time <= endOf(n));
+
 const later = (a: Note | undefined, b: Note) => (!a || endOf(b) > endOf(a) ? b : a);
 
 /** The scroll speed from each line on, as the game's parser leaves it: a red line resets
@@ -32,7 +38,7 @@ const speedPoints = (doc: ChartDoc) => {
 	return [...speeds]
 		.sort((a, b) => a[0] - b[0])
 		.map(([startTime, speed]) => ({
-			startTime, scrollSpeed: Math.min(10, Math.max(0.1, speed)),
+			startTime, scrollSpeedUnlimited: speed,
 		}));
 };
 
@@ -44,7 +50,7 @@ const timeline = (chart: Chart, doc: ChartDoc, last: Note | undefined) => {
 	});
 	const beatmap = new BeatmapDecoder().decodeFromString(text, SKIPPED);
 	const scroll = new ScrollModel({
-		bpm: beatmap.bpm,
+		bpmUnlimited: beatmap.bpmUnlimited,
 		difficulty: beatmap.difficulty,
 		controlPoints: {
 			timingPoints: beatmap.controlPoints.timingPoints, effectPoints: speedPoints(doc),
@@ -63,6 +69,7 @@ export default class ChartField implements StageField {
 
 	readonly keyCount: number;
 	readonly notes: RuntimeNote[];
+	readonly tailOnly: TailOnlyNote[];
 	readonly scroll: ScrollModel;
 	readonly barlines: Barline[];
 	readonly columnFlash: number[];
@@ -76,10 +83,13 @@ export default class ChartField implements StageField {
 		this.columnFlash = new Array(chart.keys).fill(-Infinity);
 		this.holdStart = new Array(chart.keys).fill(-Infinity);
 		this.holdEnd = new Array(chart.keys).fill(-Infinity);
-		this.notes = [...doc.notes]
+		// a hold starting at NaN or ending before it starts shows only its tail, as the game draws
+		// it; any other NaN note, not at all
+		const played = doc.notes.filter(n => !Number.isNaN(n.time) && !tailOnly(n));
+		this.notes = played
 			.sort((a, b) => a.time - b.time || a.column - b.column)
 			.map(n => new RuntimeNote(n.time, endOf(n), n.column, n.end !== undefined, false, false, false));
-		const last = doc.notes.reduce<Note | undefined>(later, undefined);
+		const last = played.reduce<Note | undefined>(later, undefined);
 		const key = {
 			timing: doc.timing, scroll: doc.scroll, end: last && endOf(last),
 		};
@@ -89,6 +99,14 @@ export default class ChartField implements StageField {
 		this.key = key;
 		this.songStartMs = this.notes[0]?.time ?? 0;
 		for (const note of this.notes) note.placeOn(this.scroll);
+		this.tailOnly = doc.notes
+			.flatMap(n => (tailOnly(n) ? [{
+				column: n.column, time: endOf(n), 
+			}] : []))
+			.map(t => ({
+				...t, pos: this.scroll.positionAt(t.time), 
+			}))
+			.sort((a, b) => a.time - b.time);
 	}
 
 	private readonly key: { timing: object, scroll: object, end?: number };

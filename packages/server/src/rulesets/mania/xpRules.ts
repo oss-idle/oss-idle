@@ -1,4 +1,6 @@
+import type { Big } from '@oss-idle/shared/big';
 import { fatigueXp } from '@oss-idle/shared/fatigue';
+import { scaleXp } from '@oss-idle/shared/xpGain';
 
 /** What moves a mania play's xp on the server, on top of the bot's split. */
 export type XpRules<S extends string> = {
@@ -25,28 +27,30 @@ export const NO_HISTORY: XpHistory = {
 	mindblock: 1, medals: 1, firstX: 0,
 };
 
-/** The xp a finished play is worth: mindblock, fatigue, medals, the bonus for a first X
- *  and mods, applied to the bot's `skillXp` in place. */
+/** The xp a finished play is worth: the bot's raw xp times the character's own `multiplier`,
+ *  mindblock, fatigue, medals, genetics and mods, floored once; then a first X's bonus, modded. */
 export const applyXpRules = <S extends string>(
 	physical: readonly S[],
-	skillXp: Record<S, number>,
+	raw: Record<S, number>,
+	multiplier: (skill: S) => Big,
 	{
 		mindblock, modMultipliers, fatigue,
 	}: XpRules<S>,
 	history: XpHistory,
-): Record<S, number> => {
-	const scale = (names: readonly S[], factor: number) => {
-		for (const name of names) skillXp[name] = Math.floor(skillXp[name] * factor);
-	};
-	if (history.mindblock < 1) scale(mindblock, history.mindblock);
-	scale(physical, fatigueXp(fatigue));
-	scale(Object.keys(skillXp) as S[], history.medals);
-	for (const [name, factor] of Object.entries(history.genetics ?? {})) scale([name as S], factor);
-	if (history.firstX) skillXp['accuracy' as S] += history.firstX;
-	for (const name of Object.keys(skillXp) as S[]) {
-		skillXp[name] = Math.floor(skillXp[name] * modMultipliers[name]);
+): Record<S, Big> => {
+	const tired = fatigueXp(fatigue);
+	const xp = scaleXp(raw, skill => multiplier(skill).mul(
+		(physical.includes(skill) ? tired : 1)
+		* (history.mindblock < 1 && mindblock.includes(skill) ? history.mindblock : 1)
+		* history.medals
+		* (history.genetics?.[skill] ?? 1)
+		* modMultipliers[skill],
+	));
+	const accuracy = 'accuracy' as S;
+	if (history.firstX) {
+		xp[accuracy] = xp[accuracy].add(Math.floor(history.firstX * modMultipliers[accuracy]));
 	}
-	return skillXp;
+	return xp;
 };
 
 // The heaviest maps strain the physical skills on about this share of their notes.

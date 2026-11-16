@@ -127,10 +127,10 @@ export const performConvert = (r: ServerRuleset, characterId: number, skill: str
 		const need = overdriveForNextTier(def, g, skill, playLevels(r, profile)[skill] ?? 0);
 		if (need === undefined) throw new HTTPException(409, { message: 'Nothing to convert' });
 		const { overdrive } = skillOf(profile, skill);
-		if (overdrive < need) throw new HTTPException(409, { message: 'Not enough overdrive' });
+		if (overdrive.lt(need)) throw new HTTPException(409, { message: 'Not enough overdrive' });
 		return {
 			genetics: convert(g, skill, need),
-			extra: skillColumnsFor(skill, { overdrive: Math.max(0, overdrive - need) }),
+			extra: skillColumnsFor(skill, { overdrive: overdrive.sub(need) }),
 		};
 	});
 

@@ -4,7 +4,7 @@ import { ph } from '@lingui/core/macro';
 import { Trans } from '@lingui/react/macro';
 import type { ReactNode } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import useAsync from '@oss-idle/shared/hooks/useAsync';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
@@ -48,7 +48,7 @@ export default function CharacterHistorical({ id, ruleset, countplayed }: {
 		<div className='character__block-section'>
 			<div className='character__block-section-title'>
 				<Trans>Most Played Beatmaps</Trans>
-				<div className='character__block-section-title-count'>{bignum(countplayed)}
+				<div className='character__block-section-title-count'>{formatBig(countplayed ?? 0)}
 				</div>
 			</div>
 			<div className='character__mostplayed'>

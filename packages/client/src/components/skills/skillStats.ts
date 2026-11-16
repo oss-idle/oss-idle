@@ -40,10 +40,8 @@ export const skillStats = (
 		medals,
 		genetics,
 		geneticsParts,
-		total: upgradeBoost * prestigeBoost * (genetics ?? 1) * (medals?.multiplier ?? 1),
+		total: upgradeBoost.mul(prestigeBoost).mul(genetics ?? 1).mul(medals?.multiplier ?? 1),
 	};
 };
 
 export type SkillStats = ReturnType<typeof skillStats>;
-
-export const x = (n: number) => `x${n.toFixed(2)}`;

@@ -1,5 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 
+import { Big } from '@oss-idle/shared/big';
+import { formatMultiplier } from '@oss-idle/shared/display/num';
 import { useSyncedAll } from '@oss-idle/shared/hooks/useSyncedAll';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import {
@@ -23,13 +25,14 @@ const tally = (skills: SkillState[], locked: boolean) => {
 	});
 	const sum = (pick: (r: typeof rows[number]) => number) =>
 		rows.reduce((total, r) => total + pick(r), 0);
+	const boosts = rows.reduce((total, r) => total.add(r.boost), Big.from(0));
 	return {
 		owned: sum(r => r.upgrades),
 		slots: sum(r => r.max),
 		ready: sum(r => Number(r.ready)),
 		maxed: sum(r => Number(r.upgrades >= r.max)),
-		best: rows.reduce((a, b) => (b.boost > a.boost ? b : a)),
-		average: sum(r => r.boost) / rows.length,
+		best: rows.reduce((a, b) => (b.boost.gt(a.boost) ? b : a)),
+		average: boosts.div(rows.length),
 	};
 };
 
@@ -64,12 +67,12 @@ export default function UpgradesSummary({ skills, locked }: {
 			<div className="ladder-sum__stat">
 				<span className="ladder-sum__label"><Trans>Best XP boost</Trans></span>
 				<span className="ladder-sum__value">
-					x{s.best.boost.toFixed(2)}<span className="ladder-sum__of">{best}</span>
+					{formatMultiplier(s.best.boost)}<span className="ladder-sum__of">{best}</span>
 				</span>
 			</div>
 			<div className="ladder-sum__stat">
 				<span className="ladder-sum__label"><Trans>Average XP boost</Trans></span>
-				<span className="ladder-sum__value">x{s.average.toFixed(2)}</span>
+				<span className="ladder-sum__value">{formatMultiplier(s.average)}</span>
 			</div>
 		</div>
 	);

@@ -2835,6 +2835,10 @@ msgstr "Linéaire"
 msgid "Link Discord account"
 msgstr "Lier un compte Discord"
 
+#: src/components/options/LinkTwitch.tsx
+msgid "Link Twitch account"
+msgstr "Lier un compte Twitch"
+
 #: src/editor/EditorBpmTools.tsx
 msgid "Listening…"
 msgstr "Écoute…"
@@ -3138,6 +3142,10 @@ msgstr "Inverser toute la map en miroir"
 msgid "Mixed"
 msgstr "Plusieurs valeurs"
 
+#: src/components/dock/DockModeButton.tsx
+msgid "mode"
+msgstr "mode"
+
 #: src/components/songselect/SongSelectFooter.tsx
 msgid "Mode"
 msgstr "Mode"
@@ -3321,6 +3329,10 @@ msgstr "Nouvelle adresse de webhook"
 #: src/components/skins/BrowseSkinsView.tsx
 msgid "Newest"
 msgstr "Récents"
+
+#: src/components/community/chat/ChannelPicker.tsx
+msgid "Newly ranked and loved maps."
+msgstr "Les maps récemment classées et loved."
 
 #: src/components/community/MusicControls.tsx
 #: src/components/Tutorial.tsx
@@ -4263,6 +4275,10 @@ msgstr "release"
 #: src/components/options/LinkDiscord.tsx
 msgid "Relink Discord account"
 msgstr "Relier un compte Discord"
+
+#: src/components/options/LinkTwitch.tsx
+msgid "Relink Twitch account"
+msgstr "Relier un compte Twitch"
 
 #: src/components/WebBrowser.tsx
 msgid "Reload"
@@ -5515,6 +5531,10 @@ msgstr "Convertir {od} d'overdrive en {gain} climaxx ?"
 #: src/components/genetics/ConvertText.tsx
 msgid "Turn {OVERDRIVE_SYMBOL}{amount} overdrive into {CLIMAXX_SYMBOL}{gain}"
 msgstr "Convertir {OVERDRIVE_SYMBOL}{amount} d'overdrive en {CLIMAXX_SYMBOL}{gain}"
+
+#: src/scenes/Options.tsx
+msgid "twitch|link|stream"
+msgstr "twitch|lien|stream"
 
 #: src/editor/builtinActions.ts
 msgid "Two columns, like 1 4"

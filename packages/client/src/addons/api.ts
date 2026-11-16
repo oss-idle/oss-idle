@@ -66,6 +66,8 @@ export const addonApi: AddonApi = {
 	simulate: body => post('/simulate', body),
 	user: (user, options) => get(`/users/${userParam(user)}`, mode(options)),
 	userScores: (user, type, options) => get(`/users/${userParam(user)}/scores/${type}`, list(options)),
+	userMostPlayed: (user, options) =>
+		get(`/users/${userParam(user)}/beatmapsets/most_played`, list(options)),
 	characters: async (ids, options) =>
 		(await get<{ characters: ApiUser[] }>('/characters', {
 			...mode(options), 'ids[]': ids,

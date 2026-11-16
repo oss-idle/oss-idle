@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import type { BigLike } from '../big.js';
 import {
 	levelProgress,
 	xpGivesLevel,
@@ -44,11 +45,11 @@ export const levelNode = (level: number, progress: number): ReactNode => {
 };
 
 /** The same, for a level paired with the xp banked inside it. */
-export const levelFromXp = (level: number, xp: number): ReactNode =>
+export const levelFromXp = (level: number, xp: BigLike): ReactNode =>
 	levelNode(level, levelProgress(level, xp));
 
 /** The same, for a lifetime xp total: the level all of it would be worth. */
-export const levelFromTotalXp = (totalXp: number): ReactNode => {
+export const levelFromTotalXp = (totalXp: BigLike): ReactNode => {
 	const { level, xp } = xpGivesLevel(totalXp);
 	return levelFromXp(level, xp);
 };

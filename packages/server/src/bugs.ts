@@ -46,6 +46,9 @@ const lastByTeam = sql<number>`(
 	order by ${bugMessages.id} desc limit 1
 )`.mapWith(Boolean);
 
+/** The character's name, or the osu! username before onboarding. */
+const nameOf = sql<string | null>`coalesce(${characters.name}, ${users.username})`;
+
 const listFields = {
 	id: bugReports.id,
 	title: bugReports.title,
@@ -56,7 +59,7 @@ const listFields = {
 	lastByTeam,
 	unread,
 	reporter: {
-		userId: users.id, characterId: characters.id, name: characters.name,
+		userId: users.id, characterId: characters.id, name: nameOf,
 	},
 };
 
@@ -110,7 +113,7 @@ export const getBug = async (id: number) => {
 			status: bugMessages.status,
 			createdAt: bugMessages.createdAt,
 			author: {
-				userId: bugMessages.authorId, characterId: characters.id, name: characters.name,
+				userId: bugMessages.authorId, characterId: characters.id, name: nameOf,
 			},
 		})
 		.from(bugMessages)

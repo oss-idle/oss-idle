@@ -5,7 +5,7 @@ import {
 	useState,
 } from 'react';
 
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import { overdriveText } from '@oss-idle/shared/display/overdrive';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
@@ -60,12 +60,12 @@ export const useUpgrade = (skill: SkillState, locked: boolean, overdriveBonus = 
 		if (!preview || busy) return;
 		const name = selectedDef().skillName(skill.name);
 		const nextGear = selectedDef().upgradeLabel(skill.name, upgrades + 1);
-		const spent = bignum(Math.round(preview.spent));
+		const spent = formatBig(preview.spent.round());
 		const odText = overdriveText(overdrive);
-		const boost = upgradeXPMultiplier(preview.upgrades, preview.overdrive).toFixed(2);
-		const odSegment = preview.overdrive !== overdrive
+		const boost = formatBig(upgradeXPMultiplier(preview.upgrades, preview.overdrive), 2);
+		const odSegment = !preview.overdrive.eq(overdrive)
 			? t` · Overdrive ${odText} → ${ph({ nextOd: overdriveText(preview.overdrive) })}`
-			: overdrive > 0 ? t` · Overdrive ${odText}` : '';
+			: overdrive.gt(0) ? t` · Overdrive ${odText}` : '';
 		setConfirming({
 			title: t`Buy ${nextGear}?`,
 			sub: t`${name} XP Lv${level} → XP Lv${ph({ nextLevel: preview.level })} · Costs ${spent}xp${odSegment} · XP boost x${boost}`,

@@ -18,9 +18,10 @@ const bus = () => {
 	if (out) return out;
 	out = audioContext.createGain();
 	out.connect(speakers);
-	const level = () => out?.gain.setTargetAtTime(
-		SETTINGS.mainVolume.get() * SETTINGS.effectVolume.get() * FILE_GAIN, audioContext.currentTime, 0.02,
-	);
+	const volume = () => SETTINGS.mainVolume.get() * SETTINGS.effectVolume.get() * FILE_GAIN;
+	// a new gain is 1: the first sounds would fade down from full volume
+	out.gain.value = volume();
+	const level = () => out?.gain.setTargetAtTime(volume(), audioContext.currentTime, 0.02);
 	void SETTINGS.mainVolume.sync(level);
 	void SETTINGS.effectVolume.sync(level);
 	return out;

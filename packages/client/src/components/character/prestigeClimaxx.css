@@ -47,6 +47,9 @@
 	color: var(--text-dim);
 }
 .climaxx-pop__swap b {
+	/* a number past its half of the card wraps rather than run into the other */
+	display: block;
+	overflow-wrap: anywhere;
 	font-size: 3.3rem;
 	font-weight: 200;
 	font-variant-numeric: tabular-nums;

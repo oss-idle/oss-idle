@@ -9,9 +9,10 @@ npm run build   # dist/my-addon.js: one file, ready to publish`;
 export const CONTRACT = `// the whole contract: two exports
 export const mount = (addon, host) => {
 	// addon: { id, name, version, gameVersion, authorId, authorName }
-	// host: { version, react, ruleset, api, editor }
+	// host: { version, react, ruleset, state, api, editor }
 	// host.ruleset.current(): the ruleset the player picked ('mania4k', ...);
 	// host.ruleset.watch(ruleset => ...) follows it, tag an add-on made for one with its id
+	// host.state.current(): what the game is doing; host.state.watch(state => ...) follows it
 	console.log(\`\${addon.name} \${addon.version} on oss!idle \${host.version}\`);
 };
 
@@ -29,6 +30,68 @@ const play = await host.api.simulate({
 console.log(me.username, play.rank, play.pp, play.xp);
 
 // with the SDK: this.api, typed (AddonApi and the objects are exported)`;
+
+export const STATE = `export const mount = (addon, host) => {
+	let last = host.state.current();
+	host.state.watch(state => {
+		if (state.scene !== last.scene) console.log(\`now on \${state.scene}\`);
+		// a new result: a play just ended
+		if (state.result && state.result !== last.result) {
+			console.log(state.result.failed ? 'failed' : state.result.grade, state.result.xp);
+		}
+		last = state;
+	});
+};
+
+// the game stops the watcher when the add-on stops
+export const unmount = () => {};`;
+
+/** The game's state: each field, what it tells. */
+export const STATE_FIELDS: [field: string, about: string][] = [
+	[
+		'scene',
+		'The scene on screen: intro, menu, select, game, result, lobby, match, saver or editor.',
+	],
+	[
+		'open',
+		'What is open over the scene, the topmost one: genetic-choice, play-choice, web, options, '
+			+ 'medals, community, skins, addons, character, queue, direct or mods. Missing when '
+			+ 'nothing is open.',
+	],
+	[
+		'selected',
+		'Song select\'s selected difficulty: { beatmapId, setId, installed, downloading }. '
+			+ 'installed is false for a difficulty that is only in the catalog.',
+	],
+	[
+		'play',
+		'The character\'s running play, wherever the player is: { beatmapId, rate, mods, startedAt, '
+			+ 'endsAt }. Times are in ms, on the player\'s clock.',
+	],
+	[
+		'result',
+		'The last play that ended since the game started: { beatmapId, failed, grade?, accuracy?, '
+			+ 'pp?, xp, endedAt }. xp is the XP gained, by skill, as decimal strings: XP values can exceed '
+			+ 'any number type, so they are always strings. A failed play has no grade, accuracy or pp. '
+			+ 'A play the player quits leaves no result.',
+	],
+	[
+		'genes',
+		'The genes the character can learn or upgrade now, with the climaxx it has: '
+			+ '[{ id, name, skill, tier, price, does }]. tier is the one the gene would reach, price '
+			+ 'what it costs in climaxx, does what it would do then, in the player\'s language. Empty '
+			+ 'when nothing can be bought.',
+	],
+	[
+		'genetics',
+		'The character\'s genetics, whole: { picks, skills, genes }. picks is the skills it was born '
+			+ 'good at. skills is every skill in ring order with its climaxx as text: '
+			+ '[{ skill, climaxx }]. genes is every gene of the ruleset: '
+			+ '[{ id, name, skill, parent?, tier, max, does }], where parent is the gene learned '
+			+ 'before it, tier the one it holds (0: not learned), max its last, and does what it '
+			+ 'does at the tier held, or would at its first.',
+	],
+];
 
 export const SDK_ADDON = `import { Addon, defineAddon } from '@oss-idle/addon-sdk';
 

@@ -1,5 +1,10 @@
 import type { ReactNode } from 'react';
 
+import {
+	Big,
+	type BigLike,
+	toText,
+} from '../big.js';
 import { xpForLevel } from '../xp.js';
 import { levelFromXp } from './levelDisplay.js';
 
@@ -24,23 +29,46 @@ export const bpm = (n?: number | string) =>
 /** Plain-text `level()`: "100.07" past level 100, for string-only contexts. */
 export const levelText = (level: number, xp: number): string => {
 	if (level < 100) return String(level);
-	const p = Math.floor(xp / xpForLevel(level) * 100);
+	const p = Math.floor(xp / xpForLevel(level).toNumber() * 100);
 	return p > 0 ? `${level}.${String(p).padStart(2, '0')}` : String(level);
 };
 
 /** A skill or overall level. The drawing rules live in levelDisplay. */
 export const level = (level: number, xp: number): ReactNode => levelFromXp(level, xp);
 
-const SUFFIXES = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'k']] as const;
+const SUFFIXES = ['', 'k', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
 
-/** Short form: 742, 10.45k, 2.82M. `decimals` only applies under 1000. */
-export const bignum = (n?: number | string | null, decimals = 0): string => {
-	const v = ensureNum(n ?? '0');
-	// truncated rather than rounded so it never reads higher than it is
-	const cut = (x: number, d: number) =>
-		(Math.floor(x * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
-	const suffix = SUFFIXES.find(([at]) => v >= at);
-	return suffix ? `${cut(v / suffix[0], 2)}${suffix[1]}` : cut(v, decimals);
+// truncated rather than rounded so it never reads higher than it is
+const cut = (x: number, d: number) =>
+	(Math.floor(x * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+
+/** Digits and decimal exponent of a value of 1000 or more, read from its exact text. */
+const digitsOf = (v: Big): { digits: string, exp: number } => {
+	const [mantissa, e = '0'] = toText(v).split('e');
+	const point = mantissa.indexOf('.');
+	return {
+		digits: mantissa.replace('.', ''),
+		exp: Number(e) + (point < 0 ? mantissa.length : point) - 1,
+	};
 };
+
+/** Short form: 742, 10.45k, 2.82M, 1.00Dc, 1.23e36. `decimals` only applies under 1000. */
+export const formatBig = (value: BigLike, decimals = 0): string => {
+	const v = Big.from(value);
+	if (v.lt(-1000)) return `-${formatBig(v.abs())}`;
+	if (v.lt(1000)) return cut(v.toNumber(), decimals);
+	const { digits, exp } = digitsOf(v);
+	const group = Math.floor(exp / 3);
+	const shift = group < SUFFIXES.length ? exp - group * 3 : 0;
+	const padded = digits.padEnd(shift + 3, '0');
+	const whole = padded.slice(0, shift + 1);
+	const fraction = padded.slice(shift + 1, shift + 3);
+	return group < SUFFIXES.length
+		? `${whole}.${fraction}${SUFFIXES[group]}`
+		: `${whole}.${fraction}e${exp}`;
+};
+
+/** A multiplier: x1.61, x13.78k. */
+export const formatMultiplier = (value: BigLike): string => `x${formatBig(value, 2)}`;
 
 export default num;

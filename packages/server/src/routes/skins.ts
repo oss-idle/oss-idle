@@ -138,7 +138,9 @@ export const skinsRoutes = new Hono()
 		if (existing.status === SKIN_STATUS.PUBLISHED) {
 			throw new HTTPException(409, { message: 'Skin already published' });
 		}
-		await db.update(skins).set({ status: SKIN_STATUS.PUBLISHED }).where(eq(skins.id, id));
+		await db.update(skins).set({
+			status: SKIN_STATUS.PUBLISHED, publishedAt: existing.publishedAt ?? new Date(),
+		}).where(eq(skins.id, id));
 		const [row] = await db.select().from(skins).where(eq(skins.id, id)).limit(1);
 		return c.json(await withAuthor(row!, toSkinDTO));
 	})

@@ -3,9 +3,11 @@ import {
 	Trans,
 } from '@lingui/react/macro';
 
+import type { Big } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import HoverCardRow from '@oss-idle/shared/display/HoverCardRow';
 import { levelFromXp } from '@oss-idle/shared/display/levelDisplay';
+import { formatMultiplier } from '@oss-idle/shared/display/num';
 import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import {
 	type UpgradePurchase,
@@ -30,43 +32,43 @@ export default function UpgradeTooltip({
 }: {
 	skill: string,
 	level: number,
-	xp: number,
+	xp: Big,
 	upgrades: number,
 	prestige: number,
-	overdrive: number,
+	overdrive: Big,
 	minLevel: number,
 	preview: UpgradePurchase | undefined,
 }) {
-	const boost = upgradeXPMultiplier(upgrades, overdrive).toFixed(2);
+	const boost = formatMultiplier(upgradeXPMultiplier(upgrades, overdrive));
 
 	if (!preview) {
 		const toGo = minLevel - level;
-		const nextBoost = upgradeXPMultiplier(upgrades + 1, overdrive).toFixed(2);
+		const nextBoost = formatMultiplier(upgradeXPMultiplier(upgrades + 1, overdrive));
 		return <>
 			<HoverCardRow label={<Trans>XP level</Trans>}>{levelFromXp(level, xp)} / {minLevel}</HoverCardRow>
 			<HoverCardRow label={<Trans>To go</Trans>}>
 				<Plural value={toGo} one="# level" other="# levels" />
 			</HoverCardRow>
 			<HoverCardRow label={<Trans>XP boost</Trans>}>
-				x{boost}<Arrow /><span className="ladder-tip__boost">x{nextBoost}</span>
+				{boost}<Arrow /><span className="ladder-tip__boost">{nextBoost}</span>
 			</HoverCardRow>
 			<SkillPerk skill={skill} upgrades={upgrades} next={upgrades + 1} prestige={prestige} />
 		</>;
 	}
 
-	const nextBoost = upgradeXPMultiplier(preview.upgrades, preview.overdrive).toFixed(2);
+	const nextBoost = formatMultiplier(upgradeXPMultiplier(preview.upgrades, preview.overdrive));
 	return <>
 		<HoverCardRow label={<Trans>XP level</Trans>}>
 			{levelFromXp(level, xp)}<Arrow />{levelFromXp(preview.level, preview.xp)}
 		</HoverCardRow>
 		<HoverCardRow label={<Trans>XP spent</Trans>}>
-			<BigNum value={Math.round(preview.spent)} theme="heat" />
+			<BigNum value={preview.spent.round()} theme="heat" />
 		</HoverCardRow>
 		<HoverCardRow label={<Trans>Overdrive</Trans>}>
 			<OverdriveNum value={overdrive} /><Arrow /><OverdriveNum value={preview.overdrive} />
 		</HoverCardRow>
 		<HoverCardRow label={<Trans>XP boost</Trans>}>
-			x{boost}<Arrow /><span className="ladder-tip__boost">x{nextBoost}</span>
+			{boost}<Arrow /><span className="ladder-tip__boost">{nextBoost}</span>
 		</HoverCardRow>
 		<SkillPerk skill={skill} upgrades={upgrades} next={preview.upgrades} prestige={prestige} />
 	</>;

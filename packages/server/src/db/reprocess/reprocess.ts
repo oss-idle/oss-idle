@@ -119,6 +119,8 @@ import {
 	type Progress,
 	type SkillsAt,
 	skillsAt,
+	type SkillTuple,
+	tupleFromWire,
 	windowsOf,
 } from './state';
 
@@ -178,7 +180,7 @@ const chartOf = async (beatmapId: number): Promise<Chart | undefined> => {
 	return chart;
 };
 
-const tupleOf = (s: ReturnType<typeof skillOf>) =>
+const tupleOf = (s: ReturnType<typeof skillOf>): SkillTuple =>
 	[s.level, s.xp, s.upgrades, s.overdrive, s.prestige, s.lifetimeXp];
 
 /** Everything about one character the walk reads. */
@@ -214,7 +216,10 @@ const characterOf = async (id: number): Promise<Character> => {
 			fatigue: !!d.fatigue,
 			...d.skills && {
 				profile: {
-					skills: JSON.parse(d.skills) as Profile['skills'],
+					skills: Object.fromEntries(
+						Object.entries(JSON.parse(d.skills) as Record<string, (number | string)[]>)
+							.map(([skill, t]) => [skill, tupleFromWire(t)]),
+					),
 					...d.profile_fatigue && { fatigue: JSON.parse(d.profile_fatigue) as Fatigue },
 				},
 			},

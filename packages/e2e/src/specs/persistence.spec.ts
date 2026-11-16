@@ -54,7 +54,7 @@ test.describe('local persistence', () => {
 		await game.start();
 		await game.search(set.title);
 		await game.selectCard(version.id);
-		await page.locator('.lb__select .dropdown__current').click();
+		await page.locator('.lb__select').first().locator('.dropdown__current').click();
 		await page.locator('.lb__select .dropdown__option', { hasText: 'Local' }).click();
 		await expect(page.locator('.lb__list')).toBeVisible();
 		await game.card(version.id).click({ button: 'right' });

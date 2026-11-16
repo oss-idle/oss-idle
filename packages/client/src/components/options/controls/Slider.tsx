@@ -7,6 +7,7 @@ import useSynced from '@oss-idle/shared/hooks/useSynced';
 
 import { notchTick } from '../../../audio/uiSounds';
 import { isChanged } from '../../../db/settings';
+import SettingRuleset from './SettingRuleset';
 
 interface Props {
 	/** Backing value. Pass a shared `Synced` so the slider stays subscribable. */
@@ -42,7 +43,7 @@ export default function Slider({
 	return (
 		<label className={`opt-slider ${isChanged(value, current) ? 'is-changed' : ''}`}>
 			<div className="opt-slider__head">
-				<span className="opt-slider__label">{label}</span>
+				<span className="opt-slider__label"><SettingRuleset value={value} />{label}</span>
 				<span className="opt-slider__value">{shown}</span>
 			</div>
 			<input

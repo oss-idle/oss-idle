@@ -140,6 +140,7 @@ export const MEDALS: MedalDef[] = [
 	def('possessed', 'secret', 'silver', 'ghost'),
 	def('parallax', 'secret', 'silver', 'personSimpleRun'),
 	def('wonderful', 'secret', 'silver', 'butterfly'),
+	def('diva', 'secret', 'silver', 'crown'),
 	def('against-nature', 'secret', 'silver', 'dna'),
 	def('identity-crisis', 'secret', 'silver', 'dna'),
 	def('buyers-remorse', 'secret', 'silver', 'dna'),
@@ -187,6 +188,6 @@ export const MEDAL_LINES: Record<MedalCategory, string[][]> = {
 		['mapper-1', 'mapper-2', 'mapper-5', 'mapper-10', 'mapper-50', 'mapper-100'],
 	],
 	secret: [
-		['combo-727', 'same-map-100', 'fail-99', 'fail-10s', 'night-owl', 'first-chat', 'possessed', 'parallax', 'wonderful', 'against-nature', 'identity-crisis', 'buyers-remorse'],
+		['combo-727', 'same-map-100', 'fail-99', 'fail-10s', 'night-owl', 'first-chat', 'possessed', 'parallax', 'wonderful', 'diva', 'against-nature', 'identity-crisis', 'buyers-remorse'],
 	],
 };

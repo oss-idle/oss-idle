@@ -1,6 +1,6 @@
 {
   "name": "@oss-idle/server",
-  "version": "1.5.0.0",
+  "version": "1.5.1.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -43,8 +43,6 @@
     "extract": "lingui extract --clean",
     "replay:scores": "tsx src/db/replay-scores.ts",
     "replay:scores:prod": "NODE_ENV=production tsx src/db/replay-scores.ts",
-    "fix:overall": "tsx src/db/fix-overall-levels.ts",
-    "fix:overall:prod": "NODE_ENV=production tsx src/db/fix-overall-levels.ts",
     "relevel": "tsx src/db/relevel-characters.ts",
     "relevel:prod": "NODE_ENV=production tsx src/db/relevel-characters.ts",
     "fix:ln": "tsx src/db/fix-ln-counts.ts",
@@ -53,6 +51,8 @@
     "purge:intro:prod": "NODE_ENV=production tsx src/db/purge-intro-scores.ts",
     "fix:totals": "tsx src/db/fix-totals.ts",
     "fix:totals:prod": "NODE_ENV=production tsx src/db/fix-totals.ts",
+    "snap:totals": "tsx src/db/snap-totals.ts",
+    "snap:totals:prod": "NODE_ENV=production tsx src/db/snap-totals.ts",
     "revoke:medals": "tsx src/db/revoke-unranked-medals.ts",
     "revoke:medals:prod": "NODE_ENV=production tsx src/db/revoke-unranked-medals.ts"
   },

@@ -5,6 +5,7 @@ import type { InferResponseType } from 'hono/client';
 import accuracy from '@oss-idle/shared/display/accuracy';
 import { dateAgo } from '@oss-idle/shared/display/ago';
 import num from '@oss-idle/shared/display/num';
+import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { rpc } from '../../api/client';
 import Flag from '../Flag';
@@ -17,9 +18,10 @@ type Score = InferResponseType<(typeof rpc.v1.scores[':id'])['$get'], 200>;
 type Beatmap = Pick<InferResponseType<(typeof rpc.v1.beatmap[':id'])['$get'], 200>, 'title' | 'artist' | 'version'>;
 
 export default function ScoreRow({
-	score, beatmap, player, loved,
+	score, ruleset, beatmap, player, loved,
 }: {
 	score: Score,
+	ruleset: RulesetId,
 	beatmap: Beatmap,
 	/** a loved map's score: no pp */
 	loved?: boolean,
@@ -31,7 +33,7 @@ export default function ScoreRow({
 }) {
 
 	return (<div className='score__row'>
-		<ScoreLink id={score.id} label={beatmap.title} />
+		<ScoreLink id={score.id} ruleset={ruleset} label={beatmap.title} />
 		<div className='score__top'>
 			<div className='score__grade'><Grade grade={score.grade} /></div>
 			<div className='score__title'>

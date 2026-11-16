@@ -2,6 +2,7 @@ import './genetics.css';
 
 import { useRef } from 'react';
 
+import { ZERO } from '@oss-idle/shared/big';
 import {
 	climaxxOf,
 	type Genetics,
@@ -41,7 +42,7 @@ const balanceOf = (def: GeneticsDef, genetics: Genetics, character: Character, s
 	const level = held?.playLevel() ?? 0;
 	return {
 		climaxx: climaxxOf(def, genetics, skill, level),
-		overdrive: held?.overdrive.get() ?? 0,
+		overdrive: held?.overdrive.get() ?? ZERO,
 		need: overdriveForNextTier(def, genetics, skill, level),
 		upgrades: held?.upgrades.get() ?? 0,
 	};
@@ -121,7 +122,7 @@ export default function GeneticsView({ character }: { character: Character }) {
 				climaxx={climaxx}
 				overdrive={overdrive}
 				need={need}
-				converted={genetics.converted[shown] ?? 0}
+				converted={genetics.converted[shown] ?? ZERO}
 				busy={actions.busy}
 				onConvert={convert}
 			/>

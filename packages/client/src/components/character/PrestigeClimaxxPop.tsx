@@ -6,6 +6,7 @@ import {
 	useRef,
 } from 'react';
 
+import type { Big } from '@oss-idle/shared/big';
 import BigNum from '@oss-idle/shared/display/BigNum';
 import OverdriveNum from '@oss-idle/shared/display/OverdriveNum';
 import { CLIMAXX_SYMBOL } from '@oss-idle/shared/genetics';
@@ -18,12 +19,12 @@ import useTransfer from './useTransfer';
 export type ClimaxxTransfer = {
 	skill: string,
 	/** what the prestige turned into climaxx */
-	overdrive: number,
+	overdrive: Big,
 	/** the overdrive left after, when the genetics tab turned just part of it */
-	kept?: number,
+	kept?: Big,
 	/** the skill's climaxx before it, and what it earned */
-	before: number,
-	gain: number,
+	before: Big,
+	gain: Big,
 };
 
 const DELAY_MS = 400, LENGTH_MS = 2800;
@@ -49,7 +50,7 @@ export default function PrestigeClimaxxPop({
 
 	const name = selectedDef().skillName(skill);
 	const earned = <BigNum value={gain} theme="royal" />;
-	const climaxx = <BigNum value={Math.round(before + gain * progress)} theme="royal" />;
+	const climaxx = <BigNum value={before.add(gain.mul(progress)).round()} theme="royal" />;
 	return (
 		<div className="climaxx-pop" onClick={e => e.stopPropagation()}>
 			<div className="climaxx-pop__card">
@@ -58,9 +59,9 @@ export default function PrestigeClimaxxPop({
 				</div>
 				<h3 className="climaxx-pop__title"><Trans>Overdrive becomes climaxx</Trans></h3>
 				<div className="climaxx-pop__swap">
-					<div className={done && !kept ? 'is-empty' : undefined}>
+					<div className={done && (kept?.isZero() ?? true) ? 'is-empty' : undefined}>
 						<small><Trans>Overdrive</Trans></small>
-						<b><OverdriveNum value={(kept ?? 0) + overdrive * (1 - progress)} /></b>
+						<b><OverdriveNum value={overdrive.mul(1 - progress).add(kept ?? 0)} /></b>
 					</div>
 					<div className={`climaxx-pop__to${done ? '' : ' is-rising'}`}>
 						<small><Trans>{name} climaxx</Trans></small>

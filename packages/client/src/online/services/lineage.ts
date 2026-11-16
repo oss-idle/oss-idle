@@ -1,4 +1,4 @@
-import type { CharacterDTO } from '@oss-idle/shared/character';
+import { characterDTO } from '@oss-idle/shared/character';
 import Log from '@oss-idle/shared/helpers/log';
 import type { RosterCharacter } from '@oss-idle/shared/roster';
 
@@ -14,8 +14,7 @@ export const listCharacters = async (): Promise<Character[]> => {
 
 	const res = await rpc.v1.me.characters.$get();
 	if (!res.ok) return [];
-	const dtos = await res.json() as CharacterDTO[];
-	return dtos.map(dto => Character.fromDTO(dto));
+	return characterDTO.array().parse(await res.json()).map(dto => Character.fromDTO(dto));
 };
 
 /** Make one of the player's other characters live. */
@@ -34,7 +33,7 @@ export const selectCharacter = async (characterId: number): Promise<boolean> => 
 		Log.errorPopup(`Switch failed (${res.status})${detail ? `: ${detail}` : ''}`);
 		return false;
 	}
-	await Account.character.set(await res.json());
+	await Account.character.set(characterDTO.parse(await res.json()));
 	return true;
 };
 

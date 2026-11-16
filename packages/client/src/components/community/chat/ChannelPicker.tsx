@@ -9,8 +9,10 @@ import {
 import {
 	ANNOUNCE_CHANNEL,
 	DEFAULT_CHANNEL,
+	MAPS_CHANNEL,
 	TEAM_CHANNEL,
 } from '@oss-idle/shared/community/wire';
+import { inTeam } from '@oss-idle/shared/groups';
 import useSynced from '@oss-idle/shared/hooks/useSynced';
 import { LOBBY_CHANNEL } from '@oss-idle/shared/multiplayer';
 
@@ -23,7 +25,7 @@ import {
 	chatTabs,
 } from './state';
 
-const CHANNELS = [DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, LOBBY_CHANNEL, LOGS_CHANNEL];
+const CHANNELS = [DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, MAPS_CHANNEL, LOBBY_CHANNEL, LOGS_CHANNEL];
 
 /** osu!'s channel list, behind the chat tabs' + button: a click joins a channel or leaves it. */
 export default function ChannelPicker() {
@@ -38,12 +40,13 @@ export default function ChannelPicker() {
 	const topics: Record<string, string> = {
 		[DEFAULT_CHANNEL]: t`The main oss!idle channel.`,
 		[ANNOUNCE_CHANNEL]: t`Automated announcements of stuff going on in oss!idle.`,
+		[MAPS_CHANNEL]: t`Newly ranked and loved maps.`,
 		[LOBBY_CHANNEL]: t`Talk about multiplayer games.`,
 		[LOGS_CHANNEL]: t`Your own plays and level-ups, seen only by you.`,
 		[TEAM_CHANNEL]: t`The Administrators' and Global Moderation Team's channel.`,
 	};
 	const query = search.toLowerCase();
-	const channels = user?.groups?.length ? [...CHANNELS, TEAM_CHANNEL] : CHANNELS;
+	const channels = inTeam(user?.groups) ? [...CHANNELS, TEAM_CHANNEL] : CHANNELS;
 	const shown = channels.filter(c => `${c} ${topics[c]}`.toLowerCase().includes(query));
 
 	const close = () => {

@@ -100,3 +100,6 @@ export const checkoutBody = z.object({
 	waiver: z.literal(true),
 });
 export type CheckoutBody = z.infer<typeof checkoutBody>;
+
+/** Admin: months given by hand. */
+export const giveBody = z.object({ months: z.number().int().min(1).max(120) });

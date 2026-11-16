@@ -7,8 +7,8 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import type {
-	SimInput,
-	SimResult,
+	SimInputWire,
+	SimResultWire,
 } from './rulesets/mania/4k/simState';
 import {
 	checksumOf,
@@ -36,9 +36,9 @@ const config = z.object({
 	SIM_CACHE_SECRET: z.string().min(32).optional(),
 }).parse(process.env);
 
-type Reply = { result: SimResult } | { error: string };
+type Reply = { result: SimResultWire } | { error: string };
 type Message = Reply | { ready: string };
-type Job = { input: SimInput, resolve: (reply: Reply) => void };
+type Job = { input: SimInputWire, resolve: (reply: Reply) => void };
 
 const idle: Worker[] = [];
 const busy = new Map<Worker, Job['resolve']>();
@@ -82,7 +82,7 @@ const spawn = () => {
 };
 for (let i = 0; i < config.SIM_THREADS; i++) spawn();
 
-type Played = { input: SimInput, result: SimResult };
+type Played = { input: SimInputWire, result: SimResultWire };
 const toCache: Played[] = [];
 let cacheDown = false;
 
@@ -118,7 +118,7 @@ const app = new Hono()
 	}))
 	.post('/simulate', async c => {
 		if (!authorized(c.req.header('Authorization'))) return c.json({ error: 'Unauthorized' }, 401);
-		const { chart, ...input } = await c.req.json<SimInput & { chart?: string }>();
+		const { chart, ...input } = await c.req.json<SimInputWire & { chart?: string }>();
 		if (!isChecksum(input.checksum)) return c.json({ error: 'No chart checksum' }, 400);
 		if (chart !== undefined) {
 			if (checksumOf(chart) !== input.checksum) {

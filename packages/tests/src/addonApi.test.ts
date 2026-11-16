@@ -30,6 +30,11 @@ describe('addonApi', () => {
 			ruleset: 'mania4k', limit: 5,
 		});
 		expect(last().url).toBe(`${V2}/users/%40some%20name/scores/best?mode=mania&variant=4k&limit=5`);
+		await addonApi.userMostPlayed(7, {
+			ruleset: 'mania4k', limit: 100, offset: 100,
+		});
+		expect(last().url)
+			.toBe(`${V2}/users/7/beatmapsets/most_played?mode=mania&variant=4k&limit=100&offset=100`);
 	});
 
 	it('repeats list parameters', async () => {

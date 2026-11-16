@@ -1,5 +1,9 @@
 import type { CSSProperties } from 'react';
 
+import {
+	Big,
+	type BigLike,
+} from '../big.js';
 type Rgb = readonly [number, number, number];
 
 /** The colour at 1k, 1M, 1B and 1T. */
@@ -26,9 +30,10 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /** The colour of a big number: none under 1000, then sliding through the theme with
  *  each power of 1000. */
-export const bigStyle = (n: number, theme: BigTheme): CSSProperties | undefined => {
-	if (!(n >= 1000)) return undefined;
-	const x = Math.min((Math.log10(n) - 3) / 3, 3);
+export const bigStyle = (value: BigLike, theme: BigTheme): CSSProperties | undefined => {
+	const n = Big.from(value);
+	if (n.lt(1000)) return undefined;
+	const x = Math.min((n.log10() - 3) / 3, 3);
 	const i = Math.min(Math.floor(x), 2);
 	const t = x - i;
 	const stops = BIG_THEMES[theme];

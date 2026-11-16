@@ -1,3 +1,4 @@
+import type { Big } from '@oss-idle/shared/big';
 import {
 	fatigueLevel,
 	restedFatigue,
@@ -14,6 +15,7 @@ import {
 	GRADE,
 	type Grade,
 } from '@oss-idle/shared/grade';
+import { skillXPMultiplier } from '@oss-idle/shared/upgrades';
 
 import {
 	geneticsOf,
@@ -48,28 +50,34 @@ export const tiredness = (
 	};
 };
 
-/** The xp a finished play is worth to `characterId`: its history (mindblock, medals, a
- *  first X) read from the database, then {@link applyXpRules}, on the bot's `skillXp` in place. */
+/** The xp a finished play is worth to `profile`: its own multipliers, its history (mindblock,
+ *  medals, a first X) read from the database, then {@link applyXpRules} on the bot's raw xp. */
 export const serverXp = async <S extends string>(
 	r: ServerRuleset,
-	characterId: number,
+	profile: ProfileRow,
 	beatmapId: number,
-	skillXp: Record<S, number>,
+	raw: Record<S, number>,
 	{
-		grade, stars, genetics, ...rules
+		grade, stars, genetics, xpMultiplier = 1, ...rules
 	}: XpRules<S> & {
 		grade: Grade,
 		/** the map's stars at the play's rate */
 		stars: number,
 		genetics?: Readonly<Record<string, number>>,
+		/** debug xp scaling (dev): only ever raises it */
+		xpMultiplier?: number,
 	},
-): Promise<Record<S, number>> => {
-	const topGrade = await bestGradeOn(r, characterId, beatmapId);
+): Promise<Record<S, Big>> => {
+	const topGrade = await bestGradeOn(r, profile.id, beatmapId);
 	const firstX = compareGradeGTE(grade, GRADE.X) && (!topGrade || compareGradeGT(grade, topGrade));
-	return applyXpRules(r.def.physicalSkills as S[], skillXp, rules, {
+	const own = (skill: S) => {
+		const { upgrades, overdrive, prestige } = skillOf(profile, skill);
+		return skillXPMultiplier(upgrades, overdrive, prestige).mul(Math.max(1, xpMultiplier));
+	};
+	return applyXpRules(r.def.physicalSkills as S[], raw, own, rules, {
 		// read from the persisted history, before this play is stored
-		mindblock: mindblockFactor(await recentMapPlays(r, characterId, beatmapId)),
-		medals: await medalMultiplier(r, characterId),
+		mindblock: mindblockFactor(await recentMapPlays(r, profile.id, beatmapId)),
+		medals: await medalMultiplier(r, profile.id),
 		firstX: firstX ? Math.floor(1000 * stars) : 0,
 		genetics,
 	});

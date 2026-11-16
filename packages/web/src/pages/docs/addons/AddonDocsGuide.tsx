@@ -5,6 +5,8 @@ import {
 	SCAFFOLD,
 	SDK_ADDON,
 	SHARED_REACT,
+	STATE,
+	STATE_FIELDS,
 } from './addonDocs';
 import DocsCode from './DocsCode';
 
@@ -72,6 +74,12 @@ export default function AddonDocsGuide() {
 					</td>
 				</tr>
 				<tr>
+					<td><code>host.state</code></td>
+					<td>
+						What the game is doing, read-only (see <a href='#the-state'>The game&apos;s state</a>).
+					</td>
+				</tr>
+				<tr>
 					<td><code>host.api</code></td>
 					<td>The API as the signed-in player (see <a href='#the-api'>The API</a>).</td>
 				</tr>
@@ -107,6 +115,28 @@ export default function AddonDocsGuide() {
 			{' '}the rate limits.
 		</p>
 		<DocsCode code={API} />
+
+		<h2 id='the-state'>The game&apos;s state</h2>
+		<p>
+			<code>host.state</code> tells what the game is doing, so an add-on can follow it.
+			{' '}<code>current()</code> gives the state now. <code>watch(onChange)</code> calls you now and on
+			every change, and returns what stops it. It is read-only: an add-on cannot act on the game
+			through it.
+		</p>
+		<table>
+			<thead><tr><th>Field</th><th>What it tells</th></tr></thead>
+			<tbody>
+				{STATE_FIELDS.map(([field, about]) => <tr key={field}>
+					<td><code>{field}</code></td>
+					<td>{about}</td>
+				</tr>)}
+			</tbody>
+		</table>
+		<p>
+			Every change gives a new state object that cannot be modified. A part that did not change is
+			the same object as before, so comparing two states tells what moved.
+		</p>
+		<DocsCode code={STATE} caption='Follow the scene, and each play that ends:' />
 
 		<h1 id='types-and-tags'>Types and tags</h1>
 		<p>

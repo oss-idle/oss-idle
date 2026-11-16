@@ -35,7 +35,7 @@ export default function BeatmapXPBreakdown({ insight, anchor, onClose }: {
 	}, [anchor, onClose]);
 
 	const rows = Object.entries(insight.bySkill)
-		.sort(([, a], [, b]) => b - a);
+		.sort(([, a], [, b]) => b.cmp(a));
 
 	// flip above the badge when there's no room below
 	const above = anchor.bottom > window.innerHeight - 320;

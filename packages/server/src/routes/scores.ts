@@ -50,7 +50,10 @@ import {
 	PAGE_SIZE,
 } from '../rankings';
 import { rulesetOfBeatmap } from '../rulesets/registry';
-import { rulesetQuery } from '../rulesets/request';
+import {
+	rulesetParam,
+	rulesetQuery,
+} from '../rulesets/request';
 import type { ServerRuleset } from '../rulesets/ruleset';
 import { friendCharacterIds } from '../social';
 import {
@@ -259,6 +262,35 @@ const boardOf = async (beatmapId: number, country?: string) => {
 	});
 };
 
+/** A score of `scores` with its map and player, for the score page. */
+async function scoreWithMap(
+	r: ServerRuleset, scores: ServerRuleset['score'] | ServerRuleset['unrankedScores'], id: number,
+) {
+	const [row] = await db
+		.select({
+			score: scores,
+			beatmap: beatmapListColumns,
+			beatmapset: setColumns(r),
+			player: {
+				id: characters.id,
+				userId: users.id,
+				name: characters.name,
+				country: users.country,
+				avatarUrl: characters.avatarUrl,
+				osuAvatarUrl: users.avatarUrl,
+			},
+		})
+		.from(scores)
+		.innerJoin(beatmaps, eq(beatmaps.id, scores.beatmapId))
+		.innerJoin(beatmapset, eq(beatmapset.id, beatmaps.setId))
+		.innerJoin(...withStatus(r))
+		.innerJoin(characters, eq(characters.id, scores.characterId))
+		.innerJoin(users, eq(users.id, characters.userId))
+		.where(and(eq(scores.id, id), isNull(users.restrictedAt)))
+		.limit(1);
+	return row;
+}
+
 export const scoresRoutes = new Hono()
 	// the web map page: global, one country, or the viewer's friends
 	.get('/beatmap/:beatmap/board', boardQuery, async c => {
@@ -277,40 +309,22 @@ export const scoresRoutes = new Hono()
 	})
 	// the web score page: the score with its map, player and rank on the map, like osu!'s.
 	// A score id is its ruleset's: `?ruleset=` says which.
-	.get('/:id/show', async c => {
+	.get('/:id/show', rulesetParam, async c => {
 		const id = idParam.parse(c.req.param('id'));
 		const r = rulesetQuery(c);
-		const { score: scores, best } = r;
-		const [row] = await db
-			.select({
-				score: scores,
-				beatmap: beatmapListColumns,
-				beatmapset: setColumns(r),
-				player: {
-					id: characters.id,
-					userId: users.id,
-					name: characters.name,
-					country: users.country,
-					avatarUrl: characters.avatarUrl,
-					osuAvatarUrl: users.avatarUrl,
-				},
-			})
-			.from(scores)
-			.innerJoin(beatmaps, eq(beatmaps.id, scores.beatmapId))
-			.innerJoin(beatmapset, eq(beatmapset.id, beatmaps.setId))
-			.innerJoin(...withStatus(r))
-			.innerJoin(characters, eq(characters.id, scores.characterId))
-			.innerJoin(users, eq(users.id, characters.userId))
-			.where(and(eq(scores.id, id), isNull(users.restrictedAt)))
-			.limit(1);
+		// unranked ids start at 1.5e9, apart from ranked ones
+		const ranked = await scoreWithMap(r, r.score, id);
+		const row = ranked ?? await scoreWithMap(r, r.unrankedScores, id);
 		if (!row) throw new HTTPException(404, { message: 'Score not found' });
 
 		// only the player's best on the map holds a rank
-		const [isBest] = await db.select({ id: best.id }).from(best).where(eq(best.id, id)).limit(1);
+		const [isBest] = ranked
+			? await db.select({ id: r.best.id }).from(r.best).where(eq(r.best.id, id)).limit(1)
+			: [];
 		const { osuAvatarUrl, ...player } = row.player;
 		return c.json({
 			ruleset: r.def.id,
-			score: toScoreDTO(row.score, r.def),
+			score: toScoreDTO(row.score as ScoreRow, r.def, !ranked),
 			beatmap: row.beatmap,
 			beatmapset: row.beatmapset,
 			player: {

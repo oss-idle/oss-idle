@@ -30,6 +30,8 @@ export const users = mysqlTable('user', {
 	discordId: varchar({ length: 32 }).unique(),
 	// ticked: a supporter's Discord name keeps its level colour instead of the Supporter pink
 	discordLevelColour: boolean().notNull().default(false),
+	// linked from the options: tells apps which Twitch account this player is
+	twitchId: varchar({ length: 32 }).unique(),
 	// the supporter tag shows while this is in the future
 	supporterUntil: datetime(),
 	// every month of supporter ever received: the profile's hearts

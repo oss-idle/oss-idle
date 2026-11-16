@@ -16,7 +16,9 @@ import Flag from '../../components/Flag';
 import CountryFilter from '../../components/leaderboard/CountryFilter';
 import MedalBoardTabs from '../../components/leaderboard/MedalBoardTabs';
 import {
+	isBelowBest,
 	LINE_NAMES,
+	lineShare,
 	lineStanding,
 	lineValue,
 } from '../../components/leaderboard/medalLine';
@@ -76,17 +78,17 @@ export default function MedalProgressLine({ line, page, country, board }: {
 										</div></td>
 										<td className='dimmed'>{next && <div className='medal-progress__next'>
 											<div className='medal-progress__bar'>
-												{row.current < row.value && <div
+												{isBelowBest(row) && <div
 													className='is-best'
-													style={{ width: `${row.value / next.goal * 100}%` }}
+													style={{ width: lineShare(row.value, next.goal) }}
 												/>}
-												<div style={{ width: `${row.current / next.goal * 100}%` }} />
+												<div style={{ width: lineShare(row.current, next.goal) }} />
 											</div>
 											<MedalLineIcon id={next.id} lit={false} />
 										</div>}</td>
 										<td className='current'>
 											{lineValue(line, row.value)}
-											{row.current < row.value && <div className='medal-progress__now'>
+											{isBelowBest(row) && <div className='medal-progress__now'>
 												<Trans>now {ph({ now: lineValue(line, row.current) })}</Trans>
 											</div>}
 										</td>

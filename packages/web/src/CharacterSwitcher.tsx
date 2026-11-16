@@ -4,6 +4,7 @@ import {
 	useState,
 } from 'react';
 
+import { ZERO } from '@oss-idle/shared/big';
 import type { CharacterDTO } from '@oss-idle/shared/character';
 import { levelFromTotalXp } from '@oss-idle/shared/display/levelDisplay';
 
@@ -58,7 +59,7 @@ export default function CharacterSwitcher() {
 			<ProfilePicture avatarUrl={character.avatarUrl} className='usermenu__character-avatar' />
 			<span className='usermenu__character-name'>{character.name}</span>
 			<span className='usermenu__character-level'>
-				{levelFromTotalXp(Object.values(character.skills).reduce((n, s) => n + s.lifetimeXp, 0))}
+				{levelFromTotalXp(Object.values(character.skills).reduce((n, s) => n.add(s.lifetimeXp), ZERO))}
 			</span>
 		</button>)}
 	</div>;

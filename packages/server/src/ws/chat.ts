@@ -12,6 +12,7 @@ import {
 	type ChatLine,
 	DEFAULT_CHANNEL,
 	LEGACY_DEFAULT_CHANNEL,
+	MAPS_CHANNEL,
 	MAX_CHAT_LENGTH,
 	REPLY_QUOTE_LENGTH,
 	type ServerMessage,
@@ -26,7 +27,10 @@ import { LOBBY_CHANNEL } from '@oss-idle/shared/multiplayer';
 import type { RulesetId } from '@oss-idle/shared/rulesets/ids';
 
 import { db } from '../db/client';
-import { characters } from '../db/schema/character';
+import {
+	characters,
+	getCharacterById,
+} from '../db/schema/character';
 import { emojis } from '../db/schema/emoji';
 import { isRestricted } from '../db/schema/user';
 import { redisKeyPrefix } from '../env';
@@ -37,7 +41,7 @@ import {
 import { pushMedals } from '../medals';
 import { count } from '../metrics';
 import { redis } from '../redis';
-import { enabledRulesets } from '../rulesets/registry';
+import { selectedRuleset } from '../rulesets/registry';
 import { isSupporter } from '../supporter';
 import { hub } from './hub';
 import {
@@ -56,7 +60,11 @@ import { channelMembers } from './multiplayer';
  */
 
 // Channels a client may post to / the console may browse. Extend as more land.
-const CHANNELS = new Set([DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, LOBBY_CHANNEL, TEAM_CHANNEL]);
+const CHANNELS = new Set([
+	DEFAULT_CHANNEL, ANNOUNCE_CHANNEL, MAPS_CHANNEL, LOBBY_CHANNEL, TEAM_CHANNEL,
+]);
+/** Channels only the server and admins post to. */
+const READ_ONLY = new Set([ANNOUNCE_CHANNEL, MAPS_CHANNEL]);
 
 /** The browsable channel list (for the admin console). */
 export const chatChannels = (): string[] => [...CHANNELS];
@@ -84,7 +92,7 @@ const timeoutKey = (userId: number): string => `${redisKeyPrefix}chat:timeout:${
 export const PLAYER_NAME_COLOR = '#feefb0';
 export const SUPPORTER_NAME_COLOR = '#fddf43';
 const GROUP_NAME_COLOR: Record<Group, string> = {
-	admin: GROUP_BADGE.admin.colour, gmt: '#ff4040', bn: GROUP_BADGE.bn.colour,
+	admin: GROUP_BADGE.admin.colour, gmt: '#ff4040', bn: GROUP_BADGE.bn.colour, bot: GROUP_BADGE.bot.colour,
 };
 /** `/announce` renders the whole line in this attention-grabbing red. */
 const ANNOUNCE_COLOR = '#ff6b6b';
@@ -207,7 +215,7 @@ export const handleChat = async (
 		return;
 	}
 
-	if ((channel === ANNOUNCE_CHANNEL && !isAdmin(await groupsOf(userId))) || await isMuted(userId)) {
+	if ((READ_ONLY.has(channel) && !isAdmin(await groupsOf(userId))) || await isMuted(userId)) {
 		hub.sendTo(from.characterId, {
 			type: 'error', message: 'You cannot post to chat right now.',
 		});
@@ -236,7 +244,9 @@ export const handleChat = async (
 	await store(channel, line);
 	void redis.sadd(CHATTED_KEY, String(from.characterId))
 		.then(async added => {
-			if (added) for (const r of enabledRulesets()) await pushMedals(r, from.characterId);
+			// the other rulesets award it on their next play
+			const character = added ? await getCharacterById(from.characterId) : undefined;
+			if (character) await pushMedals(selectedRuleset(character), from.characterId);
 		})
 		.catch(e => console.error('[chat] medals failed for', from.characterId, e));
 	relay(line, members);
@@ -285,8 +295,10 @@ export const forgetChatUser = async (userId: number, characterIds: number[]): Pr
 export const hasChatted = async (characterId: number): Promise<boolean> =>
 	await redis.sismember(CHATTED_KEY, String(characterId)) === 1;
 
+type SystemLine = Extract<ChatLine, { kind: 'system' }>;
+
 const systemLine = (
-	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[],
+	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[], extra?: Pick<SystemLine, 'link' | 'user'>,
 ): ChatLine => ({
 	id: randomUUID(),
 	kind: 'system',
@@ -296,14 +308,15 @@ const systemLine = (
 	at: Date.now(),
 	...ruleset && { ruleset },
 	...quiet && { quiet },
+	...extra,
 });
 
 /** Broadcast a server announcement (no sender) - e.g. a #1-rank notice. The
  *  whole line renders in `color`; `quiet` parts never mention anyone. Fire-and-forget history write. */
 export const announce = (
-	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[],
+	channel: string, text: string, color: string, ruleset?: RulesetId, quiet?: string[], extra?: Pick<SystemLine, 'link' | 'user'>,
 ): void => {
-	const line = systemLine(channel, text, color, ruleset, quiet);
+	const line = systemLine(channel, text, color, ruleset, quiet, extra);
 	void store(channel, line);
 	hub.broadcast({
 		type: 'chat', line,

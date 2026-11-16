@@ -1,5 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 
+import { Big } from '@oss-idle/shared/big';
+import { formatMultiplier } from '@oss-idle/shared/display/num';
 import { useSyncedAll } from '@oss-idle/shared/hooks/useSyncedAll';
 import SkillState from '@oss-idle/shared/rulesets/skillState';
 import {
@@ -27,8 +29,8 @@ const tally = (skills: SkillState[], locked: boolean) => {
 	return {
 		taken: sum(r => r.prestige),
 		ready: sum(r => Number(r.ready)),
-		best: rows.reduce((a, b) => (b.boost > a.boost ? b : a)),
-		average: sum(r => r.boost) / rows.length,
+		best: rows.reduce((a, b) => (b.boost.gt(a.boost) ? b : a)),
+		average: rows.reduce((total, r) => total.add(r.boost), Big.from(0)).div(rows.length),
 	};
 };
 
@@ -54,13 +56,13 @@ export default function PrestigeSummary({ skills, locked }: {
 			<div className="ladder-sum__stat">
 				<span className="ladder-sum__label"><Trans>Best XP boost</Trans></span>
 				<span className="ladder-sum__value">
-					x{s.best.boost.toFixed(2)}
+					{formatMultiplier(s.best.boost)}
 					{s.best.prestige > 0 && <span className="ladder-sum__of">{best}</span>}
 				</span>
 			</div>
 			<div className="ladder-sum__stat">
 				<span className="ladder-sum__label"><Trans>Average XP boost</Trans></span>
-				<span className="ladder-sum__value">x{s.average.toFixed(2)}</span>
+				<span className="ladder-sum__value">{formatMultiplier(s.average)}</span>
 			</div>
 		</div>
 	);

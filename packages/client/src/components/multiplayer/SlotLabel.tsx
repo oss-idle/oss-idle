@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/react/macro';
 
 import type { PresenceEntry } from '@oss-idle/shared/community/presence';
-import { bignum } from '@oss-idle/shared/display/num';
+import { formatBig } from '@oss-idle/shared/display/num';
 import { playLabel } from '@oss-idle/shared/mods';
 import type { MatchSlot } from '@oss-idle/shared/multiplayer';
 
@@ -19,7 +19,7 @@ export default function SlotLabel({ slot, player }: {
 		{!slot.playing && slot.noMap && <> <Trans>[no map]</Trans></>}
 		{active && <span className="mp-slot__rate">{active}</span>}
 		{player?.rank !== undefined && (
-			<span className="mp-slot__rank">#{bignum(player.rank)}</span>
+			<span className="mp-slot__rank">#{formatBig(player.rank)}</span>
 		)}
 	</>;
 }
